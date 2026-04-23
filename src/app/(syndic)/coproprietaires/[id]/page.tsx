@@ -1,0 +1,137 @@
+import { createClient } from '@/lib/supabase/server'
+import { redirect, notFound } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft, User, Mail, Phone, Home, MapPin } from 'lucide-react'
+import { formatEuro } from '@/lib/utils'
+
+export default async function CopropriétairePage({ params }: { params: { id: string } }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const { data: copropriétaire } = await supabase
+    .from('copropriétaires')
+    .select('*, lots:copropriétaire_lots(lot:lots(id, numero, type, etage, surface, tantiemes, solde_compte, copropriete:coproprietes(id, nom)))')
+    .eq('id', params.id)
+    .single()
+
+  if (!copropriétaire) notFound()
+
+  const lots = copropriétaire.lots ?? []
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <Link href="/coproprietaires" className="text-muted-foreground hover:text-coplio-text transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-coplio-text">
+            {copropriétaire.prenom} {copropriétaire.nom}
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            {lots.length} lot{lots.length > 1 ? 's' : ''}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-6">
+        {/* Fiche contact */}
+        <div className="coplio-card">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-14 h-14 bg-coplio-green/10 rounded-full flex items-center justify-center flex-shrink-0">
+              <User className="w-7 h-7 text-coplio-green" />
+            </div>
+            <div>
+              <p className="font-bold text-coplio-text text-lg">
+                {copropriétaire.prenom} {copropriétaire.nom}
+              </p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                  copropriétaire.portail_actif
+                    ? 'bg-coplio-green-light text-coplio-green'
+                    : 'bg-coplio-bg text-muted-foreground'
+                }`}>
+                  {copropriétaire.portail_actif ? 'Portail actif' : 'Portail inactif'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <dl className="space-y-3 text-sm">
+            {copropriétaire.email && (
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <a href={`mailto:${copropriétaire.email}`} className="text-coplio-green hover:underline">
+                  {copropriétaire.email}
+                </a>
+              </div>
+            )}
+            {copropriétaire.telephone && (
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <a href={`tel:${copropriétaire.telephone}`} className="text-coplio-text hover:text-coplio-green">
+                  {copropriétaire.telephone}
+                </a>
+              </div>
+            )}
+            {copropriétaire.adresse_correspondance && (
+              <div className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <span className="text-coplio-text">{copropriétaire.adresse_correspondance}</span>
+              </div>
+            )}
+          </dl>
+        </div>
+
+        {/* Lots */}
+        <div className="coplio-card">
+          <h2 className="font-semibold text-coplio-text mb-4">Lots</h2>
+          {lots.length > 0 ? (
+            <div className="space-y-3">
+              {lots.map((cl: {
+                lot: {
+                  id: string
+                  numero: string
+                  type: string
+                  etage?: string
+                  surface?: number
+                  tantiemes: number
+                  solde_compte: number
+                  copropriete: { id: string; nom: string }
+                }
+              }) => (
+                <Link
+                  key={cl.lot.id}
+                  href={`/lots/${cl.lot.id}`}
+                  className="flex items-center gap-3 p-3 bg-coplio-bg rounded-xl hover:bg-border transition-colors"
+                >
+                  <div className="w-9 h-9 bg-coplio-green/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Home className="w-4 h-4 text-coplio-green" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-coplio-text">
+                      Lot {cl.lot.numero}
+                      {cl.lot.etage && <span className="text-muted-foreground font-normal"> · {cl.lot.etage}</span>}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">{cl.lot.copropriete.nom}</p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xs text-muted-foreground">{cl.lot.tantiemes} t.</p>
+                    {cl.lot.solde_compte !== 0 && (
+                      <p className={`text-xs font-medium ${cl.lot.solde_compte < 0 ? 'text-red-500' : 'text-coplio-green'}`}>
+                        {formatEuro(cl.lot.solde_compte)}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">Aucun lot assigné</p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}

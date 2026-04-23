@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 30 3% 26%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 30 3% 26%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 3% 26%;
+
+    --primary: 163 74% 25%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 151 62% 92%;
+    --secondary-foreground: 163 74% 25%;
+
+    --muted: 40 12% 94%;
+    --muted-foreground: 30 3% 40%;
+
+    --accent: 158 58% 75%;
+    --accent-foreground: 163 74% 25%;
+
+    --destructive: 0 57% 40%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 12% 88%;
+    --input: 40 12% 88%;
+    --ring: 163 74% 25%;
+
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-coplio-bg text-coplio-text font-sans antialiased;
+  }
+
+  /* Scrollbar personnalisée */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-coplio-bg;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-coplio-green-medium rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-coplio-green;
+  }
+}
+
+@layer components {
+  /* Badge statut copropriété */
+  .badge-a-jour {
+    @apply bg-coplio-green-light text-coplio-green text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+  .badge-attention {
+    @apply bg-coplio-amber-bg text-coplio-amber text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+  .badge-urgent {
+    @apply bg-coplio-red-bg text-coplio-red text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+
+  /* Card standard Coplio */
+  .coplio-card {
+    @apply bg-white rounded-xl border border-border shadow-sm p-6;
+  }
+
+  /* Sidebar link actif */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+           text-white/70 hover:text-white hover:bg-white/10 transition-colors;
+  }
+  .sidebar-link.active {
+    @apply text-white bg-white/15;
+  }
+}
