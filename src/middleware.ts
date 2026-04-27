@@ -1,7 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-// Routes publiques (pas d'auth requise)
 const PUBLIC_ROUTES = [
   '/login',
   '/register',
@@ -17,32 +16,10 @@ const PUBLIC_ROUTES = [
   '/api/auth/signout',
 ]
 
-// Routes réservées aux copropriétaires
-const PORTAIL_ROUTES = [
-  '/mon-compte',
-  '/mes-charges',
-  '/mes-documents',
-  '/mes-travaux',
-  '/mes-messages',
-]
-
-// Routes réservées aux syndics (owner/manager)
-const SYNDIC_ROUTES = [
-  '/dashboard',
-  '/coproprietes',
-  '/lots',
-  '/documents',
-  '/sinistres',
-  '/assemblees',
-  '/impayes',
-  '/parametres',
-  '/facturation',
-]
-
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Autoriser les routes publiques AVANT de créer le client Supabase
+  // Autoriser les routes publiques sans vérification
   if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
     return NextResponse.next({ request })
   }
@@ -57,13 +34,12 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setAll(cookiesToSet: any[]) {
-          cookiesToSet.forEach(({ name, value }: { name: string; value: string }) =>
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           )
           supabaseResponse = NextResponse.next({ request })
-          cookiesToSet.forEach(({ name, value, options }: { name: string; value: string; options?: object }) =>
+          cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           )
         },
@@ -80,43 +56,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Récupérer le rôle de l'utilisateur
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, onboarding_complete')
-    .eq('id', user.id)
-    .single()
-
-  const role = profile?.role
-
-  // Onboarding obligatoire pour les nouveaux owners
-  if (
-    role === 'owner' &&
-    !profile?.onboarding_complete &&
-    !pathname.startsWith('/onboarding') &&
-    !pathname.startsWith('/api/')
-  ) {
-    return NextResponse.redirect(new URL('/onboarding', request.url))
-  }
-
-  // Copropriétaire essaie d'accéder aux routes syndic
-  if (role === 'owner_resident' && SYNDIC_ROUTES.some(r => pathname.startsWith(r))) {
-    return NextResponse.redirect(new URL('/mes-charges', request.url))
-  }
-
-  // Syndic essaie d'accéder aux routes portail
-  if (
-    (role === 'owner' || role === 'manager') &&
-    PORTAIL_ROUTES.some(r => pathname.startsWith(r))
-  ) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
-
   // Redirection depuis la racine
   if (pathname === '/') {
-    if (role === 'owner_resident') {
-      return NextResponse.redirect(new URL('/mes-charges', request.url))
-    }
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
