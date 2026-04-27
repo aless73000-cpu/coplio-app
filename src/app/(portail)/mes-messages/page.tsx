@@ -11,19 +11,17 @@ export default async function MesMessages() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*, copropriétaire:copropriétaires(id)')
+    .select('lot_id')
     .eq('id', user.id)
     .single()
 
-  const copropriétaireId = profile?.copropriétaire?.id
-
-  const { data: conversations } = copropriétaireId
-    ? await supabase
-        .from('conversations')
-        .select('*, messages(*, expediteur:profiles(prenom, nom, role))')
-        .eq('copropriétaire_id', copropriétaireId)
-        .order('derniere_activite', { ascending: false })
-    : { data: [] }
+  // Récupérer les conversations liées au profil
+  const { data: conversations } = await supabase
+    .from('conversations')
+    .select('*, messages(*, expediteur:profiles(prenom, nom, role))')
+    .eq('gestionnaire_id', user.id)
+    .order('derniere_activite', { ascending: false })
+    .limit(10)
 
   // Prendre la conversation active (la première ou la plus récente)
   const conversation = conversations?.[0]

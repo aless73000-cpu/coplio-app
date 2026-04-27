@@ -11,13 +11,20 @@ export default async function CopropriétairePage({ params }: { params: { id: st
 
   const { data: copropriétaire } = await supabase
     .from('copropriétaires')
-    .select('*, lots:copropriétaire_lots(lot:lots(id, numero, type, etage, surface, tantiemes, solde_compte, copropriete:coproprietes(id, nom)))')
+    .select('*')
     .eq('id', params.id)
     .single()
 
   if (!copropriétaire) notFound()
 
-  const lots = copropriétaire.lots ?? []
+  // Récupérer les lots via la table lots directement
+  const { data: lotsData } = await supabase
+    .from('lots')
+    .select('id, numero, type, etage, surface, tantiemes, solde_compte, copropriete:coproprietes(id, nom)')
+    .eq('copropriete_id', copropriétaire.copropriete_id ?? '')
+    .order('numero')
+
+  const lots = (lotsData ?? []).map((lot) => ({ lot }))
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -89,43 +96,37 @@ export default async function CopropriétairePage({ params }: { params: { id: st
           <h2 className="font-semibold text-coplio-text mb-4">Lots</h2>
           {lots.length > 0 ? (
             <div className="space-y-3">
-              {lots.map((cl: {
-                lot: {
-                  id: string
-                  numero: string
-                  type: string
-                  etage?: string
-                  surface?: number
-                  tantiemes: number
-                  solde_compte: number
-                  copropriete: { id: string; nom: string }
-                }
-              }) => (
-                <Link
-                  key={cl.lot.id}
-                  href={`/lots/${cl.lot.id}`}
-                  className="flex items-center gap-3 p-3 bg-coplio-bg rounded-xl hover:bg-border transition-colors"
-                >
-                  <div className="w-9 h-9 bg-coplio-green/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Home className="w-4 h-4 text-coplio-green" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-coplio-text">
-                      Lot {cl.lot.numero}
-                      {cl.lot.etage && <span className="text-muted-foreground font-normal"> · {cl.lot.etage}</span>}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">{cl.lot.copropriete.nom}</p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-xs text-muted-foreground">{cl.lot.tantiemes} t.</p>
-                    {cl.lot.solde_compte !== 0 && (
-                      <p className={`text-xs font-medium ${cl.lot.solde_compte < 0 ? 'text-red-500' : 'text-coplio-green'}`}>
-                        {formatEuro(cl.lot.solde_compte)}
+              {lots.map((cl) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const lot = cl.lot as any
+                const coproprieteNom = Array.isArray(lot.copropriete) ? lot.copropriete[0]?.nom : lot.copropriete?.nom
+                return (
+                  <Link
+                    key={lot.id}
+                    href={`/lots/${lot.id}`}
+                    className="flex items-center gap-3 p-3 bg-coplio-bg rounded-xl hover:bg-border transition-colors"
+                  >
+                    <div className="w-9 h-9 bg-coplio-green/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Home className="w-4 h-4 text-coplio-green" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-coplio-text">
+                        Lot {lot.numero}
+                        {lot.etage && <span className="text-muted-foreground font-normal"> · {lot.etage}</span>}
                       </p>
-                    )}
-                  </div>
-                </Link>
-              ))}
+                      <p className="text-xs text-muted-foreground truncate">{coproprieteNom}</p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-xs text-muted-foreground">{lot.tantiemes} t.</p>
+                      {lot.solde_compte !== 0 && (
+                        <p className={`text-xs font-medium ${lot.solde_compte < 0 ? 'text-red-500' : 'text-coplio-green'}`}>
+                          {formatEuro(lot.solde_compte)}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground text-center py-4">Aucun lot assigné</p>

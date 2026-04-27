@@ -18,7 +18,7 @@ export default async function CopropriétairesPage() {
 
   const { data: copropriétaires } = await supabase
     .from('copropriétaires')
-    .select('*, lots:copropriétaire_lots(lot:lots(numero, copropriete:coproprietes(nom)))')
+    .select('id, prenom, nom, email, telephone, portail_actif')
     .eq('cabinet_id', profile.cabinet_id)
     .order('nom')
 
@@ -42,26 +42,27 @@ export default async function CopropriétairesPage() {
 
       {copropriétaires && copropriétaires.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {copropriétaires.map((c: {
-            id: string
-            prenom: string
-            nom: string
-            email: string
-            telephone?: string
-            lots?: { lot: { numero: string; copropriete: { nom: string } } }[]
-          }) => (
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          {(copropriétaires as any[]).map((c) => (
             <Link key={c.id} href={`/coproprietaires/${c.id}`} className="coplio-card hover:border-coplio-green/30 transition-colors block">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 bg-coplio-green/10 rounded-full flex items-center justify-center flex-shrink-0">
                   <User className="w-5 h-5 text-coplio-green" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-coplio-text">{c.prenom} {c.nom}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-coplio-text">{c.prenom} {c.nom}</p>
+                    {c.portail_actif && (
+                      <span className="text-xs bg-coplio-green-light text-coplio-green px-1.5 py-0.5 rounded-full">Portail</span>
+                    )}
+                  </div>
                   <div className="mt-1 space-y-1">
-                    <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
-                      <Mail className="w-3 h-3 flex-shrink-0" />
-                      {c.email}
-                    </p>
+                    {c.email && (
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
+                        <Mail className="w-3 h-3 flex-shrink-0" />
+                        {c.email}
+                      </p>
+                    )}
                     {c.telephone && (
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Phone className="w-3 h-3 flex-shrink-0" />
@@ -69,18 +70,6 @@ export default async function CopropriétairesPage() {
                       </p>
                     )}
                   </div>
-                  {c.lots && c.lots.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {c.lots.slice(0, 2).map((cl, i) => (
-                        <span key={i} className="text-xs bg-coplio-bg text-muted-foreground px-2 py-0.5 rounded-full">
-                          Lot {cl.lot.numero} · {cl.lot.copropriete.nom}
-                        </span>
-                      ))}
-                      {c.lots.length > 2 && (
-                        <span className="text-xs text-muted-foreground">+{c.lots.length - 2}</span>
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
             </Link>

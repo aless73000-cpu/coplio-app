@@ -4,10 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { PLAN_LIMITS } from '@/lib/stripe'
 import type Stripe from 'stripe'
 
-// Désactiver le bodyParser pour lire le raw body
-export const config = {
-  api: { bodyParser: false },
-}
+export const runtime = 'nodejs'
 
 const RELEVANT_EVENTS = new Set([
   'checkout.session.completed',
@@ -48,7 +45,7 @@ export async function POST(request: Request) {
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
-        const session = event.data.object as Stripe.CheckoutSession
+        const session = event.data.object as Stripe.Checkout.Session
         const cabinetId = session.metadata?.cabinet_id
         const plan = session.metadata?.plan
 

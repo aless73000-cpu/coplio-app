@@ -12,7 +12,7 @@ export default async function LotPage({ params }: { params: { id: string } }) {
 
   const { data: lot } = await supabase
     .from('lots')
-    .select('*, copropriete:coproprietes(id, nom, adresse), copropriétaires:copropriétaire_lots(*, copropriétaire:copropriétaires(id, prenom, nom, email, telephone))')
+    .select('*, copropriete:coproprietes(id, nom, adresse)')
     .eq('id', params.id)
     .single()
 
@@ -55,23 +55,7 @@ export default async function LotPage({ params }: { params: { id: string } }) {
 
         <div className="coplio-card">
           <h2 className="font-semibold text-coplio-text mb-4">Copropriétaires</h2>
-          {lot.copropriétaires && lot.copropriétaires.length > 0 ? (
-            <div className="space-y-3">
-              {lot.copropriétaires.map((cl: { copropriétaire: { id: string; prenom: string; nom: string; email: string; telephone?: string } }) => (
-                <div key={cl.copropriétaire.id} className="flex items-center gap-3 p-3 bg-coplio-bg rounded-lg">
-                  <div className="w-9 h-9 bg-coplio-green/10 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-coplio-green" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-coplio-text">{cl.copropriétaire.prenom} {cl.copropriétaire.nom}</p>
-                    <p className="text-xs text-muted-foreground">{cl.copropriétaire.email}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">Aucun copropriétaire assigné</p>
-          )}
+          <p className="text-sm text-muted-foreground text-center py-4">Aucun copropriétaire assigné</p>
         </div>
       </div>
     </div>
