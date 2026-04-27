@@ -49,7 +49,21 @@ export function RegisterForm() {
       return
     }
 
-    router.push('/login?message=Vérifiez votre email pour confirmer votre compte.')
+    // Connexion automatique après inscription
+    const { createClient } = await import('@/lib/supabase/client')
+    const supabase = createClient()
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: values.email,
+      password: values.password,
+    })
+
+    if (signInError) {
+      // Compte créé mais connexion échouée → rediriger vers login
+      router.push('/login')
+      return
+    }
+
+    router.push('/onboarding')
   }
 
   const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
