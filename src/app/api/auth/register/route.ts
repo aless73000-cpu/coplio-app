@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       email,
       password,
       user_metadata: { prenom, nom, nom_cabinet: nomCabinet, role: 'owner' },
-      email_confirm: false, // email de confirmation requis
+      email_confirm: true, // confirmé directement, pas d'email requis
     })
 
     if (authError) {
