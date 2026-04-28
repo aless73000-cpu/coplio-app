@@ -59,14 +59,6 @@ export default async function AssembleePage({ params }: { params: { id: string }
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {/* Ordre du jour */}
-          {ag.ordre_du_jour && (
-            <div className="coplio-card">
-              <h2 className="font-semibold text-coplio-text mb-3">Ordre du jour</h2>
-              <p className="text-sm text-coplio-text whitespace-pre-wrap leading-relaxed">{ag.ordre_du_jour}</p>
-            </div>
-          )}
-
           {/* Résolutions */}
           {resolutions.length > 0 && (
             <div className="coplio-card">

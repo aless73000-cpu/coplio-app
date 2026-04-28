@@ -23,7 +23,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
   const { data: junctionData } = await admin
     .from('coproprietaire_lots')
     .select('lot_id')
-    .eq('coproprietaire_id', params.id)
+    .eq('copropriétaire_id', params.id)
 
   const lotIds = (junctionData ?? []).map((j: { lot_id: string }) => j.lot_id)
 

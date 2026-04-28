@@ -15,7 +15,6 @@ const schema = z.object({
   type: z.enum(['ordinaire', 'extraordinaire']),
   date_ag: z.string().min(1, 'Date requise'),
   lieu: z.string().optional(),
-  ordre_du_jour: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -108,10 +107,6 @@ export default function NewAssembleePage() {
             <input {...register('lieu')} className={inputClass} placeholder="Salle de réunion, 12 rue..." />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-coplio-text mb-1.5">Ordre du jour</label>
-            <textarea {...register('ordre_du_jour')} className={inputClass} rows={5} placeholder="1. Approbation des comptes&#10;2. Vote du budget prévisionnel&#10;3. ..." />
-          </div>
         </div>
 
         <div className="flex gap-3">
