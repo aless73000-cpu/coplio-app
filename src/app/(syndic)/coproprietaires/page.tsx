@@ -19,7 +19,7 @@ export default async function CopropriétairesPage() {
   // Use admin client to bypass RLS (no SELECT policy on copropriétaires table)
   const admin = createAdminClient()
   const { data: copropriétaires } = await admin
-    .from('copropriétaires')
+    .from('coproprietaires')
     .select('id, prenom, nom, email, telephone, portail_actif')
     .eq('cabinet_id', profile.cabinet_id)
     .order('nom')

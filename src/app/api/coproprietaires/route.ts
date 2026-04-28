@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     const { email, ...rest } = parsed.data
     const admin = createAdminClient()
     const { data, error } = await admin
-      .from('copropriétaires')
+      .from('coproprietaires')
       .insert({
         ...rest,
         ...(email ? { email } : {}),

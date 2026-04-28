@@ -12,18 +12,18 @@ export default async function CopropriétairePage({ params }: { params: { id: st
   // Use admin client to bypass RLS (no SELECT policy on copropriétaires)
   const admin = createAdminClient()
   const { data: copropriétaire } = await admin
-    .from('copropriétaires')
+    .from('coproprietaires')
     .select('*')
     .eq('id', params.id)
     .single()
 
   if (!copropriétaire) notFound()
 
-  // Get lots via junction table (query separately to avoid accented-table parser error)
+  // Get lots via junction table
   const { data: junctionData } = await admin
-    .from('copropriétaire_lots')
+    .from('coproprietaire_lots')
     .select('lot_id')
-    .eq('copropriétaire_id', params.id)
+    .eq('coproprietaire_id', params.id)
 
   const lotIds = (junctionData ?? []).map((j: { lot_id: string }) => j.lot_id)
 
