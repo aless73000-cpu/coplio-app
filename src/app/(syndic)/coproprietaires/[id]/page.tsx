@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, User, Mail, Phone, Home, MapPin } from 'lucide-react'
@@ -9,7 +9,9 @@ export default async function CopropriétairePage({ params }: { params: { id: st
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: copropriétaire } = await supabase
+  // Use admin client to bypass RLS (no SELECT policy on copropriétaires)
+  const admin = createAdminClient()
+  const { data: copropriétaire } = await admin
     .from('copropriétaires')
     .select('*')
     .eq('id', params.id)
@@ -17,12 +19,21 @@ export default async function CopropriétairePage({ params }: { params: { id: st
 
   if (!copropriétaire) notFound()
 
-  // Récupérer les lots via la table lots directement
-  const { data: lotsData } = await supabase
-    .from('lots')
-    .select('id, numero, type, etage, surface, tantiemes, solde_compte, copropriete:coproprietes(id, nom)')
-    .eq('copropriete_id', copropriétaire.copropriete_id ?? '')
-    .order('numero')
+  // Get lots via junction table (query separately to avoid accented-table parser error)
+  const { data: junctionData } = await admin
+    .from('copropriétaire_lots')
+    .select('lot_id')
+    .eq('copropriétaire_id', params.id)
+
+  const lotIds = (junctionData ?? []).map((j: { lot_id: string }) => j.lot_id)
+
+  const lotsData = lotIds.length > 0
+    ? (await admin
+        .from('lots')
+        .select('id, numero, type, etage, surface, tantiemes, solde_compte, copropriete:coproprietes(id, nom)')
+        .in('id', lotIds)
+        .order('numero')).data
+    : []
 
   const lots = (lotsData ?? []).map((lot) => ({ lot }))
 

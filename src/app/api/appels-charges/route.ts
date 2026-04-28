@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     const appelsData = parsed.data.appels.map((appel) => ({
       ...appel,
       montant_paye: 0,
-      paye: false,
+      // paye is a GENERATED ALWAYS AS column (montant_paye >= montant) — do not set
       nb_relances: 0,
     }))
 

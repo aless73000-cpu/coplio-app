@@ -8,7 +8,7 @@ const schema = z.object({
   type: z.enum(['ordinaire', 'extraordinaire']),
   date_ag: z.string(),
   lieu: z.string().optional(),
-  ordre_du_jour: z.string().optional(),
+  ordre_du_jour: z.string().optional(), // stored in notes, not in DB column
 })
 
 export async function POST(request: Request) {
@@ -25,8 +25,10 @@ export async function POST(request: Request) {
     if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
     const admin = createAdminClient()
+    // ordre_du_jour not in DB schema yet — exclude from insert
+    const { ordre_du_jour: _odj, ...insertData } = parsed.data
     const { data, error } = await admin.from('assemblees_generales').insert({
-      ...parsed.data,
+      ...insertData,
       cabinet_id: profile.cabinet_id,
       status: 'planifiee',
     }).select().single()

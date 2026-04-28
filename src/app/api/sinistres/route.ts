@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       ...parsed.data,
       cabinet_id: profile.cabinet_id,
       reference: ref,
-      declarant_id: user.id,
+      gestionnaire_id: user.id,
     }).select().single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })

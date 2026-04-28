@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, User, Mail, Phone } from 'lucide-react'
@@ -16,7 +16,9 @@ export default async function CopropriétairesPage() {
 
   if (!profile?.cabinet_id) redirect('/onboarding')
 
-  const { data: copropriétaires } = await supabase
+  // Use admin client to bypass RLS (no SELECT policy on copropriétaires table)
+  const admin = createAdminClient()
+  const { data: copropriétaires } = await admin
     .from('copropriétaires')
     .select('id, prenom, nom, email, telephone, portail_actif')
     .eq('cabinet_id', profile.cabinet_id)
