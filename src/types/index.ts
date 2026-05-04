@@ -90,7 +90,7 @@ export interface Copropriete {
   banque?: string
   statut: CoproprieteStatut
   nb_lots: number
-  nb_copropriétaires: number
+  nb_coproprietaires: number
   nb_sinistres_ouverts: number
   montant_impayes: number
   created_at: string
@@ -121,13 +121,13 @@ export interface Lot {
   updated_at: string
 }
 
-export interface LotWithCopropriétaire extends Lot {
-  copropriétaire?: Copropriétaire
+export interface LotWithCoproprietaire extends Lot {
+  coproprietaire?: Coproprietaire
 }
 
 // ─── COPROPRIÉTAIRE ───────────────────────────────────────────
 
-export interface Copropriétaire {
+export interface Coproprietaire {
   id: string
   cabinet_id: string
   profile_id?: string
@@ -142,7 +142,7 @@ export interface Copropriétaire {
   updated_at: string
 }
 
-export interface CopropriétaireWithLots extends Copropriétaire {
+export interface CoproprietaireWithLots extends Coproprietaire {
   lots?: Lot[]
 }
 
@@ -152,7 +152,7 @@ export interface AppelCharges {
   id: string
   copropriete_id: string
   lot_id: string
-  copropriétaire_id?: string
+  coproprietaire_id?: string
   libelle: string
   montant: number
   date_appel: string
@@ -182,7 +182,7 @@ export interface Document {
   type_mime?: string
   storage_path: string
   storage_bucket: string
-  visible_copropriétaires: boolean
+  visible_coproprietaires: boolean
   upload_par?: string
   created_at: string
   updated_at: string
@@ -295,7 +295,7 @@ export interface AgResolution {
 export interface AgVote {
   id: string
   resolution_id: string
-  copropriétaire_id: string
+  coproprietaire_id: string
   lot_id: string
   valeur: VoteValue
   tantiemes: number
@@ -309,7 +309,7 @@ export interface Relance {
   cabinet_id: string
   copropriete_id: string
   appel_charge_id?: string
-  copropriétaire_id?: string
+  coproprietaire_id?: string
   type: RelanceType
   statut: string
   sujet?: string
@@ -342,7 +342,7 @@ export interface Conversation {
   id: string
   cabinet_id: string
   copropriete_id?: string
-  copropriétaire_id?: string
+  coproprietaire_id?: string
   gestionnaire_id?: string
   sujet?: string
   derniere_activite: string

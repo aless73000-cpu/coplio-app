@@ -1,7 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, User, Mail, Phone } from 'lucide-react'
+import { Plus, User, Mail, Phone, Upload } from 'lucide-react'
 
 export default async function CopropriétairesPage() {
   const supabase = await createClient()
@@ -33,13 +33,22 @@ export default async function CopropriétairesPage() {
             {copropriétaires?.length ?? 0} copropriétaire{(copropriétaires?.length ?? 0) > 1 ? 's' : ''}
           </p>
         </div>
-        <Link
-          href="/coproprietaires/new"
-          className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Ajouter
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/coproprietaires/import"
+            className="flex items-center gap-2 bg-coplio-bg text-coplio-text text-sm font-medium px-4 py-2 rounded-lg hover:bg-border transition-colors border border-border"
+          >
+            <Upload className="w-4 h-4" />
+            Importer Excel
+          </Link>
+          <Link
+            href="/coproprietaires/new"
+            className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Ajouter
+          </Link>
+        </div>
       </div>
 
       {copropriétaires && copropriétaires.length > 0 ? (

@@ -243,7 +243,7 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
             <h3 className="font-semibold text-coplio-text mb-4">Informations</h3>
             <dl className="space-y-3">
               {[
-                { label: 'Tantièmes totaux', value: `${ (copropriete as any)['tantièmes_totaux'] ?? '10 000' }` },
+                { label: 'Tantièmes totaux', value: `${ copropriete.tantiemes_totaux ?? '10 000' }` },
                 {
                   label: 'Année de construction',
                   value: copropriete.annee_construction?.toString() ?? '—',

@@ -20,7 +20,7 @@ export default async function MesDocuments() {
   const { data: documents } = await supabase
     .from('documents')
     .select('*')
-    .eq('visible_copropriétaires', true)
+    .eq('visible_coproprietaires', true)
     .or(`lot_id.eq.${profile?.lot_id},lot_id.is.null`)
     .order('created_at', { ascending: false })
 
