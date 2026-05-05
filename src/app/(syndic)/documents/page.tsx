@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { FileText, Upload, Download, Eye, Filter, FolderOpen } from 'lucide-react'
@@ -31,9 +31,12 @@ export default async function DocumentsPage({
     .eq('id', user.id)
     .single()
 
+  // Use admin client to bypass RLS on documents table (no SELECT policy)
+  const admin = createAdminClient()
+
   const [{ data: documents }, { data: coproprietes }] = await Promise.all([
     (() => {
-      let q = supabase
+      let q = admin
         .from('documents')
         .select('*, copropriete:coproprietes(nom)')
         .eq('cabinet_id', profile?.cabinet_id ?? '')
