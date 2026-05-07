@@ -52,6 +52,22 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
       return
     }
 
+    // Récupérer le rôle pour rediriger au bon endroit
+    const { data: { user: loggedUser } } = await supabase.auth.getUser()
+    if (loggedUser) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', loggedUser.id)
+        .single()
+
+      if (profile?.role === 'owner_resident') {
+        router.push('/accueil')
+        router.refresh()
+        return
+      }
+    }
+
     router.push(redirectTo ?? '/dashboard')
     router.refresh()
   }

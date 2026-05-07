@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -11,9 +11,47 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
-      // Vérifier le rôle pour rediriger au bon endroit
       const { data: { user } } = await supabase.auth.getUser()
+
       if (user) {
+        const meta = user.user_metadata as {
+          role?: string
+          coproprietaire_id?: string
+          cabinet_id?: string
+          lot_id?: string
+          prenom?: string
+          nom?: string
+        }
+
+        // Copropriétaire qui accepte une invitation
+        if (meta?.role === 'owner_resident' && meta?.coproprietaire_id) {
+          const admin = createAdminClient()
+
+          // Compléter le profil (le trigger a créé le profil avec role + email)
+          await admin
+            .from('profiles')
+            .update({
+              cabinet_id: meta.cabinet_id ?? null,
+              lot_id: meta.lot_id ?? null,
+              prenom: meta.prenom ?? null,
+              nom: meta.nom ?? null,
+              onboarding_complete: true,
+            })
+            .eq('id', user.id)
+
+          // Lier le profil au copropriétaire + activer le portail
+          await admin
+            .from('coproprietaires')
+            .update({
+              profile_id: user.id,
+              portail_actif: true,
+            })
+            .eq('id', meta.coproprietaire_id)
+
+          return NextResponse.redirect(`${origin}/accueil`)
+        }
+
+        // Connexion classique — rediriger selon le rôle
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
@@ -21,9 +59,10 @@ export async function GET(request: Request) {
           .single()
 
         if (profile?.role === 'owner_resident') {
-          return NextResponse.redirect(`${origin}/mes-charges`)
+          return NextResponse.redirect(`${origin}/accueil`)
         }
       }
+
       return NextResponse.redirect(`${origin}${next}`)
     }
   }

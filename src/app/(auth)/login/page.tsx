@@ -121,12 +121,9 @@ export default function LoginPage({
 
           <p className="mt-3 text-center text-xs text-muted-foreground">
             Vous êtes copropriétaire ?{' '}
-            <a
-              href={process.env.NEXT_PUBLIC_PORTAIL_URL ?? '/portail'}
-              className="text-coplio-green hover:underline"
-            >
+            <Link href="/portail" className="text-coplio-green hover:underline">
               Accéder au portail
-            </a>
+            </Link>
           </p>
         </div>
       </div>

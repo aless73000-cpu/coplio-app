@@ -18,7 +18,11 @@ export default async function PortailLayout({
     .eq('id', user.id)
     .single()
 
-  if (!profile || profile.role !== 'owner_resident') {
+  if (!profile) {
+    redirect('/login')
+  }
+
+  if (profile.role !== 'owner_resident') {
     redirect('/dashboard')
   }
 

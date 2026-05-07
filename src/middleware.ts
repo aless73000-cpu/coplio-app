@@ -57,9 +57,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Redirection depuis la racine
+  // Redirection depuis la racine selon le rôle
   if (pathname === '/') {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    const dest = profile?.role === 'owner_resident' ? '/accueil' : '/dashboard'
+    return NextResponse.redirect(new URL(dest, request.url))
   }
 
   return supabaseResponse

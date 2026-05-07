@@ -1,33 +1,93 @@
+'use server'
+
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { MessageCircle, Send } from 'lucide-react'
 import { formatDateTime } from '@/lib/utils'
 import type { Message } from '@/types'
 
+async function envoyerMessage(formData: FormData) {
+  'use server'
+  const contenu = (formData.get('contenu') as string)?.trim()
+  const conversationId = formData.get('conversation_id') as string
+  if (!contenu || !conversationId) return
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  await supabase.from('messages').insert({
+    conversation_id: conversationId,
+    expediteur_id: user.id,
+    contenu,
+    lu: false,
+  })
+
+  await supabase
+    .from('conversations')
+    .update({ derniere_activite: new Date().toISOString() })
+    .eq('id', conversationId)
+}
+
+async function creerConversation(formData: FormData) {
+  'use server'
+  const contenu = (formData.get('contenu') as string)?.trim()
+  if (!contenu) return
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('cabinet_id, lot:lots(copropriete_id)')
+    .eq('id', user.id)
+    .single()
+
+  const cabinetId = profile?.cabinet_id
+  const coproprieteId = (profile?.lot as { copropriete_id?: string } | null)?.copropriete_id
+
+  const { data: conv } = await supabase
+    .from('conversations')
+    .insert({
+      cabinet_id: cabinetId,
+      coproprietaire_id: user.id,
+      copropriete_id: coproprieteId,
+      sujet: 'Message copropriétaire',
+      derniere_activite: new Date().toISOString(),
+    })
+    .select('id')
+    .single()
+
+  if (conv) {
+    await supabase.from('messages').insert({
+      conversation_id: conv.id,
+      expediteur_id: user.id,
+      contenu,
+      lu: false,
+    })
+  }
+}
+
 export default async function MesMessages() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('lot_id')
-    .eq('id', user.id)
-    .single()
-
-  // Récupérer les conversations liées au profil
+  // Conversations du copropriétaire (corrigé : coproprietaire_id)
   const { data: conversations } = await supabase
     .from('conversations')
     .select('*, messages(*, expediteur:profiles(prenom, nom, role))')
-    .eq('gestionnaire_id', user.id)
+    .eq('coproprietaire_id', user.id)
     .order('derniere_activite', { ascending: false })
     .limit(10)
 
-  // Prendre la conversation active (la première ou la plus récente)
   const conversation = conversations?.[0]
   const messages = (conversation?.messages ?? []) as (Message & {
     expediteur?: { prenom?: string; nom?: string; role?: string }
   })[]
+
+  const action = conversation ? envoyerMessage : creerConversation
 
   return (
     <div className="flex flex-col h-screen pb-20">
@@ -53,42 +113,49 @@ export default async function MesMessages() {
             </p>
           </div>
         ) : (
-          messages.map((msg) => {
-            const isMine = msg.expediteur_id === user.id
-            return (
-              <div
-                key={msg.id}
-                className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
-              >
+          messages
+            .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+            .map((msg) => {
+              const isMine = msg.expediteur_id === user.id
+              return (
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                    isMine
-                      ? 'bg-coplio-green text-white rounded-br-sm'
-                      : 'bg-white border border-border text-coplio-text rounded-bl-sm'
-                  }`}
+                  key={msg.id}
+                  className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
                 >
-                  {!isMine && (
-                    <p className="text-xs font-medium text-coplio-green mb-1">
-                      {msg.expediteur?.prenom} {msg.expediteur?.nom}
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                      isMine
+                        ? 'bg-coplio-green text-white rounded-br-sm'
+                        : 'bg-white border border-border text-coplio-text rounded-bl-sm'
+                    }`}
+                  >
+                    {!isMine && (
+                      <p className="text-xs font-medium text-coplio-green mb-1">
+                        {msg.expediteur?.prenom} {msg.expediteur?.nom}
+                      </p>
+                    )}
+                    <p className="text-sm">{msg.contenu}</p>
+                    <p className={`text-[10px] mt-1 ${isMine ? 'text-white/60' : 'text-muted-foreground'}`}>
+                      {formatDateTime(msg.created_at)}
                     </p>
-                  )}
-                  <p className="text-sm">{msg.contenu}</p>
-                  <p className={`text-[10px] mt-1 ${isMine ? 'text-white/60' : 'text-muted-foreground'}`}>
-                    {formatDateTime(msg.created_at)}
-                  </p>
+                  </div>
                 </div>
-              </div>
-            )
-          })
+              )
+            })
         )}
       </div>
 
       {/* Zone de saisie */}
       <div className="flex-shrink-0 px-4 pb-4 bg-coplio-bg border-t border-border pt-3">
-        <form className="flex gap-2">
+        <form action={action} className="flex gap-2">
+          {conversation && (
+            <input type="hidden" name="conversation_id" value={conversation.id} />
+          )}
           <input
             type="text"
+            name="contenu"
             placeholder="Écrivez votre message..."
+            autoComplete="off"
             className="flex-1 px-4 py-3 bg-white border border-border rounded-xl text-sm
                        focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
           />

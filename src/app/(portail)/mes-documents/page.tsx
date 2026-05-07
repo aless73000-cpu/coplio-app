@@ -5,6 +5,16 @@ import { formatDate, formatFileSize } from '@/lib/utils'
 import { DOCUMENT_CATEGORY_LABELS } from '@/types'
 import type { Document, DocumentCategory } from '@/types'
 
+const CATEGORY_ICONS: Record<DocumentCategory, string> = {
+  pv_ag: '📋',
+  budget: '💰',
+  contrat: '📝',
+  sinistre: '⚠️',
+  appel_fonds: '💳',
+  reglement: '📜',
+  autre: '📄',
+}
+
 export default async function MesDocuments() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -16,30 +26,36 @@ export default async function MesDocuments() {
     .eq('id', user.id)
     .single()
 
-  // Documents visibles pour ce copropriétaire
   const { data: documents } = await supabase
     .from('documents')
     .select('*')
     .eq('visible_coproprietaires', true)
-    .or(`lot_id.eq.${profile?.lot_id},lot_id.is.null`)
+    .or(`lot_id.eq.${profile?.lot_id ?? 'null'},lot_id.is.null`)
     .order('created_at', { ascending: false })
 
-  const byCategorie = (documents ?? []).reduce<Record<string, Document[]>>((acc, doc) => {
-    const cat = doc.categorie || 'autre'
-    if (!acc[cat]) acc[cat] = []
-    acc[cat].push(doc)
-    return acc
-  }, {})
+  // Générer les signed URLs pour chaque document
+  const docsWithUrls = await Promise.all(
+    (documents ?? []).map(async (doc: Document) => {
+      try {
+        const { data } = await supabase.storage
+          .from(doc.storage_bucket)
+          .createSignedUrl(doc.storage_path, 3600) // 1h
+        return { ...doc, signed_url: data?.signedUrl ?? null }
+      } catch {
+        return { ...doc, signed_url: null }
+      }
+    })
+  )
 
-  const CATEGORY_ICONS: Record<DocumentCategory, string> = {
-    pv_ag: '📋',
-    budget: '💰',
-    contrat: '📝',
-    sinistre: '⚠️',
-    appel_fonds: '💳',
-    reglement: '📜',
-    autre: '📄',
-  }
+  const byCategorie = docsWithUrls.reduce<Record<string, (Document & { signed_url: string | null })[]>>(
+    (acc, doc) => {
+      const cat = doc.categorie || 'autre'
+      if (!acc[cat]) acc[cat] = []
+      acc[cat].push(doc)
+      return acc
+    },
+    {}
+  )
 
   return (
     <div className="pb-6">
@@ -48,12 +64,12 @@ export default async function MesDocuments() {
         <p className="text-white/70 text-sm mb-1">Documents</p>
         <h1 className="text-2xl font-bold">Mes documents</h1>
         <p className="text-white/70 text-sm mt-1">
-          {documents?.length ?? 0} document{(documents?.length ?? 0) > 1 ? 's' : ''} disponible{(documents?.length ?? 0) > 1 ? 's' : ''}
+          {docsWithUrls.length} document{docsWithUrls.length > 1 ? 's' : ''} disponible{docsWithUrls.length > 1 ? 's' : ''}
         </p>
       </div>
 
       <div className="px-4 mt-6 space-y-5">
-        {(!documents || documents.length === 0) ? (
+        {docsWithUrls.length === 0 ? (
           <div className="bg-white rounded-2xl border border-border p-8 text-center">
             <div className="w-14 h-14 bg-coplio-bg rounded-full flex items-center justify-center mx-auto mb-3">
               <FolderOpen className="w-7 h-7 text-muted-foreground" />
@@ -75,7 +91,7 @@ export default async function MesDocuments() {
               </div>
 
               <div className="divide-y divide-border">
-                {docs.map((doc: Document) => (
+                {docs.map((doc) => (
                   <div key={doc.id} className="flex items-center gap-3 px-4 py-3">
                     <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <div className="flex-1 min-w-0">
@@ -85,12 +101,22 @@ export default async function MesDocuments() {
                         {doc.taille_bytes && ` · ${formatFileSize(doc.taille_bytes)}`}
                       </p>
                     </div>
-                    <button
-                      className="p-2 rounded-xl bg-coplio-green-light text-coplio-green hover:bg-coplio-green hover:text-white transition-colors flex-shrink-0"
-                      title="Télécharger"
-                    >
-                      <Download className="w-4 h-4" />
-                    </button>
+                    {doc.signed_url ? (
+                      <a
+                        href={doc.signed_url}
+                        download={doc.nom}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 rounded-xl bg-coplio-green-light text-coplio-green hover:bg-coplio-green hover:text-white transition-colors flex-shrink-0"
+                        title="Télécharger"
+                      >
+                        <Download className="w-4 h-4" />
+                      </a>
+                    ) : (
+                      <div className="p-2 rounded-xl bg-coplio-bg text-muted-foreground flex-shrink-0" title="Indisponible">
+                        <Download className="w-4 h-4" />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
