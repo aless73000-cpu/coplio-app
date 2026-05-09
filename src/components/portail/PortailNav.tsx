@@ -2,15 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { CreditCard, FileText, Wrench, MessageCircle, User } from 'lucide-react'
+import { Home, CreditCard, FileText, Wrench, MessageCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
+  { href: '/accueil', label: 'Accueil', icon: Home },
   { href: '/mes-charges', label: 'Charges', icon: CreditCard },
   { href: '/mes-documents', label: 'Documents', icon: FileText },
   { href: '/mes-travaux', label: 'Travaux', icon: Wrench },
   { href: '/mes-messages', label: 'Messages', icon: MessageCircle },
-  { href: '/mon-compte', label: 'Compte', icon: User },
 ]
 
 export function PortailNav() {

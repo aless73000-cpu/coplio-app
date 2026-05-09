@@ -10,7 +10,7 @@
     {
       "name": "Coplio — Vitest (tests unitaires)",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "test"],
+      "runtimeArgs": ["run", "test", "--", "--ui"],
       "port": 51204
     }
   ]

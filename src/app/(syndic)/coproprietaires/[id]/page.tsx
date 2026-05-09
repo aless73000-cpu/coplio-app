@@ -1,8 +1,9 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, User, Mail, Phone, Home, MapPin, Pencil } from 'lucide-react'
-import { formatEuro } from '@/lib/utils'
+import { ArrowLeft, User, Mail, Phone, Home, MapPin, Pencil, Smartphone } from 'lucide-react'
+import { formatEuro, formatDate } from '@/lib/utils'
+import { InviterPortailButton } from '@/components/syndic/InviterPortailButton'
 
 export default async function CopropriétairePage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
@@ -107,6 +108,43 @@ export default async function CopropriétairePage({ params }: { params: { id: st
               </div>
             )}
           </dl>
+        </div>
+
+        {/* Portail copropriétaire */}
+        <div className="coplio-card">
+          <div className="flex items-center gap-2 mb-4">
+            <Smartphone className="w-4 h-4 text-muted-foreground" />
+            <h2 className="font-semibold text-coplio-text">Portail copropriétaire</h2>
+          </div>
+
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                copropriétaire.portail_actif
+                  ? 'bg-coplio-green-light text-coplio-green'
+                  : 'bg-coplio-bg text-muted-foreground'
+              }`}>
+                {copropriétaire.portail_actif ? 'Accès actif' : 'Accès inactif'}
+              </span>
+              {copropriétaire.invitation_envoyee_at && (
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  Invitation envoyée le {formatDate(copropriétaire.invitation_envoyee_at)}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {copropriétaire.email ? (
+            <InviterPortailButton
+              coproprietaireId={copropriétaire.id}
+              email={copropriétaire.email}
+              invitationDejaSent={!!copropriétaire.invitation_envoyee_at}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Ajoutez un email pour pouvoir inviter ce copropriétaire.
+            </p>
+          )}
         </div>
 
         {/* Lots */}
