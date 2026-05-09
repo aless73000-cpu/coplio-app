@@ -63,7 +63,8 @@ export async function POST(
     const redirectTo = `${appUrl}/api/auth/callback?next=/accueil`
 
     // Générer le lien d'invitation via Supabase Admin
-    const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+    // Essai 1 : invite (nouvel utilisateur)
+    let { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
       type: 'invite',
       email: copro.email,
       options: {
@@ -78,6 +79,15 @@ export async function POST(
         redirectTo,
       },
     })
+
+    // Essai 2 : magiclink si l'email est déjà enregistré
+    if (linkError?.code === 'email_exists' || linkError?.status === 422) {
+      ;({ data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+        type: 'magiclink',
+        email: copro.email,
+        options: { redirectTo },
+      }))
+    }
 
     if (linkError || !linkData?.properties?.action_link) {
       console.error('generateLink error:', linkError)
