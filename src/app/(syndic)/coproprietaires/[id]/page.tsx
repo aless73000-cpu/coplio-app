@@ -1,7 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, User, Mail, Phone, Home, MapPin } from 'lucide-react'
+import { ArrowLeft, User, Mail, Phone, Home, MapPin, Pencil } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
 
 export default async function CopropriétairePage({ params }: { params: { id: string } }) {
@@ -43,7 +43,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
         <Link href="/coproprietaires" className="text-muted-foreground hover:text-coplio-text transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold text-coplio-text">
             {copropriétaire.prenom} {copropriétaire.nom}
           </h1>
@@ -51,6 +51,13 @@ export default async function CopropriétairePage({ params }: { params: { id: st
             {lots.length} lot{lots.length > 1 ? 's' : ''}
           </p>
         </div>
+        <Link
+          href={`/coproprietaires/${params.id}/edit`}
+          className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors"
+        >
+          <Pencil className="w-4 h-4" />
+          Modifier
+        </Link>
       </div>
 
       <div className="grid gap-6">
