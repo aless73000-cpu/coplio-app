@@ -1,13 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { User, Mail, Phone, Home, Building2, LogOut } from 'lucide-react'
+import { User, Mail, Phone, Home, Building2, Shield, Hash } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
 import { LOT_TYPE_LABELS } from '@/types'
 
 export default async function MonComptePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect('/portail')
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -26,119 +26,142 @@ export default async function MonComptePage() {
     copropriete: { nom: string; adresse?: string; code_postal?: string; ville?: string }
   } | null
 
+  const initials = `${profile?.prenom?.[0] ?? ''}${profile?.nom?.[0] ?? ''}`.toUpperCase()
+
   return (
-    <div className="pb-6">
-      {/* Header */}
-      <div className="bg-coplio-green px-6 pt-12 pb-8 text-white">
-        <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
-          <User className="w-8 h-8 text-white" />
-        </div>
-        <h1 className="text-2xl font-bold">
-          {profile?.prenom} {profile?.nom}
-        </h1>
-        <p className="text-white/70 text-sm mt-0.5">{user.email}</p>
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-coplio-text">Mon compte</h1>
+        <p className="text-muted-foreground text-sm mt-0.5">Vos informations personnelles et votre logement</p>
       </div>
 
-      <div className="px-4 mt-6 space-y-4">
-        {/* Informations personnelles */}
-        <div className="bg-white rounded-2xl border border-border overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-coplio-bg">
-            <h2 className="font-semibold text-sm text-coplio-text">Mes coordonnées</h2>
-          </div>
-          <div className="divide-y divide-border">
-            <div className="flex items-center gap-3 px-4 py-3">
-              <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              <div>
-                <p className="text-xs text-muted-foreground">Email</p>
-                <p className="text-sm font-medium text-coplio-text">{user.email}</p>
-              </div>
+      <div className="grid grid-cols-3 gap-6">
+        {/* Colonne gauche — profil */}
+        <div className="col-span-1 space-y-4">
+          {/* Avatar */}
+          <div className="coplio-card flex flex-col items-center text-center py-8">
+            <div className="w-20 h-20 rounded-full bg-coplio-green flex items-center justify-center mb-4">
+              <span className="text-white text-2xl font-bold">{initials || <User className="w-8 h-8" />}</span>
             </div>
-            {profile?.telephone && (
-              <div className="flex items-center gap-3 px-4 py-3">
-                <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Téléphone</p>
-                  <p className="text-sm font-medium text-coplio-text">{profile.telephone}</p>
-                </div>
-              </div>
-            )}
+            <h2 className="font-bold text-coplio-text text-lg">{profile?.prenom} {profile?.nom}</h2>
+            <p className="text-sm text-muted-foreground mt-0.5">{user.email}</p>
+            <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-coplio-green-light text-coplio-green">
+              <Shield className="w-3 h-3" />
+              Copropriétaire
+            </span>
           </div>
+
+          {/* Solde */}
+          {lot && (
+            <div className={`coplio-card ${lot.solde_compte < 0 ? 'border-red-200 bg-red-50' : 'border-coplio-green/20 bg-coplio-green-light'}`}>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Solde compte</p>
+              <p className={`text-3xl font-bold ${lot.solde_compte < 0 ? 'text-red-600' : 'text-coplio-green'}`}>
+                {formatEuro(lot.solde_compte)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                {lot.solde_compte >= 0 ? 'Votre compte est à jour' : 'Solde débiteur — contactez votre syndic'}
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Mon lot */}
-        {lot && (
-          <div className="bg-white rounded-2xl border border-border overflow-hidden">
-            <div className="px-4 py-3 border-b border-border bg-coplio-bg">
-              <h2 className="font-semibold text-sm text-coplio-text">Mon logement</h2>
-            </div>
-            <div className="px-4 py-4 space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-coplio-green-light rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Home className="w-5 h-5 text-coplio-green" />
-                </div>
-                <div>
-                  <p className="font-semibold text-coplio-text">
-                    Lot {lot.numero}
-                    {lot.etage && <span className="font-normal text-muted-foreground"> · {lot.etage}</span>}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {LOT_TYPE_LABELS[lot.type as keyof typeof LOT_TYPE_LABELS] ?? lot.type}
-                    {lot.surface && ` · ${lot.surface} m²`}
-                  </p>
+        {/* Colonne droite — détails */}
+        <div className="col-span-2 space-y-4">
+          {/* Coordonnées */}
+          <div className="coplio-card">
+            <h3 className="font-semibold text-coplio-text mb-4 flex items-center gap-2">
+              <User className="w-4 h-4 text-muted-foreground" />
+              Mes coordonnées
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-coplio-bg rounded-xl p-4">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Prénom</p>
+                <p className="font-medium text-coplio-text">{profile?.prenom ?? '—'}</p>
+              </div>
+              <div className="bg-coplio-bg rounded-xl p-4">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Nom</p>
+                <p className="font-medium text-coplio-text">{profile?.nom ?? '—'}</p>
+              </div>
+              <div className="bg-coplio-bg rounded-xl p-4 flex items-center gap-3">
+                <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">Email</p>
+                  <p className="font-medium text-coplio-text text-sm truncate">{user.email}</p>
                 </div>
               </div>
-
-              <div className="pt-1 grid grid-cols-2 gap-3">
-                <div className="bg-coplio-bg rounded-xl p-3">
-                  <p className="text-xs text-muted-foreground">Tantièmes</p>
-                  <p className="font-bold text-coplio-text mt-0.5">{lot.tantiemes}</p>
-                </div>
-                <div className={`rounded-xl p-3 ${lot.solde_compte < 0 ? 'bg-red-50' : 'bg-coplio-green-light'}`}>
-                  <p className="text-xs text-muted-foreground">Solde compte</p>
-                  <p className={`font-bold mt-0.5 ${lot.solde_compte < 0 ? 'text-red-600' : 'text-coplio-green'}`}>
-                    {formatEuro(lot.solde_compte)}
-                  </p>
+              <div className="bg-coplio-bg rounded-xl p-4 flex items-center gap-3">
+                <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">Téléphone</p>
+                  <p className="font-medium text-coplio-text text-sm">{profile?.telephone ?? '—'}</p>
                 </div>
               </div>
             </div>
           </div>
-        )}
 
-        {/* Copropriété */}
-        {lot?.copropriete && (
-          <div className="bg-white rounded-2xl border border-border overflow-hidden">
-            <div className="px-4 py-3 border-b border-border bg-coplio-bg">
-              <h2 className="font-semibold text-sm text-coplio-text">Ma copropriété</h2>
-            </div>
-            <div className="flex items-start gap-3 px-4 py-4">
-              <div className="w-10 h-10 bg-coplio-green-light rounded-xl flex items-center justify-center flex-shrink-0">
-                <Building2 className="w-5 h-5 text-coplio-green" />
-              </div>
-              <div>
-                <p className="font-semibold text-coplio-text">{lot.copropriete.nom}</p>
-                {lot.copropriete.adresse && (
-                  <p className="text-sm text-muted-foreground mt-0.5">
-                    {lot.copropriete.adresse}
-                    {lot.copropriete.code_postal && `, ${lot.copropriete.code_postal}`}
-                    {lot.copropriete.ville && ` ${lot.copropriete.ville}`}
+          {/* Mon logement */}
+          {lot && (
+            <div className="coplio-card">
+              <h3 className="font-semibold text-coplio-text mb-4 flex items-center gap-2">
+                <Home className="w-4 h-4 text-muted-foreground" />
+                Mon logement
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-coplio-bg rounded-xl p-4">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Numéro de lot</p>
+                  <p className="font-bold text-coplio-text text-lg">Lot {lot.numero}</p>
+                  {lot.etage && <p className="text-xs text-muted-foreground mt-0.5">{lot.etage}</p>}
+                </div>
+                <div className="bg-coplio-bg rounded-xl p-4">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Type</p>
+                  <p className="font-medium text-coplio-text">
+                    {LOT_TYPE_LABELS[lot.type as keyof typeof LOT_TYPE_LABELS] ?? lot.type}
                   </p>
+                  {lot.surface && <p className="text-xs text-muted-foreground mt-0.5">{lot.surface} m²</p>}
+                </div>
+                <div className="bg-coplio-bg rounded-xl p-4 flex items-center gap-3">
+                  <Hash className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">Tantièmes</p>
+                    <p className="font-bold text-coplio-text">{lot.tantiemes} / 10 000</p>
+                  </div>
+                </div>
+                {lot.copropriete && (
+                  <div className="bg-coplio-bg rounded-xl p-4 flex items-center gap-3">
+                    <Building2 className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">Copropriété</p>
+                      <p className="font-medium text-coplio-text text-sm truncate">{lot.copropriete.nom}</p>
+                      {lot.copropriete.ville && (
+                        <p className="text-xs text-muted-foreground">{lot.copropriete.ville}</p>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Déconnexion */}
-        <form action="/api/auth/signout" method="POST">
-          <button
-            type="submit"
-            className="w-full flex items-center justify-center gap-2 bg-white border border-border
-                       text-coplio-text font-medium py-3 px-4 rounded-2xl hover:bg-coplio-bg transition-colors text-sm"
-          >
-            <LogOut className="w-4 h-4" />
-            Se déconnecter
-          </button>
-        </form>
+          {/* Sécurité */}
+          <div className="coplio-card">
+            <h3 className="font-semibold text-coplio-text mb-4 flex items-center gap-2">
+              <Shield className="w-4 h-4 text-muted-foreground" />
+              Sécurité
+            </h3>
+            <div className="flex items-center justify-between p-4 bg-coplio-bg rounded-xl">
+              <div>
+                <p className="font-medium text-coplio-text text-sm">Mot de passe</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Modifiez votre mot de passe de connexion</p>
+              </div>
+              <a
+                href={`/portail/reset-password?email=${encodeURIComponent(user.email ?? '')}`}
+                className="text-sm font-medium text-coplio-green hover:underline"
+              >
+                Modifier
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

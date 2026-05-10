@@ -181,10 +181,10 @@ export default async function AccueilPage() {
               ))}
             </div>
           )}
-          <Link href="/mes-travaux?nouveau=1"
+          <Link href="/mes-messages"
             className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-border text-sm text-muted-foreground hover:border-coplio-green hover:text-coplio-green transition-colors"
           >
-            <Plus className="w-4 h-4" /> Signaler un problème
+            <Plus className="w-4 h-4" /> Signaler un problème via messagerie
           </Link>
         </div>
 

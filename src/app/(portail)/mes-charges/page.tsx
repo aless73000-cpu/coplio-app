@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { CheckCircle2, AlertTriangle, TrendingUp, Clock } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { AppelCharges } from '@/types'
+import { DownloadChargesPDF } from '@/components/portail/DownloadChargesPDF'
 
 export default async function MesChargesPage() {
   const supabase = await createClient()
@@ -11,7 +12,7 @@ export default async function MesChargesPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('lot_id, lot:lots(numero, etage, copropriete:coproprietes(nom))')
+    .select('lot_id, prenom, nom, lot:lots(numero, etage, copropriete:coproprietes(nom))')
     .eq('id', user.id)
     .single()
 
@@ -52,12 +53,28 @@ export default async function MesChargesPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* En-tête */}
-      <div>
-        <h1 className="text-2xl font-bold text-coplio-text">Mes charges</h1>
-        <p className="text-muted-foreground text-sm mt-0.5">
-          {lot?.copropriete?.nom} · Lot {lot?.numero}
-          {lot?.etage && ` · ${lot.etage}`}
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-coplio-text">Mes charges</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">
+            {lot?.copropriete?.nom} · Lot {lot?.numero}
+            {lot?.etage && ` · ${lot.etage}`}
+          </p>
+        </div>
+        <DownloadChargesPDF
+          charges={(appels ?? []).map((a: AppelCharges) => ({
+            libelle: a.libelle,
+            date_appel: a.date_appel,
+            date_echeance: a.date_echeance,
+            montant: a.montant,
+            montant_paye: a.montant_paye,
+            paye: a.paye,
+          }))}
+          lotNumero={lot?.numero ?? ''}
+          coproprieteNom={lot?.copropriete?.nom ?? ''}
+          prenom={profile?.prenom ?? ''}
+          nom={profile?.nom ?? ''}
+        />
       </div>
 
       {/* Stat cards */}
