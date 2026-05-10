@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Home, CreditCard, FileText, Wrench, MessageCircle, User, LogOut } from 'lucide-react'
+import { Home, CreditCard, FileText, Wrench, MessageCircle, User, LogOut, Calendar, CalendarDays } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
 
@@ -19,6 +19,8 @@ const NAV_ITEMS = [
   { href: '/accueil', label: 'Accueil', icon: Home },
   { href: '/mes-charges', label: 'Mes charges', icon: CreditCard },
   { href: '/mes-documents', label: 'Mes documents', icon: FileText },
+  { href: '/mes-assemblees', label: 'Assemblées générales', icon: Calendar },
+  { href: '/mon-calendrier', label: 'Calendrier', icon: CalendarDays },
   { href: '/mes-travaux', label: 'Travaux & sinistres', icon: Wrench },
   { href: '/mes-messages', label: 'Messagerie', icon: MessageCircle },
 ]
@@ -40,7 +42,7 @@ export function PortailSidebar({ prenom, nom, email, lotNumero, coproprieteNom }
   const initials = `${prenom?.[0] ?? ''}${nom?.[0] ?? ''}`.toUpperCase()
 
   return (
-    <aside className="w-64 flex-shrink-0 bg-coplio-green flex flex-col h-screen sticky top-0 overflow-y-auto">
+    <aside className="hidden md:flex w-64 flex-shrink-0 bg-coplio-green flex-col h-screen sticky top-0 overflow-y-auto">
       {/* Logo */}
       <div className="px-6 py-5 border-b border-white/10">
         <Link href="/accueil" className="flex items-center gap-2">

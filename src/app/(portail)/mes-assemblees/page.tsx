@@ -1,0 +1,358 @@
+'use server'
+
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import { Calendar, MapPin, Video, Clock, CheckCircle2, XCircle, MinusCircle, ThumbsUp, ThumbsDown, Minus, FileText, Lock } from 'lucide-react'
+import { formatDate } from '@/lib/utils'
+import type { AssembleeGenerale, AgResolution, AgVote, VoteValue } from '@/types'
+import { VOTE_TYPE_LABELS } from '@/types'
+
+const AG_STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  planifiee:               { label: 'Planifiée',             color: 'bg-blue-50 text-blue-600' },
+  convocations_envoyees:   { label: 'Convocation envoyée',   color: 'bg-coplio-amber-bg text-coplio-amber' },
+  en_cours:                { label: 'En cours',              color: 'bg-coplio-green-light text-coplio-green' },
+  terminee:                { label: 'Terminée',              color: 'bg-gray-100 text-gray-500' },
+  annulee:                 { label: 'Annulée',               color: 'bg-coplio-red-bg text-coplio-red' },
+}
+
+async function voterResolution(formData: FormData) {
+  'use server'
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const resolutionId = formData.get('resolution_id') as string
+  const valeur = formData.get('valeur') as VoteValue
+  if (!resolutionId || !valeur) return
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('lot_id, lot:lots(tantiemes)')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile?.lot_id) return
+
+  const tantiemes = (profile.lot as { tantiemes?: number } | null)?.tantiemes ?? 0
+
+  // Upsert : si déjà voté, on met à jour
+  await supabase.from('ag_votes').upsert({
+    resolution_id: resolutionId,
+    coproprietaire_id: user.id,
+    lot_id: profile.lot_id,
+    valeur,
+    tantiemes,
+    vote_a: new Date().toISOString(),
+  }, { onConflict: 'resolution_id,coproprietaire_id' })
+
+  redirect('/mes-assemblees')
+}
+
+export default async function MesAssemblees() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/portail')
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('lot_id, lot:lots(copropriete_id, tantiemes)')
+    .eq('id', user.id)
+    .single()
+
+  const coproprieteId = (profile?.lot as { copropriete_id?: string } | null)?.copropriete_id
+
+  if (!coproprieteId) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold text-coplio-text mb-6">Assemblées générales</h1>
+        <div className="coplio-card text-center py-12">
+          <Calendar className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+          <p className="font-semibold text-coplio-text">Aucun lot associé</p>
+          <p className="text-sm text-muted-foreground mt-1">Contactez votre syndic pour accéder à vos assemblées.</p>
+        </div>
+      </div>
+    )
+  }
+
+  // AGs de la copropriété
+  const { data: ags } = await supabase
+    .from('assemblees_generales')
+    .select('*')
+    .eq('copropriete_id', coproprieteId)
+    .order('date_ag', { ascending: false })
+
+  // Résolutions + votes de l'utilisateur
+  const agIds = (ags ?? []).map((ag: AssembleeGenerale) => ag.id)
+  const { data: resolutions } = agIds.length > 0
+    ? await supabase.from('ag_resolutions').select('*').in('ag_id', agIds).order('ordre')
+    : { data: [] }
+
+  const resolutionIds = (resolutions ?? []).map((r: AgResolution) => r.id)
+  const { data: mesVotes } = resolutionIds.length > 0
+    ? await supabase.from('ag_votes')
+        .select('*')
+        .in('resolution_id', resolutionIds)
+        .eq('coproprietaire_id', user.id)
+    : { data: [] }
+
+  const votesByResolution = Object.fromEntries(
+    (mesVotes ?? []).map((v: AgVote) => [v.resolution_id, v])
+  )
+  const resolutionsByAg = Object.groupBy(resolutions ?? [], (r: AgResolution) => r.ag_id)
+
+  const agsAVenir  = (ags ?? []).filter((ag: AssembleeGenerale) =>
+    ['planifiee', 'convocations_envoyees', 'en_cours'].includes(ag.status))
+  const agsPassees = (ags ?? []).filter((ag: AssembleeGenerale) =>
+    ['terminee', 'annulee'].includes(ag.status))
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-coplio-text">Assemblées générales</h1>
+        <p className="text-muted-foreground text-sm mt-0.5">
+          {agsAVenir.length > 0
+            ? `${agsAVenir.length} à venir · ${agsPassees.length} passée${agsPassees.length > 1 ? 's' : ''}`
+            : 'Aucune AG planifiée pour le moment'}
+        </p>
+      </div>
+
+      {/* AGs à venir */}
+      {agsAVenir.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="font-semibold text-sm uppercase tracking-wide text-coplio-text flex items-center gap-2">
+            <Clock className="w-4 h-4 text-coplio-green" /> À venir
+          </h2>
+          {agsAVenir.map((ag: AssembleeGenerale) => {
+            const agResolutions = (resolutionsByAg[ag.id] ?? []) as AgResolution[]
+            const peutVoter = ['convocations_envoyees', 'en_cours'].includes(ag.status)
+            const statusInfo = AG_STATUS_LABELS[ag.status] ?? { label: ag.status, color: 'bg-gray-100 text-gray-500' }
+
+            return (
+              <div key={ag.id} className="coplio-card border-coplio-green/20">
+                {/* Header AG */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-coplio-green-light rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Calendar className="w-6 h-6 text-coplio-green" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-coplio-text text-lg">{ag.titre}</h3>
+                      <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          {new Date(ag.date_ag).toLocaleDateString('fr-FR', {
+                            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+                          })} à {new Date(ag.date_ag).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        {ag.lieu && (
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5" />
+                            {ag.lieu}
+                          </span>
+                        )}
+                        {ag.est_visio && ag.lien_visio && (
+                          <a href={ag.lien_visio} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-coplio-green hover:underline">
+                            <Video className="w-3.5 h-3.5" /> Rejoindre en visio
+                          </a>
+                        )}
+                      </div>
+                      {ag.date_limite_vote && (
+                        <p className="text-xs text-coplio-amber mt-1 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          Vote possible jusqu&apos;au {formatDate(ag.date_limite_vote)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full flex-shrink-0 ${statusInfo.color}`}>
+                    {statusInfo.label}
+                  </span>
+                </div>
+
+                {/* Résolutions */}
+                {agResolutions.length === 0 ? (
+                  <div className="bg-coplio-bg rounded-xl p-4 text-center">
+                    <p className="text-sm text-muted-foreground">L&apos;ordre du jour n&apos;a pas encore été publié.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-sm font-medium text-coplio-text">
+                      Ordre du jour — {agResolutions.length} résolution{agResolutions.length > 1 ? 's' : ''}
+                    </p>
+                    {agResolutions.map((res: AgResolution, idx: number) => {
+                      const monVote = votesByResolution[res.id] as AgVote | undefined
+                      return (
+                        <ResolutionCard
+                          key={res.id}
+                          resolution={res}
+                          index={idx + 1}
+                          monVote={monVote}
+                          peutVoter={peutVoter}
+                          voterAction={voterResolution}
+                        />
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Aucune AG */}
+      {agsAVenir.length === 0 && agsPassees.length === 0 && (
+        <div className="coplio-card text-center py-16">
+          <div className="w-14 h-14 bg-coplio-green-light rounded-full flex items-center justify-center mx-auto mb-3">
+            <Calendar className="w-7 h-7 text-coplio-green" />
+          </div>
+          <p className="font-medium text-coplio-text">Aucune assemblée générale</p>
+          <p className="text-sm text-muted-foreground mt-1">Votre syndic n&apos;a pas encore planifié d&apos;AG.</p>
+        </div>
+      )}
+
+      {/* AGs passées */}
+      {agsPassees.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4" /> Passées
+          </h2>
+          {agsPassees.map((ag: AssembleeGenerale) => {
+            const agResolutions = (resolutionsByAg[ag.id] ?? []) as AgResolution[]
+            const statusInfo = AG_STATUS_LABELS[ag.status] ?? { label: ag.status, color: 'bg-gray-100 text-gray-500' }
+            return (
+              <div key={ag.id} className="coplio-card opacity-75">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-coplio-bg rounded-xl flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-coplio-text">{ag.titre}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(ag.date_ag).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        {agResolutions.length > 0 && ` · ${agResolutions.length} résolution${agResolutions.length > 1 ? 's' : ''}`}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusInfo.color}`}>
+                    {statusInfo.label}
+                  </span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── Carte résolution avec vote ─────────────────────────────── */
+function ResolutionCard({
+  resolution, index, monVote, peutVoter, voterAction,
+}: {
+  resolution: AgResolution
+  index: number
+  monVote?: AgVote
+  peutVoter: boolean
+  voterAction: (fd: FormData) => Promise<void>
+}) {
+  const total = resolution.voix_pour + resolution.voix_contre + resolution.voix_abstention
+  const pctPour = total > 0 ? Math.round((resolution.voix_pour / total) * 100) : 0
+
+  return (
+    <div className={`rounded-xl border p-4 ${monVote ? 'border-coplio-green/30 bg-coplio-green-light/20' : 'border-border bg-coplio-bg'}`}>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-bold text-muted-foreground bg-white border border-border rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
+              {index}
+            </span>
+            <h4 className="font-semibold text-coplio-text text-sm">{resolution.titre}</h4>
+          </div>
+          {resolution.description && (
+            <p className="text-xs text-muted-foreground ml-7 mb-2">{resolution.description}</p>
+          )}
+          <span className="ml-7 text-[10px] text-muted-foreground bg-white border border-border px-2 py-0.5 rounded-full">
+            {VOTE_TYPE_LABELS[resolution.type_vote]}
+          </span>
+        </div>
+
+        {/* Mon vote ou boutons */}
+        {monVote ? (
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full ${
+              monVote.valeur === 'pour' ? 'bg-coplio-green text-white' :
+              monVote.valeur === 'contre' ? 'bg-coplio-red text-white' :
+              'bg-gray-200 text-gray-600'
+            }`}>
+              {monVote.valeur === 'pour' && <ThumbsUp className="w-3 h-3" />}
+              {monVote.valeur === 'contre' && <ThumbsDown className="w-3 h-3" />}
+              {monVote.valeur === 'abstention' && <Minus className="w-3 h-3" />}
+              {monVote.valeur === 'pour' ? 'Pour' : monVote.valeur === 'contre' ? 'Contre' : 'Abstention'}
+            </span>
+            {peutVoter && (
+              <form action={voterAction}>
+                <input type="hidden" name="resolution_id" value={resolution.id} />
+                <input type="hidden" name="valeur" value={monVote.valeur === 'pour' ? 'contre' : 'pour'} />
+                <button type="submit" className="text-[10px] text-muted-foreground hover:text-coplio-text underline">
+                  Modifier
+                </button>
+              </form>
+            )}
+          </div>
+        ) : peutVoter ? (
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {(['pour', 'abstention', 'contre'] as VoteValue[]).map((val) => (
+              <form key={val} action={voterAction}>
+                <input type="hidden" name="resolution_id" value={resolution.id} />
+                <input type="hidden" name="valeur" value={val} />
+                <button
+                  type="submit"
+                  title={val === 'pour' ? 'Pour' : val === 'contre' ? 'Contre' : 'Abstention'}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                    val === 'pour'
+                      ? 'border-coplio-green text-coplio-green hover:bg-coplio-green hover:text-white'
+                      : val === 'contre'
+                      ? 'border-coplio-red text-coplio-red hover:bg-coplio-red hover:text-white'
+                      : 'border-gray-300 text-gray-500 hover:bg-gray-200'
+                  }`}
+                >
+                  {val === 'pour' && <ThumbsUp className="w-3 h-3" />}
+                  {val === 'contre' && <ThumbsDown className="w-3 h-3" />}
+                  {val === 'abstention' && <Minus className="w-3 h-3" />}
+                  {val === 'pour' ? 'Pour' : val === 'contre' ? 'Contre' : 'Abs.'}
+                </button>
+              </form>
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
+            <Lock className="w-3 h-3" /> Vote non ouvert
+          </div>
+        )}
+      </div>
+
+      {/* Résultats si votes existants */}
+      {total > 0 && (
+        <div className="mt-3 ml-7">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+            <CheckCircle2 className="w-3 h-3 text-coplio-green" />
+            <span>{resolution.voix_pour} pour</span>
+            <XCircle className="w-3 h-3 text-coplio-red ml-1" />
+            <span>{resolution.voix_contre} contre</span>
+            <MinusCircle className="w-3 h-3 text-gray-400 ml-1" />
+            <span>{resolution.voix_abstention} abstention{resolution.voix_abstention > 1 ? 's' : ''}</span>
+          </div>
+          <div className="h-1.5 bg-border rounded-full overflow-hidden flex">
+            <div className="bg-coplio-green h-full" style={{ width: `${pctPour}%` }} />
+            <div className="bg-gray-300 h-full" style={{ width: `${total > 0 ? Math.round((resolution.voix_abstention / total) * 100) : 0}%` }} />
+            <div className="bg-coplio-red h-full flex-1" />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

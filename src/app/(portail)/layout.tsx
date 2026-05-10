@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { PortailSidebar } from '@/components/portail/PortailSidebar'
+import { PortailBottomNav } from '@/components/portail/PortailBottomNav'
+import { NotificationHandler } from '@/components/portail/NotificationHandler'
 
 export default async function PortailLayout({
   children,
@@ -32,9 +34,11 @@ export default async function PortailLayout({
         lotNumero={lot?.numero ?? null}
         coproprieteNom={lot?.copropriete?.nom ?? null}
       />
-      <main className="flex-1 overflow-y-auto p-8">
+      <NotificationHandler userId={user.id} />
+      <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-20 md:pb-8">
         {children}
       </main>
+      <PortailBottomNav />
     </div>
   )
 }
