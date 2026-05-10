@@ -12,7 +12,7 @@ export default async function MesChargesPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('lot_id, lot:lots(numero, etage, copropriete:coproprietes(nom))')
+    .select('lot_id, prenom, nom, lot:lots(numero, etage, copropriete:coproprietes(nom))')
     .eq('id', user.id)
     .single()
 

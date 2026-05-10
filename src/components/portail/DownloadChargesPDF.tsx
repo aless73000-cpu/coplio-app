@@ -74,13 +74,13 @@ export function DownloadChargesPDF({ charges, lotNumero, coproprieteNom, prenom,
         { label: 'Solde à régler', value: fmtEuro(totalDu), color: totalDu > 0 ? [163, 45, 45] : [15, 110, 86] },
         { label: 'Total réglé', value: fmtEuro(totalPaye), color: [15, 110, 86] },
         { label: `Charges ${new Date().getFullYear()}`, value: fmtEuro(totalAnnuel), color: [68, 68, 65] },
-      ] as const
+      ]
 
       let bx = 14
       for (const box of boxes) {
         doc.setFillColor(245, 243, 237)
         doc.roundedRect(bx, 64, 56, 20, 2, 2, 'F')
-        doc.setTextColor(...box.color)
+        doc.setTextColor(box.color[0], box.color[1], box.color[2])
         doc.setFontSize(12)
         doc.setFont('helvetica', 'bold')
         doc.text(box.value, bx + 4, 76)
