@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
+import { SessionGuard } from '@/components/auth/SessionGuard'
 import type { Profile, Cabinet } from '@/types'
 
 export default async function SyndicLayout({
@@ -54,6 +55,7 @@ export default async function SyndicLayout({
 
   return (
     <div className="flex h-screen bg-coplio-bg overflow-hidden">
+      <SessionGuard loginPath="/login" />
       <Sidebar profile={profile as Profile} cabinet={cabinet as Cabinet} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header notifications={notifications ?? []} />

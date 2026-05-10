@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { PortailSidebar } from '@/components/portail/PortailSidebar'
 import { PortailBottomNav } from '@/components/portail/PortailBottomNav'
 import { NotificationHandler } from '@/components/portail/NotificationHandler'
+import { SessionGuard } from '@/components/auth/SessionGuard'
 
 export default async function PortailLayout({
   children,
@@ -27,6 +28,7 @@ export default async function PortailLayout({
 
   return (
     <div className="flex h-screen bg-coplio-bg overflow-hidden">
+      <SessionGuard loginPath="/portail" />
       <PortailSidebar
         prenom={profile.prenom}
         nom={profile.nom}

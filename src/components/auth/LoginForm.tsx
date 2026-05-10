@@ -23,6 +23,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState('')
+  const [persist, setPersist] = useState(false)
 
   const {
     register,
@@ -50,6 +51,15 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
         setServerError(error.message)
       }
       return
+    }
+
+    // Marquer la session selon le choix "Rester connecté"
+    if (persist) {
+      localStorage.setItem('coplio_persist', '1')
+      sessionStorage.removeItem('coplio_session')
+    } else {
+      sessionStorage.setItem('coplio_session', '1')
+      localStorage.removeItem('coplio_persist')
     }
 
     // Récupérer le rôle pour rediriger au bon endroit
@@ -132,6 +142,17 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
           <p className="mt-1 text-xs text-coplio-red">{errors.password.message}</p>
         )}
       </div>
+
+      {/* Rester connecté */}
+      <label className="flex items-center gap-2.5 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={persist}
+          onChange={e => setPersist(e.target.checked)}
+          className="w-4 h-4 rounded border-border accent-coplio-green cursor-pointer"
+        />
+        <span className="text-sm text-coplio-text">Rester connecté</span>
+      </label>
 
       {/* Bouton connexion */}
       <button
