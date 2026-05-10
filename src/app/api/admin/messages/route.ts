@@ -1,0 +1,91 @@
+import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { z } from 'zod'
+
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase())
+
+async function checkAdmin() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  return user && ADMIN_EMAILS.includes(user.email?.toLowerCase() ?? '') ? user : null
+}
+
+// GET - récupérer les messages (support ou interne)
+export async function GET(req: Request) {
+  try {
+    const user = await checkAdmin()
+    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+
+    const { searchParams } = new URL(req.url)
+    const type = searchParams.get('type') ?? 'support' // 'support' ou 'interne'
+    const cabinet_id = searchParams.get('cabinet_id')
+
+    const admin = createAdminClient()
+
+    if (type === 'interne') {
+      const { data, error } = await admin
+        .from('admin_internal_messages')
+        .select('*')
+        .order('created_at', { ascending: true })
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json(data ?? [])
+    }
+
+    // Support messages
+    let query = admin
+      .from('admin_support_messages')
+      .select('*, cabinet:cabinets(id, nom)')
+      .order('created_at', { ascending: true })
+
+    if (cabinet_id) query = query.eq('cabinet_id', cabinet_id)
+
+    const { data, error } = await query
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(data ?? [])
+  } catch {
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+  }
+}
+
+const schema = z.object({
+  type: z.enum(['support', 'interne']),
+  contenu: z.string().min(1),
+  cabinet_id: z.string().uuid().optional(),
+})
+
+// POST - envoyer un message
+export async function POST(req: Request) {
+  try {
+    const user = await checkAdmin()
+    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+
+    const body = await req.json()
+    const parsed = schema.safeParse(body)
+    if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
+
+    const admin = createAdminClient()
+
+    if (parsed.data.type === 'interne') {
+      const { data, error } = await admin
+        .from('admin_internal_messages')
+        .insert({ sender_email: user.email, contenu: parsed.data.contenu })
+        .select().single()
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json(data)
+    }
+
+    const { data, error } = await admin
+      .from('admin_support_messages')
+      .insert({
+        cabinet_id: parsed.data.cabinet_id,
+        sender_type: 'admin',
+        sender_email: user.email,
+        contenu: parsed.data.contenu,
+      })
+      .select().single()
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(data)
+  } catch {
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+  }
+}
