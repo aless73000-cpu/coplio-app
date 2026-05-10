@@ -17,6 +17,7 @@ import {
   ChevronDown,
   Home,
   Receipt,
+  MessageSquare,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -68,6 +69,11 @@ const NAV_ITEMS = [
     label: 'Impayés',
     href: '/impayes',
     icon: CreditCard,
+  },
+  {
+    label: 'Messages',
+    href: '/messages',
+    icon: MessageSquare,
   },
 ]
 
