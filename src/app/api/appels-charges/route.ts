@@ -1,6 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { sendEmail, emailNouvelAppelCharges } from '@/lib/resend'
 
 const appelSchema = z.object({
   copropriete_id: z.string().uuid(),
@@ -32,7 +33,6 @@ export async function POST(request: Request) {
     const appelsData = parsed.data.appels.map((appel) => ({
       ...appel,
       montant_paye: 0,
-      // paye is a GENERATED ALWAYS AS column (montant_paye >= montant) — do not set
       nb_relances: 0,
     }))
 
@@ -42,9 +42,69 @@ export async function POST(request: Request) {
       .select()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    // Envoyer des emails aux copropriétaires concernés (non bloquant)
+    sendNotificationsCharges(admin, parsed.data.appels).catch(console.error)
+
     return NextResponse.json({ data, count: data?.length ?? 0 })
   } catch (err) {
     console.error('appels-charges POST error:', err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+  }
+}
+
+async function sendNotificationsCharges(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  admin: any,
+  appels: z.infer<typeof appelSchema>[]
+) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
+  const fmtEuro = (n: number) => n.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
+  const fmtDate = (s: string) => new Date(s).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+
+  // Regrouper par lot_id unique pour éviter les doublons
+  const uniqueLots = Array.from(new Set(appels.map(a => a.lot_id)))
+
+  for (const lotId of uniqueLots) {
+    // Récupérer le profil du copropriétaire lié à ce lot
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('prenom, nom, email')
+      .eq('lot_id', lotId)
+      .eq('role', 'owner_resident')
+      .single()
+
+    if (!profile?.email) continue
+
+    // Récupérer les infos du lot + copropriété
+    const { data: lot } = await admin
+      .from('lots')
+      .select('numero, copropriete:coproprietes(nom)')
+      .eq('id', lotId)
+      .single()
+
+    if (!lot) continue
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const nomCopropriete = (lot.copropriete as any)?.nom ?? 'votre résidence'
+    const lotAppels = appels.filter(a => a.lot_id === lotId)
+
+    // Un email par appel
+    for (const appel of lotAppels) {
+      await sendEmail({
+        to: profile.email,
+        subject: `Nouvel appel de charges — ${appel.libelle}`,
+        html: emailNouvelAppelCharges({
+          prenom: profile.prenom ?? '',
+          nom: profile.nom ?? '',
+          libelle: appel.libelle,
+          montant: fmtEuro(appel.montant),
+          dateEcheance: fmtDate(appel.date_echeance),
+          nomCopropriete,
+          numeroLot: lot.numero,
+          portailUrl: `${appUrl}/mes-charges`,
+        }),
+      })
+    }
   }
 }

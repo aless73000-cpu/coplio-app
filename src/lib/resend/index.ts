@@ -260,3 +260,123 @@ export function emailConvocationAG({
 </body>
 </html>`
 }
+
+export function emailBienvenueSyndic({
+  prenom,
+  nomCabinet,
+  appUrl,
+}: {
+  prenom: string
+  nomCabinet: string
+  appUrl: string
+}) {
+  return `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>Bienvenue sur Coplio</title></head>
+<body style="margin:0;padding:0;background:#F1EFE8;font-family:Inter,system-ui,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F1EFE8;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="background:white;border-radius:16px;overflow:hidden;border:1px solid #e5e5e5;">
+        <tr>
+          <td style="background:#0F6E56;padding:32px 40px;text-align:center;">
+            <p style="margin:0;color:white;font-size:26px;font-weight:700;">Coplio</p>
+            <p style="margin:8px 0 0;color:rgba(255,255,255,0.8);font-size:14px;">Gestion de copropriété nouvelle génération</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px;">
+            <p style="margin:0 0 16px;font-size:18px;font-weight:700;color:#444441;">Bienvenue ${prenom} !</p>
+            <p style="margin:0 0 16px;font-size:15px;color:#444441;line-height:1.6;">
+              Votre espace <strong>${nomCabinet}</strong> est prêt. Votre essai gratuit de 14 jours commence maintenant — aucune carte bancaire requise.
+            </p>
+            <table cellpadding="0" cellspacing="0" width="100%">
+              <tr><td align="center" style="padding:24px 0;">
+                <a href="${appUrl}/dashboard"
+                   style="background:#0F6E56;color:white;text-decoration:none;padding:14px 36px;border-radius:10px;font-weight:600;font-size:15px;display:inline-block;">
+                  Accéder à mon tableau de bord
+                </a>
+              </td></tr>
+            </table>
+            <p style="margin:0;font-size:13px;color:#888;text-align:center;">
+              Des questions ? Répondez directement à cet email.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#F1EFE8;padding:20px 40px;text-align:center;">
+            <p style="margin:0;font-size:12px;color:#888;">© 2024 Coplio</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+}
+
+export function emailNouvelAppelCharges({
+  prenom,
+  nom,
+  libelle,
+  montant,
+  dateEcheance,
+  nomCopropriete,
+  numeroLot,
+  portailUrl,
+}: {
+  prenom: string
+  nom: string
+  libelle: string
+  montant: string
+  dateEcheance: string
+  nomCopropriete: string
+  numeroLot: string
+  portailUrl: string
+}) {
+  return `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>Nouvel appel de charges</title></head>
+<body style="margin:0;padding:0;background:#F1EFE8;font-family:Inter,system-ui,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F1EFE8;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="background:white;border-radius:16px;overflow:hidden;border:1px solid #e5e5e5;">
+        <tr>
+          <td style="background:#0F6E56;padding:28px 40px;">
+            <p style="margin:0;color:white;font-size:18px;font-weight:700;">Nouvel appel de charges</p>
+            <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;">${nomCopropriete} · Lot ${numeroLot}</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:36px 40px;">
+            <p style="margin:0 0 20px;font-size:15px;color:#444441;">Bonjour <strong>${prenom} ${nom}</strong>,</p>
+            <p style="margin:0 0 24px;font-size:15px;color:#444441;line-height:1.6;">Un nouvel appel de charges a été émis pour votre lot.</p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#E1F5EE;border-radius:12px;margin-bottom:28px;">
+              <tr><td style="padding:24px;">
+                <p style="margin:0 0 4px;font-size:11px;color:#0F6E56;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Libellé</p>
+                <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#444441;">${libelle}</p>
+                <p style="margin:0 0 4px;font-size:11px;color:#0F6E56;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Montant</p>
+                <p style="margin:0 0 16px;font-size:28px;font-weight:800;color:#0F6E56;">${montant}</p>
+                <p style="margin:0 0 4px;font-size:11px;color:#0F6E56;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Échéance</p>
+                <p style="margin:0;font-size:15px;font-weight:600;color:#444441;">${dateEcheance}</p>
+              </td></tr>
+            </table>
+            <table cellpadding="0" cellspacing="0" width="100%">
+              <tr><td align="center" style="padding-bottom:20px;">
+                <a href="${portailUrl}" style="background:#0F6E56;color:white;text-decoration:none;padding:13px 32px;border-radius:10px;font-weight:600;font-size:14px;display:inline-block;">Voir mes charges</a>
+              </td></tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#F1EFE8;padding:16px 40px;text-align:center;">
+            <p style="margin:0;font-size:12px;color:#888;">© 2024 Coplio</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+}
