@@ -12,6 +12,7 @@ const PUBLIC_ROUTES = [
   '/auth/callback',
   '/auth/confirm',
   '/tarifs',
+  '/admin/login',
   '/api/stripe/webhook',
   '/api/auth/register',
   '/api/auth/signout',
