@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { sendEmail, emailBienvenueSyndic } from '@/lib/resend'
 
 const schema = z.object({
   email: z.string().email(),
@@ -22,12 +23,12 @@ export async function POST(request: Request) {
     const { email, password, prenom, nom, nomCabinet } = parsed.data
     const supabase = createAdminClient()
 
-    // 1. Créer l'utilisateur (sans déclencher le trigger)
+    // 1. Créer l'utilisateur
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
       user_metadata: { prenom, nom, nom_cabinet: nomCabinet, role: 'owner' },
-      email_confirm: true, // confirmé directement, pas d'email requis
+      email_confirm: true,
     })
 
     if (authError) {
@@ -39,22 +40,23 @@ export async function POST(request: Request) {
 
     const userId = authData.user.id
 
-    // 2. Créer le profil manuellement (bypasse le trigger)
+    // 2. Créer le profil
     const { error: profileError } = await supabase
       .from('profiles')
-      .upsert({
-        id: userId,
-        email,
-        role: 'owner',
-        prenom,
-        nom,
-      })
+      .upsert({ id: userId, email, role: 'owner', prenom, nom })
 
     if (profileError) {
-      // Rollback: supprimer l'utilisateur créé
       await supabase.auth.admin.deleteUser(userId)
       return NextResponse.json({ error: 'Erreur lors de la création du profil.' }, { status: 500 })
     }
+
+    // 3. Email de bienvenue (non bloquant)
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
+    sendEmail({
+      to: email,
+      subject: `Bienvenue sur Coplio, ${prenom} !`,
+      html: emailBienvenueSyndic({ prenom, nomCabinet, appUrl }),
+    }).catch(console.error)
 
     return NextResponse.json({ success: true })
   } catch {

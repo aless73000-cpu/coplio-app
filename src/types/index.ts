@@ -390,7 +390,7 @@ export interface DashboardKPIs {
 export const PLANS_CONFIG = {
   starter: {
     name: 'Starter',
-    price: 79,
+    price: 99,
     max_gestionnaires: 1,
     max_lots: 50,
     features: [
@@ -403,7 +403,7 @@ export const PLANS_CONFIG = {
   },
   pro: {
     name: 'Pro',
-    price: 149,
+    price: 189,
     max_gestionnaires: 5,
     max_lots: 200,
     popular: true,
@@ -417,8 +417,8 @@ export const PLANS_CONFIG = {
     ]
   },
   expert: {
-    name: 'Expert',
-    price: 299,
+    name: 'Cabinet',
+    price: 279,
     max_gestionnaires: 999,
     max_lots: 999,
     features: [
