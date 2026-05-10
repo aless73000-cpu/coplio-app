@@ -1,6 +1,8 @@
 import { Resend } from 'resend'
 
-export const resend = new Resend(process.env.RESEND_API_KEY)
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY ?? 'placeholder')
+}
 
 export const FROM = `${process.env.RESEND_FROM_NAME ?? 'Coplio'} <${process.env.RESEND_FROM_EMAIL ?? 'noreply@coplio.fr'}>`
 
@@ -15,6 +17,7 @@ interface SendEmailOptions {
 
 export async function sendEmail({ to, subject, html, replyTo }: SendEmailOptions) {
   try {
+    const resend = getResend()
     const result = await resend.emails.send({
       from: FROM,
       to: Array.isArray(to) ? to : [to],
