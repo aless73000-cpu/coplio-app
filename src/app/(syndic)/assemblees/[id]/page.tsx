@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, CalendarDays, MapPin, Video, Clock, Users, Check, X, Minus } from 'lucide-react'
-import { formatDateTime, formatDate } from '@/lib/utils'
+import { ArrowLeft, CalendarDays, MapPin, Video, Users, Check, X, Minus } from 'lucide-react'
+import { formatDate } from '@/lib/utils'
+import { ConvocationButton } from '@/components/syndic/ConvocationButton'
 
 const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
   planifiee: { label: 'Planifiée', cls: 'bg-coplio-blue-bg text-coplio-blue' },
@@ -38,23 +39,35 @@ export default async function AssembleePage({ params }: { params: { id: string }
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="flex items-center gap-3 mb-6">
-        <Link href="/assemblees" className="text-muted-foreground hover:text-coplio-text transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold text-coplio-text truncate">{ag.titre}</h1>
-            <span className={`text-xs font-medium px-2.5 py-1 rounded-full flex-shrink-0 ${statusCls}`}>
-              {statusLabel}
-            </span>
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <Link href="/assemblees" className="text-muted-foreground hover:text-coplio-text transition-colors flex-shrink-0">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <div className="min-w-0">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-2xl font-bold text-coplio-text truncate">{ag.titre}</h1>
+              <span className={`text-xs font-medium px-2.5 py-1 rounded-full flex-shrink-0 ${statusCls}`}>
+                {statusLabel}
+              </span>
+            </div>
+            <p className="text-muted-foreground text-sm mt-0.5">
+              <Link href={`/coproprietes/${ag.copropriete?.id}`} className="hover:text-coplio-green">
+                {ag.copropriete?.nom}
+              </Link>
+            </p>
           </div>
-          <p className="text-muted-foreground text-sm mt-0.5">
-            <Link href={`/coproprietes/${ag.copropriete?.id}`} className="hover:text-coplio-green">
-              {ag.copropriete?.nom}
-            </Link>
-          </p>
         </div>
+        {/* Bouton convocation — masqué si AG terminée ou annulée */}
+        {ag.status !== 'terminee' && ag.status !== 'annulee' && (
+          <div className="flex-shrink-0">
+            <ConvocationButton
+              agId={ag.id}
+              status={ag.status}
+              convocationsEnvoyeesAt={ag.convocations_envoyees_at}
+            />
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

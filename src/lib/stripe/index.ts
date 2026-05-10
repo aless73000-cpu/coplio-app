@@ -1,18 +1,33 @@
 import Stripe from 'stripe'
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
-  appInfo: {
-    name: 'Coplio',
-    version: '1.0.0',
+// Lazy initialization to avoid crash at build time when env vars aren't set
+let _stripe: Stripe | null = null
+
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? 'placeholder', {
+      apiVersion: '2024-06-20',
+      appInfo: {
+        name: 'Coplio',
+        version: '1.0.0',
+      },
+    })
+  }
+  return _stripe
+}
+
+// Backward-compatible named export used in existing route files
+export const stripe = new Proxy({} as Stripe, {
+  get(_target, prop) {
+    return (getStripe() as unknown as Record<string | symbol, unknown>)[prop]
   },
 })
 
 export const STRIPE_PRICES = {
-  starter: process.env.STRIPE_PRICE_STARTER!,
-  pro: process.env.STRIPE_PRICE_PRO!,
-  expert: process.env.STRIPE_PRICE_EXPERT!,
-  addon_portail: process.env.STRIPE_PRICE_ADDON_PORTAIL!,
+  starter: process.env.STRIPE_PRICE_STARTER ?? '',
+  pro: process.env.STRIPE_PRICE_PRO ?? '',
+  expert: process.env.STRIPE_PRICE_EXPERT ?? '',
+  addon_portail: process.env.STRIPE_PRICE_ADDON_PORTAIL ?? '',
 }
 
 export const PLAN_LIMITS = {
