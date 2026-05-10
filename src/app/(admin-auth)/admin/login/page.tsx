@@ -79,7 +79,11 @@ export default function AdminLoginPage() {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-1">Connexion</h2>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4" style={{ background: 'rgba(15,110,86,0.2)', border: '1px solid rgba(15,110,86,0.4)' }}>
+              <ShieldCheck className="w-3.5 h-3.5 text-coplio-green" />
+              <span className="text-coplio-green text-xs font-semibold tracking-wide uppercase">Portail Admin</span>
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-1">Connexion administrateur</h2>
             <p className="text-white/40 text-sm">Accès restreint — administrateurs uniquement</p>
           </div>
 
