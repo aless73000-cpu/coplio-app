@@ -1,8 +1,12 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 import {
   Home, Building2, Users, FileText, Wrench, MessageCircle,
   ChevronRight, Check, Star, ArrowRight, Shield, Zap, Clock,
-  BarChart3, Calendar, Bell, Lock, Globe, Heart
+  BarChart3, Calendar, Bell, Lock, Globe, Heart, Menu, X,
+  ChevronDown, Mail, Phone
 } from 'lucide-react'
 
 export default function LandingPage() {
@@ -10,13 +14,13 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white font-sans antialiased text-[#444441]">
       <Nav />
       <Hero />
-      <SocialProof />
+      <LogoBar />
       <Solutions />
       <Besoins />
       <Fonctionnalites />
       <Tarifs />
       <QuiSommesNous />
-      <Temoignages />
+      <FAQ />
       <CtaFinal />
       <Footer />
     </div>
@@ -25,6 +29,8 @@ export default function LandingPage() {
 
 /* ── Navigation ─────────────────────────────────────────────────── */
 function Nav() {
+  const [open, setOpen] = useState(false)
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -36,28 +42,62 @@ function Nav() {
         </div>
 
         <nav className="hidden md:flex items-center gap-8 text-sm text-gray-600">
-          <a href="#solutions" className="hover:text-[#0F6E56] transition-colors">Nos solutions</a>
+          <a href="#solutions" className="hover:text-[#0F6E56] transition-colors">Solutions</a>
           <a href="#besoins" className="hover:text-[#0F6E56] transition-colors">Vos besoins</a>
-          <a href="#fonctionnalites" className="hover:text-[#0F6E56] transition-colors">Fonctionnalités</a>
           <a href="#tarifs" className="hover:text-[#0F6E56] transition-colors">Tarifs</a>
-          <a href="#qui-sommes-nous" className="hover:text-[#0F6E56] transition-colors">Qui sommes-nous</a>
+          <a href="#faq" className="hover:text-[#0F6E56] transition-colors">FAQ</a>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3">
           <Link
             href="/portail"
-            className="text-sm text-gray-600 hover:text-[#0F6E56] transition-colors hidden sm:block"
+            className="text-sm text-gray-600 hover:text-[#0F6E56] transition-colors"
           >
             Espace copropriétaire
           </Link>
           <Link
             href="/login"
-            className="text-sm bg-[#0F6E56] text-white px-4 py-2 rounded-lg hover:bg-[#0d5e49] transition-colors font-medium"
+            className="text-sm text-gray-500 hover:text-[#444441] transition-colors"
           >
             Se connecter
           </Link>
+          <Link
+            href="/register"
+            className="text-sm bg-[#0F6E56] text-white px-4 py-2 rounded-lg hover:bg-[#0d5e49] transition-colors font-medium"
+          >
+            Essai gratuit →
+          </Link>
         </div>
+
+        {/* Mobile burger */}
+        <button
+          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          onClick={() => setOpen(!open)}
+          aria-label="Menu"
+        >
+          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
       </div>
+
+      {/* Mobile menu */}
+      {open && (
+        <div className="md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-4">
+          <a href="#solutions" className="block text-sm text-gray-600 hover:text-[#0F6E56]" onClick={() => setOpen(false)}>Solutions</a>
+          <a href="#besoins" className="block text-sm text-gray-600 hover:text-[#0F6E56]" onClick={() => setOpen(false)}>Vos besoins</a>
+          <a href="#tarifs" className="block text-sm text-gray-600 hover:text-[#0F6E56]" onClick={() => setOpen(false)}>Tarifs</a>
+          <a href="#faq" className="block text-sm text-gray-600 hover:text-[#0F6E56]" onClick={() => setOpen(false)}>FAQ</a>
+          <hr className="border-gray-100" />
+          <Link href="/portail" className="block text-sm text-gray-600 hover:text-[#0F6E56]" onClick={() => setOpen(false)}>Espace copropriétaire</Link>
+          <Link href="/login" className="block text-sm text-gray-600 hover:text-[#0F6E56]" onClick={() => setOpen(false)}>Se connecter</Link>
+          <Link
+            href="/register"
+            className="block text-sm bg-[#0F6E56] text-white px-4 py-3 rounded-lg hover:bg-[#0d5e49] transition-colors font-medium text-center"
+            onClick={() => setOpen(false)}
+          >
+            Essai gratuit 14 jours →
+          </Link>
+        </div>
+      )}
     </header>
   )
 }
@@ -66,7 +106,6 @@ function Nav() {
 function Hero() {
   return (
     <section className="relative pt-32 pb-24 overflow-hidden bg-[#0F6E56]">
-      {/* Cercles décoratifs */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-white/5 rounded-full translate-y-1/2 -translate-x-1/3 pointer-events-none" />
 
@@ -91,23 +130,22 @@ function Hero() {
             href="/register"
             className="flex items-center gap-2 bg-white text-[#0F6E56] font-semibold px-8 py-4 rounded-xl hover:bg-[#E1F5EE] transition-colors text-base"
           >
-            Essayer gratuitement
+            Démarrer gratuitement
             <ArrowRight className="w-4 h-4" />
           </Link>
-          <Link
-            href="/login"
+          <a
+            href="#tarifs"
             className="flex items-center gap-2 border border-white/30 text-white font-medium px-8 py-4 rounded-xl hover:bg-white/10 transition-colors text-base"
           >
-            Se connecter
-          </Link>
+            Voir les tarifs
+          </a>
         </div>
 
-        <p className="text-white/50 text-sm mt-6">Sans engagement · Aucune carte bancaire requise</p>
+        <p className="text-white/50 text-sm mt-6">14 jours d&apos;essai gratuit · Sans engagement · Aucune carte bancaire requise</p>
 
         {/* Mockup dashboard */}
         <div className="mt-16 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-2 max-w-4xl mx-auto shadow-2xl">
           <div className="bg-[#F1EFE8] rounded-xl overflow-hidden">
-            {/* Fake browser bar */}
             <div className="bg-white px-4 py-2.5 flex items-center gap-2 border-b border-gray-100">
               <div className="flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-red-400" />
@@ -118,7 +156,6 @@ function Hero() {
                 app.coplio.fr/dashboard
               </div>
             </div>
-            {/* Fake dashboard */}
             <div className="flex h-48">
               <div className="w-48 bg-[#0F6E56] p-3 flex flex-col gap-2 flex-shrink-0">
                 <div className="bg-white/20 rounded-lg h-7" />
@@ -131,7 +168,7 @@ function Hero() {
               </div>
               <div className="flex-1 p-4 grid grid-cols-3 gap-3 content-start">
                 {['5 copropriétés', '87 lots', '3 sinistres'].map((label, i) => (
-                  <div key={label} className={`bg-white rounded-lg p-3 shadow-sm border border-gray-100`}>
+                  <div key={label} className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
                     <div className={`w-6 h-6 rounded-md mb-2 ${i === 2 ? 'bg-red-100' : 'bg-[#E1F5EE]'}`} />
                     <div className="text-xs font-semibold text-gray-700">{label}</div>
                   </div>
@@ -156,23 +193,28 @@ function Hero() {
   )
 }
 
-/* ── Social proof ───────────────────────────────────────────────── */
-function SocialProof() {
-  const stats = [
-    { value: '500+', label: 'Copropriétés gérées' },
-    { value: '12 000+', label: 'Copropriétaires connectés' },
-    { value: '98%', label: 'Taux de satisfaction' },
-    { value: '< 2h', label: 'Pour être opérationnel' },
-  ]
+/* ── Logo bar / Early adopter ───────────────────────────────────── */
+function LogoBar() {
   return (
     <section className="border-b border-gray-100 bg-white">
-      <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
-        {stats.map(({ value, label }) => (
-          <div key={label} className="text-center">
-            <div className="text-3xl font-bold text-[#0F6E56]">{value}</div>
-            <div className="text-sm text-gray-500 mt-1">{label}</div>
-          </div>
-        ))}
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        <p className="text-center text-sm text-gray-400 mb-8 uppercase tracking-wider font-medium">
+          Rejoignez les premiers syndics à moderniser leur gestion
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {[
+            { emoji: '🚀', label: 'Lancement en cours', sub: 'Soyez parmi les premiers' },
+            { emoji: '💰', label: 'Tarif early adopter', sub: 'Prix bloqué à vie' },
+            { emoji: '🎯', label: 'Produit sur-mesure', sub: 'Conçu avec des syndics' },
+            { emoji: '🇫🇷', label: '100% français', sub: 'Données hébergées en Europe' },
+          ].map(({ emoji, label, sub }) => (
+            <div key={label} className="text-center p-4 rounded-xl bg-[#F1EFE8]">
+              <div className="text-2xl mb-2">{emoji}</div>
+              <div className="font-semibold text-sm text-[#444441]">{label}</div>
+              <div className="text-xs text-gray-500 mt-0.5">{sub}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   )
@@ -220,7 +262,7 @@ function Solutions() {
           <span className="text-sm font-semibold text-[#0F6E56] uppercase tracking-wider">Nos solutions</span>
           <h2 className="text-4xl font-bold text-[#444441] mt-3 mb-4">Tout ce dont un syndic a besoin</h2>
           <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-            Une plateforme complète pour gérer l'ensemble de votre activité de syndic, de la gestion courante aux situations d'urgence.
+            Une plateforme complète pour gérer l&apos;ensemble de votre activité de syndic, de la gestion courante aux situations d&apos;urgence.
           </p>
         </div>
 
@@ -301,10 +343,10 @@ function Besoins() {
 function Fonctionnalites() {
   const features = [
     { icon: Shield, label: 'Données sécurisées', desc: 'Hébergement européen, chiffrement SSL, accès par rôle.' },
-    { icon: Bell, label: 'Alertes temps réel', desc: 'Soyez notifié dès qu\'un sinistre urgence ou un impayé est détecté.' },
+    { icon: Bell, label: 'Alertes temps réel', desc: 'Soyez notifié dès qu\'un sinistre urgent ou un impayé est détecté.' },
     { icon: FileText, label: 'Documents légaux', desc: 'PV d\'AG, règlements de copropriété, fiches techniques — tout est archivé.' },
     { icon: Globe, label: 'Portail en ligne 24h/24', desc: 'Vos copropriétaires accèdent à leur espace à tout moment, depuis n\'importe où.' },
-    { icon: Clock, label: 'Gain de temps réel', desc: 'Nos clients gagnent en moyenne 8h par semaine sur les tâches administratives.' },
+    { icon: Clock, label: 'Prise en main rapide', desc: 'Interface intuitive, formation non requise. Opérationnel en moins d\'une journée.' },
     { icon: Lock, label: 'Accès par rôle', desc: 'Syndic, collaborateur, copropriétaire : chacun voit uniquement ce qui le concerne.' },
   ]
 
@@ -345,15 +387,15 @@ function Tarifs() {
       highlight: false,
       badge: null,
       features: [
-        'Jusqu\'à 5 copropriétés',
-        'Jusqu\'à 75 lots',
+        "Jusqu'à 5 copropriétés",
+        "Jusqu'à 75 lots",
         'Portail copropriétaire inclus',
         'Gestion des documents',
         'Appels de charges & impayés',
         'Messagerie syndic ↔ copropriétaires',
         'Support par email',
       ],
-      cta: 'Commencer gratuitement',
+      cta: 'Démarrer gratuitement',
       href: '/register',
     },
     {
@@ -363,8 +405,8 @@ function Tarifs() {
       highlight: true,
       badge: 'Le plus populaire',
       features: [
-        'Jusqu\'à 20 copropriétés',
-        'Jusqu\'à 400 lots',
+        "Jusqu'à 20 copropriétés",
+        "Jusqu'à 400 lots",
         'Tout le plan Starter',
         'Assemblées générales en ligne',
         'Suivi sinistres & travaux',
@@ -372,7 +414,7 @@ function Tarifs() {
         'Alertes & notifications temps réel',
         'Support prioritaire',
       ],
-      cta: 'Essayer 30 jours gratuits',
+      cta: 'Essayer 14 jours gratuits',
       href: '/register',
     },
     {
@@ -384,14 +426,14 @@ function Tarifs() {
       features: [
         'Copropriétés & lots illimités',
         'Tout le plan Pro',
-        'Multi-utilisateurs (jusqu\'à 5)',
+        "Multi-utilisateurs (jusqu'à 5)",
         'Rapports & exports avancés',
         'Personnalisation aux couleurs du cabinet',
         'Onboarding dédié',
         'Support téléphonique',
       ],
       cta: 'Nous contacter',
-      href: '/register',
+      href: 'mailto:contact@coplio.fr',
     },
   ]
 
@@ -404,7 +446,14 @@ function Tarifs() {
             Simple, transparent, sans surprise
           </h2>
           <p className="text-gray-500 text-lg max-w-xl mx-auto">
-            Tous les plans incluent 30 jours d&apos;essai gratuit. Aucune carte bancaire requise.
+            14 jours d&apos;essai gratuit sur tous les plans. Aucune carte bancaire requise.
+          </p>
+        </div>
+
+        {/* Early adopter banner */}
+        <div className="bg-[#E1F5EE] border border-[#0F6E56]/20 rounded-2xl p-4 mb-8 text-center">
+          <p className="text-sm text-[#0F6E56] font-medium">
+            🎉 <strong>Offre de lancement</strong> — Les premiers abonnés bénéficient du tarif actuel bloqué à vie, même si les prix augmentent.
           </p>
         </div>
 
@@ -448,7 +497,7 @@ function Tarifs() {
                 ))}
               </ul>
 
-              <Link
+              <a
                 href={href}
                 className={`w-full py-3.5 rounded-xl font-semibold text-sm text-center transition-colors ${
                   highlight
@@ -457,14 +506,14 @@ function Tarifs() {
                 }`}
               >
                 {cta}
-              </Link>
+              </a>
             </div>
           ))}
         </div>
 
         <p className="text-center text-sm text-gray-400 mt-8">
           Tous les prix sont HT. TVA applicable selon votre situation.
-          Vous gérez plus de 5 cabinets ?{' '}
+          Vous gérez un grand portefeuille ?{' '}
           <a href="mailto:contact@coplio.fr" className="text-[#0F6E56] hover:underline">Contactez-nous</a>{' '}
           pour un tarif sur mesure.
         </p>
@@ -476,7 +525,7 @@ function Tarifs() {
 /* ── Qui sommes-nous ────────────────────────────────────────────── */
 function QuiSommesNous() {
   return (
-    <section id="qui-sommes-nous" className="py-24 bg-white">
+    <section id="qui-sommes-nous" className="py-24 bg-[#F1EFE8]">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div>
@@ -485,19 +534,19 @@ function QuiSommesNous() {
               Nés de la frustration des syndics indépendants
             </h2>
             <p className="text-gray-500 leading-relaxed mb-6">
-              Coplio est né d'un constat simple : les outils de gestion de copropriété existants sont trop complexes,
+              Coplio est né d&apos;un constat simple : les outils de gestion de copropriété existants sont trop complexes,
               trop chers, ou pensés pour les grandes structures. Les syndics indépendants méritent mieux.
             </p>
             <p className="text-gray-500 leading-relaxed mb-8">
-              Notre équipe a travaillé main dans la main avec des syndics pour concevoir une solution intuitive,
-              abordable et vraiment utile au quotidien. Coplio, c'est le logiciel qu'on aurait voulu avoir.
+              Nous avons travaillé main dans la main avec des syndics pour concevoir une solution intuitive,
+              abordable et vraiment utile au quotidien. Coplio, c&apos;est le logiciel qu&apos;on aurait voulu avoir.
             </p>
 
             <div className="space-y-3">
               {[
                 'Fondé en France, pour le marché français',
                 'Données hébergées en Europe (RGPD)',
-                'Support disponible 7j/7 par messagerie',
+                'Support disponible par messagerie',
                 'Mises à jour régulières basées sur vos retours',
               ].map(item => (
                 <div key={item} className="flex items-center gap-3">
@@ -516,14 +565,14 @@ function QuiSommesNous() {
               <h3 className="font-bold text-[#0F6E56] text-lg mb-2">Notre mission</h3>
               <p className="text-[#0F6E56]/80 text-sm leading-relaxed">
                 Permettre à chaque syndic indépendant de se concentrer sur ce qui compte vraiment :
-                le service à ses copropriétaires, pas l'administration.
+                le service à ses copropriétaires, pas l&apos;administration.
               </p>
             </div>
-            <div className="bg-[#F1EFE8] rounded-2xl p-5">
-              <div className="text-3xl font-bold text-[#0F6E56] mb-1">2024</div>
+            <div className="bg-white rounded-2xl p-5">
+              <div className="text-3xl font-bold text-[#0F6E56] mb-1">2025</div>
               <div className="text-sm text-gray-500">Année de création</div>
             </div>
-            <div className="bg-[#F1EFE8] rounded-2xl p-5">
+            <div className="bg-white rounded-2xl p-5">
               <div className="text-3xl font-bold text-[#0F6E56] mb-1">100%</div>
               <div className="text-sm text-gray-500">Indépendant & français</div>
             </div>
@@ -534,52 +583,75 @@ function QuiSommesNous() {
   )
 }
 
-/* ── Témoignages ────────────────────────────────────────────────── */
-function Temoignages() {
+/* ── FAQ ────────────────────────────────────────────────────────── */
+function FAQ() {
   const items = [
     {
-      quote: 'Avant Coplio, je passais mes soirées à répondre aux e-mails de copropriétaires. Maintenant ils ont tout sur le portail et me contactent uniquement pour des vraies urgences.',
-      name: 'Marie L.',
-      role: 'Syndic indépendant — Lyon',
+      q: 'Est-ce que je dois fournir ma carte bancaire pour l\'essai gratuit ?',
+      a: 'Non. Vous démarrez votre essai de 14 jours sans aucune carte bancaire. Vous ne payez que si vous décidez de continuer à l\'issue de la période d\'essai.',
     },
     {
-      quote: 'La gestion des AG a été transformée. Je prépare l\'ordre du jour en 20 minutes et j\'envoie les convocations en un clic. Les PV sont archivés automatiquement.',
-      name: 'Thomas D.',
-      role: 'Cabinet de syndic — Paris',
+      q: 'Puis-je importer mes données existantes ?',
+      a: 'Oui. Vous pouvez importer vos copropriétaires et vos lots via un fichier CSV. Notre équipe peut aussi vous accompagner gratuitement pour la migration si vous avez un volume important.',
     },
     {
-      quote: 'Le suivi des sinistres est excellent. Mes copropriétaires voient l\'avancement en temps réel, ça évite des dizaines d\'appels par semaine.',
-      name: 'Sophie M.',
-      role: 'Syndic bénévole — Bordeaux',
+      q: 'Que se passe-t-il à la fin de l\'essai gratuit ?',
+      a: 'Vous recevez un rappel 7 jours avant la fin de votre essai. Si vous ne souscrivez pas, votre accès est simplement suspendu — vos données sont conservées 30 jours supplémentaires.',
+    },
+    {
+      q: 'Mes copropriétaires doivent-ils payer pour accéder au portail ?',
+      a: 'Non. Le portail copropriétaire est inclus dans tous les plans, sans surcoût. Vos copropriétaires accèdent gratuitement à leur espace personnel.',
+    },
+    {
+      q: 'Puis-je changer de plan à tout moment ?',
+      a: 'Oui. Vous pouvez passer à un plan supérieur ou inférieur à tout moment depuis votre espace. Le changement prend effet immédiatement, avec un ajustement au prorata.',
+    },
+    {
+      q: 'Où sont hébergées mes données ?',
+      a: 'Toutes vos données sont hébergées en Europe (Union Européenne), en conformité avec le RGPD. Elles ne sont jamais revendues ni partagées avec des tiers.',
     },
   ]
 
   return (
-    <section className="py-24 bg-[#F1EFE8]">
-      <div className="max-w-6xl mx-auto px-6">
+    <section id="faq" className="py-24 bg-white">
+      <div className="max-w-3xl mx-auto px-6">
         <div className="text-center mb-16">
-          <span className="text-sm font-semibold text-[#0F6E56] uppercase tracking-wider">Témoignages</span>
-          <h2 className="text-4xl font-bold text-[#444441] mt-3">Ils nous font confiance</h2>
+          <span className="text-sm font-semibold text-[#0F6E56] uppercase tracking-wider">FAQ</span>
+          <h2 className="text-4xl font-bold text-[#444441] mt-3 mb-4">Questions fréquentes</h2>
+          <p className="text-gray-500 text-lg">
+            Vous ne trouvez pas votre réponse ?{' '}
+            <a href="mailto:contact@coplio.fr" className="text-[#0F6E56] hover:underline">Écrivez-nous</a>
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {items.map(({ quote, name, role }) => (
-            <div key={name} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-              <div className="flex gap-0.5 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-[#0F6E56] text-[#0F6E56]" />
-                ))}
-              </div>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 italic">&ldquo;{quote}&rdquo;</p>
-              <div>
-                <div className="font-semibold text-[#444441] text-sm">{name}</div>
-                <div className="text-xs text-gray-400 mt-0.5">{role}</div>
-              </div>
-            </div>
+        <div className="space-y-3">
+          {items.map(({ q, a }) => (
+            <FAQItem key={q} question={q} answer={a} />
           ))}
         </div>
       </div>
     </section>
+  )
+}
+
+function FAQItem({ question, answer }: { question: string; answer: string }) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="border border-gray-100 rounded-2xl overflow-hidden">
+      <button
+        className="w-full flex items-center justify-between p-5 text-left hover:bg-[#F1EFE8] transition-colors"
+        onClick={() => setOpen(!open)}
+      >
+        <span className="font-medium text-[#444441] text-sm pr-4">{question}</span>
+        <ChevronDown className={`w-4 h-4 text-[#0F6E56] flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="px-5 pb-5">
+          <p className="text-gray-500 text-sm leading-relaxed">{answer}</p>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -595,10 +667,10 @@ function CtaFinal() {
           Prêt à simplifier votre gestion ?
         </h2>
         <p className="text-white/70 text-lg mb-10">
-          Rejoignez les syndics qui ont déjà choisi Coplio. Démarrez gratuitement, sans engagement.
+          Démarrez votre essai gratuit de 14 jours. Sans engagement, sans carte bancaire.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
           <Link
             href="/register"
             className="flex items-center gap-2 bg-white text-[#0F6E56] font-semibold px-8 py-4 rounded-xl hover:bg-[#E1F5EE] transition-colors text-base w-full sm:w-auto justify-center"
@@ -610,8 +682,21 @@ function CtaFinal() {
             href="/login"
             className="border border-white/30 text-white font-medium px-8 py-4 rounded-xl hover:bg-white/10 transition-colors text-base w-full sm:w-auto text-center"
           >
-            J'ai déjà un compte
+            J&apos;ai déjà un compte
           </Link>
+        </div>
+
+        {/* Contact rapide */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-white/50 text-sm">
+          <a href="mailto:contact@coplio.fr" className="flex items-center gap-2 hover:text-white/80 transition-colors">
+            <Mail className="w-4 h-4" />
+            contact@coplio.fr
+          </a>
+          <span className="hidden sm:block">·</span>
+          <span className="flex items-center gap-2">
+            <Star className="w-4 h-4" />
+            Réponse sous 24h ouvrées
+          </span>
         </div>
       </div>
     </section>
@@ -634,22 +719,29 @@ function Footer() {
             <p className="text-white/50 text-sm leading-relaxed max-w-xs">
               Le logiciel de gestion de copropriété pour syndics indépendants. Simple, moderne, efficace.
             </p>
+            <div className="mt-4 flex items-center gap-2">
+              <a href="mailto:contact@coplio.fr" className="text-white/40 hover:text-white/70 transition-colors text-xs flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5" />
+                contact@coplio.fr
+              </a>
+            </div>
           </div>
 
           <div>
             <h4 className="font-semibold text-sm mb-4">Produit</h4>
             <ul className="space-y-2.5 text-sm text-white/50">
               <li><a href="#solutions" className="hover:text-white transition-colors">Nos solutions</a></li>
-              <li><a href="#fonctionnalites" className="hover:text-white transition-colors">Fonctionnalités</a></li>
+              <li><a href="#tarifs" className="hover:text-white transition-colors">Tarifs</a></li>
+              <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
               <li><Link href="/login" className="hover:text-white transition-colors">Se connecter</Link></li>
               <li><Link href="/register" className="hover:text-white transition-colors">Créer un compte</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-semibold text-sm mb-4">Espace copropriétaire</h4>
+            <h4 className="font-semibold text-sm mb-4">Informations</h4>
             <ul className="space-y-2.5 text-sm text-white/50">
-              <li><Link href="/portail" className="hover:text-white transition-colors">Se connecter au portail</Link></li>
+              <li><Link href="/portail" className="hover:text-white transition-colors">Portail copropriétaire</Link></li>
               <li><a href="#qui-sommes-nous" className="hover:text-white transition-colors">Qui sommes-nous</a></li>
               <li><Link href="/cgu" className="hover:text-white transition-colors">CGU</Link></li>
               <li><Link href="/confidentialite" className="hover:text-white transition-colors">Confidentialité</Link></li>
