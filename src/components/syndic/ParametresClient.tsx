@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { User, Building2, Bell, Loader2, CheckCircle2, Users, ChevronRight, Upload } from 'lucide-react'
+import { usePushNotifications } from '@/hooks/usePushNotifications'
 import type { Profile, Cabinet } from '@/types'
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 
 export function ParametresClient({ profile }: Props) {
   const cabinet = profile.cabinet
+  const push = usePushNotifications()
 
   const [profileData, setProfileData] = useState({
     prenom: profile.prenom ?? '',
@@ -263,18 +265,29 @@ export function ParametresClient({ profile }: Props) {
           <h2 className="font-semibold text-coplio-text">Notifications</h2>
         </div>
         <div className="space-y-3">
-          {[
-            { label: 'Récapitulatif quotidien par email', value: false },
-            { label: 'Notifications email', value: false },
-            { label: 'Notifications SMS', value: false },
-          ].map(({ label, value }) => (
-            <label key={label} className="flex items-center justify-between py-2">
-              <span className="text-sm text-coplio-text">{label}</span>
-              <div className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${value ? 'bg-coplio-green' : 'bg-border'}`}>
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${value ? 'translate-x-5' : 'translate-x-1'}`} />
+          {/* Push notifications */}
+          {push.state !== 'unsupported' && (
+            <div className="flex items-center justify-between py-2">
+              <div>
+                <p className="text-sm text-coplio-text">Notifications push</p>
+                {push.state === 'denied' && (
+                  <p className="text-xs text-muted-foreground mt-0.5">Bloquées dans le navigateur</p>
+                )}
               </div>
-            </label>
-          ))}
+              {push.state === 'loading' ? (
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              ) : push.state === 'denied' ? (
+                <span className="text-xs text-muted-foreground">Bloquées</span>
+              ) : (
+                <button
+                  onClick={push.state === 'subscribed' ? push.unsubscribe : push.subscribe}
+                  className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${push.state === 'subscribed' ? 'bg-coplio-green' : 'bg-border'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${push.state === 'subscribed' ? 'translate-x-5' : 'translate-x-1'}`} />
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </section>
     </div>

@@ -63,3 +63,30 @@ self.addEventListener('fetch', (event) => {
       })
   )
 })
+
+// ─── Push notifications ──────────────────────────────────────
+
+self.addEventListener('push', (event) => {
+  if (!event.data) return
+  const data = event.data.json()
+  event.waitUntil(
+    self.registration.showNotification(data.title ?? 'Coplio', {
+      body: data.body ?? '',
+      icon: data.icon ?? '/icons/icon-192x192.png',
+      badge: '/icons/icon-72x72.png',
+      data: { url: data.url ?? '/dashboard' },
+    })
+  )
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  const url = event.notification.data?.url ?? '/dashboard'
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      const existing = list.find((c) => c.url.includes(self.location.origin))
+      if (existing) return existing.focus().then((c) => c.navigate(url))
+      return clients.openWindow(url)
+    })
+  )
+})
