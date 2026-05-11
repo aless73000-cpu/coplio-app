@@ -25,12 +25,24 @@ export function DocumentActions({ documentId, typeMime }: { documentId: string; 
   async function handleDownload() {
     setLoading('download')
     const data = await getUrl()
-    setLoading(null)
-    if (!data) return
+    if (!data) { setLoading(null); return }
+
+    // Fetch le fichier comme blob pour forcer le téléchargement
+    const response = await fetch(data.url)
+    const blob = await response.blob()
+    const blobUrl = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = data.url
-    a.download = data.nom
+    a.href = blobUrl
+    // Forcer l'extension .pdf si le fichier est un PDF
+    const nom = data.type_mime === 'application/pdf' && !data.nom.endsWith('.pdf')
+      ? data.nom + '.pdf'
+      : data.nom
+    a.download = nom
+    document.body.appendChild(a)
     a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(blobUrl)
+    setLoading(null)
   }
 
   const canPreview = !typeMime || PREVIEWABLE.includes(typeMime)
