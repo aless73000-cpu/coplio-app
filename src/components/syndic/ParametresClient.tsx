@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
-import { User, Building2, Bell, Loader2, CheckCircle2, Users, ChevronRight } from 'lucide-react'
+import Image from 'next/image'
+import { User, Building2, Bell, Loader2, CheckCircle2, Users, ChevronRight, Upload } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 
 type Props = {
@@ -32,6 +33,10 @@ export function ParametresClient({ profile }: Props) {
   const [cabinetStatus, setCabinetStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [profileError, setProfileError] = useState('')
   const [cabinetError, setCabinetError] = useState('')
+  const [logoUrl, setLogoUrl] = useState(cabinet?.logo_url ?? '')
+  const [logoUploading, setLogoUploading] = useState(false)
+  const [logoError, setLogoError] = useState('')
+  const logoInputRef = useRef<HTMLInputElement>(null)
 
   async function saveProfile() {
     setProfileStatus('loading')
@@ -50,6 +55,18 @@ export function ParametresClient({ profile }: Props) {
       setProfileError('Erreur réseau')
       setProfileStatus('error')
     }
+  }
+
+  async function uploadLogo(file: File) {
+    setLogoUploading(true)
+    setLogoError('')
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await fetch('/api/cabinet/logo', { method: 'POST', body: fd })
+    const data = await res.json()
+    setLogoUploading(false)
+    if (!res.ok) { setLogoError(data.error ?? 'Erreur upload'); return }
+    setLogoUrl(data.logo_url)
   }
 
   async function saveCabinet() {
@@ -131,6 +148,37 @@ export function ParametresClient({ profile }: Props) {
             <Building2 className="w-4 h-4 text-coplio-green" />
           </div>
           <h2 className="font-semibold text-coplio-text">Mon cabinet</h2>
+        </div>
+
+        {/* Logo */}
+        <div className="flex items-center gap-4 mb-5 pb-5 border-b border-border">
+          <div className="w-16 h-16 rounded-xl border-2 border-dashed border-border flex items-center justify-center bg-coplio-bg overflow-hidden flex-shrink-0">
+            {logoUrl ? (
+              <Image src={logoUrl} alt="Logo cabinet" width={64} height={64} className="object-contain w-full h-full" />
+            ) : (
+              <Building2 className="w-7 h-7 text-muted-foreground" />
+            )}
+          </div>
+          <div>
+            <p className="text-sm font-medium text-coplio-text mb-1">Logo du cabinet</p>
+            <p className="text-xs text-muted-foreground mb-2">JPG, PNG, WebP ou SVG · max 2 Mo</p>
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/svg+xml"
+              className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }}
+            />
+            <button
+              onClick={() => logoInputRef.current?.click()}
+              disabled={logoUploading}
+              className="flex items-center gap-1.5 text-xs font-medium text-coplio-green border border-coplio-green/40 px-3 py-1.5 rounded-lg hover:bg-coplio-green-light transition-colors disabled:opacity-60"
+            >
+              {logoUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+              {logoUploading ? 'Upload en cours...' : 'Changer le logo'}
+            </button>
+            {logoError && <p className="text-xs text-coplio-red mt-1">{logoError}</p>}
+          </div>
         </div>
 
         <div className="space-y-4">

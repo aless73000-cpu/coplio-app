@@ -12,6 +12,7 @@ import {
 import Link from 'next/link'
 import { formatEuro, formatDate } from '@/lib/utils'
 import { RecouvrementChart, StatutChart, EvolutionChart, TauxGlobalCard } from '@/components/syndic/DashboardCharts'
+import { OnboardingChecklist } from '@/components/syndic/OnboardingChecklist'
 import type { Copropriete, Sinistre, AssembleeGenerale } from '@/types'
 
 export default async function DashboardPage() {
@@ -68,6 +69,42 @@ export default async function DashboardPage() {
   ])
 
   const allAppels = (impayes ?? []) as { copropriete_id: string; montant: number; montant_paye: number; paye: boolean; date_echeance?: string }[]
+
+  // Onboarding checklist
+  const nbLots = (coproprietes ?? []).reduce((s: number, c: Copropriete) => s + c.nb_lots, 0)
+  const { count: nbCoproprietaires } = coproprieteIds.length > 0
+    ? await supabase.from('coproprietaires').select('id', { count: 'exact', head: true }).in('copropriete_id', coproprieteIds)
+    : { count: 0 }
+  const onboardingSteps = [
+    {
+      id: 'copropriete',
+      label: 'Ajouter votre première copropriété',
+      description: 'Créez la copropriété que vous gérez',
+      href: '/coproprietes/nouveau',
+      done: (coproprietes?.length ?? 0) > 0,
+    },
+    {
+      id: 'lots',
+      label: 'Ajouter les lots',
+      description: 'Importez ou générez les lots automatiquement',
+      href: coproprietes?.[0] ? `/coproprietes/${coproprietes[0].id}/lots/generer` : '/coproprietes',
+      done: nbLots > 0,
+    },
+    {
+      id: 'coproprietaires',
+      label: 'Inviter les copropriétaires',
+      description: 'Donnez-leur accès au portail en ligne',
+      href: coproprietes?.[0] ? `/coproprietes/${coproprietes[0].id}/coproprietaires` : '/coproprietes',
+      done: (nbCoproprietaires ?? 0) > 0,
+    },
+    {
+      id: 'appel',
+      label: 'Émettre votre premier appel de charges',
+      description: 'Créez et envoyez le premier appel',
+      href: '/appels-charges/nouveau',
+      done: allAppels.length > 0,
+    },
+  ]
 
   const kpis = {
     nb_coproprietes: coproprietes?.length ?? 0,
@@ -154,6 +191,9 @@ export default async function DashboardPage() {
           })}
         </p>
       </div>
+
+      {/* Onboarding checklist */}
+      <OnboardingChecklist steps={onboardingSteps} />
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
