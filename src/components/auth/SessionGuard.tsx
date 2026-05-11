@@ -17,8 +17,14 @@ export function SessionGuard({ loginPath }: SessionGuardProps) {
 
     if (!hasPersist && !hasSession) {
       const supabase = createClient()
-      supabase.auth.signOut().then(() => {
-        router.replace(loginPath)
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (!session) {
+          // Pas de session du tout → rediriger vers login
+          router.replace(loginPath)
+        } else {
+          // Session valide mais pas de flag → récupération gracieuse
+          sessionStorage.setItem('coplio_session', '1')
+        }
       })
     }
   }, [loginPath, router])
