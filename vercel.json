@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/trial-ending",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/relances-impayes",
+      "schedule": "0 8 * * *"
     }
   ]
 }
