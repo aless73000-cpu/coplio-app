@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { formatEuro, formatDate } from '@/lib/utils'
-import { RecouvrementChart, StatutChart } from '@/components/syndic/DashboardCharts'
+import { RecouvrementChart, StatutChart, EvolutionChart, TauxGlobalCard } from '@/components/syndic/DashboardCharts'
 import type { Copropriete, Sinistre, AssembleeGenerale } from '@/types'
 
 export default async function DashboardPage() {
@@ -62,12 +62,12 @@ export default async function DashboardPage() {
     coproprieteIds.length > 0
       ? supabase
           .from('appels_charges')
-          .select('copropriete_id, montant, montant_paye, paye')
+          .select('copropriete_id, montant, montant_paye, paye, date_echeance')
           .in('copropriete_id', coproprieteIds)
       : Promise.resolve({ data: [] }),
   ])
 
-  const allAppels = (impayes ?? []) as { copropriete_id: string; montant: number; montant_paye: number; paye: boolean }[]
+  const allAppels = (impayes ?? []) as { copropriete_id: string; montant: number; montant_paye: number; paye: boolean; date_echeance?: string }[]
 
   const kpis = {
     nb_coproprietes: coproprietes?.length ?? 0,
@@ -106,6 +106,36 @@ export default async function DashboardPage() {
     attention:(coproprietes ?? []).filter((c: Copropriete) => c.statut === 'attention').length,
     urgent:   (coproprietes ?? []).filter((c: Copropriete) => c.statut === 'urgent').length,
   }
+
+  // Taux global de recouvrement
+  const totalEmis = allAppels.reduce((s, a) => s + a.montant, 0)
+  const totalRecouvre = allAppels.reduce((s, a) => s + a.montant_paye, 0)
+  const tauxGlobal = totalEmis > 0 ? Math.round((totalRecouvre / totalEmis) * 100) : 100
+
+  // Évolution mensuelle sur 6 mois
+  const evolutionData = (() => {
+    const months: { mois: string; emis: number; recouvre: number }[] = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date()
+      d.setMonth(d.getMonth() - i)
+      const year = d.getFullYear()
+      const month = d.getMonth()
+      const label = d.toLocaleDateString('fr-FR', { month: 'short' })
+
+      const appelsOfMonth = allAppels.filter((a) => {
+        if (!a.date_echeance) return false
+        const ad = new Date(a.date_echeance)
+        return ad.getFullYear() === year && ad.getMonth() === month
+      })
+
+      months.push({
+        mois: label,
+        emis: appelsOfMonth.reduce((s, a) => s + a.montant, 0),
+        recouvre: appelsOfMonth.reduce((s, a) => s + a.montant_paye, 0),
+      })
+    }
+    return months
+  })()
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -159,6 +189,19 @@ export default async function DashboardPage() {
       </div>
 
       {/* Graphiques — uniquement si données disponibles */}
+      {allAppels.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <EvolutionChart data={evolutionData} />
+          </div>
+          <TauxGlobalCard
+            taux={tauxGlobal}
+            montantRecouvre={totalRecouvre}
+            montantTotal={totalEmis}
+          />
+        </div>
+      )}
+
       {(tauxData.length > 0 || statutData.aJour + statutData.attention + statutData.urgent > 0) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <RecouvrementChart data={tauxData} />

@@ -11,7 +11,141 @@ import {
   Pie,
   Cell,
   Legend,
+  LineChart,
+  Line,
+  CartesianGrid,
 } from 'recharts'
+
+// ─── Évolution mensuelle des charges ──────────────────────────
+
+interface EvolutionData {
+  mois: string
+  emis: number
+  recouvre: number
+}
+
+interface EvolutionProps {
+  data: EvolutionData[]
+}
+
+export function EvolutionChart({ data }: EvolutionProps) {
+  if (data.length === 0) return null
+
+  return (
+    <div className="coplio-card">
+      <h2 className="font-semibold text-coplio-text mb-1">Évolution des charges</h2>
+      <p className="text-xs text-muted-foreground mb-4">Charges émises vs recouvrées (6 derniers mois)</p>
+      <ResponsiveContainer width="100%" height={200}>
+        <LineChart data={data} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
+          <XAxis
+            dataKey="mois"
+            tick={{ fontSize: 11, fill: '#888' }}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis
+            tick={{ fontSize: 11, fill: '#888' }}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(v) => `${(v / 1000).toFixed(0)}k€`}
+          />
+          <Tooltip
+            formatter={(value: number, name: string) => [
+              `${value.toLocaleString('fr-FR')} €`,
+              name === 'emis' ? 'Émis' : 'Recouvré',
+            ]}
+            contentStyle={{
+              fontSize: 12,
+              border: '1px solid #e5e5e5',
+              borderRadius: 8,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            }}
+          />
+          <Line
+            type="monotone"
+            dataKey="emis"
+            stroke="#E6A93A"
+            strokeWidth={2}
+            dot={{ fill: '#E6A93A', strokeWidth: 0, r: 3 }}
+            name="emis"
+          />
+          <Line
+            type="monotone"
+            dataKey="recouvre"
+            stroke="#0F6E56"
+            strokeWidth={2}
+            dot={{ fill: '#0F6E56', strokeWidth: 0, r: 3 }}
+            name="recouvre"
+          />
+        </LineChart>
+      </ResponsiveContainer>
+      <div className="flex items-center gap-4 mt-2 justify-center">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-0.5 bg-coplio-amber rounded" />
+          <span className="text-xs text-muted-foreground">Émis</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-0.5 bg-coplio-green rounded" />
+          <span className="text-xs text-muted-foreground">Recouvré</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Taux de recouvrement global ──────────────────────────────
+
+interface TauxGlobalProps {
+  taux: number
+  montantRecouvre: number
+  montantTotal: number
+}
+
+export function TauxGlobalCard({ taux, montantRecouvre, montantTotal }: TauxGlobalProps) {
+  const color = taux >= 90 ? '#0F6E56' : taux >= 70 ? '#E6A93A' : '#D04040'
+  const circumference = 2 * Math.PI * 40
+  const offset = circumference - (taux / 100) * circumference
+
+  return (
+    <div className="coplio-card flex flex-col items-center justify-center text-center">
+      <h2 className="font-semibold text-coplio-text mb-1 self-start">Taux global</h2>
+      <p className="text-xs text-muted-foreground mb-4 self-start">Recouvrement sur l&apos;ensemble du portefeuille</p>
+
+      <div className="relative w-28 h-28">
+        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#F1EFE8" strokeWidth="10" />
+          <circle
+            cx="50" cy="50" r="40" fill="none"
+            stroke={color} strokeWidth="10"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            style={{ transition: 'stroke-dashoffset 1s ease' }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-2xl font-bold text-coplio-text">{taux}%</span>
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-3 w-full">
+        <div className="bg-coplio-green-light rounded-lg p-2">
+          <p className="text-xs text-muted-foreground">Recouvré</p>
+          <p className="text-sm font-bold text-coplio-green">
+            {montantRecouvre.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+          </p>
+        </div>
+        <div className="bg-coplio-red-bg rounded-lg p-2">
+          <p className="text-xs text-muted-foreground">Restant</p>
+          <p className="text-sm font-bold text-coplio-red">
+            {(montantTotal - montantRecouvre).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // ─── Taux de recouvrement par copropriété ─────────────────────
 

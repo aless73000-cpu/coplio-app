@@ -133,9 +133,10 @@ interface HeaderProps {
   title?: string
   notifications?: Notification[]
   userId: string
+  mobileSidebar?: React.ReactNode
 }
 
-export function Header({ title, notifications: initial = [], userId }: HeaderProps) {
+export function Header({ title, notifications: initial = [], userId, mobileSidebar }: HeaderProps) {
   const [notifications, setNotifications] = useState<Notification[]>(initial)
   const [showNotifications, setShowNotifications] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -186,9 +187,11 @@ export function Header({ title, notifications: initial = [], userId }: HeaderPro
   }
 
   return (
-    <header className="h-14 bg-white border-b border-border flex items-center px-6 gap-4 sticky top-0 z-30">
+    <header className="h-14 bg-white border-b border-border flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30">
+      {mobileSidebar}
+
       {title && (
-        <h1 className="text-base font-semibold text-coplio-text">{title}</h1>
+        <h1 className="text-base font-semibold text-coplio-text hidden md:block">{title}</h1>
       )}
 
       <GlobalSearch />
