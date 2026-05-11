@@ -4,12 +4,12 @@ import Link from 'next/link'
 import {
   Building2,
   Plus,
-  Search,
-  Filter,
   MapPin,
   Home,
   AlertTriangle,
   CreditCard,
+  Wand2,
+  FileSpreadsheet,
 } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
 import type { Copropriete } from '@/types'
@@ -125,50 +125,68 @@ function CoproprieteCard({ copropriete }: { copropriete: Copropriete }) {
   const { cls, label } = statusConfig[copropriete.statut] ?? statusConfig.a_jour
 
   return (
-    <Link
-      href={`/coproprietes/${copropriete.id}`}
-      className="coplio-card hover:shadow-md transition-all hover:-translate-y-0.5 group"
-    >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="w-10 h-10 bg-coplio-green-light rounded-xl flex items-center justify-center">
-          <Building2 className="w-5 h-5 text-coplio-green" />
+    <div className="coplio-card hover:shadow-md transition-all hover:-translate-y-0.5 flex flex-col">
+      {/* Zone cliquable principale */}
+      <Link href={`/coproprietes/${copropriete.id}`} className="flex-1 group">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="w-10 h-10 bg-coplio-green-light rounded-xl flex items-center justify-center">
+            <Building2 className="w-5 h-5 text-coplio-green" />
+          </div>
+          <span className={cls}>{label}</span>
         </div>
-        <span className={cls}>{label}</span>
-      </div>
 
-      {/* Nom */}
-      <h3 className="font-semibold text-coplio-text group-hover:text-coplio-green transition-colors mb-1">
-        {copropriete.nom}
-      </h3>
+        {/* Nom */}
+        <h3 className="font-semibold text-coplio-text group-hover:text-coplio-green transition-colors mb-1">
+          {copropriete.nom}
+        </h3>
 
-      {/* Adresse */}
-      {(copropriete.ville || copropriete.adresse) && (
-        <div className="flex items-center gap-1 text-xs text-muted-foreground mb-4">
-          <MapPin className="w-3 h-3" />
-          {copropriete.ville
-            ? `${copropriete.code_postal ? copropriete.code_postal + ' ' : ''}${copropriete.ville}`
-            : copropriete.adresse}
+        {/* Adresse */}
+        {(copropriete.ville || copropriete.adresse) && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-4">
+            <MapPin className="w-3 h-3" />
+            {copropriete.ville
+              ? `${copropriete.code_postal ? copropriete.code_postal + ' ' : ''}${copropriete.ville}`
+              : copropriete.adresse}
+          </div>
+        )}
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border">
+          <Stat icon={Home} label="Lots" value={copropriete.nb_lots} />
+          <Stat
+            icon={AlertTriangle}
+            label="Sinistres"
+            value={copropriete.nb_sinistres_ouverts}
+            alert={copropriete.nb_sinistres_ouverts > 0}
+          />
+          <Stat
+            icon={CreditCard}
+            label="Impayés"
+            value={copropriete.montant_impayes > 0 ? formatEuro(copropriete.montant_impayes) : '0'}
+            alert={copropriete.montant_impayes > 0}
+          />
         </div>
-      )}
+      </Link>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border">
-        <Stat icon={Home} label="Lots" value={copropriete.nb_lots} />
-        <Stat
-          icon={AlertTriangle}
-          label="Sinistres"
-          value={copropriete.nb_sinistres_ouverts}
-          alert={copropriete.nb_sinistres_ouverts > 0}
-        />
-        <Stat
-          icon={CreditCard}
-          label="Impayés"
-          value={copropriete.montant_impayes > 0 ? formatEuro(copropriete.montant_impayes) : '0'}
-          alert={copropriete.montant_impayes > 0}
-        />
+      {/* Actions lots */}
+      <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+        <Link
+          href={`/coproprietes/${copropriete.id}/lots/generer`}
+          className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium text-coplio-blue bg-coplio-blue-bg px-2.5 py-1.5 rounded-lg hover:bg-coplio-blue/10 transition-colors"
+        >
+          <Wand2 className="w-3 h-3" />
+          Génération lots
+        </Link>
+        <Link
+          href={`/coproprietes/${copropriete.id}/lots/import`}
+          className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground bg-coplio-bg border border-border px-2.5 py-1.5 rounded-lg hover:bg-border transition-colors"
+        >
+          <FileSpreadsheet className="w-3 h-3" />
+          Import Excel
+        </Link>
       </div>
-    </Link>
+    </div>
   )
 }
 
