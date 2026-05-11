@@ -84,6 +84,28 @@ export async function POST(req: Request) {
       })
       .select().single()
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    // Notifier tous les membres du cabinet concerné
+    if (parsed.data.cabinet_id) {
+      const { data: members } = await admin
+        .from('profiles')
+        .select('id')
+        .eq('cabinet_id', parsed.data.cabinet_id)
+      if (members?.length) {
+        await admin.from('notifications').insert(
+          members.map((m: { id: string }) => ({
+            user_id: m.id,
+            cabinet_id: parsed.data.cabinet_id,
+            type: 'info',
+            titre: 'Nouveau message de Coplio Admin',
+            message: parsed.data.contenu.slice(0, 80),
+            lien: '/messages',
+            lu: false,
+          }))
+        )
+      }
+    }
+
     return NextResponse.json(data)
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })

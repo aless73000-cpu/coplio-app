@@ -54,6 +54,26 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
       .then(data => setAdminMessages(Array.isArray(data) ? data : []))
   }, [tab])
 
+  // Temps réel pour les messages admin (messages entrants de l'admin)
+  useEffect(() => {
+    const supabase = createClient()
+    const channel = supabase
+      .channel('admin-support-live')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'admin_support_messages',
+        filter: `cabinet_id=eq.${cabinetId}`,
+      }, (payload) => {
+        const msg = payload.new as AdminMessage
+        if (msg.sender_type === 'admin') {
+          setAdminMessages(prev => [...prev, msg])
+        }
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [cabinetId])
+
   // Charger messages d'une conversation copropriétaire
   useEffect(() => {
     if (!selectedConv) return
