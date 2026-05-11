@@ -298,25 +298,32 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
 
         {/* Étape 3 — Succès */}
         {currentStep === 3 && (
-          <div className="text-center py-4">
+          <div className="text-center py-2">
             <div className="w-16 h-16 bg-coplio-green-light rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="w-8 h-8 text-coplio-green" />
             </div>
-            <h2 className="text-xl font-bold text-coplio-text mb-2">Votre cabinet est prêt !</h2>
+            <h2 className="text-xl font-bold text-coplio-text mb-1">Votre cabinet est prêt ! 🎉</h2>
             <p className="text-muted-foreground text-sm mb-6">
-              Votre essai gratuit de 14 jours a démarré. Commencez par ajouter
-              votre première copropriété.
+              Essai gratuit de <strong>14 jours</strong> démarré. Aucune carte bancaire requise.
             </p>
 
+            {/* Étapes suggérées */}
             <div className="grid grid-cols-1 gap-2 mb-6 text-left">
               {[
-                '✓ Ajoutez vos copropriétés et lots',
-                '✓ Invitez vos copropriétaires sur leur portail',
-                '✓ Importez vos documents existants',
-              ].map((step) => (
-                <div key={step} className="flex items-center gap-2 text-sm text-coplio-text bg-coplio-green-light p-3 rounded-lg">
-                  {step}
-                </div>
+                { emoji: '🏢', label: 'Ajoutez votre première copropriété', href: '/coproprietes/new' },
+                { emoji: '👥', label: 'Invitez vos copropriétaires', href: '/coproprietaires' },
+                { emoji: '📄', label: 'Importez vos documents', href: '/documents/upload' },
+              ].map(({ emoji, label, href }) => (
+                <a
+                  key={href}
+                  href={href}
+                  className="flex items-center gap-3 text-sm text-coplio-text bg-coplio-green-light
+                             p-3 rounded-lg hover:bg-coplio-green/10 transition-colors cursor-pointer"
+                >
+                  <span className="text-lg">{emoji}</span>
+                  <span className="flex-1">{label}</span>
+                  <ChevronRight className="w-4 h-4 text-coplio-green" />
+                </a>
               ))}
             </div>
 
@@ -325,7 +332,7 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
               className="w-full bg-coplio-green text-white font-medium py-2.5 px-4 rounded-lg
                          hover:bg-coplio-green/90 transition-colors text-sm"
             >
-              Accéder au tableau de bord →
+              Voir mon tableau de bord →
             </button>
           </div>
         )}

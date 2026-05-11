@@ -7,11 +7,11 @@ import {
   CreditCard,
   TrendingUp,
   CalendarDays,
-  Bell,
   ArrowRight,
 } from 'lucide-react'
 import Link from 'next/link'
 import { formatEuro, formatDate } from '@/lib/utils'
+import { RecouvrementChart, StatutChart } from '@/components/syndic/DashboardCharts'
 import type { Copropriete, Sinistre, AssembleeGenerale } from '@/types'
 
 export default async function DashboardPage() {
@@ -62,26 +62,50 @@ export default async function DashboardPage() {
     coproprieteIds.length > 0
       ? supabase
           .from('appels_charges')
-          .select('montant, montant_paye')
+          .select('copropriete_id, montant, montant_paye, paye')
           .in('copropriete_id', coproprieteIds)
-          .eq('paye', false)
       : Promise.resolve({ data: [] }),
   ])
+
+  const allAppels = (impayes ?? []) as { copropriete_id: string; montant: number; montant_paye: number; paye: boolean }[]
 
   const kpis = {
     nb_coproprietes: coproprietes?.length ?? 0,
     nb_lots: (coproprietes ?? []).reduce((s: number, c: Copropriete) => s + c.nb_lots, 0),
     nb_sinistres_ouverts: sinistres?.length ?? 0,
-    montant_total_impayes: (impayes ?? []).reduce(
-      (s: number, a: { montant: number; montant_paye: number }) => s + (a.montant - a.montant_paye),
-      0
-    ),
+    montant_total_impayes: allAppels
+      .filter((a) => !a.paye)
+      .reduce((s, a) => s + (a.montant - a.montant_paye), 0),
     nb_ag_a_preparer: agProchaines?.length ?? 0,
   }
 
   const coproprietesCritiques = (coproprietes ?? [])
     .filter((c: Copropriete) => c.statut !== 'a_jour')
     .slice(0, 5)
+
+  // ─── Données graphiques ────────────────────────────────────
+
+  // Taux de recouvrement par copropriété (top 6)
+  const tauxData = (coproprietes ?? [])
+    .slice(0, 6)
+    .map((c: Copropriete) => {
+      const appels = allAppels.filter((a) => a.copropriete_id === c.id)
+      const totalDu = appels.reduce((s, a) => s + a.montant, 0)
+      const totalPaye = appels.reduce((s, a) => s + a.montant_paye, 0)
+      const taux = totalDu > 0 ? Math.round((totalPaye / totalDu) * 100) : 100
+      return {
+        nom: c.nom.length > 14 ? c.nom.substring(0, 12) + '…' : c.nom,
+        taux,
+        impayes: c.montant_impayes,
+      }
+    })
+
+  // Répartition statuts
+  const statutData = {
+    aJour:    (coproprietes ?? []).filter((c: Copropriete) => c.statut === 'a_jour').length,
+    attention:(coproprietes ?? []).filter((c: Copropriete) => c.statut === 'attention').length,
+    urgent:   (coproprietes ?? []).filter((c: Copropriete) => c.statut === 'urgent').length,
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -133,6 +157,14 @@ export default async function DashboardPage() {
           isAmount
         />
       </div>
+
+      {/* Graphiques — uniquement si données disponibles */}
+      {(tauxData.length > 0 || statutData.aJour + statutData.attention + statutData.urgent > 0) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <RecouvrementChart data={tauxData} />
+          <StatutChart {...statutData} />
+        </div>
+      )}
 
       {/* Contenu principal — 2 colonnes */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import { CreditCard, AlertTriangle, Clock, Send } from 'lucide-react'
-import { formatEuro, formatDate, getOverdueDays } from '@/lib/utils'
+import { CreditCard } from 'lucide-react'
+import { formatEuro, getOverdueDays } from '@/lib/utils'
+import { ImpayesTable } from '@/components/syndic/ImpayesTable'
 import type { AppelCharges, Lot, Copropriete } from '@/types'
 
 type AppelWithDetails = AppelCharges & {
@@ -112,74 +112,9 @@ export default async function ImpayésPage() {
           <p className="text-sm text-muted-foreground mt-1">Tous les appels de charges sont à jour.</p>
         </div>
       ) : (
-        <div className="coplio-card">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-coplio-text">Détail des impayés</h2>
-            <button
-              className="flex items-center gap-2 px-3 py-1.5 bg-coplio-amber text-white rounded-lg
-                         text-xs font-medium hover:bg-coplio-amber/90 transition-colors"
-            >
-              <Send className="w-3.5 h-3.5" />
-              Relancer tous
-            </button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  {['Copropriété / Lot', 'Libellé', 'Montant dû', 'Retard', 'Relances', 'Actions'].map(h => (
-                    <th key={h} className="text-left py-2 text-xs text-muted-foreground font-medium">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {(impayes as AppelWithDetails[]).map((appel) => {
-                  const overdue = getOverdueDays(appel.date_echeance)
-                  const restant = appel.montant - appel.montant_paye
-
-                  return (
-                    <tr key={appel.id} className="border-b border-border hover:bg-coplio-bg transition-colors">
-                      <td className="py-3">
-                        <p>{(appel.copropriete as { nom?: string })?.nom}</p>
-                        <p className="text-xs text-muted-foreground">Lot {appel.lot?.numero}</p>
-                      </td>
-                      <td className="py-3 text-muted-foreground">{appel.libelle}</td>
-                      <td className="py-3 font-bold text-coplio-red">{formatEuro(restant)}</td>
-                      <td className="py-3">
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                          overdue >= 90 ? 'badge-urgent' :
-                          overdue >= 30 ? 'badge-attention' :
-                          'bg-coplio-blue-bg text-coplio-blue'
-                        }`}>
-                          J+{overdue}
-                        </span>
-                      </td>
-                      <td className="py-3 text-center text-muted-foreground">
-                        {appel.nb_relances}
-                        {appel.derniere_relance_at && (
-                          <p className="text-xs text-muted-foreground">
-                            {formatDate(appel.derniere_relance_at)}
-                          </p>
-                        )}
-                      </td>
-                      <td className="py-3">
-                        <button
-                          className="flex items-center gap-1 text-xs text-coplio-amber font-medium
-                                     hover:text-coplio-amber/80 transition-colors"
-                        >
-                          <Send className="w-3 h-3" />
-                          Relancer
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <ImpayesTable impayes={impayes as AppelWithDetails[]} />
       )}
+
     </div>
   )
 }
