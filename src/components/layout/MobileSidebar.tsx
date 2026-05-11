@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 import {
   Menu, X, Home, LayoutDashboard, Building2, Users, FileText,
   AlertTriangle, CalendarDays, CreditCard, Settings, LogOut,
-  Receipt, MessageSquare, Calendar,
+  Receipt, MessageSquare, Calendar, FileStack, Upload,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -24,6 +24,8 @@ const NAV_ITEMS = [
   { label: 'Impayés', href: '/impayes', icon: CreditCard },
   { label: 'Agenda', href: '/agenda', icon: Calendar },
   { label: 'Messages', href: '/messages', icon: MessageSquare },
+  { label: 'Modèles', href: '/modeles', icon: FileStack },
+  { label: 'Import CSV', href: '/importer', icon: Upload },
 ]
 
 interface MobileSidebarProps {

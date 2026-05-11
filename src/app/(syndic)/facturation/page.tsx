@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Check, Zap, Crown, Star } from 'lucide-react'
+import { Check, Zap, Crown, Star, AlertTriangle, Mail } from 'lucide-react'
 import { PLANS_CONFIG } from '@/types'
 import { SubscribeButton } from '@/components/stripe/SubscribeButton'
 import { ManageButton } from '@/components/stripe/ManageButton'
@@ -46,6 +46,22 @@ export default async function FacturationPage({
           Gérez votre abonnement Coplio
         </p>
       </div>
+
+      {/* Trial urgence */}
+      {currentPlan === 'trial' && trialDaysLeft > 0 && trialDaysLeft <= 7 && (
+        <div className="flex items-start gap-3 p-4 bg-coplio-amber-bg border border-coplio-amber/20 rounded-xl">
+          <AlertTriangle className="w-5 h-5 text-coplio-amber flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-coplio-amber">
+              Votre essai expire dans {trialDaysLeft} jour{trialDaysLeft > 1 ? 's' : ''}
+            </p>
+            <p className="text-sm text-coplio-amber/80 mt-1">
+              Choisissez un plan ci-dessous pour conserver l&apos;accès à toutes vos données.
+              Aucune donnée n&apos;est supprimée à l&apos;expiration.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Alertes */}
       {searchParams.success && (
@@ -154,6 +170,48 @@ export default async function FacturationPage({
               </div>
             )
           })}
+        </div>
+      </div>
+
+      {/* FAQ rapide */}
+      <div className="coplio-card space-y-4">
+        <h2 className="font-semibold text-coplio-text">Questions fréquentes</h2>
+        {[
+          {
+            q: 'Puis-je changer de plan à tout moment ?',
+            r: 'Oui. Le changement prend effet immédiatement avec proratisation.',
+          },
+          {
+            q: 'Que se passe-t-il à la fin de l\'essai ?',
+            r: 'Votre compte est suspendu mais toutes vos données sont conservées 30 jours. Vous pouvez souscrire à tout moment.',
+          },
+          {
+            q: 'Comment régler ?',
+            r: 'Par carte bancaire via Stripe (Visa, Mastercard, Amex). Prélèvement mensuel automatique.',
+          },
+          {
+            q: 'Y a-t-il un engagement ?',
+            r: 'Non. Vous pouvez résilier à tout moment depuis cette page, sans frais.',
+          },
+        ].map(({ q, r }) => (
+          <div key={q} className="border-b border-border pb-4 last:border-0 last:pb-0">
+            <p className="font-medium text-sm text-coplio-text">{q}</p>
+            <p className="text-sm text-muted-foreground mt-1">{r}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Contact */}
+      <div className="flex items-center gap-4 p-4 bg-coplio-bg rounded-xl border border-border">
+        <Mail className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+        <div>
+          <p className="text-sm font-medium text-coplio-text">Une question sur votre abonnement ?</p>
+          <p className="text-sm text-muted-foreground">
+            Contactez-nous :{' '}
+            <a href="mailto:contact@coplio.fr" className="text-coplio-green hover:underline font-medium">
+              contact@coplio.fr
+            </a>
+          </p>
         </div>
       </div>
 

@@ -79,7 +79,7 @@ export default async function AccueilPage() {
       </div>
 
       {/* Ligne 1 : Solde + Raccourcis */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Solde */}
         <div className={`coplio-card ${montantDu > 0 ? 'border-coplio-red/30 bg-coplio-red-bg' : ''}`}>
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Solde à régler</p>
@@ -105,7 +105,7 @@ export default async function AccueilPage() {
         </div>
 
         {/* Raccourcis */}
-        <div className="col-span-2 grid grid-cols-2 gap-4">
+        <div className="md:col-span-2 grid grid-cols-2 gap-4">
           {[
             { href: '/mes-charges', icon: CreditCard, label: 'Mes charges', color: 'bg-coplio-green-light', iconColor: 'text-coplio-green', sub: `${(appels ?? []).length} en attente` },
             { href: '/mes-documents', icon: FileText, label: 'Mes documents', color: 'bg-blue-50', iconColor: 'text-blue-600', sub: `${documents?.length ?? 0} disponible${(documents?.length ?? 0) > 1 ? 's' : ''}` },
@@ -128,7 +128,7 @@ export default async function AccueilPage() {
       </div>
 
       {/* Ligne 2 : Documents récents + Travaux + Notifications */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Documents récents */}
         <div className="coplio-card">
           <div className="flex items-center justify-between mb-4">

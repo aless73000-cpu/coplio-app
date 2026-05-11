@@ -78,7 +78,7 @@ export default async function MesChargesPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className={`coplio-card ${total_du > 0 ? 'border-coplio-red/30 bg-coplio-red-bg' : ''}`}>
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Solde dû</p>

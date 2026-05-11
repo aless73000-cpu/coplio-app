@@ -17,6 +17,8 @@ import {
   Receipt,
   MessageSquare,
   Calendar,
+  Upload,
+  FileStack,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -80,9 +82,19 @@ const NAV_ITEMS = [
     href: '/messages',
     icon: MessageSquare,
   },
+  {
+    label: 'Modèles',
+    href: '/modeles',
+    icon: FileStack,
+  },
 ]
 
 const BOTTOM_ITEMS = [
+  {
+    label: 'Import CSV',
+    href: '/importer',
+    icon: Upload,
+  },
   {
     label: 'Paramètres',
     href: '/parametres',
