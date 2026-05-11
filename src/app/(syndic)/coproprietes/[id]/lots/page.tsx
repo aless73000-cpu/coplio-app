@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Plus, FileSpreadsheet, Wand2 } from 'lucide-react'
+import { ArrowLeft, Plus, FileSpreadsheet, Wand2, Pencil } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
 import { LOT_TYPE_LABELS } from '@/types'
 import type { Lot } from '@/types'
@@ -61,6 +61,7 @@ export default async function LotsPage({ params }: { params: { id: string } }) {
                 <th className="text-right py-2 text-muted-foreground font-medium text-xs">Surface</th>
                 <th className="text-right py-2 text-muted-foreground font-medium text-xs">Tantièmes</th>
                 <th className="text-right py-2 text-muted-foreground font-medium text-xs">Solde</th>
+                <th className="py-2"></th>
               </tr>
             </thead>
             <tbody>
@@ -79,6 +80,15 @@ export default async function LotsPage({ params }: { params: { id: string } }) {
                   <td className="py-3 text-right">{lot.tantiemes}</td>
                   <td className={`py-3 text-right font-medium ${(lot.solde_compte ?? 0) < 0 ? 'text-red-500' : 'text-coplio-text'}`}>
                     {formatEuro(lot.solde_compte ?? 0)}
+                  </td>
+                  <td className="py-3 text-right">
+                    <Link
+                      href={`/lots/${lot.id}/edit`}
+                      className="p-1.5 rounded-md hover:bg-border text-muted-foreground hover:text-coplio-text transition-colors inline-flex"
+                      title="Modifier"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Link>
                   </td>
                 </tr>
               ))}
