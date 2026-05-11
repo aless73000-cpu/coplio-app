@@ -13,6 +13,7 @@ import Link from 'next/link'
 import { formatEuro, formatDate } from '@/lib/utils'
 import { RecouvrementChart, StatutChart, EvolutionChart, TauxGlobalCard } from '@/components/syndic/DashboardCharts'
 import { OnboardingChecklist } from '@/components/syndic/OnboardingChecklist'
+import { RapportMensuelButton } from '@/components/syndic/RapportMensuelButton'
 import type { Copropriete, Sinistre, AssembleeGenerale } from '@/types'
 
 export default async function DashboardPage() {
@@ -192,14 +193,13 @@ export default async function DashboardPage() {
             })}
           </p>
         </div>
-        <Link
-          href={`/api/rapports/mensuel?mois=${new Date().getFullYear()}-${new Date().getMonth() === 0 ? 12 : new Date().getMonth()}`}
-          className="flex-shrink-0 flex items-center gap-1.5 text-xs font-medium text-muted-foreground border border-border px-3 py-2 rounded-lg hover:border-coplio-green hover:text-coplio-green transition-colors"
-          target="_blank"
-        >
-          <TrendingUp className="w-3.5 h-3.5" />
-          Rapport mensuel
-        </Link>
+        <RapportMensuelButton data={{
+          coproprietes: (coproprietes ?? []) as Copropriete[],
+          totalEmis,
+          totalRecouvre,
+          tauxGlobal,
+          cabinetNom: (profile.cabinet as { nom?: string } | null)?.nom ?? 'Mon cabinet',
+        }} />
       </div>
 
       {/* Onboarding checklist */}

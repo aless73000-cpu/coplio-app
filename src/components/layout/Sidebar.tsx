@@ -19,6 +19,7 @@ import {
   Calendar,
   Upload,
   FileStack,
+  UsersRound,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -90,6 +91,11 @@ const NAV_ITEMS = [
 ]
 
 const BOTTOM_ITEMS = [
+  {
+    label: 'Équipe',
+    href: '/equipe',
+    icon: UsersRound,
+  },
   {
     label: 'Import CSV',
     href: '/importer',

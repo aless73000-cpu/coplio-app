@@ -49,11 +49,12 @@ export async function POST(request: Request) {
     const parsed = schema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
+    // Vérification quota via plan-guard
     const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (profile?.cabinet_id) {
-      const quota = await checkQuota(profile.cabinet_id, 'lots', 1)
-      if (!quota.allowed) return quotaExceededResponse(quota)
-    }
+    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet introuvable' }, { status: 400 })
+
+    const quota = await checkQuota(profile.cabinet_id, 'lots', 1)
+    if (!quota.allowed) return quotaExceededResponse(quota)
 
     const admin = createAdminClient()
     const { data, error } = await admin.from('lots').insert(parsed.data).select().single()
