@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowLeft, User, Mail, Phone, Home, MapPin, Pencil, Smartphone } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import { InviterPortailButton } from '@/components/syndic/InviterPortailButton'
+import { DeleteCoproprietaireButton } from '@/components/syndic/DeleteCoproprietaireButton'
 
 export default async function CopropriétairePage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
@@ -52,13 +53,19 @@ export default async function CopropriétairePage({ params }: { params: { id: st
             {lots.length} lot{lots.length > 1 ? 's' : ''}
           </p>
         </div>
-        <Link
-          href={`/coproprietaires/${params.id}/edit`}
-          className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors"
-        >
-          <Pencil className="w-4 h-4" />
-          Modifier
-        </Link>
+        <div className="flex items-center gap-2">
+          <DeleteCoproprietaireButton
+            id={params.id}
+            nom={`${copropriétaire.prenom} ${copropriétaire.nom}`}
+          />
+          <Link
+            href={`/coproprietaires/${params.id}/edit`}
+            className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors"
+          >
+            <Pencil className="w-4 h-4" />
+            Modifier
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-6">

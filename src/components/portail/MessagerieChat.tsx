@@ -122,6 +122,13 @@ export function MessagerieChat({ userId, initialMessages, conversation: initialC
         .from('conversations')
         .update({ derniere_activite: new Date().toISOString() })
         .eq('id', convId)
+
+      // Notifier les syndics du cabinet
+      fetch('/api/portail/notify-syndic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversation_id: convId, message_preview: contenu.slice(0, 80) }),
+      }).catch(() => {})
     }
 
     setSending(false)

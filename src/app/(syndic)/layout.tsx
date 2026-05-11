@@ -58,7 +58,7 @@ export default async function SyndicLayout({
       <SessionGuard loginPath="/login" />
       <Sidebar profile={profile as Profile} cabinet={cabinet as Cabinet} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header notifications={notifications ?? []} />
+        <Header notifications={notifications ?? []} userId={user.id} />
         <main className="flex-1 overflow-y-auto p-6">
           {children}
         </main>
