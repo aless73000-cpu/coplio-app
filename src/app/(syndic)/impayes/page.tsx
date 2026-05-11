@@ -45,7 +45,6 @@ export default async function ImpayésPage() {
     0
   )
 
-  // Catégoriser par ancienneté
   const categories = {
     recent: (impayes ?? []).filter((a: AppelWithDetails) => getOverdueDays(a.date_echeance) < 30),
     moyen: (impayes ?? []).filter((a: AppelWithDetails) => {
@@ -114,7 +113,6 @@ export default async function ImpayésPage() {
       ) : (
         <ImpayesTable impayes={impayes as AppelWithDetails[]} />
       )}
-
     </div>
   )
 }

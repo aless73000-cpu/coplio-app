@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, CreditCard, CheckCircle2, Clock, AlertTriangle } from 'lucide-react'
 import { formatEuro, formatDate, getOverdueDays } from '@/lib/utils'
+import { PayerButton } from '@/components/syndic/PayerButton'
 import type { AppelCharges, Lot, Copropriete } from '@/types'
 
 type AppelWithDetails = AppelCharges & {
@@ -205,7 +206,7 @@ export default async function AppelsChargesPage({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
-                {['Libellé', 'Copropriété / Lot', 'Montant', 'Échéance', 'Retard', 'Statut'].map((h) => (
+                {['Libellé', 'Copropriété / Lot', 'Montant', 'Échéance', 'Retard', 'Statut', 'Action'].map((h) => (
                   <th key={h} className="text-left py-2.5 text-xs text-muted-foreground font-medium first:pl-1">{h}</th>
                 ))}
               </tr>
@@ -261,6 +262,9 @@ export default async function AppelsChargesPage({
                           {isLate ? 'En retard' : 'En attente'}
                         </span>
                       )}
+                    </td>
+                    <td className="py-3">
+                      {!appel.paye && <PayerButton appelId={appel.id} />}
                     </td>
                   </tr>
                 )

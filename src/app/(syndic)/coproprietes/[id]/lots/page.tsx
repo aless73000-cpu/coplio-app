@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { ArrowLeft, Plus, FileSpreadsheet, Wand2 } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
 import { LOT_TYPE_LABELS } from '@/types'
 import type { Lot } from '@/types'
@@ -26,12 +26,28 @@ export default async function LotsPage({ params }: { params: { id: string } }) {
         </Link>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-coplio-text">Lots</h1>
-          <p className="text-muted-foreground text-sm">{copropriete.nom}</p>
+          <p className="text-muted-foreground text-sm">{copropriete.nom} · {lots?.length ?? 0} lot{(lots?.length ?? 0) > 1 ? 's' : ''}</p>
         </div>
-        <Link href={`/coproprietes/${params.id}/lots/new`} className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors">
-          <Plus className="w-4 h-4" />
-          Ajouter un lot
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/coproprietes/${params.id}/lots/generer`}
+            className="flex items-center gap-2 bg-coplio-blue-bg text-coplio-blue border border-coplio-blue/20 text-sm font-medium px-3 py-2 rounded-lg hover:bg-coplio-blue/10 transition-colors"
+          >
+            <Wand2 className="w-4 h-4" />
+            Génération auto
+          </Link>
+          <Link
+            href={`/coproprietes/${params.id}/lots/import`}
+            className="flex items-center gap-2 bg-coplio-bg text-coplio-text border border-border text-sm font-medium px-3 py-2 rounded-lg hover:bg-border transition-colors"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            Import Excel
+          </Link>
+          <Link href={`/coproprietes/${params.id}/lots/new`} className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors">
+            <Plus className="w-4 h-4" />
+            Ajouter
+          </Link>
+        </div>
       </div>
 
       <div className="coplio-card overflow-x-auto">
@@ -69,12 +85,35 @@ export default async function LotsPage({ params }: { params: { id: string } }) {
             </tbody>
           </table>
         ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">Aucun lot enregistré</p>
-            <Link href={`/coproprietes/${params.id}/lots/new`} className="inline-flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors">
-              <Plus className="w-4 h-4" />
-              Ajouter un lot
-            </Link>
+          <div className="text-center py-14">
+            <div className="w-14 h-14 bg-coplio-green-light rounded-full flex items-center justify-center mx-auto mb-3">
+              <FileSpreadsheet className="w-7 h-7 text-coplio-green" />
+            </div>
+            <p className="font-semibold text-coplio-text mb-1">Aucun lot enregistré</p>
+            <p className="text-sm text-muted-foreground mb-5">Créez vos lots manuellement, par génération automatique ou via import Excel.</p>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <Link
+                href={`/coproprietes/${params.id}/lots/generer`}
+                className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors"
+              >
+                <Wand2 className="w-4 h-4" />
+                Génération automatique
+              </Link>
+              <Link
+                href={`/coproprietes/${params.id}/lots/import`}
+                className="flex items-center gap-2 bg-coplio-bg text-coplio-text border border-border text-sm font-medium px-4 py-2 rounded-lg hover:bg-border transition-colors"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                Import Excel
+              </Link>
+              <Link
+                href={`/coproprietes/${params.id}/lots/new`}
+                className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-coplio-text transition-colors px-4 py-2"
+              >
+                <Plus className="w-4 h-4" />
+                Ajouter manuellement
+              </Link>
+            </div>
           </div>
         )}
       </div>
