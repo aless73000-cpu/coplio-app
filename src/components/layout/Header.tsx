@@ -1,10 +1,133 @@
 'use client'
 
-import { Bell, Search } from 'lucide-react'
-import { useState, useEffect, useRef } from 'react'
+import { Bell, Search, Building2, Home, Users, Loader2 } from 'lucide-react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Notification } from '@/types'
+
+// ─── Recherche globale ──────────────────────────────────────────────
+
+interface SearchResult {
+  type: 'copropriete' | 'lot' | 'coproprietaire'
+  id: string
+  label: string
+  sub: string
+  href: string
+}
+
+const ICONS = {
+  copropriete: Building2,
+  lot: Home,
+  coproprietaire: Users,
+}
+
+function GlobalSearch() {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<SearchResult[]>([])
+  const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const router = useRouter()
+
+  const search = useCallback(async (q: string) => {
+    if (q.length < 2) { setResults([]); return }
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
+      const data = await res.json()
+      setResults(data.results ?? [])
+    } catch {
+      setResults([])
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    const t = setTimeout(() => search(query), 250)
+    return () => clearTimeout(t)
+  }, [query, search])
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  // Cmd+K / Ctrl+K
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        const input = ref.current?.querySelector('input')
+        input?.focus()
+        setOpen(true)
+      }
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [])
+
+  function handleSelect(href: string) {
+    setOpen(false)
+    setQuery('')
+    router.push(href)
+  }
+
+  return (
+    <div className="relative flex-1 max-w-md" ref={ref}>
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => { setQuery(e.target.value); setOpen(true) }}
+        onFocus={() => setOpen(true)}
+        placeholder="Rechercher… (⌘K)"
+        className="w-full pl-9 pr-4 py-1.5 text-sm bg-coplio-bg border border-border rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
+                   placeholder:text-muted-foreground"
+      />
+      {loading && (
+        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground animate-spin" />
+      )}
+
+      {open && query.length >= 2 && (
+        <div className="absolute top-full mt-2 left-0 right-0 bg-white rounded-xl border border-border shadow-lg z-50 overflow-hidden">
+          {results.length === 0 && !loading ? (
+            <p className="text-sm text-muted-foreground px-4 py-3">Aucun résultat pour &ldquo;{query}&rdquo;</p>
+          ) : (
+            <ul>
+              {results.map((r) => {
+                const Icon = ICONS[r.type]
+                return (
+                  <li key={`${r.type}-${r.id}`}>
+                    <button
+                      onClick={() => handleSelect(r.href)}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-coplio-bg transition-colors text-left"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-coplio-green-light flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-3.5 h-3.5 text-coplio-green" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-coplio-text truncate">{r.label}</p>
+                        <p className="text-xs text-muted-foreground truncate">{r.sub}</p>
+                      </div>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 interface HeaderProps {
   title?: string
@@ -68,18 +191,7 @@ export function Header({ title, notifications: initial = [], userId }: HeaderPro
         <h1 className="text-base font-semibold text-coplio-text">{title}</h1>
       )}
 
-      <div className="flex-1 max-w-md">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Rechercher une copropriété, un lot..."
-            className="w-full pl-9 pr-4 py-1.5 text-sm bg-coplio-bg border border-border rounded-lg
-                       focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
-                       placeholder:text-muted-foreground"
-          />
-        </div>
-      </div>
+      <GlobalSearch />
 
       <div className="flex items-center gap-2 ml-auto">
         <div className="relative" ref={dropdownRef}>

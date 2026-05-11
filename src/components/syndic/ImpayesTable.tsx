@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Send, Loader2 } from 'lucide-react'
+import { Send, Loader2, Download, FileText } from 'lucide-react'
 import { toast } from 'sonner'
 import { RelanceButton } from './RelanceButton'
 import { formatEuro, formatDate, getOverdueDays } from '@/lib/utils'
+import { exportCSV, exportPDF } from '@/lib/export'
 import type { AppelCharges, Lot, Copropriete } from '@/types'
 
 type AppelWithDetails = AppelCharges & {
@@ -19,6 +20,46 @@ interface Props {
 export function ImpayesTable({ impayes: initial }: Props) {
   const [items, setItems] = useState(initial)
   const [bulkLoading, setBulkLoading] = useState(false)
+
+  function handleExportCSV() {
+    exportCSV(
+      items.map((a) => ({
+        Copropriété: a.copropriete?.nom ?? '',
+        Lot: a.lot?.numero ?? '',
+        Libellé: a.libelle,
+        'Montant dû (€)': (a.montant - a.montant_paye).toFixed(2),
+        Échéance: formatDate(a.date_echeance),
+        'Retard (jours)': getOverdueDays(a.date_echeance),
+        Relances: a.nb_relances,
+        'Dernière relance': a.derniere_relance_at ? formatDate(a.derniere_relance_at) : '',
+      })),
+      'impayes'
+    )
+  }
+
+  async function handleExportPDF() {
+    await exportPDF({
+      title: 'Suivi des impayés',
+      subtitle: `${items.length} dossier${items.length > 1 ? 's' : ''} impayé${items.length > 1 ? 's' : ''}`,
+      filename: 'impayes',
+      columns: [
+        { header: 'Copropriété', key: 'copropriete', width: 35 },
+        { header: 'Lot', key: 'lot', width: 15 },
+        { header: 'Libellé', key: 'libelle', width: 40 },
+        { header: 'Montant dû', key: 'montant', width: 25 },
+        { header: 'Retard', key: 'retard', width: 18 },
+        { header: 'Relances', key: 'relances', width: 18 },
+      ],
+      rows: items.map((a) => ({
+        copropriete: a.copropriete?.nom ?? '',
+        lot: a.lot?.numero ?? '',
+        libelle: a.libelle,
+        montant: formatEuro(a.montant - a.montant_paye),
+        retard: `J+${getOverdueDays(a.date_echeance)}`,
+        relances: a.nb_relances,
+      })),
+    })
+  }
 
   function handleSuccess(id: string, newNbRelances: number) {
     setItems((prev) =>
@@ -65,17 +106,35 @@ export function ImpayesTable({ impayes: initial }: Props) {
     <div className="coplio-card">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-coplio-text">Détail des impayés</h2>
-        <button
-          onClick={handleRelanceTous}
-          disabled={bulkLoading}
-          className="flex items-center gap-2 px-3 py-1.5 bg-coplio-amber text-white rounded-lg
-                     text-xs font-medium hover:bg-coplio-amber/90 transition-colors disabled:opacity-60"
-        >
-          {bulkLoading
-            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            : <Send className="w-3.5 h-3.5" />}
-          {bulkLoading ? 'Envoi…' : 'Relancer tous'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-coplio-bg border border-border text-coplio-text rounded-lg
+                       text-xs font-medium hover:bg-border transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            CSV
+          </button>
+          <button
+            onClick={handleExportPDF}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-coplio-bg border border-border text-coplio-text rounded-lg
+                       text-xs font-medium hover:bg-border transition-colors"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            PDF
+          </button>
+          <button
+            onClick={handleRelanceTous}
+            disabled={bulkLoading}
+            className="flex items-center gap-2 px-3 py-1.5 bg-coplio-amber text-white rounded-lg
+                       text-xs font-medium hover:bg-coplio-amber/90 transition-colors disabled:opacity-60"
+          >
+            {bulkLoading
+              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              : <Send className="w-3.5 h-3.5" />}
+            {bulkLoading ? 'Envoi…' : 'Relancer tous'}
+          </button>
+        </div>
       </div>
 
       <div className="overflow-x-auto">

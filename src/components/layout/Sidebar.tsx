@@ -13,11 +13,10 @@ import {
   CreditCard,
   Settings,
   LogOut,
-  Bell,
-  ChevronDown,
   Home,
   Receipt,
   MessageSquare,
+  Calendar,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -70,6 +69,11 @@ const NAV_ITEMS = [
     label: 'Impayés',
     href: '/impayes',
     icon: CreditCard,
+  },
+  {
+    label: 'Agenda',
+    href: '/agenda',
+    icon: Calendar,
   },
   {
     label: 'Messages',
