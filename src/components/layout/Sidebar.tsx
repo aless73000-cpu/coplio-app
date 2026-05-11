@@ -22,7 +22,7 @@ import {
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface SidebarProps {
   profile: Profile
@@ -91,10 +91,55 @@ const BOTTOM_ITEMS = [
   },
 ]
 
-export function Sidebar({ profile, cabinet, unreadMessages = 0 }: SidebarProps) {
+export function Sidebar({ profile, cabinet, unreadMessages: initialUnread = 0 }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)
+  const [unreadMessages, setUnreadMessages] = useState(initialUnread)
+
+  // Remettre à zéro quand on est sur la page messages
+  useEffect(() => {
+    if (pathname === '/messages') setUnreadMessages(0)
+  }, [pathname])
+
+  // Temps réel : écoute les nouveaux messages copropriétaires + admin
+  useEffect(() => {
+    const supabase = createClient()
+
+    // Messages des copropriétaires (table messages via conversations du cabinet)
+    const ch1 = supabase
+      .channel('sidebar-msgs-copro')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+      }, (payload) => {
+        if (payload.new.expediteur_id !== profile.id) {
+          setUnreadMessages(n => n + 1)
+        }
+      })
+      .subscribe()
+
+    // Messages de l'admin (admin_support_messages)
+    const ch2 = supabase
+      .channel('sidebar-msgs-admin')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'admin_support_messages',
+        filter: `cabinet_id=eq.${cabinet.id}`,
+      }, (payload) => {
+        if (payload.new.sender_type === 'admin') {
+          setUnreadMessages(n => n + 1)
+        }
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(ch1)
+      supabase.removeChannel(ch2)
+    }
+  }, [profile.id, cabinet.id])
 
   async function handleSignOut() {
     setSigningOut(true)
