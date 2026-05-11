@@ -1,7 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { sendEmail, emailNouvelAppelCharges } from '@/lib/resend'
+import { Email } from '@/lib/email'
 
 const appelSchema = z.object({
   copropriete_id: z.string().uuid(),
@@ -91,20 +91,16 @@ async function sendNotificationsCharges(
 
     // Un email par appel
     for (const appel of lotAppels) {
-      await sendEmail({
-        to: profile.email,
-        subject: `Nouvel appel de charges — ${appel.libelle}`,
-        html: emailNouvelAppelCharges({
-          prenom: profile.prenom ?? '',
-          nom: profile.nom ?? '',
-          libelle: appel.libelle,
-          montant: fmtEuro(appel.montant),
-          dateEcheance: fmtDate(appel.date_echeance),
-          nomCopropriete,
-          numeroLot: lot.numero,
-          portailUrl: `${appUrl}/mes-charges`,
-        }),
-      })
+      await Email.appelCharges({
+        prenom: profile.prenom ?? '',
+        nom: profile.nom ?? '',
+        libelle: appel.libelle,
+        montant: fmtEuro(appel.montant),
+        dateEcheance: fmtDate(appel.date_echeance),
+        nomCopropriete,
+        numeroLot: lot.numero,
+        portailUrl: `${appUrl}/mes-charges`,
+      }, profile.email)
     }
   }
 }

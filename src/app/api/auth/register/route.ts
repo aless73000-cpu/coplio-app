@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { sendEmail, emailBienvenueSyndic } from '@/lib/resend'
+import { Email } from '@/lib/email'
 
 const schema = z.object({
   email: z.string().email(),
@@ -51,12 +51,7 @@ export async function POST(request: Request) {
     }
 
     // 3. Email de bienvenue (non bloquant)
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
-    sendEmail({
-      to: email,
-      subject: `Bienvenue sur Coplio, ${prenom} !`,
-      html: emailBienvenueSyndic({ prenom, nomCabinet, appUrl }),
-    }).catch(console.error)
+    Email.welcomeSyndic({ prenom, nomCabinet }, email).catch(console.error)
 
     return NextResponse.json({ success: true })
   } catch {

@@ -1,6 +1,6 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { sendEmail, emailConvocationAG } from '@/lib/resend'
+import { Email } from '@/lib/email'
 
 export async function POST(
   _request: Request,
@@ -67,14 +67,12 @@ export async function POST(
       .sort((a, b) => a.ordre - b.ordre)
       .map(r => r.titre)
 
-    // Envoyer les convocations
-    let sent = 0
-    for (const p of profiles ?? []) {
-      if (!p.email) continue
-      await sendEmail({
+    // Envoyer les convocations via le service batch (avec retry + logs)
+    const recipients = (profiles ?? [])
+      .filter((p): p is typeof p & { email: string } => Boolean(p.email))
+      .map((p) => ({
         to: p.email,
-        subject: `Convocation AG — ${nomCopropriete}`,
-        html: emailConvocationAG({
+        props: {
           prenom: p.prenom ?? '',
           nom: p.nom ?? '',
           cabinetNom: cabinet?.nom ?? 'Votre syndic',
@@ -84,10 +82,10 @@ export async function POST(
           lieu: ag.lieu ?? 'À définir',
           listeResolutions,
           lienVote: `${appUrl}/mes-assemblees`,
-        }),
-      })
-      sent++
-    }
+        },
+      }))
+
+    const { sent } = await Email.convocationAGBatch(recipients)
 
     // Mettre à jour le statut de l'AG
     await admin

@@ -1,6 +1,6 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { sendEmail, emailInvitationCopropriétaire } from '@/lib/resend'
+import { Email } from '@/lib/email'
 
 export async function POST(
   _request: Request,
@@ -96,18 +96,14 @@ export async function POST(
 
     const magicLink = linkData.properties.action_link
 
-    // Envoyer via Resend avec le template de marque
-    const emailResult = await sendEmail({
-      to: copro.email,
-      subject: `Accès à votre portail copropriétaire — ${nomCopropriete}`,
-      html: emailInvitationCopropriétaire({
-        prenom: copro.prenom,
-        nom: copro.nom,
-        cabinetNom: cabinet?.nom ?? 'Votre syndic',
-        nomCopropriete,
-        magicLink,
-      }),
-    })
+    // Envoyer via le nouveau service email
+    const emailResult = await Email.invitation({
+      prenom: copro.prenom,
+      nom: copro.nom,
+      cabinetNom: cabinet?.nom ?? 'Votre syndic',
+      nomCopropriete,
+      magicLink,
+    }, copro.email)
 
     if (!emailResult.success) {
       return NextResponse.json({ error: 'Erreur envoi email' }, { status: 500 })
