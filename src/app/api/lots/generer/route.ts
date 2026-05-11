@@ -1,6 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
 
 const lotSchema = z.object({
   numero: z.string().min(1),
@@ -36,6 +37,10 @@ export async function POST(request: Request) {
 
     const { copropriete_id, lots } = parsed.data
     const admin = createAdminClient()
+
+    // Vérification quota
+    const quota = await checkQuota(profile.cabinet_id, 'lots', lots.length)
+    if (!quota.allowed) return quotaExceededResponse(quota)
 
     // Verify copropriete belongs to this cabinet
     const { data: copropriete } = await admin

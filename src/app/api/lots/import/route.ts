@@ -1,6 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import * as XLSX from 'xlsx'
+import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
 
 const LOT_TYPES = ['appartement', 'maison', 'local_commercial', 'parking', 'cave', 'autre'] as const
 type LotType = typeof LOT_TYPES[number]
@@ -46,6 +47,10 @@ export async function POST(request: Request) {
       .eq('cabinet_id', profile.cabinet_id)
       .single()
     if (!copropriete) return NextResponse.json({ error: 'Copropriété introuvable' }, { status: 404 })
+
+    // Vérification quota (on parse d'abord pour compter les lignes valides)
+    const quota = await checkQuota(profile.cabinet_id, 'lots', 1)
+    if (!quota.allowed) return quotaExceededResponse(quota)
 
     // Fetch existing lot numbers to detect duplicates
     const { data: existingLots } = await admin

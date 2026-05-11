@@ -37,6 +37,8 @@ import { WelcomeSyndic }       from '@/emails/templates/auth/WelcomeSyndic'
 import { ResetPassword }       from '@/emails/templates/auth/ResetPassword'
 import { MagicLink }           from '@/emails/templates/auth/MagicLink'
 import { SuspiciousLogin }     from '@/emails/templates/auth/SuspiciousLogin'
+import { InvitationGestionnaire } from '@/emails/templates/auth/InvitationGestionnaire'
+import type { InvitationGestionnaireProps } from '@/emails/templates/auth/InvitationGestionnaire'
 import { Invitation }          from '@/emails/templates/copropriete/Invitation'
 import { NouvelAppelCharges }  from '@/emails/templates/copropriete/NouvelAppelCharges'
 import { RelanceImpayes }      from '@/emails/templates/copropriete/RelanceImpayes'
@@ -109,6 +111,18 @@ export const Email = {
       {
         idempotencyKey: `magic-link-${to}-${props.nomCopropriete}`,
         tags: [{ name: 'type', value: 'magic-link' }],
+      }
+    )
+  },
+
+  /** Invitation gestionnaire à rejoindre un cabinet */
+  async invitationGestionnaire(props: InvitationGestionnaireProps, to: string): Promise<SendResult> {
+    return renderAndSend(
+      InvitationGestionnaire, props, to,
+      `Invitation à rejoindre ${props.cabinetNom} sur Coplio`,
+      {
+        idempotencyKey: `invitation-gestionnaire-${to}-${props.cabinetNom}`,
+        tags: [{ name: 'type', value: 'invitation-gestionnaire' }],
       }
     )
   },

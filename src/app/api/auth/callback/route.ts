@@ -23,6 +23,22 @@ export async function GET(request: Request) {
           nom?: string
         }
 
+        // Gestionnaire qui accepte une invitation
+        if (meta?.role === 'manager' && meta?.cabinet_id) {
+          const admin = createAdminClient()
+          await admin
+            .from('profiles')
+            .update({
+              cabinet_id: meta.cabinet_id,
+              role: 'manager',
+              prenom: meta.prenom ?? null,
+              nom: meta.nom ?? null,
+              onboarding_complete: true,
+            })
+            .eq('id', user.id)
+          return NextResponse.redirect(`${origin}/dashboard`)
+        }
+
         // Copropriétaire qui accepte une invitation
         if (meta?.role === 'owner_resident' && meta?.coproprietaire_id) {
           const admin = createAdminClient()

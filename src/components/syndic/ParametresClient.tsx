@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { User, Building2, Bell, Loader2, CheckCircle2 } from 'lucide-react'
+import Link from 'next/link'
+import { User, Building2, Bell, Loader2, CheckCircle2, Users, ChevronRight } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 
 type Props = {
@@ -190,6 +191,20 @@ export function ParametresClient({ profile }: Props) {
           {cabinetStatus === 'success' ? 'Enregistré !' : 'Enregistrer'}
         </button>
       </section>
+
+      {/* Équipe */}
+      <Link href="/parametres/equipe" className="coplio-card flex items-center justify-between hover:border-coplio-green/40 transition-colors group">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-coplio-green-light rounded-xl flex items-center justify-center">
+            <Users className="w-4 h-4 text-coplio-green" />
+          </div>
+          <div>
+            <h2 className="font-semibold text-coplio-text">Mon équipe</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Inviter et gérer vos gestionnaires</p>
+          </div>
+        </div>
+        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
+      </Link>
 
       {/* Notifications */}
       <section className="coplio-card">
