@@ -14,9 +14,9 @@ const store = new Map<string, RateLimitEntry>()
 // Nettoyage toutes les 5 minutes pour éviter les fuites mémoire
 setInterval(() => {
   const now = Date.now()
-  for (const [key, entry] of store.entries()) {
+  store.forEach((entry, key) => {
     if (entry.resetAt < now) store.delete(key)
-  }
+  })
 }, 5 * 60 * 1000)
 
 interface RateLimitOptions {

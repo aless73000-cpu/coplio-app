@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowLeft, CalendarDays, MapPin, Video, Users, Check, X, Minus } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { ConvocationButton } from '@/components/syndic/ConvocationButton'
+import { ExportAGButton } from '@/components/syndic/ExportAGButton'
 
 const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
   planifiee: { label: 'Planifiée', cls: 'bg-coplio-blue-bg text-coplio-blue' },
@@ -58,16 +59,23 @@ export default async function AssembleePage({ params }: { params: { id: string }
             </p>
           </div>
         </div>
-        {/* Bouton convocation — masqué si AG terminée ou annulée */}
-        {ag.status !== 'terminee' && ag.status !== 'annulee' && (
-          <div className="flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <ExportAGButton
+            titre={ag.titre ?? 'Assemblée générale'}
+            dateAg={ag.date_ag}
+            lieu={ag.lieu}
+            coproprieteNom={ag.copropriete?.nom}
+            statut={ag.status}
+            resolutions={resolutions}
+          />
+          {ag.status !== 'terminee' && ag.status !== 'annulee' && (
             <ConvocationButton
               agId={ag.id}
               status={ag.status}
               convocationsEnvoyeesAt={ag.convocations_envoyees_at}
             />
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

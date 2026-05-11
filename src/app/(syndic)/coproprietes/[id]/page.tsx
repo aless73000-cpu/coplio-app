@@ -11,8 +11,6 @@ import {
   CalendarDays,
   Edit,
   MapPin,
-  Phone,
-  Mail,
   ChevronLeft,
   Plus,
 } from 'lucide-react'
@@ -49,6 +47,7 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
     { data: sinistres },
     { data: documents },
     { data: ags },
+    { data: appels },
   ] = await Promise.all([
     supabase
       .from('lots')
@@ -74,7 +73,19 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
       .eq('copropriete_id', copropriete.id)
       .order('date_ag', { ascending: false })
       .limit(3),
+    supabase
+      .from('appels_charges')
+      .select('montant, montant_paye, paye, date_echeance')
+      .eq('copropriete_id', copropriete.id),
   ])
+
+  // Stats de recouvrement
+  const totalCharges = (appels ?? []).reduce((s, a) => s + a.montant, 0)
+  const totalRecouvre = (appels ?? []).reduce((s, a) => s + a.montant_paye, 0)
+  const tauxRecouvrement = totalCharges > 0 ? Math.round((totalRecouvre / totalCharges) * 100) : 100
+  const totalImpayes = (appels ?? []).filter(a => !a.paye && new Date(a.date_echeance) < new Date())
+  const montantImpayes = totalImpayes.reduce((s, a) => s + (a.montant - a.montant_paye), 0)
+  const prochainAG = (ags ?? []).find(ag => new Date(ag.date_ag) > new Date())
 
   const statusConfig = {
     a_jour: { cls: 'badge-a-jour', label: 'À jour' },
@@ -130,28 +141,56 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: 'Lots', value: copropriete.nb_lots, icon: Home, color: 'green' },
-          { label: 'Copropriétaires', value: copropriete.nb_copropriétaires, icon: Users, color: 'blue' },
-          {
-            label: 'Sinistres ouverts',
-            value: copropriete.nb_sinistres_ouverts,
-            icon: AlertTriangle,
-            color: copropriete.nb_sinistres_ouverts > 0 ? 'amber' : 'green',
-          },
-          {
-            label: 'Impayés',
-            value: formatEuro(copropriete.montant_impayes),
-            icon: CreditCard,
-            color: copropriete.montant_impayes > 0 ? 'red' : 'green',
-          },
-        ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="coplio-card">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">{label}</p>
-            <p className="text-2xl font-bold text-coplio-text mt-1">{value}</p>
+        <div className="coplio-card">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">Lots</p>
+          <p className="text-2xl font-bold text-coplio-text mt-1">{lots?.length ?? 0}</p>
+        </div>
+        <div className="coplio-card">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">Sinistres ouverts</p>
+          <p className={`text-2xl font-bold mt-1 ${(sinistres?.length ?? 0) > 0 ? 'text-coplio-amber' : 'text-coplio-text'}`}>
+            {sinistres?.length ?? 0}
+          </p>
+        </div>
+        <div className="coplio-card">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">Impayés</p>
+          <p className={`text-2xl font-bold mt-1 ${montantImpayes > 0 ? 'text-coplio-red' : 'text-coplio-text'}`}>
+            {formatEuro(montantImpayes)}
+          </p>
+        </div>
+        <div className="coplio-card">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">Taux recouvrement</p>
+          <p className={`text-2xl font-bold mt-1 ${tauxRecouvrement >= 90 ? 'text-coplio-green' : tauxRecouvrement >= 70 ? 'text-coplio-amber' : 'text-coplio-red'}`}>
+            {tauxRecouvrement}%
+          </p>
+          <div className="mt-2 h-1.5 bg-coplio-bg rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${tauxRecouvrement >= 90 ? 'bg-coplio-green' : tauxRecouvrement >= 70 ? 'bg-coplio-amber' : 'bg-coplio-red'}`}
+              style={{ width: `${tauxRecouvrement}%` }}
+            />
           </div>
-        ))}
+        </div>
       </div>
+
+      {/* Prochaine AG */}
+      {prochainAG && (
+        <div className="coplio-card bg-coplio-green-light border-coplio-green/20 flex items-center gap-4">
+          <div className="w-10 h-10 bg-coplio-green rounded-xl flex items-center justify-center flex-shrink-0">
+            <CalendarDays className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <p className="font-medium text-coplio-text text-sm">Prochaine AG : {prochainAG.titre}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {new Date(prochainAG.date_ag).toLocaleDateString('fr-FR', {
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+              })}
+              {prochainAG.lieu ? ` · ${prochainAG.lieu}` : ''}
+            </p>
+          </div>
+          <Link href={`/assemblees/${prochainAG.id}`} className="text-xs text-coplio-green hover:underline flex-shrink-0">
+            Voir →
+          </Link>
+        </div>
+      )}
 
       {/* Contenu en 2 colonnes */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

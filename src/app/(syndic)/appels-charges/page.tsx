@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Plus, CreditCard, CheckCircle2, Clock, AlertTriangle } from 'lucide-react'
 import { formatEuro, formatDate, getOverdueDays } from '@/lib/utils'
 import { PayerButton } from '@/components/syndic/PayerButton'
+import { ExportAppelsButton } from '@/components/syndic/ExportAppelsButton'
 import type { AppelCharges, Lot, Copropriete } from '@/types'
 
 type AppelWithDetails = AppelCharges & {
@@ -82,14 +83,19 @@ export default async function AppelsChargesPage({
             {stats.total} appel{stats.total > 1 ? 's' : ''} · {stats.enRetard} en retard
           </p>
         </div>
-        <Link
-          href="/appels-charges/new"
-          className="flex items-center gap-2 bg-coplio-green text-white px-4 py-2.5 rounded-lg
-                     text-sm font-medium hover:bg-coplio-green/90 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Nouvel appel
-        </Link>
+        <div className="flex items-center gap-2">
+          {appels && appels.length > 0 && (
+            <ExportAppelsButton appels={appels as AppelWithDetails[]} />
+          )}
+          <Link
+            href="/appels-charges/new"
+            className="flex items-center gap-2 bg-coplio-green text-white px-4 py-2.5 rounded-lg
+                       text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Nouvel appel
+          </Link>
+        </div>
       </div>
 
       {/* Stats */}
