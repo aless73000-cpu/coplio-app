@@ -177,19 +177,29 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Salutation */}
-      <div>
-        <h1 className="text-2xl font-bold text-coplio-text">
-          Bonjour, {profile.prenom} 👋
-        </h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          Voici un résumé de votre activité au{' '}
-          {new Date().toLocaleDateString('fr-FR', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-coplio-text">
+            Bonjour, {profile.prenom} 👋
+          </h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Voici un résumé de votre activité au{' '}
+            {new Date().toLocaleDateString('fr-FR', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })}
+          </p>
+        </div>
+        <Link
+          href={`/api/rapports/mensuel?mois=${new Date().getFullYear()}-${new Date().getMonth() === 0 ? 12 : new Date().getMonth()}`}
+          className="flex-shrink-0 flex items-center gap-1.5 text-xs font-medium text-muted-foreground border border-border px-3 py-2 rounded-lg hover:border-coplio-green hover:text-coplio-green transition-colors"
+          target="_blank"
+        >
+          <TrendingUp className="w-3.5 h-3.5" />
+          Rapport mensuel
+        </Link>
       </div>
 
       {/* Onboarding checklist */}
