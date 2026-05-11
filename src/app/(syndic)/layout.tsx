@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 import { SessionGuard } from '@/components/auth/SessionGuard'
@@ -53,29 +53,18 @@ export default async function SyndicLayout({
     .order('created_at', { ascending: false })
     .limit(20)
 
-  // Compter les messages non lus (envoyés par des copropriétaires)
-  const admin = createAdminClient()
-  const { data: conversations } = await admin
-    .from('conversations')
-    .select('id')
-    .eq('cabinet_id', profile.cabinet_id)
-
-  let unreadMessages = 0
-  if (conversations?.length) {
-    const convIds = conversations.map((c: { id: string }) => c.id)
-    const { count } = await admin
-      .from('messages')
-      .select('*', { count: 'exact', head: true })
-      .in('conversation_id', convIds)
-      .eq('lu', false)
-      .neq('expediteur_id', user.id)
-    unreadMessages = count ?? 0
-  }
+  // Compter les notifications non lues liées aux messages
+  const { count: unreadMessages } = await supabase
+    .from('notifications')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('lu', false)
+    .eq('lien', '/messages')
 
   return (
     <div className="flex h-screen bg-coplio-bg overflow-hidden">
       <SessionGuard loginPath="/login" />
-      <Sidebar profile={profile as Profile} cabinet={cabinet as Cabinet} unreadMessages={unreadMessages} />
+      <Sidebar profile={profile as Profile} cabinet={cabinet as Cabinet} unreadMessages={unreadMessages ?? 0} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header notifications={notifications ?? []} userId={user.id} />
         <main className="flex-1 overflow-y-auto p-6">

@@ -102,44 +102,24 @@ export function Sidebar({ profile, cabinet, unreadMessages: initialUnread = 0 }:
     if (pathname === '/messages') setUnreadMessages(0)
   }, [pathname])
 
-  // Temps réel : écoute les nouveaux messages copropriétaires + admin
+  // Temps réel : écoute les nouvelles notifications de type message
   useEffect(() => {
     const supabase = createClient()
-
-    // Messages des copropriétaires (table messages via conversations du cabinet)
-    const ch1 = supabase
-      .channel('sidebar-msgs-copro')
+    const ch = supabase
+      .channel('sidebar-msgs-notifs')
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
-        table: 'messages',
+        table: 'notifications',
+        filter: `user_id=eq.${profile.id}`,
       }, (payload) => {
-        if (payload.new.expediteur_id !== profile.id) {
+        if (payload.new.lien === '/messages' && !payload.new.lu) {
           setUnreadMessages(n => n + 1)
         }
       })
       .subscribe()
-
-    // Messages de l'admin (admin_support_messages)
-    const ch2 = supabase
-      .channel('sidebar-msgs-admin')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'admin_support_messages',
-        filter: `cabinet_id=eq.${cabinet.id}`,
-      }, (payload) => {
-        if (payload.new.sender_type === 'admin') {
-          setUnreadMessages(n => n + 1)
-        }
-      })
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(ch1)
-      supabase.removeChannel(ch2)
-    }
-  }, [profile.id, cabinet.id])
+    return () => { supabase.removeChannel(ch) }
+  }, [profile.id])
 
   async function handleSignOut() {
     setSigningOut(true)

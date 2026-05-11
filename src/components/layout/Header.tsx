@@ -89,9 +89,7 @@ export function Header({ title, notifications: initial = [], userId }: HeaderPro
           >
             <Bell className="w-5 h-5 text-coplio-text" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-coplio-red text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
+              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full" />
             )}
           </button>
 
