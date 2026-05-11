@@ -11,7 +11,7 @@ const RELEVANT_EVENTS = new Set([
   'customer.subscription.created',
   'customer.subscription.updated',
   'customer.subscription.deleted',
-  'invoice.payment_succeeded',
+  'invoice.paid',
   'invoice.payment_failed',
 ])
 
@@ -118,7 +118,7 @@ export async function POST(request: Request) {
         break
       }
 
-      case 'invoice.payment_succeeded': {
+      case 'invoice.paid': {
         const invoice = event.data.object as Stripe.Invoice
         const customerId = invoice.customer as string
 

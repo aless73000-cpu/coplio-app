@@ -359,6 +359,44 @@ export interface Message {
   created_at: string
 }
 
+// ─── BUDGET PRÉVISIONNEL ──────────────────────────────────────
+
+export type BudgetStatut = 'brouillon' | 'valide' | 'approuve'
+export type BudgetCategorie = 'charges_generales' | 'entretien' | 'travaux' | 'assurances' | 'honoraires' | 'reserves' | 'autre'
+
+export interface Budget {
+  id: string
+  copropriete_id: string
+  annee: number
+  statut: BudgetStatut
+  created_by?: string
+  created_at: string
+  updated_at: string
+  lignes?: BudgetLigne[]
+}
+
+export interface BudgetLigne {
+  id: string
+  budget_id: string
+  poste: string
+  categorie: BudgetCategorie
+  montant_previsionnel: number
+  montant_reel?: number
+  commentaire?: string
+  ordre: number
+  created_at: string
+}
+
+export const BUDGET_CATEGORIE_LABELS: Record<BudgetCategorie, string> = {
+  charges_generales: 'Charges générales',
+  entretien: 'Entretien & maintenance',
+  travaux: 'Travaux',
+  assurances: 'Assurances',
+  honoraires: 'Honoraires syndic',
+  reserves: 'Fonds de réserve',
+  autre: 'Autre',
+}
+
 // ─── UTILS ────────────────────────────────────────────────────
 
 export interface PaginatedResponse<T> {
