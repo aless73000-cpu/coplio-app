@@ -27,6 +27,7 @@ import { useState } from 'react'
 interface SidebarProps {
   profile: Profile
   cabinet: Cabinet
+  unreadMessages?: number
 }
 
 const NAV_ITEMS = [
@@ -90,7 +91,7 @@ const BOTTOM_ITEMS = [
   },
 ]
 
-export function Sidebar({ profile, cabinet }: SidebarProps) {
+export function Sidebar({ profile, cabinet, unreadMessages = 0 }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)
@@ -161,9 +162,9 @@ export function Sidebar({ profile, cabinet }: SidebarProps) {
             <item.icon className="w-4 h-4 flex-shrink-0" />
             {item.label}
             {/* Badge impayés (exemple dynamique à brancher) */}
-            {item.href === '/impayes' && (
-              <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                !
+            {item.href === '/messages' && unreadMessages > 0 && (
+              <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
+                {unreadMessages > 99 ? '99+' : unreadMessages}
               </span>
             )}
           </Link>
