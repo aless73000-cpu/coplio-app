@@ -1,11 +1,17 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
+import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
 
 export async function POST(
   _request: Request,
   { params }: { params: { id: string } }
 ) {
+  // 10 convocations max par IP par heure (chaque envoi = plusieurs emails)
+  const ip = getIP(_request)
+  const limit = rateLimit(`convoquer:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()

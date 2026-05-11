@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { Email } from '@/lib/email'
+import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
 
 const schema = z.object({
   email: z.string().email(),
@@ -12,6 +13,11 @@ const schema = z.object({
 })
 
 export async function POST(request: Request) {
+  // 5 inscriptions max par IP par heure
+  const ip = getIP(request)
+  const limit = rateLimit(`register:${ip}`, { max: 5, windowMs: 60 * 60 * 1000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
+
   try {
     const body = await request.json()
     const parsed = schema.safeParse(body)

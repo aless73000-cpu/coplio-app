@@ -2,11 +2,17 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
 import { formatEuro, formatDate } from '@/lib/utils'
+import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
 
 export async function POST(
   _req: Request,
   { params }: { params: { id: string } }
 ) {
+  // 20 relances max par IP par heure
+  const ip = getIP(_req)
+  const limit = rateLimit(`relancer:${ip}`, { max: 20, windowMs: 60 * 60 * 1000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
