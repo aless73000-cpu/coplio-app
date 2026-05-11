@@ -8,11 +8,12 @@ import {
   FileText,
   AlertTriangle,
   CreditCard,
-  CalendarDays,
   Edit,
   MapPin,
   ChevronLeft,
   Plus,
+  Wand2,
+  FileSpreadsheet,
 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { Lot, Sinistre, Document } from '@/types'
@@ -202,6 +203,8 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
             count={lots?.length ?? 0}
             href={`/coproprietes/${copropriete.id}/lots`}
             addHref={`/coproprietes/${copropriete.id}/lots/new`}
+            generateHref={`/coproprietes/${copropriete.id}/lots/generer`}
+            importHref={`/coproprietes/${copropriete.id}/lots/import`}
           >
             {lots && lots.length > 0 ? (
               <div className="overflow-x-auto">
@@ -339,24 +342,46 @@ function SectionCard({
   count,
   href,
   addHref,
+  generateHref,
+  importHref,
   children,
 }: {
   title: string
   count: number
   href: string
   addHref: string
+  generateHref?: string
+  importHref?: string
   children: React.ReactNode
 }) {
   return (
     <div className="coplio-card">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
         <div className="flex items-center gap-2">
           <h2 className="font-semibold text-coplio-text">{title}</h2>
           <span className="bg-coplio-bg text-muted-foreground text-xs px-2 py-0.5 rounded-full">
             {count}
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {generateHref && (
+            <Link
+              href={generateHref}
+              className="flex items-center gap-1 text-xs font-medium text-coplio-blue bg-coplio-blue-bg px-2.5 py-1 rounded-lg hover:bg-coplio-blue/10 transition-colors"
+            >
+              <Wand2 className="w-3 h-3" />
+              Génération auto
+            </Link>
+          )}
+          {importHref && (
+            <Link
+              href={importHref}
+              className="flex items-center gap-1 text-xs font-medium text-muted-foreground bg-coplio-bg border border-border px-2.5 py-1 rounded-lg hover:bg-border transition-colors"
+            >
+              <FileSpreadsheet className="w-3 h-3" />
+              Import Excel
+            </Link>
+          )}
           <Link href={addHref} className="text-xs text-coplio-green hover:underline flex items-center gap-1">
             <Plus className="w-3 h-3" />
             Ajouter
