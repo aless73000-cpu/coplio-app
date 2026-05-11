@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
+import Link from 'next/link'
 
 const registerSchema = z.object({
   prenom: z.string().min(2, 'Prénom requis'),
@@ -17,6 +18,9 @@ const registerSchema = z.object({
     .regex(/[A-Z]/, 'Au moins une majuscule')
     .regex(/[0-9]/, 'Au moins un chiffre'),
   nomCabinet: z.string().min(2, 'Nom du cabinet requis'),
+  accepteCGU: z.literal(true, {
+    errorMap: () => ({ message: 'Vous devez accepter les CGU pour continuer' }),
+  }),
 })
 
 type RegisterValues = z.infer<typeof registerSchema>
@@ -131,6 +135,24 @@ export function RegisterForm() {
         )}
         <p className="mt-1 text-xs text-muted-foreground">8 caractères minimum, 1 majuscule, 1 chiffre</p>
       </div>
+
+      <div className="flex items-start gap-3">
+        <input
+          type="checkbox"
+          id="accepteCGU"
+          {...register('accepteCGU')}
+          className="mt-0.5 w-4 h-4 rounded border-border accent-coplio-green cursor-pointer flex-shrink-0"
+        />
+        <label htmlFor="accepteCGU" className="text-sm text-muted-foreground cursor-pointer">
+          J&apos;accepte les{' '}
+          <Link href="/cgu" target="_blank" className="text-coplio-green underline underline-offset-2 hover:text-coplio-green/80">
+            conditions générales d&apos;utilisation
+          </Link>
+        </label>
+      </div>
+      {errors.accepteCGU && (
+        <p className="text-xs text-coplio-red -mt-2">{errors.accepteCGU.message as string}</p>
+      )}
 
       <button
         type="submit"

@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { MessagerieChat } from '@/components/portail/MessagerieChat'
-import type { Message } from '@/types'
+import { MessageriePortailWrapper } from '@/components/portail/MessageriePortailWrapper'
 
 export default async function MesMessages() {
   const supabase = await createClient()
@@ -22,12 +21,6 @@ export default async function MesMessages() {
     .select('*, messages(*, expediteur:profiles(prenom, nom, role))')
     .eq('coproprietaire_id', user.id)
     .order('derniere_activite', { ascending: false })
-    .limit(1)
-
-  const conversation = conversations?.[0] ?? null
-  const messages = ((conversation?.messages ?? []) as (Message & {
-    expediteur?: { prenom?: string; nom?: string; role?: string }
-  })[]).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
 
   return (
     <div className="max-w-6xl mx-auto h-[calc(100vh-4rem)] flex flex-col">
@@ -35,10 +28,9 @@ export default async function MesMessages() {
         <h1 className="text-2xl font-bold text-coplio-text">Messagerie</h1>
         <p className="text-muted-foreground text-sm mt-0.5">Échangez avec votre syndic</p>
       </div>
-      <MessagerieChat
+      <MessageriePortailWrapper
         userId={user.id}
-        initialMessages={messages}
-        conversation={conversation ? { id: conversation.id, sujet: conversation.sujet } : null}
+        conversations={(conversations ?? []) as Parameters<typeof MessageriePortailWrapper>[0]['conversations']}
         cabinetId={cabinetId}
         coproprieteId={coproprieteId}
       />
