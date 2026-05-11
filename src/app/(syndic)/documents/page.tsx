@@ -1,10 +1,11 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { FileText, Upload, Download, Eye, Filter, FolderOpen } from 'lucide-react'
+import { FileText, Upload, FolderOpen } from 'lucide-react'
 import { formatDate, formatFileSize } from '@/lib/utils'
 import { DOCUMENT_CATEGORY_LABELS } from '@/types'
 import type { Document, DocumentCategory } from '@/types'
+import { DocumentActions } from '@/components/syndic/DocumentActions'
 
 const CATEGORY_ICONS: Record<DocumentCategory, string> = {
   pv_ag: '📋',
@@ -179,19 +180,8 @@ function DocumentRow({ document: doc }: {
         </div>
       </div>
 
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
-          className="p-1.5 rounded-md hover:bg-coplio-green-light text-muted-foreground hover:text-coplio-green transition-colors"
-          title="Prévisualiser"
-        >
-          <Eye className="w-4 h-4" />
-        </button>
-        <button
-          className="p-1.5 rounded-md hover:bg-coplio-green-light text-muted-foreground hover:text-coplio-green transition-colors"
-          title="Télécharger"
-        >
-          <Download className="w-4 h-4" />
-        </button>
+      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+        <DocumentActions documentId={doc.id} typeMime={doc.type_mime} />
       </div>
     </div>
   )
