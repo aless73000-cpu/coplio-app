@@ -3,13 +3,13 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Home, CreditCard, FileText, Wrench, MessageCircle } from 'lucide-react'
+import { Home, CreditCard, FileText, Vote, MessageCircle } from 'lucide-react'
 
 const NAV_ITEMS = [
   { href: '/accueil',       label: 'Accueil',    icon: Home },
   { href: '/mes-charges',   label: 'Charges',    icon: CreditCard },
   { href: '/mes-documents', label: 'Documents',  icon: FileText },
-  { href: '/mes-travaux',   label: 'Travaux',    icon: Wrench },
+  { href: '/mes-votes',     label: 'Votes',      icon: Vote },
   { href: '/mes-messages',  label: 'Messages',   icon: MessageCircle },
 ]
 
