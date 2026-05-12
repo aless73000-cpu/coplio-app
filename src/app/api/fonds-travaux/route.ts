@@ -17,7 +17,12 @@ export async function GET(request: Request) {
     .order('annee', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data ?? [])
+  // Remap type_mouvement → type for frontend compatibility
+  const mapped = (data ?? []).map((ft: Record<string, unknown>) => ({
+    ...ft,
+    mouvements: ((ft.mouvements ?? []) as Record<string, unknown>[]).map(m => ({ ...m, type: m.type_mouvement })),
+  }))
+  return NextResponse.json(mapped)
 }
 
 export async function POST(request: Request) {

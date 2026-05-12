@@ -33,7 +33,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   const { data: mouvement, error: mErr } = await supabase
     .from('fonds_travaux_mouvements')
-    .insert({ fonds_travaux_id: params.id, type, montant, libelle, date_mouvement: date_mouvement ?? new Date().toISOString().split('T')[0] })
+    .insert({ fonds_travaux_id: params.id, type_mouvement: type, montant, libelle, date_mouvement: date_mouvement ?? new Date().toISOString().split('T')[0] })
     .select()
     .single()
 
