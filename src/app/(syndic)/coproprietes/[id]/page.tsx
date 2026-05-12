@@ -21,6 +21,7 @@ import {
   HardHat,
   Key,
   Shield,
+  Landmark,
 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { Lot, Sinistre, Document } from '@/types'
@@ -403,6 +404,21 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
             <div className="flex-1">
               <p className="font-semibold text-coplio-text text-sm">Budget prévisionnel</p>
               <p className="text-xs text-muted-foreground mt-0.5">Planifier les charges {new Date().getFullYear()}</p>
+            </div>
+            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-coplio-green transition-colors" />
+          </Link>
+
+          {/* Fonds de travaux ALUR */}
+          <Link
+            href={`/coproprietes/${copropriete.id}/fonds-travaux`}
+            className="coplio-card flex items-center gap-3 hover:border-coplio-green/40 transition-colors group"
+          >
+            <div className="w-10 h-10 bg-coplio-green-light rounded-xl flex items-center justify-center flex-shrink-0">
+              <Landmark className="w-5 h-5 text-coplio-green" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-coplio-text text-sm">Fonds de travaux ALUR</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Fonds de réserve obligatoire</p>
             </div>
             <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-coplio-green transition-colors" />
           </Link>

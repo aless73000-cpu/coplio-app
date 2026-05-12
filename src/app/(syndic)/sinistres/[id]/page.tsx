@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowLeft, AlertTriangle, Clock, CheckCircle2, Wrench, FileText, Shield, XCircle } from 'lucide-react'
 import { formatDate, formatDateTime } from '@/lib/utils'
 import { SINISTRE_STATUS_LABELS } from '@/types'
+import { SinistreAssuranceForm } from '@/components/syndic/SinistreAssuranceForm'
 
 const STATUS_STEPS = [
   { key: 'signale', label: 'Signalé', icon: AlertTriangle },
@@ -99,6 +100,15 @@ export default async function SinistrePage({ params }: { params: { id: string } 
               <p className="text-sm text-coplio-text leading-relaxed whitespace-pre-wrap">{sinistre.description}</p>
             </div>
           )}
+
+          {/* Suivi assurance */}
+          <SinistreAssuranceForm
+            sinistreId={sinistre.id}
+            compagnie_assurance={sinistre.compagnie_assurance}
+            numero_declaration_assurance={sinistre.numero_declaration_assurance}
+            montant_sinistre={(sinistre as Record<string, unknown>).montant_sinistre as number | undefined}
+            montant_indemnise={(sinistre as Record<string, unknown>).montant_indemnise as number | undefined}
+          />
 
           {/* Changer le statut */}
           <div className="coplio-card">

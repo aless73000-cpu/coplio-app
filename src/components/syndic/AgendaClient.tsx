@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import {
   CalendarDays, Clock, MapPin, CreditCard, Wrench, ChevronRight,
-  Plus, X, Loader2, User, CalendarCheck, Bell, Car, Coffee
+  Plus, X, Loader2, User, CalendarCheck, Bell, Car, Coffee, Route, GripVertical, CheckCircle2
 } from 'lucide-react'
 
 interface SystemEvent {
@@ -63,11 +63,14 @@ const CUSTOM_COLORS: Record<string, string> = {
 const emptyForm = { titre: '', description: '', type: 'visite', date_debut: '', date_fin: '', lieu: '', assignee_id: '', copropriete_id: '' }
 
 export function AgendaClient({ systemEvents, customEvents: initialCustom, coproprietes, gestionnaires }: Props) {
+  const [activeTab, setActiveTab] = useState<'agenda' | 'tournees'>('agenda')
   const [customEvents, setCustomEvents] = useState<CustomEvent[]>(initialCustom)
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [tourneeVisites, setTourneeVisites] = useState<{ id: string; copropriete_id: string; nom: string; adresse: string; fait: boolean }[]>([])
+  const [tourneeDate, setTourneeDate] = useState(new Date().toISOString().split('T')[0])
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault(); setError('')
@@ -116,21 +119,120 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
     return acc
   }, {} as Record<string, AnyEvent[]>)
 
+  function addToTournee(copro: { id: string; nom: string; adresse?: string }) {
+    if (tourneeVisites.some(v => v.copropriete_id === copro.id)) return
+    setTourneeVisites(prev => [...prev, { id: Date.now().toString(), copropriete_id: copro.id, nom: copro.nom, adresse: copro.adresse ?? '', fait: false }])
+  }
+
+  function toggleVisite(id: string) {
+    setTourneeVisites(prev => prev.map(v => v.id === id ? { ...v, fait: !v.fait } : v))
+  }
+
+  function removeVisite(id: string) {
+    setTourneeVisites(prev => prev.filter(v => v.id !== id))
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">Agenda</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">AG, échéances, sinistres et événements du cabinet</p>
+          <p className="text-muted-foreground text-sm mt-0.5">AG, échéances, sinistres, événements et tournées</p>
         </div>
-        <button
-          onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors"
-        >
-          {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-          {showForm ? 'Annuler' : 'Ajouter un événement'}
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1 bg-coplio-bg p-1 rounded-xl">
+            <button onClick={() => setActiveTab('agenda')} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'agenda' ? 'bg-white text-coplio-text shadow-sm' : 'text-muted-foreground'}`}>
+              <CalendarDays className="w-4 h-4" />Agenda
+            </button>
+            <button onClick={() => setActiveTab('tournees')} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'tournees' ? 'bg-white text-coplio-text shadow-sm' : 'text-muted-foreground'}`}>
+              <Route className="w-4 h-4" />Tournées
+            </button>
+          </div>
+          {activeTab === 'agenda' && (
+            <button onClick={() => setShowForm(v => !v)}
+              className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors">
+              {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+              {showForm ? 'Annuler' : 'Ajouter'}
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* TOURNÉES */}
+      {activeTab === 'tournees' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-4">
+              <div className="coplio-card">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-semibold text-coplio-text flex items-center gap-2">
+                    <Route className="w-4 h-4 text-coplio-green" />Tournée du
+                    <input type="date" value={tourneeDate} onChange={e => setTourneeDate(e.target.value)}
+                      className="px-2 py-1 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-coplio-green" />
+                  </h2>
+                  <span className="text-xs text-muted-foreground">{tourneeVisites.filter(v => v.fait).length}/{tourneeVisites.length} effectuées</span>
+                </div>
+
+                {tourneeVisites.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Route className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-30" />
+                    <p className="text-sm text-muted-foreground">Ajoutez des copropriétés à visiter depuis la liste ci-contre</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {tourneeVisites.map((v, i) => (
+                      <div key={v.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${v.fait ? 'bg-coplio-green-light border-coplio-green/20 opacity-75' : 'bg-white border-border'}`}>
+                        <div className="w-7 h-7 rounded-full bg-coplio-bg flex items-center justify-center text-xs font-bold text-muted-foreground flex-shrink-0">
+                          {i + 1}
+                        </div>
+                        <GripVertical className="w-4 h-4 text-muted-foreground flex-shrink-0 cursor-grab" />
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm font-medium ${v.fait ? 'line-through text-muted-foreground' : 'text-coplio-text'}`}>{v.nom}</p>
+                          {v.adresse && <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3" />{v.adresse}</p>}
+                        </div>
+                        <button onClick={() => toggleVisite(v.id)}
+                          className={`p-1.5 rounded-lg transition-colors ${v.fait ? 'text-coplio-green hover:bg-coplio-green/10' : 'text-muted-foreground hover:text-coplio-green hover:bg-coplio-green-light'}`}>
+                          <CheckCircle2 className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => removeVisite(v.id)} className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {tourneeVisites.length > 0 && (
+                <div className="coplio-card bg-coplio-bg border-dashed">
+                  <p className="text-sm text-muted-foreground text-center">
+                    {tourneeVisites.length} visite{tourneeVisites.length > 1 ? 's' : ''} planifiée{tourneeVisites.length > 1 ? 's' : ''} · {tourneeVisites.filter(v => v.fait).length} effectuée{tourneeVisites.filter(v => v.fait).length > 1 ? 's' : ''}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="coplio-card">
+              <h3 className="font-semibold text-coplio-text mb-3">Ajouter à la tournée</h3>
+              <div className="space-y-2">
+                {coproprietes.map(c => {
+                  const already = tourneeVisites.some(v => v.copropriete_id === c.id)
+                  return (
+                    <button key={c.id} onClick={() => addToTournee(c)} disabled={already}
+                      className={`w-full text-left p-2.5 rounded-xl border-2 transition-all text-sm ${already ? 'border-coplio-green bg-coplio-green-light opacity-60 cursor-default' : 'border-border hover:border-coplio-green/40 hover:bg-coplio-bg'}`}>
+                      <p className="font-medium text-coplio-text text-sm">{c.nom}</p>
+                      {(c as { adresse?: string }).adresse && <p className="text-xs text-muted-foreground mt-0.5">{(c as { adresse?: string }).adresse}</p>}
+                      {already && <span className="text-xs text-coplio-green">✓ Ajoutée</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'agenda' && (<>
 
       {/* Formulaire création */}
       {showForm && (
@@ -304,6 +406,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
           ))}
         </div>
       )}
+      </>)}
     </div>
   )
 }
