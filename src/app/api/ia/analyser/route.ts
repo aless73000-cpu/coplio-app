@@ -62,7 +62,7 @@ Réponds en français avec des sections claires, des bullet points. Sois précis
       content: [
         {
           type: 'document',
-          source: { type: 'base64', media_type: file.type as 'application/pdf', data: base64 },
+          source: { type: 'base64', media_type: (file.type || 'application/pdf') as 'application/pdf', data: base64 },
         },
         { type: 'text', text: prompt },
       ],

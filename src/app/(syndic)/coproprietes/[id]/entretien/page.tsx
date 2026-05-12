@@ -235,7 +235,7 @@ export default function CarnetEntretienPage() {
               <div key={e.id} className="coplio-card">
                 <div className="flex items-start gap-3">
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    e.statut === 'realise' ? 'bg-coplio-green-light' : e.statut === 'urgence' ? 'bg-red-50' : 'bg-coplio-bg'
+                    e.statut === 'realise' ? 'bg-coplio-green-light' : e.type === 'urgence' ? 'bg-red-50' : 'bg-coplio-bg'
                   }`}>
                     {e.statut === 'realise' ? <CheckCircle2 className="w-5 h-5 text-coplio-green" />
                       : e.type === 'urgence' ? <AlertTriangle className="w-5 h-5 text-coplio-red" />
