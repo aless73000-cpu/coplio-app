@@ -22,6 +22,8 @@ import {
   UsersRound,
   Wrench,
   Sparkles,
+  PenLine,
+  Archive,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -99,6 +101,16 @@ const NAV_ITEMS = [
     label: 'Assistant IA',
     href: '/ia',
     icon: Sparkles,
+  },
+  {
+    label: 'Signatures',
+    href: '/signatures',
+    icon: PenLine,
+  },
+  {
+    label: 'Archives légales',
+    href: '/archives',
+    icon: Archive,
   },
 ]
 
