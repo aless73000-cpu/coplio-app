@@ -37,9 +37,10 @@ export default function IAPage() {
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    fetch('/api/coproprietes').then(r => r.json()).then(d => {
-      if (Array.isArray(d)) { setCoproprietes(d); if (d[0]) setCoproprieteId(d[0].id) }
-    })
+    fetch('/api/coproprietes')
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) { setCoproprietes(d); if (d[0]) setCoproprieteId(d[0].id) } })
+      .catch(() => {})
   }, [])
 
   async function handleGenerate() {

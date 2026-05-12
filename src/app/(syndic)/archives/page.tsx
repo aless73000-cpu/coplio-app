@@ -38,11 +38,14 @@ export default function ArchivesPage() {
 
   const load = useCallback(async () => {
     setLoading(true)
-    const [aRes, cRes] = await Promise.all([fetch('/api/archives'), fetch('/api/coproprietes')])
-    const [aData, cData] = await Promise.all([aRes.json(), cRes.json()])
-    setArchives(Array.isArray(aData) ? aData : [])
-    setCoproprietes(Array.isArray(cData) ? cData : [])
-    setLoading(false)
+    try {
+      const [aRes, cRes] = await Promise.all([fetch('/api/archives'), fetch('/api/coproprietes')])
+      const [aData, cData] = await Promise.all([aRes.json(), cRes.json()])
+      setArchives(Array.isArray(aData) ? aData : [])
+      setCoproprietes(Array.isArray(cData) ? cData : [])
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => { load() }, [load])

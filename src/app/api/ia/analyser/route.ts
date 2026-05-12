@@ -54,15 +54,17 @@ Réponds en français avec des sections claires, des bullet points. Sois précis
 
   const client = new Anthropic({ apiKey })
 
-  const message = await client.messages.create({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const message = await (client.beta.messages as any).create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 2000,
+    betas: ['pdfs-2024-09-25'],
     messages: [{
       role: 'user',
       content: [
         {
           type: 'document',
-          source: { type: 'base64', media_type: (file.type || 'application/pdf') as 'application/pdf', data: base64 },
+          source: { type: 'base64', media_type: 'application/pdf', data: base64 },
         },
         { type: 'text', text: prompt },
       ],

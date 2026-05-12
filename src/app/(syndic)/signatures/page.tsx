@@ -44,11 +44,14 @@ export default function SignaturesPage() {
 
   const load = useCallback(async () => {
     setLoading(true)
-    const [sRes, cRes] = await Promise.all([fetch('/api/signatures'), fetch('/api/coproprietes')])
-    const [sData, cData] = await Promise.all([sRes.json(), cRes.json()])
-    setItems(Array.isArray(sData) ? sData : [])
-    setCoproprietes(Array.isArray(cData) ? cData : [])
-    setLoading(false)
+    try {
+      const [sRes, cRes] = await Promise.all([fetch('/api/signatures'), fetch('/api/coproprietes')])
+      const [sData, cData] = await Promise.all([sRes.json(), cRes.json()])
+      setItems(Array.isArray(sData) ? sData : [])
+      setCoproprietes(Array.isArray(cData) ? cData : [])
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => { load() }, [load])
