@@ -20,6 +20,8 @@ import {
   Upload,
   FileStack,
   UsersRound,
+  Wrench,
+  Sparkles,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -87,6 +89,16 @@ const NAV_ITEMS = [
     label: 'Modèles',
     href: '/modeles',
     icon: FileStack,
+  },
+  {
+    label: 'Prestataires',
+    href: '/prestataires',
+    icon: Wrench,
+  },
+  {
+    label: 'Assistant IA',
+    href: '/ia',
+    icon: Sparkles,
   },
 ]
 
