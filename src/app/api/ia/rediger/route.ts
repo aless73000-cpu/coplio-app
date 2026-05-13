@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -32,7 +32,6 @@ export async function POST(request: Request) {
 
   const { template, copropriete_id, donnees = {} } = parsed.data
 
-  // Enrichir avec les données Supabase
   const { data: copropriete } = await supabase
     .from('coproprietes')
     .select('nom, adresse, nb_lots, cabinet:cabinets(nom)')
@@ -47,20 +46,16 @@ export async function POST(request: Request) {
     ...donnees,
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY
+  const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'Clé API IA non configurée' }, { status: 503 })
 
-  const client = new Anthropic({ apiKey })
   const prompt = TEMPLATES[template](enriched)
 
   try {
-    const message = await client.messages.create({
-      model: 'claude-3-5-haiku-20241022',
-      max_tokens: 1500,
-      messages: [{ role: 'user', content: prompt }],
-    })
-
-    const text = message.content[0].type === 'text' ? message.content[0].text : ''
+    const genAI = new GoogleGenerativeAI(apiKey)
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const result = await model.generateContent(prompt)
+    const text = result.response.text()
     return NextResponse.json({ texte: text })
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Erreur IA inconnue'

@@ -1,13 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
-  const apiKey = process.env.ANTHROPIC_API_KEY
+  const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'Clé API IA non configurée' }, { status: 503 })
 
   const { messages, copropriete_id } = await request.json()
@@ -47,20 +47,24 @@ DONNÉES DU CABINET :
 - AG prochaines : ${(ags.data ?? []).map(a => `${a.titre} - ${new Date(a.date_ag).toLocaleDateString('fr-FR')}`).join(', ') || 'Aucune'}
 ${coproprieteCtx}`
 
-  const client = new Anthropic({ apiKey })
-
   try {
-    const response = await client.messages.create({
-      model: 'claude-3-5-haiku-20241022',
-      max_tokens: 1000,
-      system: systemPrompt,
-      messages: messages.map((m: { role: string; content: string }) => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-      })),
+    const genAI = new GoogleGenerativeAI(apiKey)
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      systemInstruction: systemPrompt,
     })
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    // Convertir l'historique en format Gemini (tout sauf le dernier message)
+    const history = messages.slice(0, -1).map((m: { role: string; content: string }) => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content }],
+    }))
+
+    const chat = model.startChat({ history })
+    const lastMessage = messages[messages.length - 1]
+    const result = await chat.sendMessage(lastMessage.content)
+    const text = result.response.text()
+
     return NextResponse.json({ message: text })
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Erreur IA inconnue'
