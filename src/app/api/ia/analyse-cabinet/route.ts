@@ -67,7 +67,7 @@ export async function GET() {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
     const result = await model.generateContent(`Analyse ces données d'un cabinet de syndic de copropriété et détecte les anomalies et risques.
 

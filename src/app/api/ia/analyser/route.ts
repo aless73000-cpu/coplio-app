@@ -57,7 +57,7 @@ Réponds en français avec des sections claires, des bullet points. Sois précis
     const base64 = Buffer.from(buffer).toString('base64')
 
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
     const result = await model.generateContent([
       { inlineData: { mimeType: 'application/pdf', data: base64 } },
