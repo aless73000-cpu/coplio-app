@@ -82,7 +82,7 @@ export default async function DashboardPage() {
       id: 'copropriete',
       label: 'Ajouter votre première copropriété',
       description: 'Créez la copropriété que vous gérez',
-      href: '/coproprietes/nouveau',
+      href: '/coproprietes/new',
       done: (coproprietes?.length ?? 0) > 0,
     },
     {
@@ -96,14 +96,14 @@ export default async function DashboardPage() {
       id: 'coproprietaires',
       label: 'Inviter les copropriétaires',
       description: 'Donnez-leur accès au portail en ligne',
-      href: coproprietes?.[0] ? `/coproprietes/${coproprietes[0].id}/coproprietaires` : '/coproprietes',
+      href: '/coproprietaires',
       done: (nbCoproprietaires ?? 0) > 0,
     },
     {
       id: 'appel',
       label: 'Émettre votre premier appel de charges',
       description: 'Créez et envoyez le premier appel',
-      href: '/appels-charges/nouveau',
+      href: '/appels-charges/new',
       done: allAppels.length > 0,
     },
   ]
