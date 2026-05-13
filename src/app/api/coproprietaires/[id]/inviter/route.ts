@@ -81,11 +81,22 @@ export async function POST(
     })
 
     // Essai 2 : magiclink si l'email est déjà enregistré
+    // On passe les mêmes métadonnées pour que le callback puisse identifier l'invitation
     if (linkError?.code === 'email_exists' || linkError?.status === 422) {
       ;({ data: linkData, error: linkError } = await admin.auth.admin.generateLink({
         type: 'magiclink',
         email: copro.email,
-        options: { redirectTo },
+        options: {
+          redirectTo,
+          data: {
+            role: 'owner_resident',
+            coproprietaire_id: copro.id,
+            cabinet_id: syndicProfile.cabinet_id,
+            lot_id: lotId ?? null,
+            prenom: copro.prenom,
+            nom: copro.nom,
+          },
+        },
       }))
     }
 

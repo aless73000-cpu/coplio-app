@@ -77,6 +77,47 @@ export async function GET(request: Request) {
         if (profile?.role === 'owner_resident') {
           return NextResponse.redirect(`${origin}/accueil`)
         }
+
+        // Filet de sécurité : si next=/accueil, chercher un copropriétaire lié à cet email
+        // (cas où les métadonnées du magiclink n'ont pas été transmises)
+        if (next === '/accueil' && user.email) {
+          const admin = createAdminClient()
+          const { data: copro } = await admin
+            .from('coproprietaires')
+            .select('id, cabinet_id, prenom, nom')
+            .eq('email', user.email)
+            .limit(1)
+            .single()
+
+          if (copro) {
+            // Récupérer le lot du copropriétaire
+            const { data: junctions } = await admin
+              .from('coproprietaire_lots')
+              .select('lot_id')
+              .eq('coproprietaire_id', copro.id)
+              .limit(1)
+            const lotId = junctions?.[0]?.lot_id ?? null
+
+            await admin
+              .from('profiles')
+              .update({
+                cabinet_id: copro.cabinet_id ?? null,
+                lot_id: lotId,
+                prenom: copro.prenom ?? null,
+                nom: copro.nom ?? null,
+                role: 'owner_resident',
+                onboarding_complete: true,
+              })
+              .eq('id', user.id)
+
+            await admin
+              .from('coproprietaires')
+              .update({ profile_id: user.id, portail_actif: true })
+              .eq('id', copro.id)
+
+            return NextResponse.redirect(`${origin}/accueil`)
+          }
+        }
       }
 
       return NextResponse.redirect(`${origin}${next}`)
