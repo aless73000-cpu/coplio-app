@@ -59,7 +59,7 @@ export async function POST(
       .eq('id', syndicProfile.cabinet_id)
       .single()
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
     const redirectTo = `${appUrl}/api/auth/callback?next=/accueil`
 
     // Générer le lien d'invitation via Supabase Admin
