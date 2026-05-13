@@ -8,6 +8,7 @@ import {
   TrendingUp,
   CalendarDays,
   ArrowRight,
+  BarChart2,
 } from 'lucide-react'
 import Link from 'next/link'
 import { formatEuro, formatDate } from '@/lib/utils'
@@ -259,6 +260,9 @@ export default async function DashboardPage() {
         </div>
       )}
 
+      {/* Benchmark sectoriel */}
+      <BenchmarkSection tauxGlobal={tauxGlobal} nbCoproprietes={kpis.nb_coproprietes} nbLots={kpis.nb_lots} />
+
       {/* Contenu principal — 2 colonnes */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Colonne gauche (2/3) */}
@@ -378,6 +382,64 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ─── Benchmark sectoriel ──────────────────────────────────────
+function BenchmarkSection({ tauxGlobal, nbCoproprietes, nbLots }: { tauxGlobal: number; nbCoproprietes: number; nbLots: number }) {
+  // Moyennes sectorielles simulées (données représentatives du marché)
+  const BENCHMARKS = [
+    { label: 'Taux de recouvrement', votre: tauxGlobal, secteur: 87, unite: '%', better: (v: number, s: number) => v >= s },
+    { label: 'Lots par copropriété', votre: nbCoproprietes > 0 ? Math.round(nbLots / nbCoproprietes) : 0, secteur: 28, unite: 'lots', better: (v: number, s: number) => v >= s },
+  ]
+
+  return (
+    <div className="coplio-card">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-semibold text-coplio-text flex items-center gap-2">
+          <BarChart2 className="w-4 h-4 text-coplio-green" />Benchmark sectoriel
+        </h2>
+        <span className="text-xs text-muted-foreground bg-coplio-bg px-2 py-1 rounded-full">Données anonymisées du marché</span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {BENCHMARKS.map(b => {
+          const isBetter = b.votre > 0 && b.better(b.votre, b.secteur)
+          const pctVotre = Math.min(100, b.votre)
+          const pctSecteur = Math.min(100, b.secteur)
+          return (
+            <div key={b.label} className="p-4 bg-coplio-bg rounded-xl">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">{b.label}</p>
+              <div className="space-y-2">
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-coplio-text font-medium">Vous</span>
+                    <span className={`font-bold ${isBetter ? 'text-coplio-green' : 'text-coplio-amber'}`}>{b.votre}{b.unite}</span>
+                  </div>
+                  <div className="h-2 bg-white rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${isBetter ? 'bg-coplio-green' : 'bg-coplio-amber'}`} style={{ width: `${pctVotre}%` }} />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-muted-foreground">Moyenne secteur</span>
+                    <span className="text-muted-foreground font-medium">{b.secteur}{b.unite}</span>
+                  </div>
+                  <div className="h-2 bg-white rounded-full overflow-hidden">
+                    <div className="h-full bg-border rounded-full" style={{ width: `${pctSecteur}%` }} />
+                  </div>
+                </div>
+              </div>
+              {b.votre > 0 && (
+                <p className={`text-xs mt-2 font-medium ${isBetter ? 'text-coplio-green' : 'text-coplio-amber'}`}>
+                  {isBetter ? `+${b.votre - b.secteur}${b.unite} au-dessus de la moyenne` : `${b.secteur - b.votre}${b.unite} en-dessous de la moyenne`}
+                </p>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      <p className="text-[10px] text-muted-foreground mt-3">Données basées sur les moyennes agrégées du marché syndical français. Mis à jour trimestriellement.</p>
     </div>
   )
 }

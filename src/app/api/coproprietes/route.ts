@@ -2,6 +2,24 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
+export async function GET() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
+  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
+  if (!profile?.cabinet_id) return NextResponse.json([])
+
+  const { data, error } = await supabase
+    .from('coproprietes')
+    .select('id, nom, adresse, ville, nb_lots')
+    .eq('cabinet_id', profile.cabinet_id)
+    .order('nom')
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data ?? [])
+}
+
 const schema = z.object({
   nom: z.string().min(2),
   adresse: z.string().min(5),
