@@ -13,21 +13,26 @@ export default async function MessagesPage() {
   const admin = createAdminClient()
 
   // Conversations avec les copropriétaires
+  // coproprietaire_id référence profiles.id
   const { data: conversations } = await admin
     .from('conversations')
-    .select(`
-      id, sujet, derniere_activite,
-      coproprietaire:coproprietaires(prenom, nom)
-    `)
+    .select('id, sujet, derniere_activite, coproprietaire_id')
     .eq('cabinet_id', profile.cabinet_id)
     .order('derniere_activite', { ascending: false })
+
+  // Récupérer les noms en requête séparée (plus robuste que FK join)
+  const allIds = (conversations ?? []).map((c) => c.coproprietaire_id).filter(Boolean) as string[]
+  const coproIds = allIds.filter((id, i) => allIds.indexOf(id) === i)
+  const { data: coproProfiles } = coproIds.length > 0
+    ? await admin.from('profiles').select('id, prenom, nom').in('id', coproIds)
+    : { data: [] }
+  const coproMap = Object.fromEntries((coproProfiles ?? []).map((p) => [p.id, p]))
 
   const convs = (conversations ?? []).map((c) => ({
     id: c.id,
     sujet: c.sujet,
     derniere_activite: c.derniere_activite,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    coproprietaire: Array.isArray(c.coproprietaire) ? c.coproprietaire[0] : (c.coproprietaire as any),
+    coproprietaire: c.coproprietaire_id ? coproMap[c.coproprietaire_id] ?? null : null,
   }))
 
   return (

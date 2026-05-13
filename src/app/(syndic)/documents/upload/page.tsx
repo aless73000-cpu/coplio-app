@@ -22,6 +22,7 @@ export default function DocumentUploadPage() {
   const [categorie, setCategorie] = useState<DocumentCategory>('autre')
   const [coproprieteId, setCoproprieteId] = useState('')
   const [description, setDescription] = useState('')
+  const [visibleCoproprietaires, setVisibleCoproprietaires] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -59,6 +60,7 @@ export default function DocumentUploadPage() {
       formData.append('categorie', categorie)
       if (coproprieteId) formData.append('copropriete_id', coproprieteId)
       if (description.trim()) formData.append('description', description.trim())
+      formData.append('visible_coproprietaires', visibleCoproprietaires ? 'true' : 'false')
 
       const res = await fetch('/api/documents/upload', {
         method: 'POST',
@@ -199,6 +201,30 @@ export default function DocumentUploadPage() {
               placeholder="Description optionnelle..."
             />
           </div>
+
+          <label className="flex items-start gap-3 cursor-pointer select-none">
+            <div className="relative flex-shrink-0 mt-0.5">
+              <input
+                type="checkbox"
+                className="sr-only"
+                checked={visibleCoproprietaires}
+                onChange={e => setVisibleCoproprietaires(e.target.checked)}
+              />
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${visibleCoproprietaires ? 'bg-coplio-green border-coplio-green' : 'border-border bg-white'}`}>
+                {visibleCoproprietaires && (
+                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 12 12">
+                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-coplio-text">Partager avec les copropriétaires</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Le document sera visible dans l&apos;espace copropriétaire et une notification sera envoyée.
+              </p>
+            </div>
+          </label>
         </div>
 
         <div className="flex gap-3">

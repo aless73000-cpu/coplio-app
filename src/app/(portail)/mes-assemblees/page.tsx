@@ -45,6 +45,33 @@ async function voterResolution(formData: FormData) {
     vote_a: new Date().toISOString(),
   }, { onConflict: 'resolution_id,coproprietaire_id' })
 
+  // Recalculer les compteurs sur ag_resolutions à partir de tous les votes
+  const { data: tousVotes } = await supabase
+    .from('ag_votes')
+    .select('valeur, tantiemes')
+    .eq('resolution_id', resolutionId)
+
+  const compteurs = (tousVotes ?? []).reduce(
+    (acc, v) => {
+      if (v.valeur === 'pour') {
+        acc.voix_pour += 1
+        acc.tantiemes_pour += v.tantiemes ?? 0
+      } else if (v.valeur === 'contre') {
+        acc.voix_contre += 1
+        acc.tantiemes_contre += v.tantiemes ?? 0
+      } else {
+        acc.voix_abstention += 1
+      }
+      return acc
+    },
+    { voix_pour: 0, voix_contre: 0, voix_abstention: 0, tantiemes_pour: 0, tantiemes_contre: 0 }
+  )
+
+  await supabase
+    .from('ag_resolutions')
+    .update(compteurs)
+    .eq('id', resolutionId)
+
   redirect('/mes-assemblees')
 }
 
@@ -74,7 +101,7 @@ export default async function MesAssemblees() {
     )
   }
 
-  // AGs de la copropriété
+  // AGs de la copropriété — pas de join FK (trop fragile), query séparée pour les PV
   const { data: ags } = await supabase
     .from('assemblees_generales')
     .select('*')
@@ -104,6 +131,35 @@ export default async function MesAssemblees() {
     ['planifiee', 'convocations_envoyees', 'en_cours'].includes(ag.status))
   const agsPassees = (ags ?? []).filter((ag: AssembleeGenerale) =>
     ['terminee', 'annulee'].includes(ag.status))
+
+  // Récupérer les documents PV pour les AGs passées (query séparée)
+  const pvDocIds = agsPassees
+    .map((ag) => ag.pv_document_id)
+    .filter((id): id is string => !!id)
+
+  const { data: pvDocuments } = pvDocIds.length > 0
+    ? await supabase
+        .from('documents')
+        .select('id, nom, storage_path, storage_bucket')
+        .in('id', pvDocIds)
+    : { data: [] }
+
+  const pvDocMap: Record<string, { nom: string; storage_path: string; storage_bucket: string }> = {}
+  for (const doc of pvDocuments ?? []) {
+    pvDocMap[doc.id] = doc
+  }
+
+  // Signed URLs pour les PV
+  const pvUrls: Record<string, { url: string; nom: string }> = {}
+  for (const ag of agsPassees) {
+    if (ag.pv_document_id && pvDocMap[ag.pv_document_id]) {
+      const doc = pvDocMap[ag.pv_document_id]
+      const { data } = await supabase.storage
+        .from(doc.storage_bucket)
+        .createSignedUrl(doc.storage_path, 3600)
+      if (data?.signedUrl) pvUrls[ag.id] = { url: data.signedUrl, nom: doc.nom }
+    }
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -221,12 +277,13 @@ export default async function MesAssemblees() {
           {agsPassees.map((ag: AssembleeGenerale) => {
             const agResolutions = (resolutionsByAg[ag.id] ?? []) as AgResolution[]
             const statusInfo = AG_STATUS_LABELS[ag.status] ?? { label: ag.status, color: 'bg-gray-100 text-gray-500' }
+            const pvEntry = pvUrls[ag.id]
             return (
-              <div key={ag.id} className="coplio-card opacity-75">
+              <div key={ag.id} className="coplio-card">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-coplio-bg rounded-xl flex items-center justify-center flex-shrink-0">
-                      <FileText className="w-5 h-5 text-muted-foreground" />
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${pvEntry ? 'bg-coplio-green-light' : 'bg-coplio-bg'}`}>
+                      <FileText className={`w-5 h-5 ${pvEntry ? 'text-coplio-green' : 'text-muted-foreground'}`} />
                     </div>
                     <div>
                       <p className="font-semibold text-coplio-text">{ag.titre}</p>
@@ -236,9 +293,22 @@ export default async function MesAssemblees() {
                       </p>
                     </div>
                   </div>
-                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusInfo.color}`}>
-                    {statusInfo.label}
-                  </span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusInfo.color}`}>
+                      {statusInfo.label}
+                    </span>
+                    {pvEntry && (
+                      <a
+                        href={pvEntry.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download={pvEntry.nom}
+                        className="flex items-center gap-1 text-xs font-medium text-coplio-green bg-coplio-green-light px-2.5 py-1 rounded-full hover:bg-coplio-green hover:text-white transition-colors"
+                      >
+                        <FileText className="w-3 h-3" /> Télécharger le PV
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             )

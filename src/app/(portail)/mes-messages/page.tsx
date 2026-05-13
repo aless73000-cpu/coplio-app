@@ -23,17 +23,19 @@ export default async function MesMessages() {
     .order('derniere_activite', { ascending: false })
 
   return (
-    <div className="max-w-6xl mx-auto h-[calc(100vh-4rem)] flex flex-col">
-      <div className="mb-4">
+    <div className="max-w-6xl mx-auto flex flex-col" style={{ height: 'calc(100vh - 8rem)' }}>
+      <div className="mb-4 flex-shrink-0">
         <h1 className="text-2xl font-bold text-coplio-text">Messagerie</h1>
         <p className="text-muted-foreground text-sm mt-0.5">Échangez avec votre syndic</p>
       </div>
-      <MessageriePortailWrapper
-        userId={user.id}
-        conversations={(conversations ?? []) as Parameters<typeof MessageriePortailWrapper>[0]['conversations']}
-        cabinetId={cabinetId}
-        coproprieteId={coproprieteId}
-      />
+      <div className="flex-1 min-h-0 flex">
+        <MessageriePortailWrapper
+          userId={user.id}
+          conversations={(conversations ?? []) as Parameters<typeof MessageriePortailWrapper>[0]['conversations']}
+          cabinetId={cabinetId}
+          coproprieteId={coproprieteId}
+        />
+      </div>
     </div>
   )
 }

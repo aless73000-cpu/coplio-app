@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Plus, Trash2, Save, CheckCircle2, Loader2, TrendingUp, PiggyBank } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, Save, CheckCircle2, Loader2, TrendingUp, PiggyBank, Download } from 'lucide-react'
 import type { Budget, BudgetLigne, BudgetCategorie } from '@/types'
 import { BUDGET_CATEGORIE_LABELS } from '@/types'
 
@@ -142,6 +142,15 @@ export default function BudgetPage() {
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
+          <a
+            href={`/api/exports/fec?copropriete_id=${coproprieteId}&annee=${selectedYear}`}
+            download={`FEC_${selectedYear}.txt`}
+            className="flex items-center gap-1.5 px-3 py-2 text-sm border border-border rounded-lg bg-white hover:bg-coplio-bg transition-colors text-muted-foreground hover:text-coplio-text"
+            title="Exporter le Fichier des Écritures Comptables (FEC) — norme DGFiP"
+          >
+            <Download className="w-4 h-4" />
+            Export FEC
+          </a>
         </div>
       </div>
 

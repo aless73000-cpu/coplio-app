@@ -126,6 +126,12 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
     if (sent) {
       setMessages(prev => prev.map(m => m.id === optimisticId ? { ...m, id: sent.id, created_at: sent.created_at } : m))
       await supabase.from('conversations').update({ derniere_activite: new Date().toISOString() }).eq('id', selectedConv.id)
+      // Notifier le copropriétaire
+      fetch('/api/portail/notify-coproprietaire', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversation_id: selectedConv.id, message_preview: contenu }),
+      }).catch(() => {})
     }
     setSending(false)
   }

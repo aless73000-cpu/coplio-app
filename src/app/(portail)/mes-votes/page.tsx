@@ -15,12 +15,14 @@ export default async function MesVotes() {
 
   const coproprieteId = (profile?.lot as { copropriete_id?: string } | null)?.copropriete_id ?? null
 
-  const { data: votes } = await supabase
-    .from('votes')
-    .select('*, options:vote_options(*), reponses:vote_reponses(id, option_id, coproprietaire_id)')
-    .eq('copropriete_id', coproprieteId ?? '')
-    .eq('statut', 'ouvert')
-    .order('date_fin', { ascending: true })
+  const { data: votes } = coproprieteId
+    ? await supabase
+        .from('votes')
+        .select('*, options:vote_options(*), reponses:vote_reponses(id, option_id, coproprietaire_id)')
+        .eq('copropriete_id', coproprieteId)
+        .eq('statut', 'ouvert')
+        .order('date_fin', { ascending: true })
+    : { data: [] }
 
   return (
     <div className="max-w-2xl space-y-6 animate-fade-in">

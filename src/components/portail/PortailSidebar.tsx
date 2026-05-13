@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Home, CreditCard, FileText, Wrench, MessageCircle, User, LogOut, Calendar, CalendarDays, Vote } from 'lucide-react'
+import { Home, CreditCard, FileText, Wrench, MessageCircle, User, LogOut, Calendar, CalendarDays, Vote, PenLine } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
 
@@ -22,6 +22,7 @@ const NAV_ITEMS = [
   { href: '/mes-assemblees', label: 'Assemblées générales', icon: Calendar },
   { href: '/mon-calendrier', label: 'Calendrier', icon: CalendarDays },
   { href: '/mes-travaux', label: 'Travaux & sinistres', icon: Wrench },
+  { href: '/mes-signatures', label: 'Signatures', icon: PenLine },
   { href: '/mes-votes', label: 'Votes', icon: Vote },
   { href: '/mes-messages', label: 'Messagerie', icon: MessageCircle },
 ]

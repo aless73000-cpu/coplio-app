@@ -1,27 +1,24 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, CalendarDays, MapPin, Video, Users, Check, X, Minus } from 'lucide-react'
+import { ArrowLeft, CalendarDays, MapPin, Video, Users } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { ConvocationButton } from '@/components/syndic/ConvocationButton'
 import { ExportAGButton } from '@/components/syndic/ExportAGButton'
+import { AgStatutButtons } from '@/components/syndic/AgStatutButtons'
+import { AgResolutionsManager } from '@/components/syndic/AgResolutionsManager'
+import { AgPVSection } from '@/components/syndic/AgPVSection'
+import type { AgStatus } from '@/types'
 
 const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
-  planifiee: { label: 'Planifiée', cls: 'bg-coplio-blue-bg text-coplio-blue' },
-  convocations_envoyees: { label: 'Convoquée', cls: 'badge-attention' },
-  en_cours: { label: 'En cours', cls: 'bg-purple-50 text-purple-700' },
-  terminee: { label: 'Terminée', cls: 'badge-a-jour' },
-  annulee: { label: 'Annulée', cls: 'bg-coplio-bg text-muted-foreground' },
+  planifiee:             { label: 'Planifiée',             cls: 'bg-coplio-blue-bg text-coplio-blue' },
+  convocations_envoyees: { label: 'Convoquée',             cls: 'badge-attention' },
+  en_cours:              { label: 'En cours',              cls: 'bg-purple-50 text-purple-700' },
+  terminee:              { label: 'Terminée',              cls: 'badge-a-jour' },
+  annulee:               { label: 'Annulée',               cls: 'bg-coplio-bg text-muted-foreground' },
 }
 
-const VOTE_TYPE_LABELS: Record<string, string> = {
-  art_24: 'Art. 24 (majorité simple)',
-  art_25: 'Art. 25 (majorité absolue)',
-  art_26: 'Art. 26 (double majorité)',
-  unanimite: 'Unanimité',
-}
-
-export default async function AssembleePage({ params }: { params: { id: string } }) {
+export default async function AssembléePage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -37,6 +34,27 @@ export default async function AssembleePage({ params }: { params: { id: string }
   const date = new Date(ag.date_ag)
   const { label: statusLabel, cls: statusCls } = STATUS_CONFIG[ag.status] ?? STATUS_CONFIG.planifiee
   const resolutions = (ag.resolutions ?? []).sort((a: { ordre: number }, b: { ordre: number }) => a.ordre - b.ordre)
+
+  // PV document
+  let pvNom: string | null = null
+  let pvUrl: string | null = null
+  if (ag.pv_document_id) {
+    const { data: pvDoc } = await supabase
+      .from('documents')
+      .select('nom, storage_path, storage_bucket')
+      .eq('id', ag.pv_document_id)
+      .single()
+    if (pvDoc) {
+      pvNom = pvDoc.nom
+      const { data: signed } = await supabase.storage
+        .from(pvDoc.storage_bucket)
+        .createSignedUrl(pvDoc.storage_path, 3600)
+      pvUrl = signed?.signedUrl ?? null
+    }
+  }
+
+  // L'AG est éditable si elle n'est pas terminée ni annulée
+  const canEdit = ag.status !== 'terminee' && ag.status !== 'annulee'
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -79,75 +97,19 @@ export default async function AssembleePage({ params }: { params: { id: string }
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Colonne principale */}
         <div className="lg:col-span-2 space-y-6">
           {/* Résolutions */}
-          {resolutions.length > 0 && (
-            <div className="coplio-card">
-              <h2 className="font-semibold text-coplio-text mb-4">
-                Résolutions ({resolutions.length})
-              </h2>
-              <div className="space-y-4">
-                {resolutions.map((res: {
-                  id: string
-                  ordre: number
-                  titre: string
-                  description?: string
-                  type_vote: string
-                  voix_pour: number
-                  voix_contre: number
-                  voix_abstention: number
-                  adoptee?: boolean
-                }) => (
-                  <div key={res.id} className="border border-border rounded-xl p-4">
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-xs text-muted-foreground bg-coplio-bg px-2 py-0.5 rounded-full flex-shrink-0">
-                          #{res.ordre}
-                        </span>
-                        <h3 className="font-medium text-coplio-text text-sm">{res.titre}</h3>
-                      </div>
-                      {res.adoptee !== null && res.adoptee !== undefined && (
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
-                          res.adoptee ? 'bg-coplio-green-light text-coplio-green' : 'bg-red-50 text-red-600'
-                        }`}>
-                          {res.adoptee ? 'Adoptée' : 'Rejetée'}
-                        </span>
-                      )}
-                    </div>
-                    {res.description && (
-                      <p className="text-xs text-muted-foreground mb-3">{res.description}</p>
-                    )}
-                    <div className="flex items-center gap-4 text-xs">
-                      <span className="text-muted-foreground">{VOTE_TYPE_LABELS[res.type_vote] ?? res.type_vote}</span>
-                      {(res.voix_pour + res.voix_contre + res.voix_abstention) > 0 && (
-                        <div className="flex items-center gap-3 ml-auto">
-                          <span className="flex items-center gap-1 text-coplio-green">
-                            <Check className="w-3 h-3" /> {res.voix_pour}
-                          </span>
-                          <span className="flex items-center gap-1 text-red-500">
-                            <X className="w-3 h-3" /> {res.voix_contre}
-                          </span>
-                          <span className="flex items-center gap-1 text-muted-foreground">
-                            <Minus className="w-3 h-3" /> {res.voix_abstention}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {resolutions.length === 0 && (
-            <div className="coplio-card text-center py-8">
-              <p className="text-muted-foreground text-sm">Aucune résolution enregistrée</p>
-            </div>
-          )}
+          <AgResolutionsManager
+            agId={ag.id}
+            initialResolutions={resolutions}
+            canEdit={canEdit}
+          />
         </div>
 
-        {/* Infos latérales */}
+        {/* Colonne latérale */}
         <div className="space-y-4">
+          {/* Infos */}
           <div className="coplio-card">
             <h3 className="font-semibold text-coplio-text mb-4">Informations</h3>
             <dl className="space-y-3 text-sm">
@@ -208,6 +170,7 @@ export default async function AssembleePage({ params }: { params: { id: string }
             </dl>
           </div>
 
+          {/* Copropriété */}
           <div className="coplio-card">
             <h3 className="font-semibold text-coplio-text mb-3">Copropriété</h3>
             <Link
@@ -220,6 +183,18 @@ export default async function AssembleePage({ params }: { params: { id: string }
               <p className="text-xs text-muted-foreground mt-0.5">{ag.copropriete.adresse}</p>
             )}
           </div>
+
+          {/* PV */}
+          <div className="coplio-card">
+            <AgPVSection agId={ag.id} pvNom={pvNom} pvUrl={pvUrl} />
+          </div>
+
+          {/* Changer statut */}
+          {canEdit && (
+            <div className="coplio-card">
+              <AgStatutButtons agId={ag.id} status={ag.status as AgStatus} />
+            </div>
+          )}
         </div>
       </div>
     </div>

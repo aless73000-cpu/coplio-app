@@ -17,9 +17,6 @@ export async function POST(request: Request) {
   if (!file) return NextResponse.json({ error: 'Fichier requis' }, { status: 400 })
   if (file.size > 5 * 1024 * 1024) return NextResponse.json({ error: 'Fichier trop grand (max 5MB)' }, { status: 400 })
 
-  const buffer = await file.arrayBuffer()
-  const base64 = Buffer.from(buffer).toString('base64')
-
   const typeLabels: Record<string, string> = {
     reglement: 'règlement de copropriété',
     contrat: 'contrat prestataire',
@@ -54,23 +51,36 @@ Réponds en français avec des sections claires, des bullet points. Sois précis
 
   const client = new Anthropic({ apiKey })
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const message = await (client.beta.messages as any).create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 2000,
-    betas: ['pdfs-2024-09-25'],
-    messages: [{
-      role: 'user',
-      content: [
-        {
-          type: 'document',
-          source: { type: 'base64', media_type: 'application/pdf', data: base64 },
-        },
-        { type: 'text', text: prompt },
-      ],
-    }],
-  })
+  const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
 
-  const text = message.content[0].type === 'text' ? message.content[0].text : ''
-  return NextResponse.json({ analyse: text, nom_fichier: file.name })
+  if (isPdf) {
+    const buffer = await file.arrayBuffer()
+    const base64 = Buffer.from(buffer).toString('base64')
+
+    const message = await client.beta.messages.create({
+      model: 'claude-3-5-haiku-20241022',
+      max_tokens: 2000,
+      betas: ['pdfs-2024-09-25'],
+      messages: [{
+        role: 'user',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        content: [
+          {
+            type: 'document',
+            source: { type: 'base64', media_type: 'application/pdf', data: base64 },
+          } as unknown as Anthropic.Beta.BetaContentBlockParam,
+          { type: 'text', text: prompt },
+        ],
+      }],
+    })
+
+    const text = message.content[0].type === 'text' ? message.content[0].text : ''
+    return NextResponse.json({ analyse: text, nom_fichier: file.name })
+  } else {
+    // Fichier non-PDF (Word, texte, etc.) — on informe l'utilisateur
+    return NextResponse.json(
+      { error: 'Seuls les fichiers PDF sont pris en charge pour l\'analyse. Veuillez convertir votre document en PDF.' },
+      { status: 400 }
+    )
+  }
 }

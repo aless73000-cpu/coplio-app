@@ -1,10 +1,36 @@
+'use server'
+
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { User, Mail, Phone, Home, Building2, Shield, Hash } from 'lucide-react'
+import { User, Mail, Phone, Home, Building2, Shield, Hash, Save, CheckCircle2 } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
 import { LOT_TYPE_LABELS } from '@/types'
 
-export default async function MonComptePage() {
+async function updateProfile(formData: FormData) {
+  'use server'
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const prenom = (formData.get('prenom') as string)?.trim()
+  const nom = (formData.get('nom') as string)?.trim()
+  const telephone = (formData.get('telephone') as string)?.trim()
+
+  if (!prenom || !nom) return
+
+  await supabase
+    .from('profiles')
+    .update({ prenom, nom, telephone: telephone || null, updated_at: new Date().toISOString() })
+    .eq('id', user.id)
+
+  redirect('/mon-compte?saved=1')
+}
+
+export default async function MonComptePage({
+  searchParams,
+}: {
+  searchParams: { saved?: string }
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/portail')
@@ -27,6 +53,7 @@ export default async function MonComptePage() {
   } | null
 
   const initials = `${profile?.prenom?.[0] ?? ''}${profile?.nom?.[0] ?? ''}`.toUpperCase()
+  const saved = searchParams?.saved === '1'
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -34,6 +61,14 @@ export default async function MonComptePage() {
         <h1 className="text-2xl font-bold text-coplio-text">Mon compte</h1>
         <p className="text-muted-foreground text-sm mt-0.5">Vos informations personnelles et votre logement</p>
       </div>
+
+      {/* Confirmation sauvegarde */}
+      {saved && (
+        <div className="flex items-center gap-3 p-4 bg-coplio-green-light border border-coplio-green/20 rounded-xl">
+          <CheckCircle2 className="w-5 h-5 text-coplio-green flex-shrink-0" />
+          <p className="text-sm font-medium text-coplio-green">Vos informations ont été mises à jour.</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-6">
         {/* Colonne gauche — profil */}
@@ -67,36 +102,75 @@ export default async function MonComptePage() {
 
         {/* Colonne droite — détails */}
         <div className="col-span-2 space-y-4">
-          {/* Coordonnées */}
+          {/* Formulaire coordonnées */}
           <div className="coplio-card">
             <h3 className="font-semibold text-coplio-text mb-4 flex items-center gap-2">
               <User className="w-4 h-4 text-muted-foreground" />
               Mes coordonnées
             </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-coplio-bg rounded-xl p-4">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Prénom</p>
-                <p className="font-medium text-coplio-text">{profile?.prenom ?? '—'}</p>
-              </div>
-              <div className="bg-coplio-bg rounded-xl p-4">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Nom</p>
-                <p className="font-medium text-coplio-text">{profile?.nom ?? '—'}</p>
-              </div>
-              <div className="bg-coplio-bg rounded-xl p-4 flex items-center gap-3">
-                <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">Email</p>
-                  <p className="font-medium text-coplio-text text-sm truncate">{user.email}</p>
-                </div>
-              </div>
-              <div className="bg-coplio-bg rounded-xl p-4 flex items-center gap-3">
-                <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <form action={updateProfile} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">Téléphone</p>
-                  <p className="font-medium text-coplio-text text-sm">{profile?.telephone ?? '—'}</p>
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+                    Prénom <span className="text-coplio-red">*</span>
+                  </label>
+                  <input
+                    name="prenom"
+                    defaultValue={profile?.prenom ?? ''}
+                    required
+                    placeholder="Votre prénom"
+                    className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+                    Nom <span className="text-coplio-red">*</span>
+                  </label>
+                  <input
+                    name="nom"
+                    defaultValue={profile?.nom ?? ''}
+                    required
+                    placeholder="Votre nom"
+                    className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
+                  />
                 </div>
               </div>
-            </div>
+
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                  <Mail className="w-3 h-3" /> Email
+                </label>
+                <input
+                  type="email"
+                  value={user.email ?? ''}
+                  disabled
+                  className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm text-muted-foreground cursor-not-allowed"
+                />
+                <p className="text-xs text-muted-foreground mt-1">L&apos;email ne peut pas être modifié ici.</p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                  <Phone className="w-3 h-3" /> Téléphone
+                </label>
+                <input
+                  name="telephone"
+                  defaultValue={profile?.telephone ?? ''}
+                  placeholder="+33 6 00 00 00 00"
+                  className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="flex items-center gap-2 bg-coplio-green text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+                >
+                  <Save className="w-4 h-4" />
+                  Enregistrer les modifications
+                </button>
+              </div>
+            </form>
           </div>
 
           {/* Mon logement */}
@@ -154,7 +228,7 @@ export default async function MonComptePage() {
                 <p className="text-xs text-muted-foreground mt-0.5">Modifiez votre mot de passe de connexion</p>
               </div>
               <a
-                href={`/portail/reset-password?email=${encodeURIComponent(user.email ?? '')}`}
+                href={`/forgot-password`}
                 className="text-sm font-medium text-coplio-green hover:underline"
               >
                 Modifier

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import {
   CreditCard, FileText, Wrench, MessageCircle,
   AlertTriangle, CheckCircle2, ChevronRight, Bell, Plus,
+  Landmark, PenLine, UserX,
 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { AppelCharges, Document, Sinistre, Notification } from '@/types'
@@ -24,6 +25,8 @@ export default async function AccueilPage() {
     id: string; numero: string; type: string; etage?: string
     copropriete: { id: string; nom: string; adresse?: string; ville?: string }
   } | null
+
+  const coproprieteId = lot?.copropriete?.id
 
   const { data: appels } = lotId
     ? await supabase.from('appels_charges').select('*').eq('lot_id', lotId).eq('paye', false)
@@ -50,8 +53,48 @@ export default async function AccueilPage() {
     .from('notifications').select('*').eq('user_id', user.id).eq('lu', false)
     .order('created_at', { ascending: false }).limit(5)
 
+  // Fonds de travaux ALUR
+  const { data: fondsTravaux } = coproprieteId
+    ? await supabase
+        .from('fonds_travaux')
+        .select('id, annee, solde_actuel, objectif_5ans')
+        .eq('copropriete_id', coproprieteId)
+        .order('annee', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+    : { data: null }
+
   const nbNotifs = notifications?.length ?? 0
   const prenom = profile?.prenom ?? 'Bienvenue'
+
+  // Si pas de lot, afficher un état vide clair
+  if (!lotId) {
+    return (
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-coplio-text">Bonjour, {prenom} 👋</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">Espace copropriétaire</p>
+        </div>
+        <div className="coplio-card text-center py-20">
+          <div className="w-16 h-16 bg-coplio-amber-bg rounded-full flex items-center justify-center mx-auto mb-4">
+            <UserX className="w-8 h-8 text-coplio-amber" />
+          </div>
+          <h2 className="text-lg font-semibold text-coplio-text mb-2">Aucun lot associé à votre compte</h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            Votre compte n&apos;est pas encore lié à un lot de copropriété. Contactez votre syndic
+            pour qu&apos;il vous associe à votre appartement.
+          </p>
+          <Link
+            href="/mes-messages"
+            className="inline-flex items-center gap-2 mt-6 bg-coplio-green text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+          >
+            <MessageCircle className="w-4 h-4" />
+            Contacter le syndic
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -110,7 +153,7 @@ export default async function AccueilPage() {
             { href: '/mes-charges', icon: CreditCard, label: 'Mes charges', color: 'bg-coplio-green-light', iconColor: 'text-coplio-green', sub: `${(appels ?? []).length} en attente` },
             { href: '/mes-documents', icon: FileText, label: 'Mes documents', color: 'bg-blue-50', iconColor: 'text-blue-600', sub: `${documents?.length ?? 0} disponible${(documents?.length ?? 0) > 1 ? 's' : ''}` },
             { href: '/mes-travaux', icon: Wrench, label: 'Travaux & sinistres', color: 'bg-coplio-amber-bg', iconColor: 'text-coplio-amber', sub: `${sinistres?.length ?? 0} dossier${(sinistres?.length ?? 0) > 1 ? 's' : ''} en cours` },
-            { href: '/mes-messages', icon: MessageCircle, label: 'Messagerie', color: 'bg-purple-50', iconColor: 'text-purple-600', sub: nbNotifs > 0 ? `${nbNotifs} non lu${nbNotifs > 1 ? 's' : ''}` : 'Aucun nouveau' },
+            { href: '/mes-signatures', icon: PenLine, label: 'Signatures', color: 'bg-purple-50', iconColor: 'text-purple-600', sub: 'Documents à signer' },
           ].map(({ href, icon: Icon, label, color, iconColor, sub }) => (
             <Link key={href} href={href}
               className="coplio-card flex items-center gap-4 hover:border-coplio-green/30 hover:shadow-sm transition-all group"
@@ -126,6 +169,39 @@ export default async function AccueilPage() {
           ))}
         </div>
       </div>
+
+      {/* Fonds de travaux */}
+      {fondsTravaux && (
+        <div className="coplio-card border-blue-200 bg-blue-50/40">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Landmark className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Fonds de travaux ALUR</p>
+                <p className="font-bold text-xl text-blue-700">{formatEuro(fondsTravaux.solde_actuel ?? 0)}</p>
+              </div>
+            </div>
+            {fondsTravaux.objectif_5ans && fondsTravaux.objectif_5ans > 0 && (
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground mb-1">
+                  Objectif 5 ans : {formatEuro(fondsTravaux.objectif_5ans)}
+                </p>
+                <div className="w-40 h-2 bg-blue-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500 rounded-full"
+                    style={{ width: `${Math.min(100, Math.round(((fondsTravaux.solde_actuel ?? 0) / fondsTravaux.objectif_5ans) * 100))}%` }}
+                  />
+                </div>
+                <p className="text-xs text-blue-600 font-medium mt-1">
+                  {Math.min(100, Math.round(((fondsTravaux.solde_actuel ?? 0) / fondsTravaux.objectif_5ans) * 100))}% atteint
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Ligne 2 : Documents récents + Travaux + Notifications */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -165,7 +241,15 @@ export default async function AccueilPage() {
             </Link>
           </div>
           {!sinistres || sinistres.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">Aucun dossier en cours</p>
+            <div className="text-center py-4">
+              <p className="text-sm text-muted-foreground">Aucun dossier en cours</p>
+              <Link
+                href="/mes-travaux?nouveau=1"
+                className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-coplio-green hover:underline"
+              >
+                <Plus className="w-3 h-3" /> Signaler un problème
+              </Link>
+            </div>
           ) : (
             <div className="space-y-2">
               {(sinistres as Pick<Sinistre, 'id' | 'titre' | 'status' | 'reference'>[]).map((s) => (
@@ -181,11 +265,6 @@ export default async function AccueilPage() {
               ))}
             </div>
           )}
-          <Link href="/mes-messages"
-            className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-border text-sm text-muted-foreground hover:border-coplio-green hover:text-coplio-green transition-colors"
-          >
-            <Plus className="w-4 h-4" /> Signaler un problème via messagerie
-          </Link>
         </div>
 
         {/* Notifications */}

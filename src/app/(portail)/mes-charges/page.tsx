@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { CheckCircle2, AlertTriangle, TrendingUp, Clock } from 'lucide-react'
+import { CheckCircle2, AlertTriangle, TrendingUp, Clock, CreditCard, Building2 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { AppelCharges } from '@/types'
 import { DownloadChargesPDF } from '@/components/portail/DownloadChargesPDF'
+import { CopyButton } from '@/components/portail/CopyButton'
 
 export default async function MesChargesPage() {
   const supabase = await createClient()
@@ -12,7 +13,7 @@ export default async function MesChargesPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('lot_id, prenom, nom, lot:lots(numero, etage, copropriete:coproprietes(nom))')
+    .select('lot_id, prenom, nom, lot:lots(numero, etage, copropriete:coproprietes(id, nom, iban, banque))')
     .eq('id', user.id)
     .single()
 
@@ -37,7 +38,7 @@ export default async function MesChargesPage() {
     .limit(50)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const lot = profile.lot as any as { numero: string; etage?: string; copropriete: { nom: string } } | null
+  const lot = profile.lot as any as { numero: string; etage?: string; copropriete: { id: string; nom: string; iban?: string; banque?: string } } | null
 
   const total_du = (appels ?? []).reduce(
     (s: number, a: AppelCharges) => (!a.paye ? s + (a.montant - a.montant_paye) : s), 0
@@ -124,6 +125,62 @@ export default async function MesChargesPage() {
           <p className="text-xs text-muted-foreground mt-1">appels payés</p>
         </div>
       </div>
+
+      {/* Comment payer */}
+      {total_du > 0 && (
+        <div className="coplio-card border-coplio-green/30 bg-coplio-green-light/20">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-coplio-green rounded-xl flex items-center justify-center flex-shrink-0">
+              <CreditCard className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-coplio-text">Comment régler mes charges ?</h2>
+              <p className="text-xs text-muted-foreground">Effectuez un virement bancaire aux coordonnées ci-dessous</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl p-4 border border-border">
+              <div className="flex items-center gap-2 mb-3">
+                <Building2 className="w-4 h-4 text-muted-foreground" />
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Bénéficiaire</p>
+              </div>
+              <p className="font-semibold text-coplio-text">{lot?.copropriete?.nom ?? 'Syndicat de copropriété'}</p>
+              <p className="text-xs text-muted-foreground mt-1">Syndicat des copropriétaires</p>
+            </div>
+            <div className="bg-white rounded-xl p-4 border border-border">
+              <div className="flex items-center gap-2 mb-3">
+                <CreditCard className="w-4 h-4 text-muted-foreground" />
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Coordonnées bancaires</p>
+              </div>
+              {lot?.copropriete?.iban ? (
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-0.5">IBAN</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-mono font-semibold text-coplio-text flex-1 min-w-0 truncate">{lot.copropriete.iban}</p>
+                      <CopyButton text={lot.copropriete.iban} />
+                    </div>
+                  </div>
+                  {lot.copropriete.banque && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-0.5">Banque</p>
+                      <p className="text-sm font-medium text-coplio-text">{lot.copropriete.banque}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Contactez votre syndic pour obtenir les coordonnées bancaires.</p>
+              )}
+            </div>
+          </div>
+          <div className="mt-3 px-4 py-3 bg-white rounded-xl border border-border">
+            <p className="text-xs text-muted-foreground">
+              <strong className="text-coplio-text">Référence à indiquer :</strong>{' '}
+              <span className="font-mono">LOT-{lot?.numero ?? '?'} · {profile?.prenom} {profile?.nom}</span>
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Table des appels */}
       <div className="coplio-card p-0 overflow-hidden">

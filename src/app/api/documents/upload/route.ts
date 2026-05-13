@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     const categorie = formData.get('categorie') as string || 'autre'
     const coproprieteId = (formData.get('copropriete_id') as string) || null
     const description = (formData.get('description') as string)?.trim() || null
+    const visibleCoproprietaires = formData.get('visible_coproprietaires') === 'true'
 
     if (!file) return NextResponse.json({ error: 'Fichier manquant' }, { status: 400 })
     if (!nom) return NextResponse.json({ error: 'Nom manquant' }, { status: 400 })
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
         type_mime: file.type || null,
         storage_path: path,
         storage_bucket: 'documents',
-        visible_coproprietaires: false,
+        visible_coproprietaires: visibleCoproprietaires,
         upload_par: user.id,
       })
       .select()
@@ -67,6 +68,37 @@ export async function POST(request: Request) {
       // Rollback du fichier uploadé
       await admin.storage.from('documents').remove([path])
       return NextResponse.json({ error: `Erreur base de données : ${dbError.message}` }, { status: 500 })
+    }
+
+    // Si visible aux copropriétaires et lié à une copropriété → notification
+    if (visibleCoproprietaires && coproprieteId) {
+      try {
+        const { data: lots } = await admin
+          .from('lots')
+          .select('id')
+          .eq('copropriete_id', coproprieteId)
+
+        const lotIds = (lots ?? []).map((l: { id: string }) => l.id)
+        if (lotIds.length > 0) {
+          const { data: residents } = await admin
+            .from('profiles')
+            .select('id')
+            .in('lot_id', lotIds)
+            .eq('role', 'owner_resident')
+
+          if (residents?.length) {
+            await admin.from('notifications').insert(
+              residents.map((r: { id: string }) => ({
+                user_id: r.id,
+                type: 'info',
+                titre: `Nouveau document disponible`,
+                message: nom,
+                lu: false,
+              }))
+            )
+          }
+        }
+      } catch { /* non bloquant */ }
     }
 
     return NextResponse.json(doc)

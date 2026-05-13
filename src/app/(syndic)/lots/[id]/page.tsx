@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Edit } from 'lucide-react'
+import { ArrowLeft, Edit, User, Mail, Phone, CreditCard, CheckCircle2, AlertTriangle, Clock, UserPlus } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import { LOT_TYPE_LABELS } from '@/types'
+import type { AppelCharges } from '@/types'
 
 export default async function LotPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
@@ -18,9 +19,29 @@ export default async function LotPage({ params }: { params: { id: string } }) {
 
   if (!lot) notFound()
 
+  // Copropriétaires liés à ce lot
+  const { data: occupants } = await supabase
+    .from('profiles')
+    .select('id, prenom, nom, email, telephone, role, created_at')
+    .eq('lot_id', params.id)
+
+  // Appels de charges de ce lot
+  const { data: appels } = await supabase
+    .from('appels_charges')
+    .select('*')
+    .eq('lot_id', params.id)
+    .order('date_echeance', { ascending: false })
+    .limit(10)
+
+  const totalDu = (appels ?? []).reduce(
+    (s: number, a: AppelCharges) => (!a.paye ? s + (a.montant - a.montant_paye) : s), 0
+  )
+  const dernierAppel = (appels ?? [])[0] as AppelCharges | undefined
+
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="flex items-center gap-3 mb-6">
+    <div className="max-w-3xl mx-auto space-y-6">
+      {/* En-tête */}
+      <div className="flex items-center gap-3">
         <Link href={`/coproprietes/${lot.copropriete?.id}/lots`} className="text-muted-foreground hover:text-coplio-text transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
@@ -34,15 +55,16 @@ export default async function LotPage({ params }: { params: { id: string } }) {
         </div>
         <Link
           href={`/lots/${lot.id}/edit`}
-          className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm hover:bg-coplio-bg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 border border-border rounded-xl text-sm hover:bg-coplio-bg transition-colors"
         >
           <Edit className="w-4 h-4" />
           Modifier
         </Link>
       </div>
 
-      <div className="grid gap-6">
-        <div className="coplio-card">
+      {/* Infos + solde */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="col-span-2 coplio-card">
           <h2 className="font-semibold text-coplio-text mb-4">Informations</h2>
           <dl className="grid grid-cols-2 gap-4 text-sm">
             {[
@@ -50,7 +72,6 @@ export default async function LotPage({ params }: { params: { id: string } }) {
               { label: 'Étage', value: lot.etage ?? '—' },
               { label: 'Surface', value: lot.surface ? `${lot.surface} m²` : '—' },
               { label: 'Tantièmes', value: lot.tantiemes?.toString() ?? '—' },
-              { label: 'Solde compte', value: formatEuro(lot.solde_compte ?? 0) },
             ].map(({ label, value }) => (
               <div key={label}>
                 <dt className="text-muted-foreground text-xs mb-0.5">{label}</dt>
@@ -60,10 +81,151 @@ export default async function LotPage({ params }: { params: { id: string } }) {
           </dl>
         </div>
 
-        <div className="coplio-card">
-          <h2 className="font-semibold text-coplio-text mb-4">Copropriétaires</h2>
-          <p className="text-sm text-muted-foreground text-center py-4">Aucun copropriétaire assigné</p>
+        <div className={`coplio-card ${totalDu > 0 ? 'border-coplio-red/30 bg-coplio-red-bg' : 'border-coplio-green/20 bg-coplio-green-light'}`}>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Solde dû</p>
+          <p className={`text-2xl font-bold ${totalDu > 0 ? 'text-coplio-red' : 'text-coplio-green'}`}>
+            {formatEuro(totalDu)}
+          </p>
+          {totalDu > 0 ? (
+            <p className="text-xs text-coplio-red/70 mt-1 flex items-center gap-1">
+              <AlertTriangle className="w-3 h-3" /> À recouvrer
+            </p>
+          ) : (
+            <p className="text-xs text-coplio-green/70 mt-1 flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" /> À jour
+            </p>
+          )}
+          {dernierAppel && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Dernier appel : {formatDate(dernierAppel.date_echeance)}
+            </p>
+          )}
         </div>
+      </div>
+
+      {/* Copropriétaires */}
+      <div className="coplio-card">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-coplio-text">Occupants / Copropriétaires</h2>
+          <Link
+            href={`/coproprietaires/new?lot_id=${lot.id}&copropriete_id=${lot.copropriete?.id}`}
+            className="flex items-center gap-1.5 text-xs font-medium text-coplio-green hover:underline"
+          >
+            <UserPlus className="w-3.5 h-3.5" /> Inviter
+          </Link>
+        </div>
+
+        {!occupants || occupants.length === 0 ? (
+          <div className="text-center py-8 bg-coplio-bg rounded-xl">
+            <User className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+            <p className="text-sm font-medium text-coplio-text">Aucun occupant assigné</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Invitez le copropriétaire pour qu&apos;il accède au portail.
+            </p>
+            <Link
+              href={`/coproprietaires/new?lot_id=${lot.id}&copropriete_id=${lot.copropriete?.id}`}
+              className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-coplio-green bg-coplio-green-light px-3 py-1.5 rounded-lg hover:bg-coplio-green hover:text-white transition-colors"
+            >
+              <UserPlus className="w-3.5 h-3.5" /> Inviter un copropriétaire
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {occupants.map((p) => (
+              <Link
+                key={p.id}
+                href={`/coproprietaires/${p.id}`}
+                className="flex items-center gap-4 p-3 rounded-xl hover:bg-coplio-bg transition-colors group"
+              >
+                <div className="w-10 h-10 rounded-full bg-coplio-green-light flex items-center justify-center flex-shrink-0">
+                  <span className="text-coplio-green font-bold text-sm">
+                    {`${p.prenom?.[0] ?? ''}${p.nom?.[0] ?? ''}`.toUpperCase() || '?'}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-coplio-text group-hover:text-coplio-green transition-colors">
+                    {p.prenom} {p.nom}
+                  </p>
+                  <div className="flex items-center gap-3 mt-0.5">
+                    {p.email && (
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground truncate">
+                        <Mail className="w-3 h-3 flex-shrink-0" />{p.email}
+                      </span>
+                    )}
+                    {p.telephone && (
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Phone className="w-3 h-3 flex-shrink-0" />{p.telephone}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <span className="text-xs text-muted-foreground flex-shrink-0">
+                  Depuis {formatDate(p.created_at)}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Historique appels de charges */}
+      <div className="coplio-card p-0 overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <h2 className="font-semibold text-coplio-text flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-muted-foreground" />
+            Appels de charges récents
+          </h2>
+          <Link
+            href={`/appels-charges?lot_id=${lot.id}`}
+            className="text-xs text-coplio-green font-medium hover:underline"
+          >
+            Tout voir
+          </Link>
+        </div>
+
+        {!appels || appels.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-sm text-muted-foreground">Aucun appel de charges</p>
+          </div>
+        ) : (
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-border bg-coplio-bg">
+                <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-6 py-3">Libellé</th>
+                <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Échéance</th>
+                <th className="text-right text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Montant</th>
+                <th className="text-right text-xs font-semibold text-muted-foreground uppercase tracking-wide px-6 py-3">Statut</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {(appels as AppelCharges[]).map((appel) => {
+                const isLate = !appel.paye && new Date(appel.date_echeance) < new Date()
+                return (
+                  <tr key={appel.id} className="hover:bg-coplio-bg/50 transition-colors">
+                    <td className="px-6 py-3 text-sm font-medium text-coplio-text">{appel.libelle}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">{formatDate(appel.date_echeance)}</td>
+                    <td className="px-4 py-3 text-right text-sm font-semibold text-coplio-text">{formatEuro(appel.montant)}</td>
+                    <td className="px-6 py-3 text-right">
+                      {appel.paye ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-coplio-green bg-coplio-green-light px-2.5 py-1 rounded-full">
+                          <CheckCircle2 className="w-3 h-3" /> Payé
+                        </span>
+                      ) : isLate ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-coplio-red bg-coplio-red-bg px-2.5 py-1 rounded-full">
+                          <AlertTriangle className="w-3 h-3" /> En retard
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-coplio-amber bg-coplio-amber-bg px-2.5 py-1 rounded-full">
+                          <Clock className="w-3 h-3" /> En attente
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )
