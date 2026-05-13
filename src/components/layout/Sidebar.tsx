@@ -21,6 +21,9 @@ import {
   FileStack,
   UsersRound,
   Wrench,
+  Sparkles,
+  PenLine,
+  Archive,
   BookOpen,
   BellRing,
 } from 'lucide-react'
@@ -105,6 +108,21 @@ const NAV_ITEMS = [
     label: 'Relances auto',
     href: '/relances-config',
     icon: BellRing,
+  },
+  {
+    label: 'Assistant IA',
+    href: '/ia',
+    icon: Sparkles,
+  },
+  {
+    label: 'Signatures',
+    href: '/signatures',
+    icon: PenLine,
+  },
+  {
+    label: 'Archives légales',
+    href: '/archives',
+    icon: Archive,
   },
 ]
 
