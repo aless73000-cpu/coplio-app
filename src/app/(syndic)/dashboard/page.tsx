@@ -9,6 +9,7 @@ import {
   CalendarDays,
   ArrowRight,
   BarChart2,
+  Receipt,
 } from 'lucide-react'
 import Link from 'next/link'
 import { formatEuro, formatDate } from '@/lib/utils'
@@ -362,6 +363,7 @@ export default async function DashboardPage() {
             <div className="space-y-2">
               {[
                 { href: '/coproprietes/new', label: 'Ajouter une copropriété', icon: Building2 },
+                { href: '/appels-charges/new', label: 'Créer un appel de charges', icon: Receipt },
                 { href: '/sinistres/new', label: 'Déclarer un sinistre', icon: AlertTriangle },
                 { href: '/assemblees/new', label: 'Planifier une AG', icon: CalendarDays },
                 { href: '/impayes', label: 'Gérer les impayés', icon: CreditCard },
