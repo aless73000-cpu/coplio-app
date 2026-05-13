@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { User, Building2, Bell, Loader2, CheckCircle2, Users, ChevronRight, Upload } from 'lucide-react'
+import { User, Building2, Bell, Loader2, CheckCircle2, Users, ChevronRight, Upload, BellRing, FileUp } from 'lucide-react'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import type { Profile, Cabinet } from '@/types'
 
@@ -201,6 +201,35 @@ export function ParametresClient({ profile }: Props) {
         </div>
         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
       </Link>
+
+      {/* Outils */}
+      <div className="grid grid-cols-2 gap-4">
+        <Link href="/relances-config" className="coplio-card flex items-center justify-between hover:border-coplio-green/40 transition-colors group">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center">
+              <BellRing className="w-4 h-4 text-amber-600" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-coplio-text text-sm">Relances auto</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Impayés & rappels</p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
+        </Link>
+
+        <Link href="/importer" className="coplio-card flex items-center justify-between hover:border-coplio-green/40 transition-colors group">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
+              <FileUp className="w-4 h-4 text-blue-600" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-coplio-text text-sm">Import CSV</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Lots & copropriétaires</p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
+        </Link>
+      </div>
 
       {/* Notifications */}
       <section className="coplio-card">

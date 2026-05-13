@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Archive, Upload, Loader2, FileText, Trash2, Download, Search, Calendar, Shield } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import { DocTabs } from '@/components/syndic/DocTabs'
 
 const TYPES_ARCHIVE = [
   { value: 'pv_ag', label: 'PV d\'AG' },
@@ -102,6 +103,8 @@ export default function ArchivesPage() {
           <Upload className="w-4 h-4" />Archiver un document
         </button>
       </div>
+
+      <DocTabs />
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">

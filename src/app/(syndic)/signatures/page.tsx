@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { PenLine, Plus, Loader2, CheckCircle2, Clock, X, AlertTriangle, ExternalLink, Trash2 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import { DocTabs } from '@/components/syndic/DocTabs'
 
 const TYPES_DOC = [
   { value: 'pv_ag', label: 'PV d\'AG' },
@@ -91,6 +92,8 @@ export default function SignaturesPage() {
           <Plus className="w-4 h-4" />Nouvelle demande
         </button>
       </div>
+
+      <DocTabs />
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">

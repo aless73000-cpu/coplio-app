@@ -7,25 +7,36 @@ import { cn } from '@/lib/utils'
 import {
   Menu, X, Home, LayoutDashboard, Building2, Users, FileText,
   AlertTriangle, CalendarDays, CreditCard, Settings, LogOut,
-  Receipt, MessageSquare, Calendar, FileStack, Upload,
+  Receipt, MessageSquare, Sparkles, Wrench, BookOpen, Calendar,
+  UsersRound,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 const NAV_ITEMS = [
-  { label: 'Tableau de bord', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Copropriétés', href: '/coproprietes', icon: Building2 },
-  { label: 'Copropriétaires', href: '/coproprietaires', icon: Users },
-  { label: 'Documents', href: '/documents', icon: FileText },
-  { label: 'Sinistres', href: '/sinistres', icon: AlertTriangle },
-  { label: 'Assemblées', href: '/assemblees', icon: CalendarDays },
-  { label: 'Appels de charges', href: '/appels-charges', icon: Receipt },
-  { label: 'Impayés', href: '/impayes', icon: CreditCard },
-  { label: 'Agenda', href: '/agenda', icon: Calendar },
-  { label: 'Messages', href: '/messages', icon: MessageSquare },
-  { label: 'Modèles', href: '/modeles', icon: FileStack },
-  { label: 'Import CSV', href: '/importer', icon: Upload },
+  { label: 'Tableau de bord',   href: '/dashboard',       icon: LayoutDashboard },
+  { label: 'Copropriétés',      href: '/coproprietes',    icon: Building2 },
+  { label: 'Copropriétaires',   href: '/coproprietaires', icon: Users },
+  { label: 'Assemblées',        href: '/assemblees',      icon: CalendarDays },
+  { label: 'Appels de charges', href: '/appels-charges',  icon: Receipt },
+  { label: 'Impayés',           href: '/impayes',         icon: CreditCard },
+  { label: 'Sinistres',         href: '/sinistres',       icon: AlertTriangle },
+  { label: 'Messages',          href: '/messages',        icon: MessageSquare },
+  { label: 'Documents',         href: '/documents',       icon: FileText },
+  { label: 'Assistant IA',      href: '/ia',              icon: Sparkles },
+]
+
+const OUTILS_ITEMS = [
+  { label: 'Agenda',             href: '/agenda',          icon: Calendar },
+  { label: 'Prestataires',       href: '/prestataires',    icon: Wrench },
+  { label: "Carnet d'entretien", href: '/carnet-entretien',icon: BookOpen },
+]
+
+const BOTTOM_ITEMS = [
+  { label: 'Équipe',      href: '/equipe',     icon: UsersRound },
+  { label: 'Paramètres',  href: '/parametres', icon: Settings },
+  { label: 'Facturation', href: '/facturation',icon: CreditCard },
 ]
 
 interface MobileSidebarProps {
@@ -39,10 +50,8 @@ export function MobileSidebar({ profile, cabinet, unreadMessages = 0 }: MobileSi
   const pathname = usePathname()
   const router = useRouter()
 
-  // Fermer à chaque changement de page
   useEffect(() => { setOpen(false) }, [pathname])
 
-  // Bloquer le scroll quand ouvert
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -62,7 +71,6 @@ export function MobileSidebar({ profile, cabinet, unreadMessages = 0 }: MobileSi
 
   return (
     <>
-      {/* Bouton burger — visible uniquement sur mobile */}
       <button
         onClick={() => setOpen(true)}
         className="md:hidden p-2 rounded-lg hover:bg-coplio-bg transition-colors"
@@ -71,20 +79,15 @@ export function MobileSidebar({ profile, cabinet, unreadMessages = 0 }: MobileSi
         <Menu className="w-5 h-5 text-coplio-text" />
       </button>
 
-      {/* Overlay sombre */}
       {open && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setOpen(false)} />
       )}
 
-      {/* Drawer */}
       <div className={cn(
         'fixed top-0 left-0 h-full w-72 bg-coplio-green z-50 flex flex-col transition-transform duration-300 md:hidden',
         open ? 'translate-x-0' : '-translate-x-full'
       )}>
-        {/* Header drawer */}
+        {/* Header */}
         <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
@@ -92,10 +95,7 @@ export function MobileSidebar({ profile, cabinet, unreadMessages = 0 }: MobileSi
             </div>
             <span className="text-white font-bold text-xl">Coplio</span>
           </div>
-          <button
-            onClick={() => setOpen(false)}
-            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-          >
+          <button onClick={() => setOpen(false)} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
             <X className="w-5 h-5 text-white" />
           </button>
         </div>
@@ -114,11 +114,7 @@ export function MobileSidebar({ profile, cabinet, unreadMessages = 0 }: MobileSi
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn('sidebar-link', isActive(item.href) && 'active')}
-            >
+            <Link key={item.href} href={item.href} className={cn('sidebar-link', isActive(item.href) && 'active')}>
               <item.icon className="w-4 h-4 flex-shrink-0" />
               {item.label}
               {item.href === '/messages' && unreadMessages > 0 && (
@@ -128,16 +124,26 @@ export function MobileSidebar({ profile, cabinet, unreadMessages = 0 }: MobileSi
               )}
             </Link>
           ))}
+
+          <div className="pt-3 pb-1">
+            <p className="px-3 text-xs font-semibold text-white/30 uppercase tracking-wider">Outils</p>
+          </div>
+          {OUTILS_ITEMS.map((item) => (
+            <Link key={item.href} href={item.href} className={cn('sidebar-link', isActive(item.href) && 'active')}>
+              <item.icon className="w-4 h-4 flex-shrink-0" />
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         {/* Bas */}
         <div className="px-3 py-3 border-t border-white/10 space-y-1">
-          <Link href="/parametres" className={cn('sidebar-link', isActive('/parametres') && 'active')}>
-            <Settings className="w-4 h-4" /> Paramètres
-          </Link>
-          <Link href="/facturation" className={cn('sidebar-link', isActive('/facturation') && 'active')}>
-            <CreditCard className="w-4 h-4" /> Facturation
-          </Link>
+          {BOTTOM_ITEMS.map((item) => (
+            <Link key={item.href} href={item.href} className={cn('sidebar-link', isActive(item.href) && 'active')}>
+              <item.icon className="w-4 h-4 flex-shrink-0" />
+              {item.label}
+            </Link>
+          ))}
 
           <div className="pt-3 border-t border-white/10">
             <div className="flex items-center gap-3 px-3 py-2">

@@ -6,6 +6,7 @@ import { formatDate, formatFileSize } from '@/lib/utils'
 import { DOCUMENT_CATEGORY_LABELS } from '@/types'
 import type { Document, DocumentCategory } from '@/types'
 import { DocumentActions } from '@/components/syndic/DocumentActions'
+import { DocTabs } from '@/components/syndic/DocTabs'
 
 const CATEGORY_ICONS: Record<DocumentCategory, string> = {
   pv_ag: '📋',
@@ -84,6 +85,8 @@ export default async function DocumentsPage({
           Importer
         </Link>
       </div>
+
+      <DocTabs />
 
       {/* Filtres par catégorie */}
       <div className="flex gap-2 flex-wrap">

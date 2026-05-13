@@ -17,15 +17,10 @@ import {
   Receipt,
   MessageSquare,
   Calendar,
-  Upload,
-  FileStack,
   UsersRound,
   Wrench,
   Sparkles,
-  PenLine,
-  Archive,
   BookOpen,
-  BellRing,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -39,114 +34,29 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS = [
-  {
-    label: 'Tableau de bord',
-    href: '/dashboard',
-    icon: LayoutDashboard,
-  },
-  {
-    label: 'Copropriétés',
-    href: '/coproprietes',
-    icon: Building2,
-  },
-  {
-    label: 'Copropriétaires',
-    href: '/coproprietaires',
-    icon: Users,
-  },
-  {
-    label: 'Documents',
-    href: '/documents',
-    icon: FileText,
-  },
-  {
-    label: 'Sinistres',
-    href: '/sinistres',
-    icon: AlertTriangle,
-  },
-  {
-    label: 'Assemblées',
-    href: '/assemblees',
-    icon: CalendarDays,
-  },
-  {
-    label: 'Appels de charges',
-    href: '/appels-charges',
-    icon: Receipt,
-  },
-  {
-    label: 'Impayés',
-    href: '/impayes',
-    icon: CreditCard,
-  },
-  {
-    label: 'Agenda',
-    href: '/agenda',
-    icon: Calendar,
-  },
-  {
-    label: 'Messages',
-    href: '/messages',
-    icon: MessageSquare,
-  },
-  {
-    label: 'Modèles',
-    href: '/modeles',
-    icon: FileStack,
-  },
-  {
-    label: 'Prestataires',
-    href: '/prestataires',
-    icon: Wrench,
-  },
-  {
-    label: 'Carnet d\'entretien',
-    href: '/carnet-entretien',
-    icon: BookOpen,
-  },
-  {
-    label: 'Relances auto',
-    href: '/relances-config',
-    icon: BellRing,
-  },
-  {
-    label: 'Assistant IA',
-    href: '/ia',
-    icon: Sparkles,
-  },
-  {
-    label: 'Signatures',
-    href: '/signatures',
-    icon: PenLine,
-  },
-  {
-    label: 'Archives légales',
-    href: '/archives',
-    icon: Archive,
-  },
+  { label: 'Tableau de bord',   href: '/dashboard',      icon: LayoutDashboard },
+  { label: 'Copropriétés',      href: '/coproprietes',   icon: Building2 },
+  { label: 'Copropriétaires',   href: '/coproprietaires',icon: Users },
+  { label: 'Assemblées',        href: '/assemblees',     icon: CalendarDays },
+  { label: 'Appels de charges', href: '/appels-charges', icon: Receipt },
+  { label: 'Impayés',           href: '/impayes',        icon: CreditCard },
+  { label: 'Sinistres',         href: '/sinistres',      icon: AlertTriangle },
+  { label: 'Messages',          href: '/messages',       icon: MessageSquare },
+  { label: 'Documents',         href: '/documents',      icon: FileText },
+  { label: 'Assistant IA',      href: '/ia',             icon: Sparkles },
+]
+
+// Outils — accès secondaire, visible mais moins mis en avant
+const OUTILS_ITEMS = [
+  { label: 'Agenda',            href: '/agenda',         icon: Calendar },
+  { label: 'Prestataires',      href: '/prestataires',   icon: Wrench },
+  { label: "Carnet d'entretien",href: '/carnet-entretien',icon: BookOpen },
 ]
 
 const BOTTOM_ITEMS = [
-  {
-    label: 'Équipe',
-    href: '/equipe',
-    icon: UsersRound,
-  },
-  {
-    label: 'Import CSV',
-    href: '/importer',
-    icon: Upload,
-  },
-  {
-    label: 'Paramètres',
-    href: '/parametres',
-    icon: Settings,
-  },
-  {
-    label: 'Facturation',
-    href: '/facturation',
-    icon: CreditCard,
-  },
+  { label: 'Équipe',      href: '/equipe',     icon: UsersRound },
+  { label: 'Paramètres',  href: '/parametres', icon: Settings },
+  { label: 'Facturation', href: '/facturation',icon: CreditCard },
 ]
 
 export function Sidebar({ profile, cabinet, unreadMessages: initialUnread = 0 }: SidebarProps) {
@@ -232,24 +142,35 @@ export function Sidebar({ profile, cabinet, unreadMessages: initialUnread = 0 }:
       </div>
 
       {/* Navigation principale */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {NAV_ITEMS.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className={cn(
-              'sidebar-link',
-              isActive(item.href) && 'active'
-            )}
+            className={cn('sidebar-link', isActive(item.href) && 'active')}
           >
             <item.icon className="w-4 h-4 flex-shrink-0" />
             {item.label}
-            {/* Badge impayés (exemple dynamique à brancher) */}
             {item.href === '/messages' && unreadMessages > 0 && (
               <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
                 {unreadMessages > 99 ? '99+' : unreadMessages}
               </span>
             )}
+          </Link>
+        ))}
+
+        {/* Séparateur Outils */}
+        <div className="pt-3 pb-1">
+          <p className="px-3 text-xs font-semibold text-white/30 uppercase tracking-wider">Outils</p>
+        </div>
+        {OUTILS_ITEMS.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn('sidebar-link', isActive(item.href) && 'active')}
+          >
+            <item.icon className="w-4 h-4 flex-shrink-0" />
+            {item.label}
           </Link>
         ))}
       </nav>

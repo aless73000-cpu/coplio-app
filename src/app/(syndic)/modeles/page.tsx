@@ -5,6 +5,7 @@ import {
   FileText, Download, Loader2, ChevronRight, Mail,
   FileStack, Scale, AlertTriangle, CalendarDays,
 } from 'lucide-react'
+import { DocTabs } from '@/components/syndic/DocTabs'
 
 // ─── Template definitions ─────────────────────────────────────
 
@@ -519,6 +520,8 @@ export default function ModelesPage() {
           Générez des courriers professionnels en PDF en quelques clics
         </p>
       </div>
+
+      <DocTabs />
 
       {/* Info banner */}
       <div className="flex items-center gap-3 p-4 bg-coplio-green-light border border-coplio-green/20 rounded-xl">
