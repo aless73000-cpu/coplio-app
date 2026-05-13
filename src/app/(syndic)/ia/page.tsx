@@ -100,26 +100,36 @@ export default function IAPage() {
   async function handleGenerate() {
     if (!coproprieteId) return
     setGenerating(true); setResult('')
-    const res = await fetch('/api/ia/rediger', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ template, copropriete_id: coproprieteId, donnees }),
-    })
-    const data = await res.json()
-    setResult(data.texte ?? data.error ?? 'Erreur')
-    setGenerating(false)
+    try {
+      const res = await fetch('/api/ia/rediger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ template, copropriete_id: coproprieteId, donnees }),
+      })
+      const data = await res.json()
+      setResult(data.texte ?? data.error ?? 'Erreur inattendue')
+    } catch {
+      setResult('Erreur de connexion au serveur IA.')
+    } finally {
+      setGenerating(false)
+    }
   }
 
   async function handleAnalyse() {
     if (!file) return
     setAnalysing(true); setAnalyse('')
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('type', typeDoc)
-    const res = await fetch('/api/ia/analyser', { method: 'POST', body: fd })
-    const data = await res.json()
-    setAnalyse(data.analyse ?? data.error ?? 'Erreur')
-    setAnalysing(false)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('type', typeDoc)
+      const res = await fetch('/api/ia/analyser', { method: 'POST', body: fd })
+      const data = await res.json()
+      setAnalyse(data.analyse ?? data.error ?? 'Erreur inattendue')
+    } catch {
+      setAnalyse('Erreur de connexion au serveur IA.')
+    } finally {
+      setAnalysing(false)
+    }
   }
 
   async function handleChat(e: React.FormEvent) {
@@ -130,24 +140,33 @@ export default function IAPage() {
     setChatMessages(newMessages)
     setChatInput('')
     setChatLoading(true)
-
-    const res = await fetch('/api/ia/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: newMessages, copropriete_id: coproprieteId }),
-    })
-    const data = await res.json()
-    setChatMessages(prev => [...prev, { role: 'assistant', content: data.message ?? data.error ?? 'Erreur' }])
-    setChatLoading(false)
+    try {
+      const res = await fetch('/api/ia/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages, copropriete_id: coproprieteId }),
+      })
+      const data = await res.json()
+      setChatMessages(prev => [...prev, { role: 'assistant', content: data.message ?? data.error ?? 'Erreur inattendue' }])
+    } catch {
+      setChatMessages(prev => [...prev, { role: 'assistant', content: 'Erreur de connexion au serveur IA.' }])
+    } finally {
+      setChatLoading(false)
+    }
   }
 
   async function loadAnalyse() {
     setAnalyseLoading(true)
-    const res = await fetch('/api/ia/analyse-cabinet')
-    const data = await res.json()
-    setAnalyseData(data)
-    setAnalyseLoading(false)
-    setAnalyseLoaded(true)
+    try {
+      const res = await fetch('/api/ia/analyse-cabinet')
+      const data = await res.json()
+      setAnalyseData(data)
+      setAnalyseLoaded(true)
+    } catch {
+      setAnalyseData(null)
+    } finally {
+      setAnalyseLoading(false)
+    }
   }
 
   function handleCopy() {

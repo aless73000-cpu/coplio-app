@@ -57,25 +57,30 @@ Réponds en français avec des sections claires, des bullet points. Sois précis
     const buffer = await file.arrayBuffer()
     const base64 = Buffer.from(buffer).toString('base64')
 
-    const message = await client.beta.messages.create({
-      model: 'claude-3-5-haiku-20241022',
-      max_tokens: 2000,
-      betas: ['pdfs-2024-09-25'],
-      messages: [{
-        role: 'user',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        content: [
-          {
-            type: 'document',
-            source: { type: 'base64', media_type: 'application/pdf', data: base64 },
-          } as unknown as Anthropic.Beta.BetaContentBlockParam,
-          { type: 'text', text: prompt },
-        ],
-      }],
-    })
+    try {
+      const message = await client.beta.messages.create({
+        model: 'claude-3-5-haiku-20241022',
+        max_tokens: 2000,
+        betas: ['pdfs-2024-09-25'],
+        messages: [{
+          role: 'user',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          content: [
+            {
+              type: 'document',
+              source: { type: 'base64', media_type: 'application/pdf', data: base64 },
+            } as unknown as Anthropic.Beta.BetaContentBlockParam,
+            { type: 'text', text: prompt },
+          ],
+        }],
+      })
 
-    const text = message.content[0].type === 'text' ? message.content[0].text : ''
-    return NextResponse.json({ analyse: text, nom_fichier: file.name })
+      const text = message.content[0].type === 'text' ? message.content[0].text : ''
+      return NextResponse.json({ analyse: text, nom_fichier: file.name })
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erreur IA inconnue'
+      return NextResponse.json({ error: msg }, { status: 500 })
+    }
   } else {
     // Fichier non-PDF (Word, texte, etc.) — on informe l'utilisateur
     return NextResponse.json(

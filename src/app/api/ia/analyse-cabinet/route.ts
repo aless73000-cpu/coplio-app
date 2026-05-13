@@ -69,12 +69,15 @@ export async function GET() {
   })
 
   const client = new Anthropic({ apiKey })
-  const response = await client.messages.create({
-    model: 'claude-3-5-haiku-20241022',
-    max_tokens: 1500,
-    messages: [{
-      role: 'user',
-      content: `Analyse ces données d'un cabinet de syndic de copropriété et détecte les anomalies et risques.
+
+  let analyse = { anomalies: [] as unknown[], recommandations: [] as string[], points_positifs: [] as string[], resume: '' }
+  try {
+    const response = await client.messages.create({
+      model: 'claude-3-5-haiku-20241022',
+      max_tokens: 1500,
+      messages: [{
+        role: 'user',
+        content: `Analyse ces données d'un cabinet de syndic de copropriété et détecte les anomalies et risques.
 
 DONNÉES : ${dataResume}
 
@@ -89,11 +92,9 @@ Retourne une analyse JSON avec exactement ce format :
 }
 
 Maximum 5 anomalies, 3 recommandations, 3 points positifs. Sois précis et actionnable.`,
-    }],
-  })
+      }],
+    })
 
-  let analyse = { anomalies: [], recommandations: [], points_positifs: [], resume: '' }
-  try {
     const text = response.content[0].type === 'text' ? response.content[0].text : '{}'
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (jsonMatch) analyse = JSON.parse(jsonMatch[0])

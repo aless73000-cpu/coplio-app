@@ -53,12 +53,17 @@ export async function POST(request: Request) {
   const client = new Anthropic({ apiKey })
   const prompt = TEMPLATES[template](enriched)
 
-  const message = await client.messages.create({
-    model: 'claude-3-5-haiku-20241022',
-    max_tokens: 1500,
-    messages: [{ role: 'user', content: prompt }],
-  })
+  try {
+    const message = await client.messages.create({
+      model: 'claude-3-5-haiku-20241022',
+      max_tokens: 1500,
+      messages: [{ role: 'user', content: prompt }],
+    })
 
-  const text = message.content[0].type === 'text' ? message.content[0].text : ''
-  return NextResponse.json({ texte: text })
+    const text = message.content[0].type === 'text' ? message.content[0].text : ''
+    return NextResponse.json({ texte: text })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Erreur IA inconnue'
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }

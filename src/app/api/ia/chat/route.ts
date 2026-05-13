@@ -49,16 +49,21 @@ ${coproprieteCtx}`
 
   const client = new Anthropic({ apiKey })
 
-  const response = await client.messages.create({
-    model: 'claude-3-5-haiku-20241022',
-    max_tokens: 1000,
-    system: systemPrompt,
-    messages: messages.map((m: { role: string; content: string }) => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    })),
-  })
+  try {
+    const response = await client.messages.create({
+      model: 'claude-3-5-haiku-20241022',
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: messages.map((m: { role: string; content: string }) => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      })),
+    })
 
-  const text = response.content[0].type === 'text' ? response.content[0].text : ''
-  return NextResponse.json({ message: text })
+    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    return NextResponse.json({ message: text })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Erreur IA inconnue'
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }
