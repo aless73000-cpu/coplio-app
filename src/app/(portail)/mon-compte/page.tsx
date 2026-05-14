@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { User, Mail, Phone, Home, Building2, Shield, Hash, Save, CheckCircle2 } from 'lucide-react'
+import { User, Mail, Phone, Home, Building2, Shield, Hash, Save, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
 import { LOT_TYPE_LABELS } from '@/types'
 
@@ -26,10 +26,37 @@ async function updateProfile(formData: FormData) {
   redirect('/mon-compte?saved=1')
 }
 
+async function changePassword(formData: FormData) {
+  'use server'
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const newPassword = (formData.get('new_password') as string)?.trim()
+  const confirm = (formData.get('confirm_password') as string)?.trim()
+
+  if (!newPassword || newPassword.length < 8) {
+    redirect('/mon-compte?pwd_error=too_short')
+    return
+  }
+  if (newPassword !== confirm) {
+    redirect('/mon-compte?pwd_error=mismatch')
+    return
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: newPassword })
+  if (error) {
+    redirect('/mon-compte?pwd_error=failed')
+    return
+  }
+
+  redirect('/mon-compte?pwd_saved=1')
+}
+
 export default async function MonComptePage({
   searchParams,
 }: {
-  searchParams: { saved?: string }
+  searchParams: { saved?: string; pwd_saved?: string; pwd_error?: string }
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -54,6 +81,8 @@ export default async function MonComptePage({
 
   const initials = `${profile?.prenom?.[0] ?? ''}${profile?.nom?.[0] ?? ''}`.toUpperCase()
   const saved = searchParams?.saved === '1'
+  const pwdSaved = searchParams?.pwd_saved === '1'
+  const pwdError = searchParams?.pwd_error
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -216,24 +245,67 @@ export default async function MonComptePage({
             </div>
           )}
 
-          {/* Sécurité */}
+          {/* Sécurité — changement de mot de passe inline */}
           <div className="coplio-card">
             <h3 className="font-semibold text-coplio-text mb-4 flex items-center gap-2">
               <Shield className="w-4 h-4 text-muted-foreground" />
               Sécurité
             </h3>
-            <div className="flex items-center justify-between p-4 bg-coplio-bg rounded-xl">
-              <div>
-                <p className="font-medium text-coplio-text text-sm">Mot de passe</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Modifiez votre mot de passe de connexion</p>
+
+            {pwdSaved && (
+              <div className="flex items-center gap-3 p-3 bg-coplio-green-light border border-coplio-green/20 rounded-xl mb-4">
+                <CheckCircle2 className="w-4 h-4 text-coplio-green flex-shrink-0" />
+                <p className="text-sm font-medium text-coplio-green">Mot de passe mis à jour avec succès.</p>
               </div>
-              <a
-                href={`/forgot-password`}
-                className="text-sm font-medium text-coplio-green hover:underline"
-              >
-                Modifier
-              </a>
-            </div>
+            )}
+            {pwdError && (
+              <div className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-xl mb-4">
+                <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <p className="text-sm text-red-700">
+                  {pwdError === 'mismatch' && 'Les mots de passe ne correspondent pas.'}
+                  {pwdError === 'too_short' && 'Le mot de passe doit contenir au moins 8 caractères.'}
+                  {pwdError === 'failed' && 'Erreur lors de la modification. Réessayez.'}
+                </p>
+              </div>
+            )}
+
+            <form action={changePassword} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+                  Nouveau mot de passe <span className="text-coplio-red">*</span>
+                </label>
+                <input
+                  name="new_password"
+                  type="password"
+                  required
+                  minLength={8}
+                  placeholder="8 caractères minimum"
+                  className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+                  Confirmer le mot de passe <span className="text-coplio-red">*</span>
+                </label>
+                <input
+                  name="confirm_password"
+                  type="password"
+                  required
+                  minLength={8}
+                  placeholder="Répétez votre nouveau mot de passe"
+                  className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
+                />
+              </div>
+              <div className="pt-1">
+                <button
+                  type="submit"
+                  className="flex items-center gap-2 bg-coplio-text text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-coplio-text/90 transition-colors"
+                >
+                  <Save className="w-4 h-4" />
+                  Changer le mot de passe
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

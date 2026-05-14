@@ -10,6 +10,7 @@ import {
   ArrowRight,
   BarChart2,
   Receipt,
+  Users,
 } from 'lucide-react'
 import Link from 'next/link'
 import { formatEuro, formatDate } from '@/lib/utils'
@@ -47,6 +48,8 @@ export default async function DashboardPage() {
     { data: sinistres },
     { data: agProchaines },
     { data: impayes },
+    { count: nbCoproprietairesTotal },
+    { count: nbPortailActif },
   ] = await Promise.all([
     supabase
       .from('sinistres')
@@ -69,6 +72,19 @@ export default async function DashboardPage() {
           .select('copropriete_id, montant, montant_paye, paye, date_echeance')
           .in('copropriete_id', coproprieteIds)
       : Promise.resolve({ data: [] }),
+    coproprieteIds.length > 0
+      ? supabase
+          .from('coproprietaires')
+          .select('id', { count: 'exact', head: true })
+          .eq('cabinet_id', cabinetId)
+      : Promise.resolve({ count: 0 }),
+    coproprieteIds.length > 0
+      ? supabase
+          .from('coproprietaires')
+          .select('id', { count: 'exact', head: true })
+          .eq('cabinet_id', cabinetId)
+          .eq('portail_actif', true)
+      : Promise.resolve({ count: 0 }),
   ])
 
   const allAppels = (impayes ?? []) as { copropriete_id: string; montant: number; montant_paye: number; paye: boolean; date_echeance?: string }[]
@@ -117,6 +133,8 @@ export default async function DashboardPage() {
       .filter((a) => !a.paye)
       .reduce((s, a) => s + (a.montant - a.montant_paye), 0),
     nb_ag_a_preparer: agProchaines?.length ?? 0,
+    nb_coproprietaires: nbCoproprietairesTotal ?? 0,
+    nb_portail_actif: nbPortailActif ?? 0,
   }
 
   const coproprietesCritiques = (coproprietes ?? [])
@@ -207,7 +225,7 @@ export default async function DashboardPage() {
       {/* Onboarding checklist */}
       <OnboardingChecklist steps={onboardingSteps} />
 
-      {/* KPIs */}
+      {/* KPIs — ligne 1 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           title="Copropriétés"
@@ -237,6 +255,41 @@ export default async function DashboardPage() {
           href="/impayes"
           color={kpis.montant_total_impayes > 0 ? 'red' : 'green'}
           isAmount
+        />
+      </div>
+
+      {/* KPIs — ligne 2 */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <KpiCard
+          title="Copropriétaires"
+          value={kpis.nb_coproprietaires}
+          icon={Users}
+          href="/coproprietaires"
+          color="blue"
+        />
+        <KpiCard
+          title="Portail actif"
+          value={kpis.nb_portail_actif}
+          icon={TrendingUp}
+          href="/coproprietaires"
+          color={kpis.nb_portail_actif > 0 ? 'green' : 'amber'}
+          sub={kpis.nb_coproprietaires > 0
+            ? `${Math.round((kpis.nb_portail_actif / kpis.nb_coproprietaires) * 100)}% avec accès`
+            : undefined}
+        />
+        <KpiCard
+          title="AG à venir"
+          value={kpis.nb_ag_a_preparer}
+          icon={CalendarDays}
+          href="/assemblees"
+          color={kpis.nb_ag_a_preparer > 0 ? 'amber' : 'green'}
+        />
+        <KpiCard
+          title="Taux recouvrement"
+          value={`${tauxGlobal}%`}
+          icon={BarChart2}
+          href="/appels-charges"
+          color={tauxGlobal >= 90 ? 'green' : tauxGlobal >= 70 ? 'amber' : 'red'}
         />
       </div>
 
@@ -455,9 +508,10 @@ interface KpiCardProps {
   href: string
   color: 'green' | 'blue' | 'amber' | 'red'
   isAmount?: boolean
+  sub?: string
 }
 
-function KpiCard({ title, value, icon: Icon, href, color, isAmount }: KpiCardProps) {
+function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }: KpiCardProps) {
   const colors = {
     green: 'bg-coplio-green-light text-coplio-green',
     blue: 'bg-coplio-blue-bg text-coplio-blue',
@@ -473,6 +527,7 @@ function KpiCard({ title, value, icon: Icon, href, color, isAmount }: KpiCardPro
           <p className={`text-2xl font-bold mt-1 ${isAmount && typeof value === 'string' && value.includes('-') ? 'text-coplio-red' : 'text-coplio-text'}`}>
             {value}
           </p>
+          {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
         </div>
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors[color]}`}>
           <Icon className="w-5 h-5" />

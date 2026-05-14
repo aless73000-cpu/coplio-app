@@ -1,7 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Upload } from 'lucide-react'
+import { Plus, Upload, UserCheck, UserX, Mail } from 'lucide-react'
 import { CoproprietairesClient } from '@/components/syndic/CoproprietairesClient'
 
 export default async function CopropriétairesPage() {
@@ -21,17 +21,22 @@ export default async function CopropriétairesPage() {
   const admin = createAdminClient()
   const { data: copropriétaires } = await admin
     .from('coproprietaires')
-    .select('id, prenom, nom, email, telephone, portail_actif')
+    .select('id, prenom, nom, email, telephone, portail_actif, invitation_envoyee_at')
     .eq('cabinet_id', profile.cabinet_id)
     .order('nom')
 
+  const total = copropriétaires?.length ?? 0
+  const portailActif = (copropriétaires ?? []).filter((c) => c.portail_actif).length
+  const invites = (copropriétaires ?? []).filter((c) => c.invitation_envoyee_at && !c.portail_actif).length
+  const sansInvitation = (copropriétaires ?? []).filter((c) => !c.invitation_envoyee_at && !c.portail_actif).length
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">Copropriétaires</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
-            {copropriétaires?.length ?? 0} copropriétaire{(copropriétaires?.length ?? 0) > 1 ? 's' : ''}
+            {total} copropriétaire{total > 1 ? 's' : ''}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -51,6 +56,50 @@ export default async function CopropriétairesPage() {
           </Link>
         </div>
       </div>
+
+      {/* Barre de stats rapide */}
+      {total > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="coplio-card py-4">
+            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Total</p>
+            <p className="text-2xl font-bold text-coplio-text">{total}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">copropriétaires</p>
+          </div>
+
+          <div className="coplio-card py-4 border-coplio-green/20">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Portail actif</p>
+              <UserCheck className="w-4 h-4 text-coplio-green" />
+            </div>
+            <p className="text-2xl font-bold text-coplio-green">{portailActif}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {total > 0 ? `${Math.round((portailActif / total) * 100)}% du total` : '—'}
+            </p>
+          </div>
+
+          <div className="coplio-card py-4 border-coplio-amber/20">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Invités</p>
+              <Mail className="w-4 h-4 text-coplio-amber" />
+            </div>
+            <p className="text-2xl font-bold text-coplio-amber">{invites}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">en attente d&apos;activation</p>
+          </div>
+
+          <div className={`coplio-card py-4 ${sansInvitation > 0 ? 'border-red-200' : ''}`}>
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Sans invitation</p>
+              <UserX className={`w-4 h-4 ${sansInvitation > 0 ? 'text-coplio-red' : 'text-muted-foreground'}`} />
+            </div>
+            <p className={`text-2xl font-bold ${sansInvitation > 0 ? 'text-coplio-red' : 'text-coplio-text'}`}>
+              {sansInvitation}
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {sansInvitation > 0 ? 'à inviter' : 'tous invités ✓'}
+            </p>
+          </div>
+        </div>
+      )}
 
       {copropriétaires && copropriétaires.length > 0 ? (
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
