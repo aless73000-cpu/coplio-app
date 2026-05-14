@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   // Récupérer les appels de charges
   let query = admin
     .from('appels_charges')
-    .select('id, montant, montant_paye, date_echeance, paye, lot:lots(id, numero, copropriete:coproprietes(id, nom))')
+    .select('id, montant, montant_paye, date_echeance, date_paiement, paye, lot:lots(id, numero, copropriete:coproprietes(id, nom))')
     .gte('date_echeance', `${annee}-01-01`)
     .lte('date_echeance', `${annee}-12-31`)
 
@@ -42,6 +42,11 @@ export async function GET(request: Request) {
   for (const appel of appels ?? []) {
     const lot = appel.lot as unknown as { id: string; numero: string; copropriete: { id: string; nom: string } } | null
     const dateEcheance = appel.date_echeance.replace(/-/g, '').slice(0, 8)
+    // Bug #6 fix : utiliser date_paiement (date réelle) pour les écritures de règlement, pas date_echeance
+    const datePaiementRaw = (appel as { date_paiement?: string }).date_paiement
+    const datePaiement = datePaiementRaw
+      ? datePaiementRaw.replace(/-/g, '').slice(0, 8)
+      : dateEcheance // fallback si non renseigné
     const copropNom = lot?.copropriete?.nom?.substring(0, 20) ?? 'COPROPRIETE'
     const lotNum = lot?.numero ?? '?'
     const ecrLib = `APPEL CHARGES LOT ${lotNum}`.substring(0, 32)
@@ -68,7 +73,6 @@ export async function GET(request: Request) {
 
     // Si paiement partiel ou total
     if ((appel.montant_paye as number) > 0) {
-      const datePaiement = dateEcheance
       rows.push([
         'BQ', 'BANQUE', String(ecritureNum).padStart(6, '0'), datePaiement,
         '512000', 'BANQUE', '', '',

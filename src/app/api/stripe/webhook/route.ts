@@ -56,7 +56,7 @@ export async function POST(request: Request) {
             .from('cabinets')
             .update({
               plan,
-              subscription_status: 'trialing',
+              subscription_status: 'active',
               stripe_subscription_id: session.subscription as string,
               max_gestionnaires: limits.max_gestionnaires,
               max_lots: limits.max_lots,

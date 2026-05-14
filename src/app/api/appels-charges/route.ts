@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { Email } from '@/lib/email'
 
+export const maxDuration = 60
+
 const appelSchema = z.object({
   copropriete_id: z.string().uuid(),
   lot_id: z.string().uuid(),

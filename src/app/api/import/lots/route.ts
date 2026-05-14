@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { PLANS_CONFIG } from '@/types'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -36,6 +37,23 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (!copro) return NextResponse.json({ error: 'Copropriété introuvable' }, { status: 404 })
+
+  // Quota check — count existing lots for the cabinet
+  const { data: cabinet } = await supabase.from('cabinets').select('plan').eq('id', profile.cabinet_id).single()
+  const planKey = (cabinet?.plan ?? 'starter') as keyof typeof PLANS_CONFIG
+  const maxLots = PLANS_CONFIG[planKey]?.max_lots ?? 75
+  const { count: currentLots } = await supabase
+    .from('lots')
+    .select('id', { count: 'exact', head: true })
+    .in('copropriete_id',
+      (await supabase.from('coproprietes').select('id').eq('cabinet_id', profile.cabinet_id)).data?.map(c => c.id) ?? []
+    )
+  const totalAfterImport = (currentLots ?? 0) + rows.length
+  if (totalAfterImport > maxLots) {
+    return NextResponse.json({
+      error: `Quota dépassé : votre plan ${PLANS_CONFIG[planKey]?.name} autorise ${maxLots} lots maximum. Vous avez déjà ${currentLots} lot(s) et tentez d'en importer ${rows.length}.`
+    }, { status: 403 })
+  }
 
   const validTypes = ['appartement', 'maison', 'local_commercial', 'parking', 'cave', 'autre']
   const results: { ok: number; errors: { row: number; message: string }[] } = { ok: 0, errors: [] }
