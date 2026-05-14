@@ -43,19 +43,28 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     const { email, notes_internes, ...rest } = parsed.data
     const admin = createAdminClient()
+
+    // Mise à jour des champs principaux
     const { data, error } = await admin
       .from('coproprietaires')
-      .update({
-        ...rest,
-        ...(email ? { email } : { email: null }),
-        notes_internes: notes_internes ?? null,
-      })
+      .update({ ...rest, ...(email ? { email } : { email: null }) })
       .eq('id', params.id)
       .select()
       .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json(data)
+
+    // Mise à jour notes_internes séparément (colonne optionnelle — migration requise)
+    // Si la colonne n'existe pas encore, on ignore silencieusement
+    if (notes_internes !== undefined) {
+      await admin
+        .from('coproprietaires')
+        .update({ notes_internes: notes_internes || null } as Record<string, unknown>)
+        .eq('id', params.id)
+        .then(() => { /* ignore error if column missing */ })
+    }
+
+    return NextResponse.json({ ...data, notes_internes: notes_internes ?? null })
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }

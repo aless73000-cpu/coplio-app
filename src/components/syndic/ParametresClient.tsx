@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { User, Building2, Bell, Loader2, CheckCircle2, Users, ChevronRight, Upload, BellRing, FileUp } from 'lucide-react'
+import { User, Building2, Bell, Loader2, CheckCircle2, Users, ChevronRight, Upload, BellRing, FileUp, Database } from 'lucide-react'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import type { Profile, Cabinet } from '@/types'
 
@@ -231,6 +231,9 @@ export function ParametresClient({ profile }: Props) {
         </Link>
       </div>
 
+      {/* Migration base de données */}
+      <MigrationSection />
+
       {/* Notifications */}
       <section className="coplio-card">
         <div className="flex items-center gap-3 mb-5">
@@ -265,6 +268,99 @@ export function ParametresClient({ profile }: Props) {
         </div>
       </section>
     </div>
+  )
+}
+
+// ─── Migration Section ────────────────────────────────────────
+function MigrationSection() {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error' | 'no-db'>('idle')
+  const [results, setResults] = useState<{ id: string; status: string; message: string }[]>([])
+  const cronSecret = process.env.NEXT_PUBLIC_CRON_SECRET // non dispo côté client — on passe par le formulaire
+
+  async function runMigrations() {
+    setStatus('loading')
+    setResults([])
+    try {
+      const secret = (document.getElementById('migration-secret') as HTMLInputElement)?.value ?? ''
+      const res = await fetch('/api/admin/migrate', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${secret}` },
+      })
+      const data = await res.json()
+
+      if (res.status === 503) {
+        setStatus('no-db')
+        return
+      }
+
+      setResults(data.results ?? [])
+      setStatus(data.success ? 'ok' : 'error')
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  if (status === 'ok') return (
+    <section className="coplio-card border-l-4 border-l-coplio-green">
+      <div className="flex items-center gap-2">
+        <CheckCircle2 className="w-5 h-5 text-coplio-green" />
+        <p className="font-semibold text-coplio-text text-sm">Migrations appliquées avec succès</p>
+      </div>
+      {results.map((r) => (
+        <p key={r.id} className="text-xs text-muted-foreground mt-1">✓ {r.message}</p>
+      ))}
+    </section>
+  )
+
+  return (
+    <section className="coplio-card">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center">
+          <Database className="w-4 h-4 text-purple-600" />
+        </div>
+        <div>
+          <h2 className="font-semibold text-coplio-text text-sm">Migrations base de données</h2>
+          <p className="text-xs text-muted-foreground">Appliquer les mises à jour du schéma SQL</p>
+        </div>
+      </div>
+
+      {status === 'no-db' ? (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800 space-y-1">
+          <p className="font-semibold">DATABASE_URL manquant dans Vercel</p>
+          <p>1. Va sur <span className="font-mono">supabase.com/dashboard → Settings → Database</span></p>
+          <p>2. Copie la &ldquo;Connection string&rdquo; (mode Transaction)</p>
+          <p>3. Ajoute <span className="font-mono">DATABASE_URL</span> dans Vercel → Settings → Env Vars</p>
+          <p>4. Redéploie puis reviens ici</p>
+        </div>
+      ) : status === 'error' ? (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-xs text-red-800 mb-3">
+          {results.length > 0
+            ? results.map((r) => <p key={r.id}>⚠ {r.message}</p>)
+            : <p>Erreur lors de l&apos;application des migrations</p>
+          }
+        </div>
+      ) : null}
+
+      <div className="flex gap-2 mt-3">
+        <input
+          id="migration-secret"
+          type="password"
+          placeholder="CRON_SECRET"
+          className="flex-1 px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+        />
+        <button
+          onClick={runMigrations}
+          disabled={status === 'loading'}
+          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-60"
+        >
+          {status === 'loading' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
+          Appliquer
+        </button>
+      </div>
+      <p className="text-xs text-muted-foreground mt-2">
+        Entrez votre CRON_SECRET (visible dans Vercel → Settings → Env Vars)
+      </p>
+    </section>
   )
 }
 
