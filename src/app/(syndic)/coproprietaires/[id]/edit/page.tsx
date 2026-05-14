@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Home } from 'lucide-react'
+import { ArrowLeft, Loader2, Home, StickyNote } from 'lucide-react'
 
 const schema = z.object({
   prenom: z.string().min(1, 'Prénom requis'),
@@ -14,6 +14,7 @@ const schema = z.object({
   email: z.string().email('Email invalide').optional().or(z.literal('')),
   telephone: z.string().optional(),
   adresse_correspondance: z.string().optional(),
+  notes_internes: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -52,6 +53,7 @@ export default function EditCopropriétairePage({ params }: { params: { id: stri
         email: copro.email ?? '',
         telephone: copro.telephone ?? '',
         adresse_correspondance: copro.adresse_correspondance ?? '',
+        notes_internes: copro.notes_internes ?? '',
       })
       setAllLots(Array.isArray(lots) ? lots : [])
       setSelectedLots(new Set(Array.isArray(currentLotIds) ? currentLotIds : []))
@@ -154,6 +156,20 @@ export default function EditCopropriétairePage({ params }: { params: { id: stri
               placeholder="Si différente du lot..."
             />
           </div>
+        </div>
+
+        <div className="coplio-card space-y-3">
+          <div className="flex items-center gap-2">
+            <StickyNote className="w-4 h-4 text-amber-500" />
+            <h2 className="font-semibold text-coplio-text text-sm">Notes internes</h2>
+            <span className="text-xs text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded ml-1">Visible syndic uniquement</span>
+          </div>
+          <textarea
+            {...register('notes_internes')}
+            rows={4}
+            className={inputClass}
+            placeholder="Ex : en litige, paiement par chèque uniquement, contact préféré par email..."
+          />
         </div>
 
         <div className="coplio-card space-y-3">

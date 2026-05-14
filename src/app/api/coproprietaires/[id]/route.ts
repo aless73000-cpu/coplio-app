@@ -28,6 +28,7 @@ const schema = z.object({
   email: z.string().email().optional().or(z.literal('')),
   telephone: z.string().optional(),
   adresse_correspondance: z.string().optional(),
+  notes_internes: z.string().optional(),
 })
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
@@ -40,11 +41,15 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const parsed = schema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
-    const { email, ...rest } = parsed.data
+    const { email, notes_internes, ...rest } = parsed.data
     const admin = createAdminClient()
     const { data, error } = await admin
       .from('coproprietaires')
-      .update({ ...rest, ...(email ? { email } : { email: null }) })
+      .update({
+        ...rest,
+        ...(email ? { email } : { email: null }),
+        notes_internes: notes_internes ?? null,
+      })
       .eq('id', params.id)
       .select()
       .single()
