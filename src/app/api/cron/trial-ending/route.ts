@@ -115,7 +115,6 @@ export async function GET(request: Request) {
 
         if (result.success) {
           totalSent++
-          console.log(`[Cron trial-ending] ${label} → ${recipientEmail} (cabinet: ${cabinet.nom})`)
         } else {
           totalFailed++
           console.error(`[Cron trial-ending] Échec ${label} → ${recipientEmail}:`, result.error?.message)
@@ -130,17 +129,6 @@ export async function GET(request: Request) {
   }
 
   const durationMs = Date.now() - startedAt
-  console.log(
-    JSON.stringify({
-      level: 'info',
-      service: 'cron',
-      job: 'trial-ending',
-      totalSent,
-      totalFailed,
-      durationMs,
-      details,
-    })
-  )
 
   return NextResponse.json({
     success: true,

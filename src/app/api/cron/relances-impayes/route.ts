@@ -145,9 +145,6 @@ export async function GET(request: Request) {
           .eq('id', appel.id)
 
         totalSent++
-        console.log(
-          `[Cron relances] Niveau ${palier.niveau} → ${ownerProfile.email} (J+${joursDepuisEcheance})`
-        )
       } else {
         totalFailed++
       }
@@ -158,17 +155,6 @@ export async function GET(request: Request) {
   }
 
   const durationMs = Date.now() - startedAt
-  console.log(
-    JSON.stringify({
-      level: 'info',
-      service: 'cron',
-      job: 'relances-impayes',
-      totalSent,
-      totalSkipped,
-      totalFailed,
-      durationMs,
-    })
-  )
 
   return NextResponse.json({
     success: true,

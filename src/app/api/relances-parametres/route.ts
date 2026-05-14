@@ -11,32 +11,37 @@ async function getCabinetId() {
 }
 
 export async function GET(request: Request) {
-  const cabinetId = await getCabinetId()
-  if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  try {
+    const cabinetId = await getCabinetId()
+    if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-  const { searchParams } = new URL(request.url)
-  const coproprieteId = searchParams.get('copropriete_id')
-  if (!coproprieteId) return NextResponse.json({ error: 'copropriete_id requis' }, { status: 400 })
+    const { searchParams } = new URL(request.url)
+    const coproprieteId = searchParams.get('copropriete_id')
+    if (!coproprieteId) return NextResponse.json({ error: 'copropriete_id requis' }, { status: 400 })
 
-  const admin = createAdminClient()
-  const { data } = await admin
-    .from('relance_parametres')
-    .select('*')
-    .eq('copropriete_id', coproprieteId)
-    .single()
+    const admin = createAdminClient()
+    const { data } = await admin
+      .from('relance_parametres')
+      .select('*')
+      .eq('copropriete_id', coproprieteId)
+      .single()
 
-  // Retourner les valeurs par défaut si pas encore configuré
-  return NextResponse.json(data ?? {
-    copropriete_id: coproprieteId,
-    actif: true,
-    delai_premier_rappel: 30,
-    delai_deuxieme_rappel: 60,
-    delai_mise_en_demeure: 90,
-    premier_rappel_email: true,
-    premier_rappel_sms: false,
-    deuxieme_rappel_email: true,
-    deuxieme_rappel_sms: false,
-  })
+    // Retourner les valeurs par défaut si pas encore configuré
+    return NextResponse.json(data ?? {
+      copropriete_id: coproprieteId,
+      actif: true,
+      delai_premier_rappel: 30,
+      delai_deuxieme_rappel: 60,
+      delai_mise_en_demeure: 90,
+      premier_rappel_email: true,
+      premier_rappel_sms: false,
+      deuxieme_rappel_email: true,
+      deuxieme_rappel_sms: false,
+    })
+  } catch (err) {
+    console.error('[API Error]', err)
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+  }
 }
 
 const schema = z.object({
@@ -54,30 +59,35 @@ const schema = z.object({
 })
 
 export async function POST(request: Request) {
-  const cabinetId = await getCabinetId()
-  if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  try {
+    const cabinetId = await getCabinetId()
+    if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-  const body = await request.json()
-  const parsed = schema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
+    const body = await request.json()
+    const parsed = schema.safeParse(body)
+    if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
-  const admin = createAdminClient()
-  // Vérifier que la copropriété appartient au cabinet
-  const { data: copro } = await admin
-    .from('coproprietes')
-    .select('id')
-    .eq('id', parsed.data.copropriete_id)
-    .eq('cabinet_id', cabinetId)
-    .single()
+    const admin = createAdminClient()
+    // Vérifier que la copropriété appartient au cabinet
+    const { data: copro } = await admin
+      .from('coproprietes')
+      .select('id')
+      .eq('id', parsed.data.copropriete_id)
+      .eq('cabinet_id', cabinetId)
+      .single()
 
-  if (!copro) return NextResponse.json({ error: 'Copropriété non trouvée' }, { status: 404 })
+    if (!copro) return NextResponse.json({ error: 'Copropriété non trouvée' }, { status: 404 })
 
-  const { data, error } = await admin
-    .from('relance_parametres')
-    .upsert(parsed.data, { onConflict: 'copropriete_id' })
-    .select()
-    .single()
+    const { data, error } = await admin
+      .from('relance_parametres')
+      .upsert(parsed.data, { onConflict: 'copropriete_id' })
+      .select()
+      .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(data)
+  } catch (err) {
+    console.error('[API Error]', err)
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+  }
 }

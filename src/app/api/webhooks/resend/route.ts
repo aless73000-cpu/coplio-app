@@ -69,7 +69,6 @@ async function verifySignature(
 
 async function handleBounce(event: ResendWebhookEvent) {
   const { email_id, to, bounce_type } = event.data
-  console.log(`[Resend] Bounce ${bounce_type} pour ${to.join(', ')} (emailId=${email_id})`)
 
   // Hard bounce → alerter l'admin si critique
   if (bounce_type === 'hard') {
@@ -130,17 +129,6 @@ export async function POST(request: Request) {
   }
 
   // 2. Log structuré de tous les événements
-  console.log(
-    JSON.stringify({
-      level: 'info',
-      service: 'resend-webhook',
-      type: event.type,
-      emailId: event.data.email_id,
-      to: event.data.to,
-      subject: event.data.subject,
-      at: event.created_at,
-    })
-  )
 
   // 3. Traitement par type
   try {

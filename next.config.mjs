@@ -2,6 +2,10 @@ import { withSentryConfig } from '@sentry/nextjs'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Compression gzip/brotli activée
+  compress: true,
+  // Pas de X-Powered-By header
+  poweredByHeader: false,
   images: {
     remotePatterns: [
       {
@@ -10,6 +14,8 @@ const nextConfig = {
         pathname: '/storage/v1/object/**',
       },
     ],
+    // Formats modernes
+    formats: ['image/avif', 'image/webp'],
   },
   async headers() {
     return [
@@ -23,6 +29,15 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
           },
+          // Cache pour les assets statiques
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+        ],
+      },
+      // Cache long pour les fichiers statiques Next.js
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
     ]
