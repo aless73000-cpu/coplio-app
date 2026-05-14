@@ -43,6 +43,10 @@ export default async function DashboardPage() {
 
   const coproprieteIds = (coproprietes ?? []).map((c: Copropriete) => c.id)
 
+  // Alertes intelligentes — AG sans tenue depuis >12 mois
+  const oneYearAgo = new Date()
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
+
   // Charger le reste en parallèle
   const [
     { data: sinistres },
@@ -50,6 +54,8 @@ export default async function DashboardPage() {
     { data: impayes },
     { count: nbCoproprietairesTotal },
     { count: nbPortailActif },
+    { data: agRecentes },
+    { count: nbLotsOccupes },
   ] = await Promise.all([
     supabase
       .from('sinistres')
@@ -84,6 +90,23 @@ export default async function DashboardPage() {
           .select('id', { count: 'exact', head: true })
           .eq('cabinet_id', cabinetId)
           .eq('portail_actif', true)
+      : Promise.resolve({ count: 0 }),
+    // AG tenues (clôturées) dans les 12 derniers mois — pour alertes
+    coproprieteIds.length > 0
+      ? supabase
+          .from('assemblees_generales')
+          .select('copropriete_id, date_ag')
+          .eq('cabinet_id', cabinetId)
+          .eq('status', 'cloturee')
+          .gte('date_ag', oneYearAgo.toISOString())
+      : Promise.resolve({ data: [] }),
+    // Lots occupés (avec coproprietaire_id non null)
+    coproprieteIds.length > 0
+      ? supabase
+          .from('lots')
+          .select('id', { count: 'exact', head: true })
+          .in('copropriete_id', coproprieteIds)
+          .not('coproprietaire_id', 'is', null)
       : Promise.resolve({ count: 0 }),
   ])
 
@@ -140,6 +163,48 @@ export default async function DashboardPage() {
   const coproprietesCritiques = (coproprietes ?? [])
     .filter((c: Copropriete) => c.statut !== 'a_jour')
     .slice(0, 5)
+
+  // ─── Alertes intelligentes ─────────────────────────────────
+  type SmartAlert = { id: string; severity: 'warning' | 'info'; message: string; href: string; cta: string }
+  const smartAlerts: SmartAlert[] = []
+
+  // Copropriétés sans AG depuis 12 mois
+  const agRecentesCoproIds = new Set((agRecentes ?? []).map((a: { copropriete_id: string }) => a.copropriete_id))
+  const coprosSansAg = (coproprietes ?? []).filter((c: Copropriete) => !agRecentesCoproIds.has(c.id))
+  if (coprosSansAg.length > 0) {
+    smartAlerts.push({
+      id: 'ag-overdue',
+      severity: 'warning',
+      message: `${coprosSansAg.length} copropriété${coprosSansAg.length > 1 ? 's' : ''} sans AG tenue depuis plus de 12 mois`,
+      href: '/assemblees/new',
+      cta: 'Planifier une AG',
+    })
+  }
+
+  // Lots sans copropriétaire affecté
+  const lotsVacants = kpis.nb_lots - (nbLotsOccupes ?? 0)
+  if (lotsVacants > 0 && kpis.nb_lots > 0) {
+    smartAlerts.push({
+      id: 'lots-vacants',
+      severity: 'info',
+      message: `${lotsVacants} lot${lotsVacants > 1 ? 's' : ''} sans copropriétaire affecté`,
+      href: '/coproprietaires',
+      cta: 'Gérer les copropriétaires',
+    })
+  }
+
+  // Peu de copropriétaires sur le portail
+  const totalCopros = nbCoproprietairesTotal ?? 0
+  const nbPortail = nbPortailActif ?? 0
+  if (totalCopros > 0 && nbPortail / totalCopros < 0.5) {
+    smartAlerts.push({
+      id: 'portail-adoption',
+      severity: 'info',
+      message: `Seulement ${Math.round((nbPortail / totalCopros) * 100)}% des copropriétaires ont activé leur portail`,
+      href: '/coproprietaires',
+      cta: 'Envoyer les invitations',
+    })
+  }
 
   // ─── Données graphiques ────────────────────────────────────
 
@@ -292,6 +357,37 @@ export default async function DashboardPage() {
           color={tauxGlobal >= 90 ? 'green' : tauxGlobal >= 70 ? 'amber' : 'red'}
         />
       </div>
+
+      {/* Alertes intelligentes */}
+      {smartAlerts.length > 0 && (
+        <div className="space-y-2">
+          {smartAlerts.map((alert) => (
+            <div
+              key={alert.id}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm ${
+                alert.severity === 'warning'
+                  ? 'bg-amber-50 border-amber-200 text-amber-800'
+                  : 'bg-blue-50 border-blue-200 text-blue-800'
+              }`}
+            >
+              <AlertTriangle className={`w-4 h-4 flex-shrink-0 ${
+                alert.severity === 'warning' ? 'text-amber-500' : 'text-blue-500'
+              }`} />
+              <p className="flex-1">{alert.message}</p>
+              <Link
+                href={alert.href}
+                className={`text-xs font-medium px-3 py-1 rounded-lg flex-shrink-0 ${
+                  alert.severity === 'warning'
+                    ? 'bg-amber-200 hover:bg-amber-300 text-amber-900'
+                    : 'bg-blue-200 hover:bg-blue-300 text-blue-900'
+                } transition-colors`}
+              >
+                {alert.cta}
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Graphiques — uniquement si données disponibles */}
       {allAppels.length > 0 && (

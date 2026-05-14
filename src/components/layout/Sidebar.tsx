@@ -26,6 +26,7 @@ import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { GlobalSearch } from '@/components/syndic/GlobalSearch'
 
 interface SidebarProps {
   profile: Profile
@@ -139,6 +140,11 @@ export function Sidebar({ profile, cabinet, unreadMessages: initialUnread = 0 }:
             {planLabels[cabinet.plan] || cabinet.plan}
           </span>
         </div>
+      </div>
+
+      {/* Recherche globale */}
+      <div className="px-3 py-2 border-b border-white/10">
+        <GlobalSearch />
       </div>
 
       {/* Navigation principale */}

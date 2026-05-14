@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, CreditCard, CheckCircle2, Clock, AlertTriangle } from 'lucide-react'
+import { Plus, CreditCard, CheckCircle2, Clock, AlertTriangle, FileDown } from 'lucide-react'
 import { formatEuro, formatDate, getOverdueDays } from '@/lib/utils'
 import { PayerButton } from '@/components/syndic/PayerButton'
 import { ExportAppelsButton } from '@/components/syndic/ExportAppelsButton'
@@ -270,7 +270,17 @@ export default async function AppelsChargesPage({
                       )}
                     </td>
                     <td className="py-3">
-                      {!appel.paye && <PayerButton appelId={appel.id} />}
+                      <div className="flex items-center gap-2">
+                        {!appel.paye && <PayerButton appelId={appel.id} />}
+                        <a
+                          href={`/api/appels-charges/${appel.id}/pdf`}
+                          download
+                          title="Télécharger le PDF"
+                          className="flex items-center justify-center w-7 h-7 rounded-md hover:bg-coplio-green-light transition-colors text-muted-foreground hover:text-coplio-green"
+                        >
+                          <FileDown className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 )

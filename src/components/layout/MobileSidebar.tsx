@@ -13,6 +13,7 @@ import {
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { GlobalSearch } from '@/components/syndic/GlobalSearch'
 
 const NAV_ITEMS = [
   { label: 'Tableau de bord',   href: '/dashboard',       icon: LayoutDashboard },
@@ -109,6 +110,11 @@ export function MobileSidebar({ profile, cabinet, unreadMessages = 0 }: MobileSi
               {planLabels[cabinet.plan] || cabinet.plan}
             </span>
           </div>
+        </div>
+
+        {/* Recherche */}
+        <div className="px-3 py-2 border-b border-white/10">
+          <GlobalSearch />
         </div>
 
         {/* Nav */}
