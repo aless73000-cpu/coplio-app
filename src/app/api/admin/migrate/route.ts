@@ -12,10 +12,92 @@ import { createClient } from '@/lib/supabase/server'
 export const runtime = 'nodejs'
 
 // Liste des migrations à appliquer dans l'ordre
+// Toutes idempotentes (IF NOT EXISTS / IF EXISTS)
 const MIGRATIONS = [
   {
+    id: 'prestataires',
+    description: 'Table prestataires (annuaire cabinet)',
+    sql: `
+      CREATE TABLE IF NOT EXISTS prestataires (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        cabinet_id UUID NOT NULL REFERENCES cabinets(id) ON DELETE CASCADE,
+        nom VARCHAR(255) NOT NULL,
+        metier VARCHAR(100),
+        telephone VARCHAR(30),
+        email VARCHAR(255),
+        adresse TEXT,
+        siret VARCHAR(20),
+        note INTEGER CHECK (note BETWEEN 1 AND 5),
+        commentaire TEXT,
+        actif BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_prestataires_cabinet ON prestataires(cabinet_id);
+      ALTER TABLE prestataires ENABLE ROW LEVEL SECURITY;
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_policies WHERE tablename = 'prestataires' AND policyname = 'Cabinet members can manage prestataires'
+        ) THEN
+          CREATE POLICY "Cabinet members can manage prestataires"
+            ON prestataires FOR ALL
+            USING (cabinet_id IN (SELECT cabinet_id FROM profiles WHERE id = auth.uid()));
+        END IF;
+      END $$;
+      -- Ajouter les colonnes manquantes si table créée avec l'ancien schéma
+      ALTER TABLE prestataires ADD COLUMN IF NOT EXISTS metier VARCHAR(100);
+      ALTER TABLE prestataires ADD COLUMN IF NOT EXISTS note INTEGER CHECK (note BETWEEN 1 AND 5);
+      ALTER TABLE prestataires ADD COLUMN IF NOT EXISTS commentaire TEXT;
+      ALTER TABLE prestataires ADD COLUMN IF NOT EXISTS actif BOOLEAN DEFAULT TRUE;
+      ALTER TABLE prestataires ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+    `,
+  },
+  {
+    id: 'carnet_entretien',
+    description: 'Table carnet_entretien (interventions par copropriété)',
+    sql: `
+      CREATE TABLE IF NOT EXISTS carnet_entretien (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        copropriete_id UUID NOT NULL REFERENCES coproprietes(id) ON DELETE CASCADE,
+        cabinet_id UUID NOT NULL REFERENCES cabinets(id) ON DELETE CASCADE,
+        prestataire_id UUID REFERENCES prestataires(id) ON DELETE SET NULL,
+        titre VARCHAR(255) NOT NULL,
+        description TEXT,
+        categorie VARCHAR(50) DEFAULT 'entretien' CHECK (
+          categorie IN ('entretien','reparation','controle','renovation','urgence','autre')
+        ),
+        statut VARCHAR(30) DEFAULT 'planifie' CHECK (
+          statut IN ('planifie','en_cours','realise','annule')
+        ),
+        date_intervention DATE,
+        date_realisation DATE,
+        cout_prevu NUMERIC(12,2),
+        cout_reel NUMERIC(12,2),
+        document_url TEXT,
+        periodicite VARCHAR(30) CHECK (
+          periodicite IN ('unique','mensuel','trimestriel','semestriel','annuel','pluriannuel')
+        ),
+        prochaine_echeance DATE,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_carnet_copropriete ON carnet_entretien(copropriete_id);
+      CREATE INDEX IF NOT EXISTS idx_carnet_cabinet ON carnet_entretien(cabinet_id);
+      ALTER TABLE carnet_entretien ENABLE ROW LEVEL SECURITY;
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_policies WHERE tablename = 'carnet_entretien' AND policyname = 'Cabinet members can manage carnet'
+        ) THEN
+          CREATE POLICY "Cabinet members can manage carnet"
+            ON carnet_entretien FOR ALL
+            USING (cabinet_id IN (SELECT cabinet_id FROM profiles WHERE id = auth.uid()));
+        END IF;
+      END $$;
+    `,
+  },
+  {
     id: 'coproprietaire_notes',
-    description: 'Ajout colonne notes_internes sur coproprietaires',
+    description: 'Colonne notes_internes sur coproprietaires',
     sql: `ALTER TABLE coproprietaires ADD COLUMN IF NOT EXISTS notes_internes TEXT;`,
   },
 ]
