@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { User, Mail, Phone, Search, ArrowUpAZ, ArrowDownAZ } from 'lucide-react'
+import { User, Mail, Phone, Search, ArrowUpAZ, ArrowDownAZ, Send, Loader2, CheckCircle2, Clock } from 'lucide-react'
 
 interface Coproprietaire {
   id: string
@@ -11,11 +11,14 @@ interface Coproprietaire {
   email?: string
   telephone?: string
   portail_actif?: boolean
+  invitation_envoyee_at?: string
 }
 
 export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
   const [search, setSearch] = useState('')
   const [sortAsc, setSortAsc] = useState(true)
+  const [invitingAll, setInvitingAll] = useState(false)
+  const [inviteResult, setInviteResult] = useState<{ sent: number; skipped: number; failed: number } | null>(null)
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim()
@@ -36,11 +39,29 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
     return result
   }, [data, search, sortAsc])
 
+  // Combien de copropriétaires peuvent encore être invités
+  const aInviter = data.filter(c => !c.portail_actif && c.email).length
+
+  async function handleInviterTous() {
+    if (!window.confirm(`Envoyer une invitation à ${aInviter} copropriétaire${aInviter > 1 ? 's' : ''} sans portail actif ?`)) return
+    setInvitingAll(true)
+    setInviteResult(null)
+    try {
+      const res = await fetch('/api/coproprietaires/inviter-tous', { method: 'POST' })
+      const data = await res.json()
+      setInviteResult({ sent: data.sent ?? 0, skipped: data.skipped ?? 0, failed: data.failed ?? 0 })
+    } catch {
+      setInviteResult({ sent: 0, skipped: 0, failed: 1 })
+    } finally {
+      setInvitingAll(false)
+    }
+  }
+
   return (
     <>
-      {/* Barre de recherche + tri */}
-      <div className="flex items-center gap-3 mb-5">
-        <div className="relative flex-1 max-w-sm">
+      {/* Barre de recherche + tri + bouton inviter tous */}
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
+        <div className="relative flex-1 min-w-48">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
@@ -58,45 +79,88 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
           {sortAsc ? <ArrowUpAZ className="w-4 h-4" /> : <ArrowDownAZ className="w-4 h-4" />}
           A–Z
         </button>
+
+        {aInviter > 0 && (
+          <button
+            onClick={handleInviterTous}
+            disabled={invitingAll}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-coplio-green text-white rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-60"
+          >
+            {invitingAll
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : <Send className="w-4 h-4" />
+            }
+            Inviter tous ({aInviter})
+          </button>
+        )}
       </div>
+
+      {/* Résultat envoi groupé */}
+      {inviteResult && (
+        <div className={`mb-4 px-4 py-3 rounded-xl text-sm flex items-center gap-2 ${
+          inviteResult.failed > 0 ? 'bg-amber-50 border border-amber-200 text-amber-800' : 'bg-coplio-green-light border border-coplio-green/20 text-coplio-green'
+        }`}>
+          <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+          <span>
+            {inviteResult.sent} invitation{inviteResult.sent > 1 ? 's' : ''} envoyée{inviteResult.sent > 1 ? 's' : ''}
+            {inviteResult.skipped > 0 && ` · ${inviteResult.skipped} déjà invité${inviteResult.skipped > 1 ? 's' : ''} récemment`}
+            {inviteResult.failed > 0 && ` · ${inviteResult.failed} échec${inviteResult.failed > 1 ? 's' : ''}`}
+          </span>
+        </div>
+      )}
 
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((c) => (
-            <Link key={c.id} href={`/coproprietaires/${c.id}`} className="coplio-card hover:border-coplio-green/30 transition-colors block">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-coplio-green/10 rounded-full flex items-center justify-center flex-shrink-0">
-                  <User className="w-5 h-5 text-coplio-green" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="font-semibold text-coplio-text">{c.prenom} {c.nom}</p>
-                    {c.portail_actif && (
-                      <span className="text-xs bg-coplio-green-light text-coplio-green px-1.5 py-0.5 rounded-full">Portail</span>
-                    )}
+          {filtered.map((c) => {
+            const inviteEnvoye = !!c.invitation_envoyee_at && !c.portail_actif
+            return (
+              <Link key={c.id} href={`/coproprietaires/${c.id}`} className="coplio-card hover:border-coplio-green/30 transition-colors block">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-coplio-green/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <User className="w-5 h-5 text-coplio-green" />
                   </div>
-                  <div className="mt-1 space-y-1">
-                    {c.email && (
-                      <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
-                        <Mail className="w-3 h-3 flex-shrink-0" />
-                        {c.email}
-                      </p>
-                    )}
-                    {c.telephone && (
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Phone className="w-3 h-3 flex-shrink-0" />
-                        {c.telephone}
-                      </p>
-                    )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold text-coplio-text">{c.prenom} {c.nom}</p>
+                      {c.portail_actif && (
+                        <span className="text-xs bg-coplio-green-light text-coplio-green px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Portail
+                        </span>
+                      )}
+                      {inviteEnvoye && (
+                        <span className="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> Invité
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1 space-y-1">
+                      {c.email && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
+                          <Mail className="w-3 h-3 flex-shrink-0" />
+                          {c.email}
+                        </p>
+                      )}
+                      {c.telephone && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Phone className="w-3 h-3 flex-shrink-0" />
+                          {c.telephone}
+                        </p>
+                      )}
+                      {!c.email && !c.portail_actif && (
+                        <p className="text-xs text-amber-500">Pas d&apos;email — invitation impossible</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            )
+          })}
         </div>
       ) : (
         <div className="coplio-card text-center py-12">
-          <p className="text-muted-foreground text-sm">Aucun résultat pour &ldquo;{search}&rdquo;</p>
+          <p className="text-muted-foreground text-sm">
+            {search ? `Aucun résultat pour "${search}"` : 'Aucun copropriétaire'}
+          </p>
         </div>
       )}
     </>
