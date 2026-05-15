@@ -7,24 +7,27 @@
 -- ═══════════════════════════════════════════════════════════════
 
 -- ── Bug #2 : RLS ag_votes ──────────────────────────────────────
+-- ag_votes.resolution_id → ag_resolutions.ag_id → assemblees_generales → coproprietes
 DROP POLICY IF EXISTS "ag_votes_write" ON ag_votes;
 
 CREATE POLICY "ag_votes_write" ON ag_votes
   FOR ALL USING (
     -- Gestionnaire syndic : accès via son cabinet
     EXISTS (
-      SELECT 1 FROM assemblees_generales ag
+      SELECT 1 FROM ag_resolutions r
+      JOIN assemblees_generales ag ON ag.id = r.ag_id
       JOIN coproprietes c ON c.id = ag.copropriete_id
-      WHERE ag.id = ag_votes.ag_id
+      WHERE r.id = ag_votes.resolution_id
         AND c.cabinet_id = get_user_cabinet_id()
     )
     OR
     -- Copropriétaire : peut voir/créer son propre vote (via son lot)
     EXISTS (
-      SELECT 1 FROM assemblees_generales ag
+      SELECT 1 FROM ag_resolutions r
+      JOIN assemblees_generales ag ON ag.id = r.ag_id
       JOIN lots l ON l.copropriete_id = ag.copropriete_id
       JOIN profiles p ON p.lot_id = l.id
-      WHERE ag.id = ag_votes.ag_id
+      WHERE r.id = ag_votes.resolution_id
         AND p.id = auth.uid()
         AND p.role = 'owner_resident'
     )
