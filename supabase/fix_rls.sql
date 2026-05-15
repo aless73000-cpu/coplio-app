@@ -196,19 +196,46 @@ CREATE POLICY "ag_resolutions_cabinet" ON ag_resolutions
     )
   );
 
+-- BUG #2 FIX : isolation par cabinet via jointure sur assemblees_generales
+-- Ancienne policy incorrecte : USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid()))
+-- → permettait à tout utilisateur connecté de modifier n'importe quel vote
 CREATE POLICY "ag_votes_write" ON ag_votes
   FOR ALL USING (
+    -- Gestionnaire syndic : accès via son cabinet
     EXISTS (
-      SELECT 1 FROM profiles p
-      WHERE p.id = auth.uid()
+      SELECT 1 FROM assemblees_generales ag
+      JOIN coproprietes c ON c.id = ag.copropriete_id
+      WHERE ag.id = ag_votes.ag_id
+        AND c.cabinet_id = get_user_cabinet_id()
+    )
+    OR
+    -- Copropriétaire : peut voir/créer son propre vote (via son lot)
+    EXISTS (
+      SELECT 1 FROM assemblees_generales ag
+      JOIN lots l ON l.copropriete_id = ag.copropriete_id
+      JOIN profiles p ON p.lot_id = l.id
+      WHERE ag.id = ag_votes.ag_id
+        AND p.id = auth.uid()
+        AND p.role = 'owner_resident'
     )
   );
 
 -- 15. CONVERSATIONS & MESSAGES
+-- BUG #3 FIX : coproprietaire_id référence coproprietaires.id (≠ auth.uid() = profiles.id)
+-- On passe par coproprietaire_lots → profiles.lot_id pour trouver le bon copropriétaire
 CREATE POLICY "conversations_cabinet" ON conversations
   FOR ALL USING (
+    -- Gestionnaire syndic
     cabinet_id = get_user_cabinet_id()
-    OR coproprietaire_id = auth.uid()
+    OR
+    -- Copropriétaire : via son lot → coproprietaire_lots → coproprietaire_id
+    EXISTS (
+      SELECT 1 FROM coproprietaire_lots cl
+      JOIN profiles p ON p.lot_id = cl.lot_id
+      WHERE cl.coproprietaire_id = conversations.coproprietaire_id
+        AND p.id = auth.uid()
+        AND p.role = 'owner_resident'
+    )
   );
 
 CREATE POLICY "messages_access" ON messages
