@@ -126,7 +126,7 @@ CREATE INDEX IF NOT EXISTS idx_budget_lignes_budget_id     ON budget_lignes(budg
 
 -- fonds_travaux
 CREATE INDEX IF NOT EXISTS idx_fonds_travaux_copropriete_id ON fonds_travaux(copropriete_id);
-CREATE INDEX IF NOT EXISTS idx_fonds_travaux_mvts_fonds_id  ON fonds_travaux_mouvements(fonds_id);
+CREATE INDEX IF NOT EXISTS idx_fonds_travaux_mvts_fonds_id  ON fonds_travaux_mouvements(fonds_travaux_id);
 
 -- obligations_legales
 CREATE INDEX IF NOT EXISTS idx_obligations_copropriete_id  ON obligations_legales(copropriete_id);
