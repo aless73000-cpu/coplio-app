@@ -1,7 +1,11 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { formatEuro } from '@/lib/utils'
-import { MRRChart } from './MRRChart'
+import dynamic from 'next/dynamic'
+const MRRChart = dynamic(() => import('./MRRChart').then(m => m.MRRChart), {
+  ssr: false,
+  loading: () => <div className="h-64 animate-pulse bg-muted rounded-xl" />,
+})
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase())
 const PLAN_PRICES: Record<string, number> = { trial: 0, starter: 79, pro: 149, expert: 299 }

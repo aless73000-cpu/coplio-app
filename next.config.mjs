@@ -1,16 +1,37 @@
 import { withSentryConfig } from '@sentry/nextjs'
+import bundleAnalyzer from '@next/bundle-analyzer'
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+})
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Temporaire : erreurs TS liées à l'inférence de types Supabase (complex select strings)
-  // À retirer progressivement quand les types seront corrigés
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   // Compression gzip/brotli activée
   compress: true,
   // Pas de X-Powered-By header
   poweredByHeader: false,
+
+  // Optimisations expérimentales
+  experimental: {
+    // Optimise les imports de packages (tree-shaking granulaire)
+    optimizePackageImports: [
+      'lucide-react',
+      'recharts',
+      '@radix-ui/react-accordion',
+      '@radix-ui/react-alert-dialog',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-label',
+      '@radix-ui/react-popover',
+      '@radix-ui/react-select',
+      '@radix-ui/react-separator',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-tooltip',
+      'date-fns',
+    ],
+  },
+
   images: {
     remotePatterns: [
       {
@@ -21,7 +42,11 @@ const nextConfig = {
     ],
     // Formats modernes
     formats: ['image/avif', 'image/webp'],
+    // Tailles optimisées pour les breakpoints Coplio
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
   },
+
   async headers() {
     return [
       {
@@ -34,27 +59,35 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
           },
-          // Cache pour les assets statiques
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
         ],
       },
-      // Cache long pour les fichiers statiques Next.js
+      // Cache long pour les fichiers statiques Next.js (hashed)
       {
         source: '/_next/static/(.*)',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
+      // Cache court pour les pages HTML (SSR)
+      {
+        source: '/((?!_next/static|_next/image|favicon).*)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+        ],
+      },
     ]
   },
 }
 
-export default withSentryConfig(nextConfig, {
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
-  silent: true,
-  widenClientFileUpload: true,
-  hideSourceMaps: true,
-  disableLogger: true,
-  automaticVercelMonitors: true,
-})
+export default withBundleAnalyzer(
+  withSentryConfig(nextConfig, {
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
+    silent: true,
+    widenClientFileUpload: true,
+    hideSourceMaps: true,
+    disableLogger: true,
+    automaticVercelMonitors: true,
+  })
+)

@@ -11,11 +11,14 @@ import {
   AlertTriangle, CalendarDays, TrendingUp,
   CheckCircle2, Shield, Star,
 } from 'lucide-react'
+import { SoftwareApplicationJsonLd } from '@/components/seo/JsonLd'
 
 const FeaturesShowcase = dynamic(() => import('@/components/landing/FeaturesShowcase'), { ssr: false })
 
 export default function LandingPage() {
   return (
+    <>
+    <SoftwareApplicationJsonLd />
     <div className="min-h-screen bg-white antialiased text-[#1C1C1A]">
       <style>{`
         @keyframes floatY {
@@ -53,6 +56,7 @@ export default function LandingPage() {
       <CtaFinal />
       <Footer />
     </div>
+    </>
   )
 }
 

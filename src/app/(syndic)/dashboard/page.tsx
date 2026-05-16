@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { formatEuro, formatDate } from '@/lib/utils'
-import { RecouvrementChart, StatutChart, EvolutionChart, TauxGlobalCard } from '@/components/syndic/DashboardCharts'
+import { RecouvrementChartLazy as RecouvrementChart, StatutChartLazy as StatutChart, EvolutionChartLazy as EvolutionChart, TauxGlobalCardLazy as TauxGlobalCard } from '@/components/syndic/DashboardChartsLazy'
 import { OnboardingChecklist } from '@/components/syndic/OnboardingChecklist'
 import { RapportMensuelButton } from '@/components/syndic/RapportMensuelButton'
 import type { Copropriete, Sinistre, AssembleeGenerale } from '@/types'

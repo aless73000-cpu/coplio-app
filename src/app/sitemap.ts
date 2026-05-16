@@ -1,42 +1,61 @@
 import { MetadataRoute } from 'next'
 
+const BASE = 'https://coplio.fr'
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = 'https://coplio.fr'
+  const now = new Date()
 
   return [
+    // ── Pages marketing — priorité haute ─────────────────────────
     {
-      url: base,
-      lastModified: new Date(),
+      url: BASE,
+      lastModified: now,
       changeFrequency: 'weekly',
-      priority: 1,
+      priority: 1.0,
     },
     {
-      url: `${base}/register`,
-      lastModified: new Date(),
+      url: `${BASE}/tarifs`,
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
-      url: `${base}/login`,
-      lastModified: new Date(),
+      url: `${BASE}/register`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+
+    // ── Pages auth ───────────────────────────────────────────────
+    {
+      url: `${BASE}/login`,
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
-      url: `${base}/portail`,
-      lastModified: new Date(),
+      url: `${BASE}/portail`,
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
-      url: `${base}/cgu`,
-      lastModified: new Date(),
+      url: `${BASE}/forgot-password`,
+      lastModified: now,
+      changeFrequency: 'yearly',
+      priority: 0.2,
+    },
+
+    // ── Pages légales ────────────────────────────────────────────
+    {
+      url: `${BASE}/cgu`,
+      lastModified: new Date('2024-01-01'),
       changeFrequency: 'yearly',
       priority: 0.3,
     },
     {
-      url: `${base}/confidentialite`,
-      lastModified: new Date(),
+      url: `${BASE}/confidentialite`,
+      lastModified: new Date('2024-01-01'),
       changeFrequency: 'yearly',
       priority: 0.3,
     },

@@ -4,8 +4,12 @@ import Script from 'next/script'
 import '@/styles/globals.css'
 import { Toaster } from 'sonner'
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration'
+import {
+  OrganizationJsonLd,
+  WebSiteJsonLd,
+} from '@/components/seo/JsonLd'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
 
@@ -25,8 +29,11 @@ export const metadata: Metadata = {
     'suivi impayés',
     'logiciel gestion immeuble',
     'syndic bénévole',
+    'logiciel copropriété',
+    'gestion immeuble',
+    'charges copropriété',
   ],
-  authors: [{ name: 'Coplio', url: 'https://coplio.fr' }],
+  authors: [{ name: 'Coplio', url: APP_URL }],
   creator: 'Coplio',
   publisher: 'Coplio',
   metadataBase: new URL(APP_URL),
@@ -35,11 +42,20 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    url: 'https://coplio.fr',
+    url: APP_URL,
     siteName: 'Coplio',
     title: 'Coplio — Gestion de copropriété pour syndics indépendants',
     description:
       'Simplifiez votre gestion de copropriété. Portail copropriétaire inclus, AG en ligne, relances automatiques. Essai gratuit 14 jours.',
+    images: [
+      {
+        url: `${APP_URL}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: 'Coplio — Logiciel de gestion syndic',
+        type: 'image/png',
+      },
+    ],
   },
 
   // Twitter card
@@ -48,6 +64,7 @@ export const metadata: Metadata = {
     title: 'Coplio — Gestion de copropriété simplifiée',
     description:
       'Le logiciel de gestion de copropriété pour syndics indépendants. Essai gratuit 14 jours.',
+    images: [`${APP_URL}/opengraph-image`],
   },
 
   // Robots
@@ -65,7 +82,7 @@ export const metadata: Metadata = {
 
   // Canonical
   alternates: {
-    canonical: 'https://coplio.fr',
+    canonical: APP_URL,
   },
 
   manifest: '/manifest.json',
@@ -89,6 +106,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
+      <head>
+        <OrganizationJsonLd />
+        <WebSiteJsonLd />
+      </head>
       <body className={inter.className}>
         <ServiceWorkerRegistration />
         {children}
