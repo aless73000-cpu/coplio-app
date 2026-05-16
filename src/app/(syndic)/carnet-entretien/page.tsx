@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Plus, BookOpen, Wrench, Loader2, X, ChevronDown, CalendarDays, Euro, CheckCircle2, Clock, AlertTriangle } from 'lucide-react'
 
-interface Prestataire { id: string; nom: string; categorie?: string }
+interface Prestataire { id: string; nom: string; metier?: string }
 interface Copropriete { id: string; nom: string }
 interface Entree {
   id: string; titre: string; description?: string
@@ -132,7 +132,7 @@ function Modal({ open, onClose, onSave, coproprietes, prestataires }: {
           <F label="Prestataire">
             <select value={form.prestataire_id} onChange={e => setForm(f => ({ ...f, prestataire_id: e.target.value }))} className={inputCls}>
               <option value="">Aucun</option>
-              {prestataires.map(p => <option key={p.id} value={p.id}>{p.nom}{p.categorie ? ` — ${p.categorie}` : ''}</option>)}
+              {prestataires.map(p => <option key={p.id} value={p.id}>{p.nom}{p.metier ? ` — ${p.metier}` : ''}</option>)}
             </select>
           </F>
           <F label="Description">

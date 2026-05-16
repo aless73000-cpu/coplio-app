@@ -1,24 +1,39 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Wrench, Phone, Mail, Pencil, Trash2, Loader2, X, Building2 } from 'lucide-react'
+import { Plus, Wrench, Phone, Mail, Star, Pencil, Trash2, Loader2, X, Building2 } from 'lucide-react'
 
 interface Prestataire {
   id: string
   nom: string
-  categorie?: string
+  metier?: string
   telephone?: string
   email?: string
   adresse?: string
   siret?: string
-  notes?: string
+  note?: number
+  commentaire?: string
+  actif: boolean
 }
 
-const CATEGORIES = [
+const METIERS = [
   'Plomberie', 'Électricité', 'Menuiserie', 'Peinture', 'Maçonnerie',
   'Serrurerie', 'Ascensoriste', 'Chauffage/Climatisation', 'Jardinage',
   'Nettoyage', 'Assurance', 'Avocat', 'Autre',
 ]
+
+function StarRating({ value, onChange }: { value?: number; onChange?: (v: number) => void }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <button key={s} type="button" onClick={() => onChange?.(s)}
+          className={`transition-colors ${s <= (value ?? 0) ? 'text-amber-400' : 'text-gray-200'} ${onChange ? 'hover:text-amber-300 cursor-pointer' : 'cursor-default'}`}>
+          <Star className="w-4 h-4 fill-current" />
+        </button>
+      ))}
+    </div>
+  )
+}
 
 function Modal({ open, onClose, onSave, initial }: {
   open: boolean; onClose: () => void
@@ -26,19 +41,19 @@ function Modal({ open, onClose, onSave, initial }: {
   initial?: Prestataire | null
 }) {
   const [form, setForm] = useState({
-    nom: '', categorie: '', telephone: '', email: '', adresse: '', siret: '', notes: '',
+    nom: '', metier: '', telephone: '', email: '', adresse: '', siret: '', note: 0, commentaire: '',
   })
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (initial) {
       setForm({
-        nom: initial.nom, categorie: initial.categorie ?? '', telephone: initial.telephone ?? '',
+        nom: initial.nom, metier: initial.metier ?? '', telephone: initial.telephone ?? '',
         email: initial.email ?? '', adresse: initial.adresse ?? '', siret: initial.siret ?? '',
-        notes: initial.notes ?? '',
+        note: initial.note ?? 0, commentaire: initial.commentaire ?? '',
       })
     } else {
-      setForm({ nom: '', categorie: '', telephone: '', email: '', adresse: '', siret: '', notes: '' })
+      setForm({ nom: '', metier: '', telephone: '', email: '', adresse: '', siret: '', note: 0, commentaire: '' })
     }
   }, [initial, open])
 
@@ -47,14 +62,14 @@ function Modal({ open, onClose, onSave, initial }: {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    await onSave(form)
+    await onSave({ ...form, note: form.note || undefined })
     setSaving(false)
   }
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-6 border-b border-border">
+      <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-6 border-b border-border sticky top-0 bg-white">
           <h2 className="font-semibold text-coplio-text">{initial ? 'Modifier' : 'Ajouter'} un prestataire</h2>
           <button onClick={onClose} className="p-1 hover:bg-coplio-bg rounded-lg transition-colors"><X className="w-4 h-4" /></button>
         </div>
@@ -66,11 +81,11 @@ function Modal({ open, onClose, onSave, initial }: {
                 className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-coplio-text mb-1.5">Métier / Catégorie</label>
-              <select value={form.categorie} onChange={e => setForm(f => ({ ...f, categorie: e.target.value }))}
+              <label className="block text-sm font-medium text-coplio-text mb-1.5">Métier</label>
+              <select value={form.metier} onChange={e => setForm(f => ({ ...f, metier: e.target.value }))}
                 className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green bg-white">
                 <option value="">Sélectionner…</option>
-                {CATEGORIES.map(m => <option key={m} value={m}>{m}</option>)}
+                {METIERS.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
             <div>
@@ -94,8 +109,12 @@ function Modal({ open, onClose, onSave, initial }: {
                 className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-coplio-text mb-1.5">Notes</label>
-              <textarea rows={3} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+              <label className="block text-sm font-medium text-coplio-text mb-1.5">Note</label>
+              <StarRating value={form.note} onChange={v => setForm(f => ({ ...f, note: v === f.note ? 0 : v }))} />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-coplio-text mb-1.5">Commentaire</label>
+              <textarea rows={3} value={form.commentaire} onChange={e => setForm(f => ({ ...f, commentaire: e.target.value }))}
                 className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green resize-none" />
             </div>
           </div>
@@ -124,7 +143,7 @@ export default function PrestatairesPage() {
   async function load() {
     const res = await fetch('/api/prestataires')
     const data = await res.json()
-    setPrestataires(data)
+    setPrestataires(Array.isArray(data) ? data : [])
     setLoading(false)
   }
 
@@ -146,6 +165,7 @@ export default function PrestatairesPage() {
   }
 
   async function handleDelete(id: string) {
+    if (!confirm('Supprimer ce prestataire ?')) return
     setDeleting(id)
     await fetch(`/api/prestataires/${id}`, { method: 'DELETE' })
     setDeleting(null)
@@ -154,7 +174,7 @@ export default function PrestatairesPage() {
 
   const filtered = prestataires.filter(p =>
     p.nom.toLowerCase().includes(search.toLowerCase()) ||
-    (p.categorie ?? '').toLowerCase().includes(search.toLowerCase())
+    (p.metier ?? '').toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -197,7 +217,7 @@ export default function PrestatairesPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-coplio-text text-sm">{p.nom}</p>
-                    {p.categorie && <p className="text-xs text-muted-foreground">{p.categorie}</p>}
+                    {p.metier && <p className="text-xs text-muted-foreground">{p.metier}</p>}
                   </div>
                 </div>
                 <div className="flex gap-1">
@@ -212,6 +232,8 @@ export default function PrestatairesPage() {
                 </div>
               </div>
 
+              {p.note && <StarRating value={p.note} />}
+
               <div className="space-y-1.5">
                 {p.telephone && (
                   <a href={`tel:${p.telephone}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-coplio-green transition-colors">
@@ -225,8 +247,8 @@ export default function PrestatairesPage() {
                 )}
               </div>
 
-              {p.notes && (
-                <p className="text-xs text-muted-foreground border-t border-border pt-2 line-clamp-2">{p.notes}</p>
+              {p.commentaire && (
+                <p className="text-xs text-muted-foreground border-t border-border pt-2 line-clamp-2">{p.commentaire}</p>
               )}
             </div>
           ))}

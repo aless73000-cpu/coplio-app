@@ -12,12 +12,14 @@ async function getCabinetId() {
 
 const schema = z.object({
   nom: z.string().min(1).max(255).optional(),
-  categorie: z.string().max(100).optional(),
+  metier: z.string().max(100).optional(),
   telephone: z.string().max(30).optional(),
   email: z.string().email().optional().or(z.literal('')),
   adresse: z.string().optional(),
   siret: z.string().max(20).optional(),
-  notes: z.string().optional(),
+  note: z.number().int().min(1).max(5).optional().nullable(),
+  commentaire: z.string().optional(),
+  actif: z.boolean().optional(),
 })
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -32,7 +34,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('prestataires')
-    .update(parsed.data)
+    .update({ ...parsed.data, updated_at: new Date().toISOString() })
     .eq('id', id)
     .eq('cabinet_id', cabinetId)
     .select()
@@ -48,9 +50,10 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
   if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
   const admin = createAdminClient()
+  // Soft delete — le prestataire reste en DB mais n'apparaît plus
   const { error } = await admin
     .from('prestataires')
-    .delete()
+    .update({ actif: false })
     .eq('id', id)
     .eq('cabinet_id', cabinetId)
 
