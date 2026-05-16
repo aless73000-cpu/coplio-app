@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { MesVotesClient } from '@/components/portail/MesVotesClient'
 
@@ -15,8 +15,16 @@ export default async function MesVotes() {
 
   const coproprieteId = (profile?.lot as { copropriete_id?: string } | null)?.copropriete_id ?? null
 
+  // Résoudre coproprietaires.id pour la détection "déjà voté"
+  const admin = createAdminClient()
+  const { data: copro } = await admin
+    .from('coproprietaires')
+    .select('id')
+    .eq('profile_id', user.id)
+    .single()
+
   const { data: votes } = coproprieteId
-    ? await supabase
+    ? await admin
         .from('votes')
         .select('*, options:vote_options(*), reponses:vote_reponses(id, option_id, coproprietaire_id)')
         .eq('copropriete_id', coproprieteId)
@@ -31,7 +39,7 @@ export default async function MesVotes() {
         <p className="text-muted-foreground text-sm mt-0.5">Participez aux décisions de votre copropriété</p>
       </div>
       <MesVotesClient
-        userId={user.id}
+        userId={copro?.id ?? user.id}
         votes={(votes ?? []) as Parameters<typeof MesVotesClient>[0]['votes']}
       />
     </div>
