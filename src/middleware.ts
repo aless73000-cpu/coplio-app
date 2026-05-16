@@ -21,8 +21,12 @@ const PUBLIC_ROUTES = [
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Landing page : publique, mais redirige les connectés vers leur espace
+  // Landing page : toujours accessible, mais redirige si "Rester connecté" était coché
   if (pathname === '/') {
+    const persistCookie = request.cookies.get('coplio_persist')?.value
+    if (!persistCookie) return NextResponse.next({ request })
+
+    // Cookie présent → vérifier la session et rediriger vers le bon espace
     let supabaseResponse = NextResponse.next({ request })
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -45,7 +49,10 @@ export async function middleware(request: NextRequest) {
       const dest = profile?.role === 'owner_resident' ? '/accueil' : '/dashboard'
       return NextResponse.redirect(new URL(dest, request.url))
     }
-    return NextResponse.next({ request })
+    // Cookie présent mais session expirée → nettoyer le cookie et afficher la landing
+    const res = NextResponse.next({ request })
+    res.cookies.set('coplio_persist', '', { path: '/', maxAge: 0 })
+    return res
   }
 
   // Autoriser les routes publiques sans vérification

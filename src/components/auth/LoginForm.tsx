@@ -53,13 +53,11 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
       return
     }
 
-    // Marquer la session selon le choix "Rester connecté"
+    // Cookie lisible côté serveur pour le middleware
     if (persist) {
-      localStorage.setItem('coplio_persist', '1')
-      sessionStorage.removeItem('coplio_session')
+      document.cookie = 'coplio_persist=1; path=/; max-age=31536000; SameSite=Lax'
     } else {
-      sessionStorage.setItem('coplio_session', '1')
-      localStorage.removeItem('coplio_persist')
+      document.cookie = 'coplio_persist=; path=/; max-age=0; SameSite=Lax'
     }
 
     // Récupérer le rôle pour rediriger au bon endroit
