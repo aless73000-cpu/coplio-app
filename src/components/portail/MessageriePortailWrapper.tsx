@@ -1,48 +1,65 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { MessagerieChat } from './MessagerieChat'
-import { MessageCircle } from 'lucide-react'
+import { MessageCircle, Loader2 } from 'lucide-react'
 import { formatDateTime } from '@/lib/utils'
-import type { Message } from '@/types'
 
-interface ConversationItem {
+interface Conversation {
   id: string
-  sujet?: string
+  sujet?: string | null
   derniere_activite: string
-  messages: (Message & { expediteur?: { prenom?: string; nom?: string; role?: string } })[]
 }
 
 interface Props {
   userId: string
-  conversations: ConversationItem[]
-  cabinetId: string | null
-  coproprieteId: string | null
 }
 
-export function MessageriePortailWrapper({ userId, conversations, cabinetId, coproprieteId }: Props) {
-  const [selectedId, setSelectedId] = useState<string | null>(conversations[0]?.id ?? null)
+export function MessageriePortailWrapper({ userId }: Props) {
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
 
-  const selected = conversations.find((c) => c.id === selectedId) ?? null
-  const messages = (selected?.messages ?? []).sort(
-    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-  )
+  const loadConversations = useCallback(async () => {
+    const res = await fetch('/api/portail/conversations')
+    if (res.ok) {
+      const data = await res.json()
+      const convs: Conversation[] = Array.isArray(data) ? data : []
+      setConversations(convs)
+      if (convs.length > 0 && !selectedId) setSelectedId(convs[0].id)
+    }
+    setLoading(false)
+  }, [selectedId])
+
+  useEffect(() => { loadConversations() }, [loadConversations])
+
+  function handleConversationCreated(id: string) {
+    loadConversations()
+    setSelectedId(id)
+  }
 
   const showSidebar = conversations.length > 1
+
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-coplio-green" />
+      </div>
+    )
+  }
 
   return (
     <div className={`flex-1 flex gap-4 min-h-0 overflow-hidden ${showSidebar ? '' : 'flex-col'}`}>
       {showSidebar && (
         <div className="w-72 flex-shrink-0 coplio-card p-0 overflow-hidden flex flex-col">
           <div className="px-4 py-3 border-b border-border">
-            <p className="text-sm font-semibold text-coplio-text">Conversations ({conversations.length})</p>
+            <p className="text-sm font-semibold text-coplio-text">
+              Conversations ({conversations.length})
+            </p>
           </div>
           <div className="flex-1 overflow-y-auto">
             {conversations.map((conv) => {
               const isActive = conv.id === selectedId
-              const lastMsg = [...(conv.messages ?? [])].sort(
-                (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-              )[0]
               return (
                 <button
                   key={conv.id}
@@ -59,11 +76,8 @@ export function MessageriePortailWrapper({ userId, conversations, cabinetId, cop
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className={`text-sm font-medium truncate ${isActive ? 'text-coplio-green' : 'text-coplio-text'}`}>
-                        {conv.sujet || 'Message'}
+                        {conv.sujet || 'Message au syndic'}
                       </p>
-                      {lastMsg && (
-                        <p className="text-xs text-muted-foreground truncate mt-0.5">{lastMsg.contenu}</p>
-                      )}
                       <p className="text-[10px] text-muted-foreground mt-0.5">
                         {formatDateTime(conv.derniere_activite)}
                       </p>
@@ -79,10 +93,8 @@ export function MessageriePortailWrapper({ userId, conversations, cabinetId, cop
       <div className="flex-1 flex flex-col min-h-0 min-w-0">
         <MessagerieChat
           userId={userId}
-          initialMessages={messages}
-          conversation={selected ? { id: selected.id, sujet: selected.sujet } : null}
-          cabinetId={cabinetId}
-          coproprieteId={coproprieteId}
+          conversationId={selectedId}
+          onConversationCreated={handleConversationCreated}
         />
       </div>
     </div>
