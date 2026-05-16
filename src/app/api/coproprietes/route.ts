@@ -46,10 +46,8 @@ export async function POST(request: Request) {
     if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
     const admin = createAdminClient()
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { tantiemes_totaux: _t, ...rest } = parsed.data
     const { data, error } = await admin.from('coproprietes').insert({
-      ...rest,
+      ...parsed.data,
       cabinet_id: profile.cabinet_id,
       gestionnaire_id: user.id,
     }).select().single()

@@ -38,10 +38,26 @@ export default async function AccueilPage() {
   )
   const prochainAppel = (appels ?? [])[0]
 
-  const { data: documents } = await supabase
-    .from('documents').select('*').eq('visible_coproprietaires', true)
-    .or(`lot_id.eq.${lotId ?? 'null'},lot_id.is.null`)
-    .order('created_at', { ascending: false }).limit(4)
+  // Sécurité RGPD : les documents sans lot_id sont filtrés par copropriete_id
+  // pour éviter qu'un résident voie les documents d'un autre immeuble du cabinet.
+  const documentsQuery = supabase
+    .from('documents')
+    .select('*')
+    .eq('visible_coproprietaires', true)
+    .order('created_at', { ascending: false })
+    .limit(4)
+
+  if (lotId && coproprieteId) {
+    documentsQuery.or(
+      `lot_id.eq.${lotId},and(lot_id.is.null,copropriete_id.eq.${coproprieteId})`
+    )
+  } else if (coproprieteId) {
+    documentsQuery.is('lot_id', null).eq('copropriete_id', coproprieteId)
+  } else {
+    documentsQuery.eq('lot_id', lotId ?? '')
+  }
+
+  const { data: documents } = await documentsQuery
 
   const { data: sinistres } = lotId
     ? await supabase.from('sinistres').select('id, titre, status, reference')

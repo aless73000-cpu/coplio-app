@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Lint · Type-check · Tests · Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # ── Checkout ───────────────────────────────────────────────────
+      - uses: actions/checkout@v4
+
+      # ── Node + pnpm cache ─────────────────────────────────────────
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # ── Install ───────────────────────────────────────────────────
+      - name: Install dependencies
+        run: npm ci
+
+      # ── Lint ──────────────────────────────────────────────────────
+      - name: ESLint
+        run: npm run lint
+
+      # ── Type-check ────────────────────────────────────────────────
+      - name: TypeScript
+        run: npx tsc --noEmit
+
+      # ── Unit tests ────────────────────────────────────────────────
+      - name: Vitest
+        run: npm test -- --reporter=verbose
+
+      # ── Next.js build (smoke test) ────────────────────────────────
+      # Env vars : vraies valeurs en secret, placeholders pour les NEXT_PUBLIC_*
+      # (utilisés uniquement à l'exécution, pas inlinés au build sauf SENTRY_DSN)
+      - name: Next.js build
+        run: npm run build
+        env:
+          # ── App
+          NEXT_PUBLIC_APP_URL: https://coplio.fr
+
+          # ── Supabase (placeholders — pas d'appels réseau au build)
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder_anon_key
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+          # ── Stripe (placeholders — pas d'import de produits au build)
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          STRIPE_PRICE_STARTER: price_placeholder
+          STRIPE_PRICE_PRO: price_placeholder
+          STRIPE_PRICE_EXPERT: price_placeholder
+          STRIPE_PRICE_ADDON_PORTAIL: price_placeholder
+
+          # ── Resend
+          RESEND_API_KEY: re_placeholder
+          RESEND_FROM_EMAIL: noreply@coplio.fr
+          RESEND_WEBHOOK_SECRET: whsec_placeholder
+
+          # ── Gemini
+          GEMINI_API_KEY: placeholder
+
+          # ── Upstash Redis
+          UPSTASH_REDIS_REST_URL: https://placeholder.upstash.io
+          UPSTASH_REDIS_REST_TOKEN: placeholder
+
+          # ── VAPID
+          NEXT_PUBLIC_VAPID_PUBLIC_KEY: BPlaceholderVapidPublicKey
+          VAPID_PRIVATE_KEY: placeholder
+          VAPID_SUBJECT: mailto:contact@coplio.fr
+
+          # ── Yousign
+          YOUSIGN_API_KEY: placeholder
+          YOUSIGN_ENV: sandbox
+          YOUSIGN_WEBHOOK_SECRET: placeholder
+
+          # ── Twilio
+          TWILIO_ACCOUNT_SID: ACplaceholder
+          TWILIO_AUTH_TOKEN: placeholder
+          TWILIO_FROM_NUMBER: "+33000000000"
+
+          # ── Admin
+          ADMIN_EMAILS: admin@coplio.fr
+          ADMIN_ALERT_EMAIL: alertes@coplio.fr
+
+          # ── Cron
+          CRON_SECRET: placeholder_cron_secret_32chars_xxxxxx
+
+          # ── Sentry (DSN public inliné au build via withSentryConfig)
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+          SENTRY_ORG: coplio
+          SENTRY_PROJECT: coplio-app
+          # SENTRY_AUTH_TOKEN non requis ici (upload source maps = CI/CD Vercel)

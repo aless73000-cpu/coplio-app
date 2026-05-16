@@ -36,31 +36,34 @@ export default async function SyndicLayout({
     redirect('/onboarding')
   }
 
-  const { data: cabinet } = await supabase
-    .from('cabinets')
-    .select('*')
-    .eq('id', profile.cabinet_id)
-    .single()
+  // Cabinet + notifications : requêtes indépendantes → parallélisées
+  const [
+    { data: cabinet },
+    { data: notifications },
+    { count: unreadMessages },
+  ] = await Promise.all([
+    supabase
+      .from('cabinets')
+      .select('*')
+      .eq('id', profile.cabinet_id)
+      .single(),
+    supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20),
+    supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('lu', false)
+      .eq('lien', '/messages'),
+  ])
 
   if (!cabinet) {
     redirect('/onboarding')
   }
-
-  // Notifications non lues
-  const { data: notifications } = await supabase
-    .from('notifications')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(20)
-
-  // Compter les notifications non lues liées aux messages
-  const { count: unreadMessages } = await supabase
-    .from('notifications')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
-    .eq('lu', false)
-    .eq('lien', '/messages')
 
   return (
     <div className="flex h-screen bg-coplio-bg overflow-hidden">
