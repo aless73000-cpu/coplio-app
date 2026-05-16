@@ -50,11 +50,11 @@ export default function EditCopropietePage({ params }: { params: { id: string } 
           adresse: data.adresse ?? '',
           code_postal: data.code_postal ?? '',
           ville: data.ville ?? '',
-          nb_lots: data.nb_lots,
+          nb_lots: data.nb_lots ?? 0,
           annee_construction: data.annee_construction ?? undefined,
           surface_totale: data.surface_totale ?? undefined,
           assureur: data.assureur ?? '',
-          statut: data.statut ?? 'a_jour',
+          statut: (data.statut ?? 'a_jour') as 'a_jour' | 'attention' | 'urgent',
         })
         setLoading(false)
       })

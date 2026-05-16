@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       continue
     }
 
-    const type = validTypes.includes(row.type?.toLowerCase()) ? row.type.toLowerCase() : 'appartement'
+    const type = (validTypes.includes(row.type?.toLowerCase()) ? row.type.toLowerCase() : 'appartement') as 'autre' | 'appartement' | 'maison' | 'local_commercial' | 'parking' | 'cave'
     const surface = row.surface ? parseFloat(row.surface) : undefined
 
     const { error } = await supabase.from('lots').insert({

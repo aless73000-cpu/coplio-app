@@ -34,9 +34,9 @@ export default async function AccueilPage() {
     : { data: [] }
 
   const montantDu = (appels ?? []).reduce(
-    (s: number, a: AppelCharges) => s + (a.montant - a.montant_paye), 0
+    (s: number, a) => s + (a.montant - (a.montant_paye ?? 0)), 0
   )
-  const prochainAppel = (appels ?? [])[0] as AppelCharges | undefined
+  const prochainAppel = (appels ?? [])[0]
 
   const { data: documents } = await supabase
     .from('documents').select('*').eq('visible_coproprietaires', true)

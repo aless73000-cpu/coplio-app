@@ -71,7 +71,7 @@ export default async function SyndicLayout({
       </div>
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <Header
-          notifications={notifications ?? []}
+          notifications={(notifications ?? []) as unknown as Parameters<typeof Header>[0]['notifications']}
           userId={user.id}
           mobileSidebar={
             <MobileSidebar

@@ -30,7 +30,7 @@ export async function POST(
     const admin = createAdminClient()
     const { error } = await admin
       .from('sinistres')
-      .update({ status })
+      .update({ status: status as 'signale' | 'assurance_declaree' | 'urgence' | 'expertise' | 'travaux' | 'cloture' })
       .eq('id', params.id)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })

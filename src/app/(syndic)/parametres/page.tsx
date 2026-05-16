@@ -16,5 +16,5 @@ export default async function ParamètresPage() {
     .eq('id', user.id)
     .single()
 
-  return <ParametresClient profile={profile} />
+  return <ParametresClient profile={profile as unknown as Parameters<typeof ParametresClient>[0]['profile']} />
 }

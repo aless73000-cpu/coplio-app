@@ -62,7 +62,8 @@ export function MessagerieChat({ userId, initialMessages, conversation: initialC
 
           setMessages(prev => {
             if (prev.find(m => m.id === payload.new.id)) return prev
-            return [...prev, { ...(payload.new as MessageItem), expediteur: expediteur ?? undefined }]
+            const exp = expediteur ? { prenom: expediteur.prenom ?? undefined, nom: expediteur.nom ?? undefined, role: expediteur.role ?? undefined } : undefined
+            return [...prev, { ...(payload.new as unknown as MessageItem), expediteur: exp }]
           })
         }
       )
@@ -86,7 +87,7 @@ export function MessagerieChat({ userId, initialMessages, conversation: initialC
       const { data: conv } = await supabase
         .from('conversations')
         .insert({
-          cabinet_id: cabinetId,
+          cabinet_id: cabinetId ?? '',
           coproprietaire_id: userId,
           copropriete_id: coproprieteId,
           sujet: 'Message copropriétaire',
@@ -116,8 +117,8 @@ export function MessagerieChat({ userId, initialMessages, conversation: initialC
 
     if (sent) {
       setMessages(prev => prev.map(m =>
-        m.id === optimisticId ? { ...m, id: sent.id, created_at: sent.created_at } : m
-      ))
+        m.id === optimisticId ? { ...m, id: sent.id, created_at: sent.created_at ?? new Date().toISOString() } : m
+      ) as MessageItem[])
       await supabase
         .from('conversations')
         .update({ derniere_activite: new Date().toISOString() })

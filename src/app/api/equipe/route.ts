@@ -53,9 +53,10 @@ export async function POST(request: NextRequest) {
       .eq('cabinet_id', profile.cabinet_id!)
       .in('role', ['owner', 'manager'])
 
-    if (cabinet.max_gestionnaires < 999 && (count ?? 0) >= cabinet.max_gestionnaires) {
+    const maxGest = cabinet.max_gestionnaires ?? 999
+    if (maxGest < 999 && (count ?? 0) >= maxGest) {
       return NextResponse.json({
-        error: `Limite atteinte : votre plan ${cabinet.plan} autorise ${cabinet.max_gestionnaires} gestionnaire${cabinet.max_gestionnaires > 1 ? 's' : ''}. Passez à un plan supérieur.`,
+        error: `Limite atteinte : votre plan ${cabinet.plan} autorise ${maxGest} gestionnaire${maxGest > 1 ? 's' : ''}. Passez à un plan supérieur.`,
         code: 'PLAN_LIMIT_REACHED',
       }, { status: 403 })
     }

@@ -24,7 +24,7 @@ export async function GET(req: Request) {
       const { data, error } = await admin
         .from('admin_support_messages')
         .select('*')
-        .eq('cabinet_id', ctx.cabinet_id)
+        .eq('cabinet_id', ctx.cabinet_id ?? '')
         .order('created_at', { ascending: true })
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
       return NextResponse.json(data ?? [])
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
       .insert({
         cabinet_id: ctx.cabinet_id,
         sender_type: 'client',
-        sender_email: ctx.user.email,
+        sender_email: ctx.user.email ?? '',
         contenu: parsed.data.contenu,
       })
       .select().single()

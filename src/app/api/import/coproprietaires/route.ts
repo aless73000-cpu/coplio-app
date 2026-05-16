@@ -87,19 +87,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Link to lot if lot_numero provided
-    if (row.lot_numero?.trim() && newCopro) {
-      const lotId = lotMap.get(row.lot_numero.trim().toLowerCase())
-      if (lotId) {
-        // Create a profile for this copropriétaire to link to lot
-        // (we just update the lot's coproprietaire_id if that column exists, or handle via junction)
-        // For now, we store coproprietaire_id on lots table if it exists
-        await supabase
-          .from('lots')
-          .update({ coproprietaire_id: newCopro.id })
-          .eq('id', lotId)
-          .eq('copropriete_id', copropriete_id)
-      }
-    }
+    // Note: coproprietaire_id column does not exist on lots table
+    // lot-coproprietaire linking is handled via profiles.lot_id
 
     results.ok++
   }

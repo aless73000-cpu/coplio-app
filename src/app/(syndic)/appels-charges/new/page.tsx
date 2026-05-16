@@ -65,7 +65,7 @@ export default function NewAppelChargesPage() {
       .order('numero')
       .then(({ data }) => {
         if (data) {
-          setLots(data)
+          setLots(data as unknown as typeof lots)
           // Sélectionner tous les lots par défaut
           const sel: Record<string, boolean> = {}
           data.forEach((l) => { sel[l.id] = true })

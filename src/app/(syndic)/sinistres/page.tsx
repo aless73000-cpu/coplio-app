@@ -37,7 +37,7 @@ export default async function SinistresPage({
     .order('created_at', { ascending: false })
 
   if (searchParams.status && searchParams.status !== 'all') {
-    query = query.eq('status', searchParams.status)
+    query = query.eq('status', searchParams.status as 'signale' | 'assurance_declaree' | 'urgence' | 'expertise' | 'travaux' | 'cloture')
   }
   if (searchParams.copropriete) {
     query = query.eq('copropriete_id', searchParams.copropriete)
@@ -130,7 +130,7 @@ export default async function SinistresPage({
         </div>
       ) : (
         <div className="space-y-3">
-          {sinistres.map((s: Sinistre & { copropriete?: { nom: string; ville?: string } }) => (
+          {sinistres.map((s) => (
             <SinistreCard key={s.id} sinistre={s} />
           ))}
         </div>
@@ -139,9 +139,8 @@ export default async function SinistresPage({
   )
 }
 
-function SinistreCard({ sinistre }: {
-  sinistre: Sinistre & { copropriete?: { nom: string; ville?: string } }
-}) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function SinistreCard({ sinistre }: { sinistre: any }) {
   const statusColors: Record<string, string> = {
     signale: 'badge-attention',
     urgence: 'badge-urgent',

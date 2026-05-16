@@ -208,14 +208,14 @@ export default async function CopropriétairePage({ params }: { params: { id: st
       </div>
 
       {/* ── Notes internes ─────────────────────────────────────── */}
-      {copropriétaire.notes_internes && (
+      {(copropriétaire as unknown as { notes_internes?: string }).notes_internes && (
         <div className="coplio-card border-l-4 border-l-amber-400">
           <div className="flex items-center gap-2 mb-2">
             <StickyNote className="w-4 h-4 text-amber-500" />
             <h2 className="font-semibold text-coplio-text text-sm">Notes internes</h2>
             <span className="text-xs text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">Visible syndic uniquement</span>
           </div>
-          <p className="text-sm text-coplio-text whitespace-pre-line">{copropriétaire.notes_internes}</p>
+          <p className="text-sm text-coplio-text whitespace-pre-line">{(copropriétaire as unknown as { notes_internes?: string }).notes_internes}</p>
         </div>
       )}
 

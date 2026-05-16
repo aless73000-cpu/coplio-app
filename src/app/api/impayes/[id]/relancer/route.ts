@@ -70,7 +70,7 @@ export async function POST(
       .single()
 
     // Déterminer le niveau de relance
-    const niveau = Math.min(appel.nb_relances + 1, 3) as 1 | 2 | 3
+    const niveau = Math.min((appel.nb_relances ?? 0) + 1, 3) as 1 | 2 | 3
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
 
@@ -78,7 +78,7 @@ export async function POST(
       {
         prenom: ownerProfile.prenom ?? '',
         nom: ownerProfile.nom ?? '',
-        montant: formatEuro(appel.montant - appel.montant_paye),
+        montant: formatEuro(appel.montant - (appel.montant_paye ?? 0)),
         dateEcheance: formatDate(appel.date_echeance),
         cabinetNom: cabinet?.nom ?? 'Votre syndic',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -99,7 +99,7 @@ export async function POST(
     await admin
       .from('appels_charges')
       .update({
-        nb_relances: appel.nb_relances + 1,
+        nb_relances: (appel.nb_relances ?? 0) + 1,
         derniere_relance_at: new Date().toISOString(),
       })
       .eq('id', params.id)

@@ -72,8 +72,8 @@ async function signalerProbleme(formData: FormData) {
     description,
     status: urgence ? 'urgence' : 'signale',
     reference,
-    copropriete_id: coproprieteId ?? null,
-    cabinet_id: profile.cabinet_id ?? null,
+    copropriete_id: coproprieteId!,
+    cabinet_id: profile.cabinet_id!,
     lots_concernes: [profile.lot_id],
     date_sinistre: now.toISOString().split('T')[0],
   })
@@ -298,7 +298,7 @@ export default async function MesTravaux({
             <h2 className="font-semibold text-coplio-text text-sm uppercase tracking-wide">Mes sinistres en cours</h2>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            {enCours.map((sinistre: Sinistre & { copropriete?: { nom: string } }) => (
+            {enCours.map((sinistre) => (
               <TravauxCard key={sinistre.id} sinistre={sinistre} />
             ))}
           </div>
@@ -313,7 +313,7 @@ export default async function MesTravaux({
             <h2 className="font-semibold text-muted-foreground text-sm uppercase tracking-wide">Clôturés</h2>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            {clotures.map((sinistre: Sinistre & { copropriete?: { nom: string } }) => (
+            {clotures.map((sinistre) => (
               <TravauxCard key={sinistre.id} sinistre={sinistre} />
             ))}
           </div>
@@ -323,7 +323,8 @@ export default async function MesTravaux({
   )
 }
 
-function TravauxCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom: string } } }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function TravauxCard({ sinistre }: { sinistre: any }) {
   const stepIndex = STEP_ORDER.indexOf(sinistre.status as Sinistre['status'])
   const progress = Math.round(((stepIndex + 1) / STEP_ORDER.length) * 100)
   const isClosed = sinistre.status === 'cloture'

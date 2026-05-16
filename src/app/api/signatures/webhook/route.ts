@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   const admin = createAdminClient()
   const { error } = await admin
     .from('signatures')
-    .update({ statut: newStatus, updated_at: new Date().toISOString() })
+    .update({ statut: newStatus })
     .eq('yousign_request_id', yousignId)
 
   if (error) {

@@ -12,14 +12,12 @@ async function getCabinetId() {
 
 const schema = z.object({
   nom: z.string().min(1).max(255).optional(),
-  metier: z.string().max(100).optional(),
+  categorie: z.string().max(100).optional(),
   telephone: z.string().max(30).optional(),
   email: z.string().email().optional().or(z.literal('')),
   adresse: z.string().optional(),
   siret: z.string().max(20).optional(),
-  note: z.number().int().min(1).max(5).optional(),
-  commentaire: z.string().optional(),
-  actif: z.boolean().optional(),
+  notes: z.string().optional(),
 })
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -34,7 +32,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('prestataires')
-    .update({ ...parsed.data, updated_at: new Date().toISOString() })
+    .update(parsed.data)
     .eq('id', id)
     .eq('cabinet_id', cabinetId)
     .select()
@@ -52,7 +50,7 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
   const admin = createAdminClient()
   const { error } = await admin
     .from('prestataires')
-    .update({ actif: false })
+    .delete()
     .eq('id', id)
     .eq('cabinet_id', cabinetId)
 

@@ -32,7 +32,7 @@ export default async function AssembléePage({ params }: { params: { id: string 
   if (!ag) notFound()
 
   const date = new Date(ag.date_ag)
-  const { label: statusLabel, cls: statusCls } = STATUS_CONFIG[ag.status] ?? STATUS_CONFIG.planifiee
+  const { label: statusLabel, cls: statusCls } = STATUS_CONFIG[ag.status ?? 'planifiee'] ?? STATUS_CONFIG.planifiee
   const resolutions = (ag.resolutions ?? []).sort((a: { ordre: number }, b: { ordre: number }) => a.ordre - b.ordre)
 
   // PV document
@@ -47,7 +47,7 @@ export default async function AssembléePage({ params }: { params: { id: string 
     if (pvDoc) {
       pvNom = pvDoc.nom
       const { data: signed } = await supabase.storage
-        .from(pvDoc.storage_bucket)
+        .from(pvDoc.storage_bucket ?? 'documents')
         .createSignedUrl(pvDoc.storage_path, 3600)
       pvUrl = signed?.signedUrl ?? null
     }
@@ -81,15 +81,15 @@ export default async function AssembléePage({ params }: { params: { id: string 
           <ExportAGButton
             titre={ag.titre ?? 'Assemblée générale'}
             dateAg={ag.date_ag}
-            lieu={ag.lieu}
-            coproprieteNom={ag.copropriete?.nom}
-            statut={ag.status}
-            resolutions={resolutions}
+            lieu={ag.lieu ?? undefined}
+            coproprieteNom={ag.copropriete?.nom ?? undefined}
+            statut={ag.status ?? ''}
+            resolutions={resolutions as unknown as Parameters<typeof ExportAGButton>[0]['resolutions']}
           />
           {ag.status !== 'terminee' && ag.status !== 'annulee' && (
             <ConvocationButton
               agId={ag.id}
-              status={ag.status}
+              status={ag.status ?? ''}
               convocationsEnvoyeesAt={ag.convocations_envoyees_at}
             />
           )}
@@ -102,7 +102,7 @@ export default async function AssembléePage({ params }: { params: { id: string 
           {/* Résolutions */}
           <AgResolutionsManager
             agId={ag.id}
-            initialResolutions={resolutions}
+            initialResolutions={resolutions as unknown as Parameters<typeof AgResolutionsManager>[0]['initialResolutions']}
             canEdit={canEdit}
           />
         </div>
@@ -150,7 +150,7 @@ export default async function AssembléePage({ params }: { params: { id: string 
                 </dd>
               </div>
 
-              {ag.tantiemes_presents > 0 && (
+              {(ag.tantiemes_presents ?? 0) > 0 && (
                 <div>
                   <dt className="text-muted-foreground text-xs mb-0.5">Tantièmes représentés</dt>
                   <dd className="font-medium text-coplio-text flex items-center gap-1.5">

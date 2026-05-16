@@ -15,7 +15,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
   const { data, error } = await supabase
     .from('sinistres')
-    .update(update)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .update(update as any)
     .eq('id', params.id)
     .select()
     .single()

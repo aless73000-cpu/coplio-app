@@ -29,7 +29,7 @@ export async function GET() {
   const scores = (copros ?? []).map(c => {
     const cAppels = (appels.data ?? []).filter(a => a.copropriete_id === c.id)
     const totalDu = cAppels.reduce((s, a) => s + a.montant, 0)
-    const totalPaye = cAppels.reduce((s, a) => s + a.montant_paye, 0)
+    const totalPaye = cAppels.reduce((s, a) => s + (a.montant_paye ?? 0), 0)
     const tauxImpaye = totalDu > 0 ? ((totalDu - totalPaye) / totalDu) * 100 : 0
     const sinistresOuverts = (sinistres.data ?? []).filter(s => s.copropriete_id === c.id && s.status !== 'cloture').length
 
@@ -55,9 +55,9 @@ export async function GET() {
 
   const dataResume = JSON.stringify({
     coproprietes: (copros ?? []).map(c => ({ nom: c.nom, nb_lots: c.nb_lots, statut: c.statut, montant_impayes: c.montant_impayes })),
-    totalImpayes: (appels.data ?? []).filter(a => !a.paye).reduce((s, a) => s + (a.montant - a.montant_paye), 0),
+    totalImpayes: (appels.data ?? []).filter(a => !a.paye).reduce((s, a) => s + (a.montant - (a.montant_paye ?? 0)), 0),
     sinistresParStatut: (sinistres.data ?? []).reduce((acc, s) => {
-      acc[s.status] = (acc[s.status] || 0) + 1
+      acc[s.status ?? 'unknown'] = (acc[s.status ?? 'unknown'] || 0) + 1
       return acc
     }, {} as Record<string, number>),
     scores: scores.slice(0, 5),

@@ -41,7 +41,7 @@ export default async function DashboardPage() {
     .eq('cabinet_id', cabinetId)
     .order('created_at', { ascending: false })
 
-  const coproprieteIds = (coproprietes ?? []).map((c: Copropriete) => c.id)
+  const coproprieteIds = (coproprietes ?? []).map((c) => c.id)
 
   // Alertes intelligentes — AG sans tenue depuis >12 mois
   const oneYearAgo = new Date()
@@ -97,7 +97,7 @@ export default async function DashboardPage() {
           .from('assemblees_generales')
           .select('copropriete_id, date_ag')
           .eq('cabinet_id', cabinetId)
-          .eq('status', 'cloturee')
+          .eq('status', 'terminee')
           .gte('date_ag', oneYearAgo.toISOString())
       : Promise.resolve({ data: [] }),
     // Lots occupés (avec coproprietaire_id non null)
@@ -113,7 +113,7 @@ export default async function DashboardPage() {
   const allAppels = (impayes ?? []) as { copropriete_id: string; montant: number; montant_paye: number; paye: boolean; date_echeance?: string }[]
 
   // Onboarding checklist
-  const nbLots = (coproprietes ?? []).reduce((s: number, c: Copropriete) => s + c.nb_lots, 0)
+  const nbLots = (coproprietes ?? []).reduce((s: number, c) => s + (c.nb_lots ?? 0), 0)
   const { count: nbCoproprietaires } = coproprieteIds.length > 0
     ? await supabase.from('coproprietaires').select('id', { count: 'exact', head: true }).in('copropriete_id', coproprieteIds)
     : { count: 0 }
@@ -150,7 +150,7 @@ export default async function DashboardPage() {
 
   const kpis = {
     nb_coproprietes: coproprietes?.length ?? 0,
-    nb_lots: (coproprietes ?? []).reduce((s: number, c: Copropriete) => s + c.nb_lots, 0),
+    nb_lots: (coproprietes ?? []).reduce((s: number, c) => s + (c.nb_lots ?? 0), 0),
     nb_sinistres_ouverts: sinistres?.length ?? 0,
     montant_total_impayes: allAppels
       .filter((a) => !a.paye)
@@ -161,7 +161,7 @@ export default async function DashboardPage() {
   }
 
   const coproprietesCritiques = (coproprietes ?? [])
-    .filter((c: Copropriete) => c.statut !== 'a_jour')
+    .filter((c) => c.statut !== 'a_jour')
     .slice(0, 5)
 
   // ─── Alertes intelligentes ─────────────────────────────────
@@ -170,7 +170,7 @@ export default async function DashboardPage() {
 
   // Copropriétés sans AG depuis 12 mois
   const agRecentesCoproIds = new Set((agRecentes ?? []).map((a: { copropriete_id: string }) => a.copropriete_id))
-  const coprosSansAg = (coproprietes ?? []).filter((c: Copropriete) => !agRecentesCoproIds.has(c.id))
+  const coprosSansAg = (coproprietes ?? []).filter((c) => !agRecentesCoproIds.has(c.id))
   if (coprosSansAg.length > 0) {
     smartAlerts.push({
       id: 'ag-overdue',
@@ -211,7 +211,7 @@ export default async function DashboardPage() {
   // Taux de recouvrement par copropriété (top 6)
   const tauxData = (coproprietes ?? [])
     .slice(0, 6)
-    .map((c: Copropriete) => {
+    .map((c) => {
       const appels = allAppels.filter((a) => a.copropriete_id === c.id)
       const totalDu = appels.reduce((s, a) => s + a.montant, 0)
       const totalPaye = appels.reduce((s, a) => s + a.montant_paye, 0)
@@ -219,15 +219,15 @@ export default async function DashboardPage() {
       return {
         nom: c.nom.length > 14 ? c.nom.substring(0, 12) + '…' : c.nom,
         taux,
-        impayes: c.montant_impayes,
+        impayes: c.montant_impayes ?? 0,
       }
     })
 
   // Répartition statuts
   const statutData = {
-    aJour:    (coproprietes ?? []).filter((c: Copropriete) => c.statut === 'a_jour').length,
-    attention:(coproprietes ?? []).filter((c: Copropriete) => c.statut === 'attention').length,
-    urgent:   (coproprietes ?? []).filter((c: Copropriete) => c.statut === 'urgent').length,
+    aJour:    (coproprietes ?? []).filter((c) => c.statut === 'a_jour').length,
+    attention:(coproprietes ?? []).filter((c) => c.statut === 'attention').length,
+    urgent:   (coproprietes ?? []).filter((c) => c.statut === 'urgent').length,
   }
 
   // Taux global de recouvrement
@@ -441,7 +441,7 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-2">
-                {coproprietesCritiques.map((c: Copropriete) => (
+                {coproprietesCritiques.map((c) => (
                   <CoproprieteAlertRow key={c.id} copropriete={c} />
                 ))}
               </div>
@@ -466,7 +466,7 @@ export default async function DashboardPage() {
               </p>
             ) : (
               <div className="space-y-2">
-                {sinistres.map((s: Sinistre & { copropriete?: { nom: string } }) => (
+                {sinistres.map((s) => (
                   <SinistreRow key={s.id} sinistre={s} />
                 ))}
               </div>
@@ -491,7 +491,7 @@ export default async function DashboardPage() {
               </p>
             ) : (
               <div className="space-y-3">
-                {agProchaines.map((ag: AssembleeGenerale & { copropriete?: { nom: string } }) => (
+                {agProchaines.map((ag) => (
                   <AgRow key={ag.id} ag={ag} />
                 ))}
               </div>
@@ -617,7 +617,8 @@ function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }: KpiCa
   )
 }
 
-function CoproprieteAlertRow({ copropriete }: { copropriete: Copropriete }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function CoproprieteAlertRow({ copropriete }: { copropriete: any }) {
   return (
     <Link
       href={`/coproprietes/${copropriete.id}`}
@@ -649,7 +650,8 @@ function CoproprieteAlertRow({ copropriete }: { copropriete: Copropriete }) {
   )
 }
 
-function SinistreRow({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom: string } } }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function SinistreRow({ sinistre }: { sinistre: any }) {
   const statusColors: Record<string, string> = {
     signale: 'badge-attention',
     urgence: 'badge-urgent',
@@ -684,7 +686,8 @@ function SinistreRow({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom:
   )
 }
 
-function AgRow({ ag }: { ag: AssembleeGenerale & { copropriete?: { nom: string } } }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function AgRow({ ag }: { ag: any }) {
   const date = new Date(ag.date_ag)
   const jours = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
 

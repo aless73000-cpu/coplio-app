@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     supabase.from('assemblees_generales').select('titre, date_ag, status, copropriete:coproprietes(nom)').eq('cabinet_id', cabinetId).gte('date_ag', new Date().toISOString()).limit(5),
   ])
 
-  const totalImpayes = (impayes.data ?? []).reduce((s, a) => s + (a.montant - a.montant_paye), 0)
+  const totalImpayes = (impayes.data ?? []).reduce((s, a) => s + (a.montant - (a.montant_paye ?? 0)), 0)
 
   let coproprieteCtx = ''
   if (copropriete_id) {

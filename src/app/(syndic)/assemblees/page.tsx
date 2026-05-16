@@ -31,7 +31,7 @@ export default async function AssembleesPage() {
     .order('date_ag', { ascending: false })
 
   const aVenir = (ags ?? []).filter((ag) =>
-    ['planifiee', 'convocations_envoyees'].includes(ag.status) &&
+    ['planifiee', 'convocations_envoyees'].includes(ag.status ?? '') &&
     new Date(ag.date_ag) >= new Date()
   )
 
@@ -63,7 +63,7 @@ export default async function AssembleesPage() {
         <div>
           <h2 className="font-semibold text-coplio-text mb-3">À venir</h2>
           <div className="space-y-3">
-            {aVenir.map((ag: AssembleeGenerale & { copropriete?: { nom: string } }) => (
+            {aVenir.map((ag) => (
               <AgCard key={ag.id} ag={ag} />
             ))}
           </div>
@@ -75,7 +75,7 @@ export default async function AssembleesPage() {
         <div>
           <h2 className="font-semibold text-coplio-text mb-3">Historique</h2>
           <div className="space-y-3">
-            {passees.slice(0, 10).map((ag: AssembleeGenerale & { copropriete?: { nom: string } }) => (
+            {passees.slice(0, 10).map((ag) => (
               <AgCard key={ag.id} ag={ag} />
             ))}
           </div>
@@ -104,12 +104,13 @@ export default async function AssembleesPage() {
 }
 
 function AgCard({ ag }: {
-  ag: AssembleeGenerale & { copropriete?: { nom: string } }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ag: any
 }) {
   const date = new Date(ag.date_ag)
   const isUpcoming = date >= new Date() && ag.status !== 'annulee'
   const daysUntil = getDaysUntil(ag.date_ag)
-  const { label: statusLabel, cls: statusCls } = STATUS_CONFIG[ag.status] ?? STATUS_CONFIG.planifiee
+  const { label: statusLabel, cls: statusCls } = STATUS_CONFIG[ag.status as string] ?? STATUS_CONFIG.planifiee
 
   return (
     <Link

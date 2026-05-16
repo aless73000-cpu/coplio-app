@@ -55,7 +55,7 @@ export async function POST(request: Request) {
           await supabase
             .from('cabinets')
             .update({
-              plan,
+              plan: plan as 'trial' | 'starter' | 'pro' | 'expert',
               subscription_status: 'active',
               stripe_subscription_id: session.subscription as string,
               max_gestionnaires: limits.max_gestionnaires,
@@ -78,8 +78,8 @@ export async function POST(request: Request) {
           await supabase
             .from('cabinets')
             .update({
-              plan,
-              subscription_status: sub.status as string,
+              plan: plan as 'trial' | 'starter' | 'pro' | 'expert',
+              subscription_status: sub.status as 'active' | 'trialing' | 'past_due' | 'canceled' | 'incomplete',
               stripe_subscription_id: sub.id,
               current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
               max_gestionnaires: limits.max_gestionnaires,

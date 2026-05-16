@@ -62,7 +62,7 @@ export default async function AppelsChargesPage({
       (a) => !a.paye && new Date(a.date_echeance) < new Date()
     ).length,
     montantDu: (appels ?? []).reduce(
-      (s, a) => (!a.paye ? s + (a.montant - a.montant_paye) : s),
+      (s, a) => (!a.paye ? s + (a.montant - (a.montant_paye ?? 0)) : s),
       0
     ),
   }

@@ -52,12 +52,12 @@ export default async function MesSignaturesPage() {
     : { data: [] }
 
   // Générer les signed URLs pour chaque document
-  type DocWithUrl = { id: string; nom: string; categorie: string; created_at: string; signedUrl: string | null }
+  type DocWithUrl = { id: string; nom: string; categorie: string | null; created_at: string | null; signedUrl: string | null }
   const docsWithUrls: DocWithUrl[] = await Promise.all(
     (documents ?? []).map(async (doc) => {
       try {
         const { data } = await supabase.storage
-          .from(doc.storage_bucket)
+          .from(doc.storage_bucket ?? 'documents')
           .createSignedUrl(doc.storage_path, 3600)
         return { ...doc, signedUrl: data?.signedUrl ?? null }
       } catch {
@@ -106,9 +106,9 @@ export default async function MesSignaturesPage() {
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-coplio-text">{doc.nom}</p>
                   <div className="flex items-center gap-3 mt-0.5">
-                    <span className="text-xs text-muted-foreground capitalize">{doc.categorie.replace('_', ' ')}</span>
+                    <span className="text-xs text-muted-foreground capitalize">{(doc.categorie ?? '').replace('_', ' ')}</span>
                     <span className="text-xs text-muted-foreground">·</span>
-                    <span className="text-xs text-muted-foreground">{formatDate(doc.created_at)}</span>
+                    <span className="text-xs text-muted-foreground">{formatDate(doc.created_at ?? '')}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
@@ -162,7 +162,7 @@ export default async function MesSignaturesPage() {
                       ? 'bg-coplio-green-light text-coplio-green'
                       : 'bg-gray-100 text-gray-500'
                   }`}>
-                    {AG_STATUS_LABELS[ag.status] ?? ag.status}
+                    {AG_STATUS_LABELS[ag.status ?? ''] ?? ag.status}
                   </span>
                   {ag.pv_document_id && (
                     <Link
@@ -196,7 +196,7 @@ export default async function MesSignaturesPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-coplio-text">{doc.nom}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{formatDate(doc.created_at)}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{formatDate(doc.created_at ?? '')}</p>
                 </div>
                 {doc.signedUrl && (
                   <a

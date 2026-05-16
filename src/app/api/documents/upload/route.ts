@@ -53,7 +53,7 @@ export async function POST(request: Request) {
         copropriete_id: coproprieteId || null,
         nom,
         description,
-        categorie,
+        categorie: categorie as 'pv_ag' | 'budget' | 'contrat' | 'sinistre' | 'appel_fonds' | 'reglement' | 'autre',
         taille_bytes: file.size,
         type_mime: file.type || null,
         storage_path: path,

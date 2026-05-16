@@ -48,7 +48,7 @@ export default async function SinistrePage({ params }: { params: { id: string } 
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-coplio-text">{sinistre.titre}</h1>
-            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${statusColors[sinistre.status] ?? ''}`}>
+            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${statusColors[sinistre.status ?? ''] ?? ''}`}>
               {SINISTRE_STATUS_LABELS[sinistre.status as keyof typeof SINISTRE_STATUS_LABELS] ?? sinistre.status}
             </span>
           </div>
@@ -141,7 +141,7 @@ export default async function SinistrePage({ params }: { params: { id: string } 
               </div>
               <div>
                 <dt className="text-muted-foreground text-xs">Date de déclaration</dt>
-                <dd className="font-medium text-coplio-text mt-0.5">{formatDate(sinistre.created_at)}</dd>
+                <dd className="font-medium text-coplio-text mt-0.5">{formatDate(sinistre.created_at ?? '')}</dd>
               </div>
               {sinistre.declarant && (
                 <div>

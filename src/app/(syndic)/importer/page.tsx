@@ -84,7 +84,7 @@ export default function ImporterPage() {
   useEffect(() => {
     const supabase = createClient()
     supabase.from('coproprietes').select('id, nom, ville').order('nom').then(({ data }) => {
-      if (data) setCoproprietes(data)
+      if (data) setCoproprietes(data as unknown as Parameters<typeof setCoproprietes>[0])
     })
   }, [])
 

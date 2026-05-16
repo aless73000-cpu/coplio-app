@@ -48,7 +48,7 @@ export default async function AdminDashboardPage() {
 
   const mrr = all
     .filter(c => c.subscription_status === 'active')
-    .reduce((sum, c) => sum + (PLAN_PRICES[c.plan] ?? 0), 0)
+    .reduce((sum, c) => sum + (PLAN_PRICES[c.plan ?? 'trial'] ?? 0), 0)
 
   const byPlan = ['trial', 'starter', 'pro', 'expert'].map(plan => ({
     plan,
@@ -141,7 +141,7 @@ export default async function AdminDashboardPage() {
               <p className="text-sm text-muted-foreground text-center py-4">Aucun client</p>
             )}
             {recents.map(c => {
-              const status = STATUS_LABELS[c.subscription_status] ?? STATUS_LABELS.incomplete
+              const status = STATUS_LABELS[c.subscription_status ?? 'incomplete'] ?? STATUS_LABELS.incomplete
               return (
                 <Link key={c.id} href={`/admin/clients/${c.id}`} className="flex items-center justify-between p-2 rounded-lg hover:bg-coplio-bg transition-colors">
                   <div>
