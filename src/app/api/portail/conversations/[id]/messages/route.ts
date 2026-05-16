@@ -4,6 +4,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { notifySyndics } from '@/lib/notify'
 
 async function getContext() {
   const supabase = await createClient()
@@ -88,15 +89,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     .update({ derniere_activite: new Date().toISOString() })
     .eq('id', id)
 
-  // Notifier le syndic
-  fetch(`${process.env.NEXT_PUBLIC_APP_URL ?? ''}/api/portail/notify-syndic`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      conversation_id: id,
-      message_preview: parsed.data.contenu.slice(0, 80),
-    }),
-  }).catch(() => {})
+  // Notifier le syndic (appel direct, pas de HTTP server-to-server)
+  notifySyndics({
+    conversationId: id,
+    messagePreview: parsed.data.contenu.slice(0, 80),
+  })
 
   return NextResponse.json(message, { status: 201 })
 }

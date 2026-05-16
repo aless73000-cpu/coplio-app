@@ -1,6 +1,7 @@
-import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { notifySyndics } from '@/lib/notify'
 
 const schema = z.object({
   conversation_id: z.string().uuid(),
@@ -18,37 +19,11 @@ export async function POST(req: Request) {
     const parsed = schema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
-    const admin = createAdminClient()
-
-    // Récupérer le cabinet de la conversation
-    const { data: conv } = await admin
-      .from('conversations')
-      .select('cabinet_id, sujet')
-      .eq('id', parsed.data.conversation_id)
-      .single()
-
-    if (!conv?.cabinet_id) return NextResponse.json({ ok: true })
-
-    // Notifier tous les syndics du cabinet
-    const { data: syndics } = await admin
-      .from('profiles')
-      .select('id')
-      .eq('cabinet_id', conv.cabinet_id)
-      .neq('role', 'owner_resident')
-
-    if (!syndics?.length) return NextResponse.json({ ok: true })
-
-    await admin.from('notifications').insert(
-      syndics.map((s: { id: string }) => ({
-        user_id: s.id,
-        cabinet_id: conv.cabinet_id,
-        type: 'info',
-        titre: `Nouveau message${parsed.data.expediteur_nom ? ` de ${parsed.data.expediteur_nom}` : ''}`,
-        message: parsed.data.message_preview ?? null,
-        lien: '/messages',
-        lu: false,
-      }))
-    )
+    await notifySyndics({
+      conversationId: parsed.data.conversation_id,
+      messagePreview: parsed.data.message_preview,
+      expediteurNom: parsed.data.expediteur_nom,
+    })
 
     return NextResponse.json({ ok: true })
   } catch {
