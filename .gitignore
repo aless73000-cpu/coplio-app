@@ -6,6 +6,9 @@
 
 # testing
 /coverage
+/playwright-report
+/test-results
+/e2e/.auth
 
 # next.js
 /.next/
@@ -42,3 +45,4 @@ supabase/.temp/
 autopush.log
 autopush.test.tmp
 .env*.local
+.env.test.local
