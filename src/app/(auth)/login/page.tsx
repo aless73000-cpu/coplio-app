@@ -21,12 +21,12 @@ export default function LoginPage({
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
 
         <div className="relative z-10">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 w-fit">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
               <Home className="w-6 h-6 text-coplio-green" />
             </div>
             <span className="text-white font-bold text-2xl tracking-tight">Coplio</span>
-          </div>
+          </Link>
         </div>
 
         <div className="relative z-10">
@@ -81,12 +81,12 @@ export default function LoginPage({
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           {/* Logo mobile uniquement */}
-          <div className="lg:hidden flex items-center gap-2 mb-8">
+          <Link href="/" className="lg:hidden flex items-center gap-2 mb-8 w-fit">
             <div className="w-8 h-8 bg-coplio-green rounded-lg flex items-center justify-center">
               <Home className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-xl text-coplio-green">Coplio</span>
-          </div>
+          </Link>
 
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-coplio-text">Bon retour 👋</h1>

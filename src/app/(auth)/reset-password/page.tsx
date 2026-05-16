@@ -87,12 +87,12 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-coplio-bg px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="flex items-center gap-2 mb-8">
+        <Link href="/" className="flex items-center gap-2 mb-8 w-fit">
           <div className="w-8 h-8 bg-coplio-green rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">C</span>
           </div>
           <span className="text-coplio-text font-bold text-xl">Coplio</span>
-        </div>
+        </Link>
 
         {done ? (
           <div className="coplio-card text-center py-10">

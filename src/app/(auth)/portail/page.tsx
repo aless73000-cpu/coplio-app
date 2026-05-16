@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { LoginForm } from '@/components/auth/LoginForm'
-import { Home, FileText, CreditCard, Wrench, MessageCircle } from 'lucide-react'
+import { Home, FileText, CreditCard, Wrench, MessageCircle, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -23,6 +23,12 @@ export default function PortailLoginPage({
     <div className="min-h-screen bg-coplio-bg flex flex-col items-center justify-center px-5 py-10">
       {/* Card principale */}
       <div className="w-full max-w-sm">
+        <Link href="/" className="flex items-center gap-2 mb-6 w-fit">
+          <div className="w-8 h-8 bg-coplio-green rounded-lg flex items-center justify-center">
+            <Home className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-bold text-lg text-coplio-green">Coplio</span>
+        </Link>
 
         {/* Header vert */}
         <div className="bg-coplio-green rounded-2xl px-6 pt-8 pb-6 mb-4 text-white text-center relative overflow-hidden">
