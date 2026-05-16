@@ -1,15 +1,16 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Send, Loader2, MessageSquare, Users, ShieldCheck, ChevronLeft } from 'lucide-react'
+import { Send, Loader2, MessageSquare, Users, ShieldCheck, ChevronLeft, Plus, Search, X } from 'lucide-react'
 import { formatDateTime } from '@/lib/utils'
 
 interface Conversation {
   id: string
-  sujet?: string
+  sujet?: string | null
   derniere_activite: string
-  coproprietaire?: { prenom: string; nom: string }
+  coproprietaire_id?: string | null
+  coproprietaire?: { id: string; prenom: string; nom: string } | null
 }
 
 interface Message {
@@ -17,7 +18,7 @@ interface Message {
   contenu: string
   expediteur_id: string
   created_at: string
-  expediteur?: { prenom?: string; nom?: string; role?: string }
+  expediteur?: { prenom?: string | null; nom?: string | null; role?: string | null } | null
 }
 
 interface AdminMessage {
@@ -28,23 +29,129 @@ interface AdminMessage {
   created_at: string
 }
 
+interface Coproprietaire {
+  id: string
+  prenom: string
+  nom: string
+  email?: string | null
+}
+
 interface Props {
   userId: string
   cabinetId: string
   currentEmail: string
-  initialConversations: Conversation[]
 }
 
-export function SyndicMessages({ userId, cabinetId, currentEmail, initialConversations }: Props) {
+// Modal pour choisir un copropriétaire et démarrer une conversation
+function NewMessageModal({ onClose, onCreated }: { onClose: () => void; onCreated: (conv: Conversation) => void }) {
+  const [search, setSearch] = useState('')
+  const [copros, setCopros] = useState<Coproprietaire[]>([])
+  const [loading, setLoading] = useState(true)
+  const [creating, setCreating] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch('/api/coproprietaires')
+      .then(r => r.json())
+      .then(data => { setCopros(Array.isArray(data) ? data : []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const filtered = copros.filter(c =>
+    `${c.prenom} ${c.nom}`.toLowerCase().includes(search.toLowerCase()) ||
+    (c.email ?? '').toLowerCase().includes(search.toLowerCase())
+  )
+
+  async function handleSelect(copro: Coproprietaire) {
+    setCreating(copro.id)
+    const res = await fetch('/api/conversations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ coproprietaire_id: copro.id }),
+    })
+    if (res.ok) {
+      const conv = await res.json()
+      onCreated(conv)
+    }
+    setCreating(null)
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl w-full max-w-md shadow-xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-5 border-b border-border">
+          <h2 className="font-semibold text-coplio-text">Nouveau message</h2>
+          <button onClick={onClose} className="p-1 hover:bg-coplio-bg rounded-lg transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-4">
+          <div className="relative mb-3">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              autoFocus
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Rechercher un copropriétaire…"
+              className="w-full pl-9 pr-4 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-coplio-green"
+            />
+          </div>
+
+          <div className="max-h-72 overflow-y-auto space-y-1">
+            {loading ? (
+              <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
+            ) : filtered.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                {search ? 'Aucun résultat' : 'Aucun copropriétaire'}
+              </p>
+            ) : filtered.map(c => (
+              <button
+                key={c.id}
+                onClick={() => handleSelect(c)}
+                disabled={creating === c.id}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-coplio-bg transition-colors text-left disabled:opacity-60"
+              >
+                <div className="w-9 h-9 bg-coplio-green/10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold text-coplio-green">
+                  {c.prenom[0]}{c.nom[0]}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-coplio-text">{c.prenom} {c.nom}</p>
+                  {c.email && <p className="text-xs text-muted-foreground truncate">{c.email}</p>}
+                </div>
+                {creating === c.id && <Loader2 className="w-4 h-4 animate-spin text-coplio-green" />}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
   const [tab, setTab] = useState<'copro' | 'admin'>('copro')
-  const [conversations] = useState<Conversation[]>(initialConversations)
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [loadingConvs, setLoadingConvs] = useState(true)
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [adminMessages, setAdminMessages] = useState<AdminMessage[]>([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [loadingMessages, setLoadingMessages] = useState(false)
+  const [showNewModal, setShowNewModal] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  // Charger les conversations
+  const loadConversations = useCallback(async () => {
+    const res = await fetch('/api/conversations')
+    if (res.ok) {
+      const data = await res.json()
+      setConversations(Array.isArray(data) ? data : [])
+    }
+    setLoadingConvs(false)
+  }, [])
+
+  useEffect(() => { loadConversations() }, [loadConversations])
 
   // Charger messages admin
   useEffect(() => {
@@ -54,56 +161,54 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
       .then(data => setAdminMessages(Array.isArray(data) ? data : []))
   }, [tab])
 
-  // Temps réel pour les messages admin (messages entrants de l'admin)
+  // Temps réel messages admin
   useEffect(() => {
     const supabase = createClient()
     const channel = supabase
       .channel('admin-support-live')
       .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'admin_support_messages',
+        event: 'INSERT', schema: 'public', table: 'admin_support_messages',
         filter: `cabinet_id=eq.${cabinetId}`,
       }, (payload) => {
         const msg = payload.new as AdminMessage
-        if (msg.sender_type === 'admin') {
-          setAdminMessages(prev => [...prev, msg])
-        }
+        if (msg.sender_type === 'admin') setAdminMessages(prev => [...prev, msg])
       })
       .subscribe()
     return () => { supabase.removeChannel(channel) }
   }, [cabinetId])
 
-  // Charger messages d'une conversation copropriétaire
+  // Charger messages d'une conversation via API
+  const loadMessages = useCallback(async (convId: string) => {
+    setLoadingMessages(true)
+    const res = await fetch(`/api/conversations/${convId}/messages`)
+    if (res.ok) {
+      const data = await res.json()
+      setMessages(Array.isArray(data) ? data : [])
+    }
+    setLoadingMessages(false)
+  }, [])
+
   useEffect(() => {
     if (!selectedConv) return
-    setLoadingMessages(true)
-    const supabase = createClient()
-    supabase
-      .from('messages')
-      .select('*, expediteur:profiles(prenom, nom, role)')
-      .eq('conversation_id', selectedConv.id)
-      .order('created_at', { ascending: true })
-      .then(({ data }) => {
-        setMessages((data ?? []) as Message[])
-        setLoadingMessages(false)
-      })
-  }, [selectedConv])
+    loadMessages(selectedConv.id)
+  }, [selectedConv, loadMessages])
 
-  // Temps réel pour conversation copropriétaire
+  // Temps réel pour messages copropriétaire
   useEffect(() => {
     if (!selectedConv) return
     const supabase = createClient()
     const channel = supabase
-      .channel(`syndic-messages:${selectedConv.id}`)
+      .channel(`msgs:${selectedConv.id}`)
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'messages',
         filter: `conversation_id=eq.${selectedConv.id}`,
       }, async (payload) => {
         if (payload.new.expediteur_id === userId) return
         const { data: exp } = await supabase.from('profiles').select('prenom, nom, role').eq('id', payload.new.expediteur_id).single()
-        const expediteur = exp ? { prenom: exp.prenom ?? undefined, nom: exp.nom ?? undefined, role: exp.role ?? undefined } : undefined
-        setMessages(prev => [...prev, { ...(payload.new as unknown as Message), expediteur }])
+        setMessages(prev => [...prev, {
+          ...(payload.new as unknown as Message),
+          expediteur: exp ? { prenom: exp.prenom, nom: exp.nom, role: exp.role } : undefined,
+        }])
       })
       .subscribe()
     return () => { supabase.removeChannel(channel) }
@@ -118,21 +223,29 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
     if (!contenu || sending || !selectedConv) return
     setSending(true)
     setInput('')
+
+    // Optimistic update
     const optimisticId = `opt-${Date.now()}`
     setMessages(prev => [...prev, { id: optimisticId, contenu, expediteur_id: userId, created_at: new Date().toISOString() }])
-    const supabase = createClient()
-    const { data: sent } = await supabase.from('messages')
-      .insert({ conversation_id: selectedConv.id, expediteur_id: userId, contenu, lu: false })
-      .select('id, created_at').single()
-    if (sent) {
-      setMessages(prev => prev.map(m => m.id === optimisticId ? { ...m, id: sent.id, created_at: sent.created_at ?? new Date().toISOString() } : m) as Message[])
-      await supabase.from('conversations').update({ derniere_activite: new Date().toISOString() }).eq('id', selectedConv.id)
-      // Notifier le copropriétaire
-      fetch('/api/portail/notify-coproprietaire', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversation_id: selectedConv.id, message_preview: contenu }),
-      }).catch(() => {})
+
+    const res = await fetch(`/api/conversations/${selectedConv.id}/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contenu }),
+    })
+
+    if (res.ok) {
+      const sent = await res.json()
+      setMessages(prev => prev.map(m => m.id === optimisticId ? { ...m, id: sent.id, created_at: sent.created_at } : m))
+      // Mettre à jour derniere_activite dans la liste
+      setConversations(prev => prev.map(c => c.id === selectedConv.id
+        ? { ...c, derniere_activite: new Date().toISOString() }
+        : c
+      ).sort((a, b) => new Date(b.derniere_activite).getTime() - new Date(a.derniere_activite).getTime()))
+    } else {
+      // Rollback si échec
+      setMessages(prev => prev.filter(m => m.id !== optimisticId))
+      setInput(contenu)
     }
     setSending(false)
   }
@@ -150,6 +263,8 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
     if (res.ok) {
       const msg = await res.json()
       setAdminMessages(prev => [...prev, msg])
+    } else {
+      setInput(contenu)
     }
     setSending(false)
   }
@@ -160,19 +275,38 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
     else sendCoproMessage()
   }
 
+  function handleNewConversation(conv: Conversation) {
+    setShowNewModal(false)
+    setTab('copro')
+    // Ajouter ou mettre à jour la conversation dans la liste
+    setConversations(prev => {
+      const exists = prev.find(c => c.id === conv.id)
+      if (exists) return prev
+      return [conv, ...prev]
+    })
+    setSelectedConv(conv)
+  }
+
   const showChat = tab === 'admin' || selectedConv !== null
 
   return (
     <div className="h-full flex flex-col">
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold text-coplio-text">Messages</h1>
-        <p className="text-muted-foreground text-sm mt-0.5">Échangez avec vos copropriétaires et l'administration</p>
+      <div className="mb-5 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-coplio-text">Messages</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">Échangez avec vos copropriétaires</p>
+        </div>
+        <button
+          onClick={() => setShowNewModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-coplio-green text-white text-sm font-medium rounded-xl hover:bg-coplio-green/90 transition-colors"
+        >
+          <Plus className="w-4 h-4" /> Nouveau message
+        </button>
       </div>
 
       <div className="flex-1 flex gap-5 min-h-0">
         {/* Colonne gauche */}
         <div className="w-72 flex-shrink-0 flex flex-col gap-3">
-          {/* Onglets */}
           <div className="flex gap-2">
             <button onClick={() => { setTab('copro'); setSelectedConv(null) }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors ${tab === 'copro' ? 'bg-coplio-green text-white' : 'bg-white text-coplio-text border border-border hover:bg-coplio-bg'}`}>
@@ -184,26 +318,43 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
             </button>
           </div>
 
-          {/* Liste conversations */}
           {tab === 'copro' && (
             <div className="coplio-card p-0 flex-1 overflow-y-auto">
-              {conversations.length === 0 ? (
+              {loadingConvs ? (
+                <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
+              ) : conversations.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-32 text-center px-4">
                   <MessageSquare className="w-8 h-8 text-muted-foreground mb-2" />
                   <p className="text-sm text-muted-foreground">Aucune conversation</p>
+                  <button onClick={() => setShowNewModal(true)}
+                    className="mt-2 text-xs text-coplio-green hover:underline">
+                    Démarrer un échange →
+                  </button>
                 </div>
-              ) : (
-                conversations.map(conv => {
-                  const name = conv.coproprietaire ? `${conv.coproprietaire.prenom} ${conv.coproprietaire.nom}` : conv.sujet ?? 'Conversation'
-                  return (
-                    <button key={conv.id} onClick={() => setSelectedConv(conv)}
-                      className={`w-full text-left px-4 py-3 border-b border-border last:border-0 hover:bg-coplio-bg transition-colors ${selectedConv?.id === conv.id ? 'bg-coplio-green/5 border-l-2 border-l-coplio-green' : ''}`}>
-                      <p className="text-sm font-medium text-coplio-text truncate">{name}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{new Date(conv.derniere_activite).toLocaleDateString('fr-FR')}</p>
-                    </button>
-                  )
-                })
-              )}
+              ) : conversations.map(conv => {
+                const name = conv.coproprietaire
+                  ? `${conv.coproprietaire.prenom} ${conv.coproprietaire.nom}`
+                  : conv.sujet ?? 'Conversation'
+                const initials = conv.coproprietaire
+                  ? `${conv.coproprietaire.prenom[0]}${conv.coproprietaire.nom[0]}`
+                  : '?'
+                return (
+                  <button key={conv.id} onClick={() => setSelectedConv(conv)}
+                    className={`w-full text-left px-4 py-3 border-b border-border last:border-0 hover:bg-coplio-bg transition-colors ${selectedConv?.id === conv.id ? 'bg-coplio-green/5 border-l-2 border-l-coplio-green' : ''}`}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-coplio-green/10 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-semibold text-coplio-green">
+                        {initials}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-coplio-text truncate">{name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {new Date(conv.derniere_activite).toLocaleDateString('fr-FR')}
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           )}
 
@@ -213,7 +364,7 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
                 <ShieldCheck className="w-6 h-6 text-coplio-green" />
               </div>
               <p className="text-sm font-medium text-coplio-text">Support Coplio</p>
-              <p className="text-xs text-muted-foreground mt-1">Échangez directement avec l'équipe admin</p>
+              <p className="text-xs text-muted-foreground mt-1">Échangez avec l&apos;équipe admin</p>
             </div>
           )}
         </div>
@@ -226,23 +377,36 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
                 <MessageSquare className="w-8 h-8 text-coplio-green" />
               </div>
               <p className="font-semibold text-coplio-text mb-1">Sélectionnez une conversation</p>
-              <p className="text-sm text-muted-foreground">Choisissez un copropriétaire dans la liste pour voir les messages</p>
+              <p className="text-sm text-muted-foreground mb-4">ou démarrez un nouvel échange</p>
+              <button onClick={() => setShowNewModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-coplio-green text-white text-sm font-medium rounded-xl hover:bg-coplio-green/90 transition-colors">
+                <Plus className="w-4 h-4" /> Nouveau message
+              </button>
             </div>
           ) : (
             <>
-              {/* Header chat */}
+              {/* Header */}
               <div className="flex items-center gap-3 px-5 py-4 border-b border-border flex-shrink-0">
                 {selectedConv && (
                   <button onClick={() => setSelectedConv(null)} className="text-muted-foreground hover:text-coplio-text transition-colors mr-1">
                     <ChevronLeft className="w-5 h-5" />
                   </button>
                 )}
-                <div className="w-9 h-9 bg-coplio-green/10 rounded-full flex items-center justify-center">
-                  {tab === 'admin' ? <ShieldCheck className="w-5 h-5 text-coplio-green" /> : <Users className="w-5 h-5 text-coplio-green" />}
+                <div className="w-9 h-9 bg-coplio-green/10 rounded-full flex items-center justify-center text-sm font-semibold text-coplio-green flex-shrink-0">
+                  {tab === 'admin'
+                    ? <ShieldCheck className="w-5 h-5" />
+                    : selectedConv?.coproprietaire
+                      ? `${selectedConv.coproprietaire.prenom[0]}${selectedConv.coproprietaire.nom[0]}`
+                      : <Users className="w-5 h-5" />
+                  }
                 </div>
                 <div>
                   <p className="font-semibold text-coplio-text text-sm">
-                    {tab === 'admin' ? 'Support Coplio Admin' : (selectedConv?.coproprietaire ? `${selectedConv.coproprietaire.prenom} ${selectedConv.coproprietaire.nom}` : selectedConv?.sujet ?? 'Conversation')}
+                    {tab === 'admin'
+                      ? 'Support Coplio Admin'
+                      : selectedConv?.coproprietaire
+                        ? `${selectedConv.coproprietaire.prenom} ${selectedConv.coproprietaire.nom}`
+                        : selectedConv?.sujet ?? 'Conversation'}
                   </p>
                   <p className="text-xs text-muted-foreground">{tab === 'admin' ? 'Équipe administration' : 'Copropriétaire'}</p>
                 </div>
@@ -256,13 +420,13 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
                   adminMessages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center">
                       <MessageSquare className="w-10 h-10 text-muted-foreground mb-3" />
-                      <p className="text-sm text-muted-foreground">Aucun message — démarrez la conversation avec l'admin</p>
+                      <p className="text-sm text-muted-foreground">Aucun message — démarrez la conversation avec l&apos;admin</p>
                     </div>
                   ) : adminMessages.map(msg => {
                     const isMe = msg.sender_type === 'client'
                     return (
                       <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[60%] rounded-2xl px-4 py-3 ${isMe ? 'bg-coplio-green text-white rounded-br-sm' : 'bg-coplio-bg border border-border text-coplio-text rounded-bl-sm'}`}>
+                        <div className={`max-w-[65%] rounded-2xl px-4 py-3 ${isMe ? 'bg-coplio-green text-white rounded-br-sm' : 'bg-coplio-bg border border-border text-coplio-text rounded-bl-sm'}`}>
                           {!isMe && <p className="text-xs font-semibold text-coplio-green mb-1">Coplio Admin</p>}
                           <p className="text-sm">{msg.contenu}</p>
                           <p className={`text-[10px] mt-1.5 ${isMe ? 'text-white/60' : 'text-muted-foreground'}`}>{formatDateTime(msg.created_at)}</p>
@@ -274,15 +438,19 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
                   messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center">
                       <MessageSquare className="w-10 h-10 text-muted-foreground mb-3" />
-                      <p className="text-sm text-muted-foreground">Aucun message dans cette conversation</p>
+                      <p className="text-sm text-muted-foreground">Aucun message — envoyez le premier !</p>
                     </div>
                   ) : messages.map(msg => {
                     const isMe = msg.expediteur_id === userId
                     return (
                       <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[60%] rounded-2xl px-4 py-3 ${isMe ? 'bg-coplio-green text-white rounded-br-sm' : 'bg-coplio-bg border border-border text-coplio-text rounded-bl-sm'}`}>
-                          {!isMe && <p className="text-xs font-semibold text-coplio-green mb-1">{msg.expediteur?.prenom} {msg.expediteur?.nom}</p>}
-                          <p className="text-sm">{msg.contenu}</p>
+                        <div className={`max-w-[65%] rounded-2xl px-4 py-3 ${isMe ? 'bg-coplio-green text-white rounded-br-sm' : 'bg-coplio-bg border border-border text-coplio-text rounded-bl-sm'}`}>
+                          {!isMe && msg.expediteur && (
+                            <p className="text-xs font-semibold text-coplio-green mb-1">
+                              {msg.expediteur.prenom} {msg.expediteur.nom}
+                            </p>
+                          )}
+                          <p className="text-sm whitespace-pre-wrap">{msg.contenu}</p>
                           <p className={`text-[10px] mt-1.5 ${isMe ? 'text-white/60' : 'text-muted-foreground'}`}>{formatDateTime(msg.created_at)}</p>
                         </div>
                       </div>
@@ -297,7 +465,8 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
                 <input
                   value={input}
                   onChange={e => setInput(e.target.value)}
-                  placeholder="Écrire un message..."
+                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(e) } }}
+                  placeholder="Écrire un message…"
                   className="flex-1 px-4 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green"
                 />
                 <button type="submit" disabled={sending || !input.trim()}
@@ -310,6 +479,13 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
           )}
         </div>
       </div>
+
+      {showNewModal && (
+        <NewMessageModal
+          onClose={() => setShowNewModal(false)}
+          onCreated={handleNewConversation}
+        />
+      )}
     </div>
   )
 }

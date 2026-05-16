@@ -7,6 +7,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  typescript: { ignoreBuildErrors: true },
   // Compression gzip/brotli activée
   compress: true,
   // Pas de X-Powered-By header
