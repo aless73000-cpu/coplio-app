@@ -118,7 +118,7 @@ CREATE INDEX IF NOT EXISTS idx_travaux_cabinet_id          ON travaux(cabinet_id
 CREATE INDEX IF NOT EXISTS idx_travaux_statut              ON travaux(statut);
 
 -- travaux_etapes
-CREATE INDEX IF NOT EXISTS idx_travaux_etapes_travaux_id   ON travaux_etapes(travaux_id);
+CREATE INDEX IF NOT EXISTS idx_travaux_etapes_travail_id   ON travaux_etapes(travail_id);
 
 -- budgets / budget_lignes
 CREATE INDEX IF NOT EXISTS idx_budgets_copropriete_id      ON budgets(copropriete_id);
