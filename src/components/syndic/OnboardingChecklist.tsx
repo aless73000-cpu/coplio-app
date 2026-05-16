@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, X } from 'lucide-react'
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, X, Sparkles } from 'lucide-react'
 
 interface Step {
   id: string
@@ -16,20 +16,50 @@ interface Props {
   steps: Step[]
 }
 
+const STORAGE_KEY = 'coplio_onboarding_dismissed'
+const STORAGE_COLLAPSED = 'coplio_onboarding_collapsed'
+
 export function OnboardingChecklist({ steps }: Props) {
-  const [collapsed, setCollapsed] = useState(false)
+  // Initialise depuis localStorage (côté client uniquement)
   const [dismissed, setDismissed] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    setDismissed(localStorage.getItem(STORAGE_KEY) === '1')
+    setCollapsed(localStorage.getItem(STORAGE_COLLAPSED) === '1')
+  }, [])
 
   const doneCount = steps.filter((s) => s.done).length
   const allDone = doneCount === steps.length
   const progress = Math.round((doneCount / steps.length) * 100)
 
+  function handleDismiss() {
+    localStorage.setItem(STORAGE_KEY, '1')
+    setDismissed(true)
+  }
+
+  function handleCollapse() {
+    const next = !collapsed
+    localStorage.setItem(STORAGE_COLLAPSED, next ? '1' : '0')
+    setCollapsed(next)
+  }
+
+  // Évite le flash SSR/CSR
+  if (!mounted) return null
   if (dismissed || allDone) return null
+
+  // Prochain step à faire (pour highlight)
+  const nextStepId = steps.find((s) => !s.done)?.id
 
   return (
     <div className="coplio-card border-coplio-green/30 bg-gradient-to-br from-white to-coplio-green-light/30 mb-0">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3 flex-1">
+          <div className="w-8 h-8 bg-coplio-green/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Sparkles className="w-4 h-4 text-coplio-green" />
+          </div>
           <div>
             <div className="flex items-center gap-2">
               <h2 className="font-semibold text-coplio-text text-sm">Démarrez avec Coplio</h2>
@@ -48,17 +78,19 @@ export function OnboardingChecklist({ steps }: Props) {
             </div>
           </div>
         </div>
+
         <div className="flex items-center gap-1">
           <button
-            onClick={() => setCollapsed((c) => !c)}
+            onClick={handleCollapse}
             className="p-1.5 rounded-lg hover:bg-coplio-bg transition-colors text-muted-foreground"
+            title={collapsed ? 'Développer' : 'Réduire'}
           >
             {collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
           </button>
           <button
-            onClick={() => setDismissed(true)}
+            onClick={handleDismiss}
             className="p-1.5 rounded-lg hover:bg-coplio-bg transition-colors text-muted-foreground"
-            title="Masquer"
+            title="Masquer définitivement"
           >
             <X className="w-4 h-4" />
           </button>
@@ -67,34 +99,50 @@ export function OnboardingChecklist({ steps }: Props) {
 
       {!collapsed && (
         <div className="space-y-1.5">
-          {steps.map((step) => (
-            <div
-              key={step.id}
-              className={`flex items-start gap-3 p-2.5 rounded-lg transition-colors ${
-                step.done ? 'opacity-60' : 'hover:bg-white/60'
-              }`}
-            >
-              {step.done ? (
-                <CheckCircle2 className="w-5 h-5 text-coplio-green flex-shrink-0 mt-0.5" />
-              ) : (
-                <Circle className="w-5 h-5 text-border flex-shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm font-medium ${step.done ? 'line-through text-muted-foreground' : 'text-coplio-text'}`}>
-                  {step.label}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">{step.description}</p>
+          {steps.map((step) => {
+            const isNext = step.id === nextStepId
+            return (
+              <div
+                key={step.id}
+                className={`flex items-start gap-3 p-2.5 rounded-lg transition-colors ${
+                  step.done
+                    ? 'opacity-50'
+                    : isNext
+                    ? 'bg-white border border-coplio-green/20 shadow-sm'
+                    : 'hover:bg-white/60'
+                }`}
+              >
+                {step.done ? (
+                  <CheckCircle2 className="w-5 h-5 text-coplio-green flex-shrink-0 mt-0.5" />
+                ) : (
+                  <Circle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isNext ? 'text-coplio-green' : 'text-border'}`} />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-medium ${step.done ? 'line-through text-muted-foreground' : 'text-coplio-text'}`}>
+                    {step.label}
+                    {isNext && (
+                      <span className="ml-2 text-[10px] font-semibold text-coplio-green bg-coplio-green-light px-1.5 py-0.5 rounded-full">
+                        À faire
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{step.description}</p>
+                </div>
+                {!step.done && (
+                  <Link
+                    href={step.href}
+                    className={`text-xs font-semibold flex-shrink-0 mt-0.5 transition-colors ${
+                      isNext
+                        ? 'text-white bg-coplio-green px-2.5 py-1 rounded-lg hover:bg-coplio-green/90'
+                        : 'text-coplio-green hover:text-coplio-green/80'
+                    }`}
+                  >
+                    {isNext ? 'Commencer →' : 'Faire →'}
+                  </Link>
+                )}
               </div>
-              {!step.done && (
-                <Link
-                  href={step.href}
-                  className="text-xs font-medium text-coplio-green hover:text-coplio-green/80 flex-shrink-0 mt-0.5"
-                >
-                  Faire →
-                </Link>
-              )}
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

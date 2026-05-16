@@ -299,40 +299,58 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
         {/* Étape 3 — Succès */}
         {currentStep === 3 && (
           <div className="text-center py-2">
-            <div className="w-16 h-16 bg-coplio-green-light rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-coplio-green" />
+            {/* Badge succès animé */}
+            <div className="relative w-20 h-20 mx-auto mb-5">
+              <div className="absolute inset-0 bg-coplio-green/20 rounded-full animate-ping opacity-50" />
+              <div className="relative w-20 h-20 bg-coplio-green-light rounded-full flex items-center justify-center">
+                <Check className="w-9 h-9 text-coplio-green" />
+              </div>
             </div>
-            <h2 className="text-xl font-bold text-coplio-text mb-1">Votre cabinet est prêt ! 🎉</h2>
-            <p className="text-muted-foreground text-sm mb-6">
-              Essai gratuit de <strong>14 jours</strong> démarré. Aucune carte bancaire requise.
+
+            <h2 className="text-2xl font-bold text-coplio-text mb-2">Votre cabinet est prêt ! 🎉</h2>
+            <p className="text-muted-foreground text-sm mb-1">
+              Essai gratuit de <strong className="text-coplio-text">14 jours</strong> démarré.
+            </p>
+            <p className="text-xs text-muted-foreground mb-8">
+              Aucune carte bancaire requise · Annulation en 1 clic
             </p>
 
-            {/* Étapes suggérées */}
-            <div className="grid grid-cols-1 gap-2 mb-6 text-left">
+            {/* CTA principal */}
+            <a
+              href="/coproprietes/new"
+              className="flex items-center justify-center gap-2 w-full bg-coplio-green text-white
+                         font-semibold py-3 px-4 rounded-xl hover:bg-coplio-green/90 transition-colors
+                         text-sm mb-3"
+            >
+              <Building2 className="w-4 h-4" />
+              Créer ma première copropriété
+              <ChevronRight className="w-4 h-4" />
+            </a>
+
+            {/* Sous-actions */}
+            <div className="grid grid-cols-2 gap-2 mb-6">
               {[
-                { emoji: '🏢', label: 'Ajoutez votre première copropriété', href: '/coproprietes/new' },
-                { emoji: '👥', label: 'Invitez vos copropriétaires', href: '/coproprietaires' },
-                { emoji: '📄', label: 'Importez vos documents', href: '/documents/upload' },
+                { emoji: '👥', label: 'Inviter des copropriétaires', href: '/coproprietaires/new' },
+                { emoji: '📄', label: 'Importer des données', href: '/coproprietaires/import' },
               ].map(({ emoji, label, href }) => (
                 <a
                   key={href}
                   href={href}
-                  className="flex items-center gap-3 text-sm text-coplio-text bg-coplio-green-light
-                             p-3 rounded-lg hover:bg-coplio-green/10 transition-colors cursor-pointer"
+                  className="flex items-center gap-2 text-xs text-coplio-text bg-coplio-bg
+                             p-2.5 rounded-lg hover:bg-border transition-colors"
                 >
-                  <span className="text-lg">{emoji}</span>
-                  <span className="flex-1">{label}</span>
-                  <ChevronRight className="w-4 h-4 text-coplio-green" />
+                  <span>{emoji}</span>
+                  <span>{label}</span>
                 </a>
               ))}
             </div>
 
+            {/* Lien secondaire */}
             <button
               onClick={goToDashboard}
-              className="w-full bg-coplio-green text-white font-medium py-2.5 px-4 rounded-lg
-                         hover:bg-coplio-green/90 transition-colors text-sm"
+              className="text-sm text-muted-foreground hover:text-coplio-text transition-colors underline-offset-2 hover:underline"
             >
-              Voir mon tableau de bord →
+              Aller au tableau de bord d&apos;abord →
             </button>
           </div>
         )}

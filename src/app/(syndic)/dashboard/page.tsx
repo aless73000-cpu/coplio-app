@@ -17,6 +17,7 @@ import { formatEuro, formatDate } from '@/lib/utils'
 import { RecouvrementChartLazy as RecouvrementChart, StatutChartLazy as StatutChart, EvolutionChartLazy as EvolutionChart, TauxGlobalCardLazy as TauxGlobalCard } from '@/components/syndic/DashboardChartsLazy'
 import { OnboardingChecklist } from '@/components/syndic/OnboardingChecklist'
 import { RapportMensuelButton } from '@/components/syndic/RapportMensuelButton'
+import { TrialBanner } from '@/components/syndic/TrialBanner'
 import type { Copropriete, Sinistre, AssembleeGenerale } from '@/types'
 
 export default async function DashboardPage() {
@@ -287,8 +288,45 @@ export default async function DashboardPage() {
         }} />
       </div>
 
+      {/* Trial banner */}
+      <TrialBanner
+        trialEndsAt={(profile.cabinet as { trial_ends_at?: string | null } | null)?.trial_ends_at ?? null}
+        plan={(profile.cabinet as { plan?: string | null } | null)?.plan ?? null}
+      />
+
       {/* Onboarding checklist */}
       <OnboardingChecklist steps={onboardingSteps} />
+
+      {/* Empty state — aucune copropriété */}
+      {kpis.nb_coproprietes === 0 && (
+        <div className="coplio-card text-center py-16 border-dashed">
+          <div className="w-16 h-16 bg-coplio-green-light rounded-2xl flex items-center justify-center mx-auto mb-5">
+            <Building2 className="w-8 h-8 text-coplio-green" />
+          </div>
+          <h2 className="text-xl font-bold text-coplio-text mb-2">
+            Ajoutez votre première copropriété
+          </h2>
+          <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-8 leading-relaxed">
+            Votre tableau de bord s&apos;animera une fois votre première copropriété créée.
+            Cela prend moins de 2 minutes.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href="/coproprietes/new"
+              className="inline-flex items-center gap-2 bg-coplio-green text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-coplio-green/90 transition-colors"
+            >
+              <Building2 className="w-4 h-4" />
+              Créer une copropriété
+            </Link>
+            <Link
+              href="/coproprietaires/import"
+              className="inline-flex items-center gap-2 bg-coplio-bg text-coplio-text px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-border transition-colors"
+            >
+              Importer depuis un fichier
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* KPIs — ligne 1 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
