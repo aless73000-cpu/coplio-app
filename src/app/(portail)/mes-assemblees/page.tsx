@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Calendar, MapPin, Video, Clock, CheckCircle2, XCircle, MinusCircle, ThumbsUp, ThumbsDown, Minus, FileText, Lock } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
@@ -33,12 +33,22 @@ async function voterResolution(formData: FormData) {
 
   if (!profile?.lot_id) return
 
+  // Résoudre coproprietaires.id depuis profile_id
+  const admin = createAdminClient()
+  const { data: copro } = await admin
+    .from('coproprietaires')
+    .select('id')
+    .eq('profile_id', user.id)
+    .single()
+
+  if (!copro) return
+
   const tantiemes = (profile.lot as { tantiemes?: number } | null)?.tantiemes ?? 0
 
   // Upsert : si déjà voté, on met à jour
-  await supabase.from('ag_votes').upsert({
+  await admin.from('ag_votes').upsert({
     resolution_id: resolutionId,
-    coproprietaire_id: user.id,
+    coproprietaire_id: copro.id,
     lot_id: profile.lot_id,
     valeur,
     tantiemes,
@@ -46,7 +56,7 @@ async function voterResolution(formData: FormData) {
   }, { onConflict: 'resolution_id,coproprietaire_id' })
 
   // Recalculer les compteurs sur ag_resolutions à partir de tous les votes
-  const { data: tousVotes } = await supabase
+  const { data: tousVotes } = await admin
     .from('ag_votes')
     .select('valeur, tantiemes')
     .eq('resolution_id', resolutionId)
@@ -67,7 +77,7 @@ async function voterResolution(formData: FormData) {
     { voix_pour: 0, voix_contre: 0, voix_abstention: 0, tantiemes_pour: 0, tantiemes_contre: 0 }
   )
 
-  await supabase
+  await admin
     .from('ag_resolutions')
     .update(compteurs)
     .eq('id', resolutionId)
@@ -87,6 +97,12 @@ export default async function MesAssemblees() {
     .single()
 
   const coproprieteId = (profile?.lot as { copropriete_id?: string } | null)?.copropriete_id
+
+  // Résoudre coproprietaires.id pour les votes
+  const admin = createAdminClient()
+  const { data: copro } = profile?.lot_id
+    ? await admin.from('coproprietaires').select('id').eq('profile_id', user.id).single()
+    : { data: null }
 
   if (!coproprieteId) {
     return (
@@ -115,11 +131,11 @@ export default async function MesAssemblees() {
     : { data: [] }
 
   const resolutionIds = (resolutions ?? []).map((r) => r.id)
-  const { data: mesVotes } = resolutionIds.length > 0
-    ? await supabase.from('ag_votes')
+  const { data: mesVotes } = resolutionIds.length > 0 && copro
+    ? await admin.from('ag_votes')
         .select('*')
         .in('resolution_id', resolutionIds)
-        .eq('coproprietaire_id', user.id)
+        .eq('coproprietaire_id', copro.id)
     : { data: [] }
 
   const votesByResolution = Object.fromEntries(
