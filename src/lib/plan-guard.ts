@@ -35,7 +35,7 @@ export async function checkQuota(
   // Trial expiré → bloquer
   if (cabinet.subscription_status === 'trialing' && cabinet.trial_ends_at) {
     if (new Date(cabinet.trial_ends_at) < new Date()) {
-      return { allowed: false, current: 0, max: 0, plan: cabinet.plan, upgradeRequired: true }
+      return { allowed: false, current: 0, max: 0, plan: cabinet.plan ?? 'unknown', upgradeRequired: true }
     }
   }
 
@@ -62,7 +62,7 @@ export async function checkQuota(
     const current = count ?? 0
     const allowed = current + adding <= max
 
-    return { allowed, current, max, plan: cabinet.plan, upgradeRequired: !allowed }
+    return { allowed, current, max, plan: cabinet.plan ?? 'unknown', upgradeRequired: !allowed }
   }
 
   if (resource === 'gestionnaires') {
@@ -77,10 +77,10 @@ export async function checkQuota(
     const current = count ?? 0
     const allowed = current + adding <= max
 
-    return { allowed, current, max, plan: cabinet.plan, upgradeRequired: !allowed }
+    return { allowed, current, max, plan: cabinet.plan ?? 'unknown', upgradeRequired: !allowed }
   }
 
-  return { allowed: true, current: 0, max: 999, plan: cabinet.plan, upgradeRequired: false }
+  return { allowed: true, current: 0, max: 999, plan: cabinet.plan ?? 'unknown', upgradeRequired: false }
 }
 
 /** Réponse 403 standard avec détails pour le frontend */

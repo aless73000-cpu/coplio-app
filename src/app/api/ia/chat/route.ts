@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { rateLimit } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -9,6 +10,15 @@ export async function POST(request: Request) {
 
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'Clé API IA non configurée' }, { status: 503 })
+
+  // Rate limiting : max 50 messages/heure par utilisateur (contrôle des coûts Anthropic)
+  const rl = rateLimit(`ia-chat:${user.id}`, { max: 50, windowMs: 60 * 60 * 1000 })
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Limite atteinte (50 messages/heure). Réessayez plus tard.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } }
+    )
+  }
 
   const { messages, copropriete_id } = await request.json()
   if (!messages || !Array.isArray(messages)) return NextResponse.json({ error: 'Messages requis' }, { status: 400 })
@@ -29,7 +39,7 @@ export async function POST(request: Request) {
     supabase.from('assemblees_generales').select('titre, date_ag, status, copropriete:coproprietes(nom)').eq('cabinet_id', cabinetId).gte('date_ag', new Date().toISOString()).limit(5),
   ])
 
-  const totalImpayes = (impayes.data ?? []).reduce((s, a) => s + (a.montant - a.montant_paye), 0)
+  const totalImpayes = (impayes.data ?? []).reduce((s, a) => s + (a.montant - (a.montant_paye ?? 0)), 0)
 
   let coproprieteCtx = ''
   if (copropriete_id) {

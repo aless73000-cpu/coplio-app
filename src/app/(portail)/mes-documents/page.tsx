@@ -29,10 +29,10 @@ export default async function MesDocuments() {
     .order('created_at', { ascending: false })
 
   const docsWithUrls = await Promise.all(
-    (documents ?? []).map(async (doc: Document) => {
+    (documents ?? []).map(async (doc) => {
       try {
         const { data } = await supabase.storage
-          .from(doc.storage_bucket)
+          .from(doc.storage_bucket ?? 'documents')
           .createSignedUrl(doc.storage_path, 3600)
         return { ...doc, signed_url: data?.signedUrl ?? null }
       } catch {
@@ -41,7 +41,8 @@ export default async function MesDocuments() {
     })
   )
 
-  const byCategorie = docsWithUrls.reduce<Record<string, (Document & { signed_url: string | null })[]>>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const byCategorie = docsWithUrls.reduce<Record<string, any[]>>(
     (acc, doc) => {
       const cat = doc.categorie || 'autre'
       if (!acc[cat]) acc[cat] = []

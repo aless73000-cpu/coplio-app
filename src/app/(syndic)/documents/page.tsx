@@ -45,7 +45,7 @@ export default async function DocumentsPage({
         .order('created_at', { ascending: false })
 
       if (searchParams.categorie && searchParams.categorie !== 'all') {
-        q = q.eq('categorie', searchParams.categorie)
+        q = q.eq('categorie', searchParams.categorie as 'pv_ag' | 'budget' | 'contrat' | 'sinistre' | 'appel_fonds' | 'reglement' | 'autre')
       }
       if (searchParams.copropriete) {
         q = q.eq('copropriete_id', searchParams.copropriete)
@@ -60,7 +60,8 @@ export default async function DocumentsPage({
   ])
 
   // Grouper par catégorie
-  const byCategorie = (documents ?? []).reduce<Record<string, Document[]>>((acc, doc) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const byCategorie = (documents ?? []).reduce<Record<string, any[]>>((acc, doc) => {
     const cat = doc.categorie || 'autre'
     if (!acc[cat]) acc[cat] = []
     acc[cat].push(doc)

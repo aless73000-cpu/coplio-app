@@ -14,5 +14,5 @@ export default async function NotificationsPage() {
     .order('created_at', { ascending: false })
     .limit(50)
 
-  return <NotificationsClient userId={user.id} initialNotifications={notifications ?? []} />
+  return <NotificationsClient userId={user.id} initialNotifications={(notifications ?? []) as unknown as Parameters<typeof NotificationsClient>[0]['initialNotifications']} />
 }

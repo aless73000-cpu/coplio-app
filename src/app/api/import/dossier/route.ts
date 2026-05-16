@@ -117,7 +117,7 @@ export async function POST(request: Request) {
         const { data: copro, error: coproError } = await admin
           .from('coproprietaires')
           .insert({
-            cabinet_id: profile.cabinet_id,
+            cabinet_id: profile.cabinet_id!,
             prenom: prenom || '—',
             nom: nom || '—',
             ...(email ? { email } : {}),

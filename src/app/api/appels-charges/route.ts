@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { Email } from '@/lib/email'
 
+// Augmentation du timeout Vercel pour l'envoi d'emails en batch (100 lots = ~20s)
 export const maxDuration = 60
 
 const appelSchema = z.object({

@@ -40,7 +40,7 @@ export async function PATCH(
 
     const { error } = await admin
       .from('assemblees_generales')
-      .update({ status })
+      .update({ status: status as 'planifiee' | 'convocations_envoyees' | 'en_cours' | 'terminee' | 'annulee' })
       .eq('id', params.id)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })

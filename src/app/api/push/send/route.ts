@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     profiles.map(async (p) => {
       try {
         await webpush.sendNotification(
-          p.push_subscription as webpush.PushSubscription,
+          p.push_subscription as unknown as webpush.PushSubscription,
           notifPayload
         )
         sent++

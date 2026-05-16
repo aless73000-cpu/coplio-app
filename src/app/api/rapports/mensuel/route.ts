@@ -135,7 +135,7 @@ export async function GET(request: Request) {
     autoTable(doc, {
       startY: y,
       head: [['Copropriété', 'Lots', 'Impayés']],
-      body: (coproprietes ?? []).map((c) => [c.nom, c.nb_lots, formatEuro(c.montant_impayes)]),
+      body: (coproprietes ?? []).map((c) => [c.nom, c.nb_lots, formatEuro(c.montant_impayes ?? 0)]),
       theme: 'striped',
       headStyles: { fillColor: [34, 197, 94], textColor: 255, fontStyle: 'bold', fontSize: 10 },
       bodyStyles: { fontSize: 9 },

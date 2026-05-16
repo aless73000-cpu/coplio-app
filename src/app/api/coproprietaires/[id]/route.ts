@@ -59,7 +59,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     if (notes_internes !== undefined) {
       await admin
         .from('coproprietaires')
-        .update({ notes_internes: notes_internes || null } as Record<string, unknown>)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .update({ notes_internes: notes_internes || null } as any)
         .eq('id', params.id)
         .then(() => { /* ignore error if column missing */ })
     }

@@ -107,7 +107,7 @@ export default async function FacturationPage({
                 </p>
               )}
               <p className="text-sm text-muted-foreground mt-1">
-                {cabinet.max_gestionnaires} gestionnaire{cabinet.max_gestionnaires > 1 ? 's' : ''} ·{' '}
+                {cabinet.max_gestionnaires ?? 0} gestionnaire{(cabinet.max_gestionnaires ?? 0) > 1 ? 's' : ''} ·{' '}
                 {cabinet.max_lots === 999 ? 'Lots illimités' : `${cabinet.max_lots} lots max`}
               </p>
             </div>

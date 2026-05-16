@@ -102,7 +102,8 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
       }, async (payload) => {
         if (payload.new.expediteur_id === userId) return
         const { data: exp } = await supabase.from('profiles').select('prenom, nom, role').eq('id', payload.new.expediteur_id).single()
-        setMessages(prev => [...prev, { ...(payload.new as Message), expediteur: exp ?? undefined }])
+        const expediteur = exp ? { prenom: exp.prenom ?? undefined, nom: exp.nom ?? undefined, role: exp.role ?? undefined } : undefined
+        setMessages(prev => [...prev, { ...(payload.new as unknown as Message), expediteur }])
       })
       .subscribe()
     return () => { supabase.removeChannel(channel) }
@@ -124,7 +125,7 @@ export function SyndicMessages({ userId, cabinetId, currentEmail, initialConvers
       .insert({ conversation_id: selectedConv.id, expediteur_id: userId, contenu, lu: false })
       .select('id, created_at').single()
     if (sent) {
-      setMessages(prev => prev.map(m => m.id === optimisticId ? { ...m, id: sent.id, created_at: sent.created_at } : m))
+      setMessages(prev => prev.map(m => m.id === optimisticId ? { ...m, id: sent.id, created_at: sent.created_at ?? new Date().toISOString() } : m) as Message[])
       await supabase.from('conversations').update({ derniere_activite: new Date().toISOString() }).eq('id', selectedConv.id)
       // Notifier le copropriétaire
       fetch('/api/portail/notify-coproprietaire', {

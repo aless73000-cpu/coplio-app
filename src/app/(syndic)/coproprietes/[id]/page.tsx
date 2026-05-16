@@ -90,10 +90,10 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
 
   // Stats de recouvrement
   const totalCharges = (appels ?? []).reduce((s, a) => s + a.montant, 0)
-  const totalRecouvre = (appels ?? []).reduce((s, a) => s + a.montant_paye, 0)
+  const totalRecouvre = (appels ?? []).reduce((s, a) => s + (a.montant_paye ?? 0), 0)
   const tauxRecouvrement = totalCharges > 0 ? Math.round((totalRecouvre / totalCharges) * 100) : 100
   const totalImpayes = (appels ?? []).filter(a => !a.paye && new Date(a.date_echeance) < new Date())
-  const montantImpayes = totalImpayes.reduce((s, a) => s + (a.montant - a.montant_paye), 0)
+  const montantImpayes = totalImpayes.reduce((s, a) => s + (a.montant - (a.montant_paye ?? 0)), 0)
   const prochainAG = (ags ?? []).find(ag => new Date(ag.date_ag) > new Date())
 
   const statusConfig = {
@@ -227,7 +227,7 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    {lots.slice(0, 8).map((lot: Lot) => (
+                    {lots.slice(0, 8).map((lot) => (
                       <tr key={lot.id} className="border-b border-border hover:bg-coplio-bg transition-colors">
                         <td className="py-2.5">
                           <Link href={`/lots/${lot.id}`} className="font-medium text-coplio-green hover:underline">
@@ -238,8 +238,8 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
                         <td className="py-2.5 text-muted-foreground capitalize">{lot.type}</td>
                         <td className="py-2.5 text-muted-foreground">{lot.surface ? `${lot.surface} m²` : '—'}</td>
                         <td className="py-2.5 text-right">{lot.tantiemes}</td>
-                        <td className={`py-2.5 text-right font-medium ${lot.solde_compte < 0 ? 'text-coplio-red' : 'text-coplio-text'}`}>
-                          {formatEuro(lot.solde_compte)}
+                        <td className={`py-2.5 text-right font-medium ${(lot.solde_compte ?? 0) < 0 ? 'text-coplio-red' : 'text-coplio-text'}`}>
+                          {formatEuro(lot.solde_compte ?? 0)}
                         </td>
                       </tr>
                     ))}
@@ -260,7 +260,7 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
           >
             {sinistres && sinistres.length > 0 ? (
               <div className="space-y-2">
-                {sinistres.map((s: Sinistre) => (
+                {sinistres.map((s) => (
                   <Link
                     key={s.id}
                     href={`/sinistres/${s.id}`}
@@ -433,7 +433,7 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
             </div>
             {documents && documents.length > 0 ? (
               <div className="space-y-2">
-                {documents.slice(0, 4).map((doc: Document) => (
+                {documents.slice(0, 4).map((doc) => (
                   <div key={doc.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-coplio-bg transition-colors">
                     <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <span className="text-sm text-coplio-text truncate flex-1">{doc.nom}</span>

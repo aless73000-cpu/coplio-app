@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     if (parsed.data.type === 'interne') {
       const { data, error } = await admin
         .from('admin_internal_messages')
-        .insert({ sender_email: user.email, contenu: parsed.data.contenu })
+        .insert({ sender_email: user.email ?? '', contenu: parsed.data.contenu })
         .select().single()
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
       return NextResponse.json(data)
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
       .insert({
         cabinet_id: parsed.data.cabinet_id,
         sender_type: 'admin',
-        sender_email: user.email,
+        sender_email: user.email ?? '',
         contenu: parsed.data.contenu,
       })
       .select().single()

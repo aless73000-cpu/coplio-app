@@ -41,7 +41,7 @@ export default async function MessagesPage() {
         userId={user.id}
         cabinetId={profile.cabinet_id}
         currentEmail={user.email!}
-        initialConversations={convs}
+        initialConversations={convs as unknown as Parameters<typeof SyndicMessages>[0]['initialConversations']}
       />
     </div>
   )

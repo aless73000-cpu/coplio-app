@@ -50,10 +50,15 @@ export async function POST(request: Request) {
   if (!newStatus) return NextResponse.json({ ok: true })
 
   const admin = createAdminClient()
-  await admin
+  const { error } = await admin
     .from('signatures')
     .update({ statut: newStatus })
     .eq('yousign_request_id', yousignId)
+
+  if (error) {
+    console.error('[Yousign webhook] Erreur mise à jour signature:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
   return NextResponse.json({ ok: true })
 }

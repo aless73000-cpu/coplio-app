@@ -425,12 +425,14 @@ export interface DashboardKPIs {
 }
 
 // Plans Stripe
+// ⚠️ Ces valeurs DOIVENT correspondre à la landing page (/src/app/page.tsx)
+// et aux prix Stripe configurés en dashboard.
 export const PLANS_CONFIG = {
   starter: {
     name: 'Starter',
-    price: 99,
+    price: 79,
     max_gestionnaires: 1,
-    max_lots: 75,
+    max_lots: 75,        // aligné landing page
     features: [
       '1 gestionnaire',
       'Jusqu\'à 75 lots',
@@ -441,9 +443,9 @@ export const PLANS_CONFIG = {
   },
   pro: {
     name: 'Pro',
-    price: 189,
+    price: 149,
     max_gestionnaires: 5,
-    max_lots: 400,
+    max_lots: 400,       // aligné landing page
     popular: true,
     features: [
       '2 à 5 gestionnaires',
@@ -456,7 +458,7 @@ export const PLANS_CONFIG = {
   },
   expert: {
     name: 'Cabinet',
-    price: 279,
+    price: 299,
     max_gestionnaires: 999,
     max_lots: 999,
     features: [

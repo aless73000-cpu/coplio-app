@@ -34,9 +34,9 @@ export default async function LotPage({ params }: { params: { id: string } }) {
     .limit(10)
 
   const totalDu = (appels ?? []).reduce(
-    (s: number, a: AppelCharges) => (!a.paye ? s + (a.montant - a.montant_paye) : s), 0
+    (s: number, a) => (!a.paye ? s + (a.montant - (a.montant_paye ?? 0)) : s), 0
   )
-  const dernierAppel = (appels ?? [])[0] as AppelCharges | undefined
+  const dernierAppel = (appels ?? [])[0]
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -160,7 +160,7 @@ export default async function LotPage({ params }: { params: { id: string } }) {
                   </div>
                 </div>
                 <span className="text-xs text-muted-foreground flex-shrink-0">
-                  Depuis {formatDate(p.created_at)}
+                  Depuis {formatDate(p.created_at ?? '')}
                 </span>
               </Link>
             ))}

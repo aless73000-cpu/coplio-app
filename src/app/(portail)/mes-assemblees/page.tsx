@@ -109,12 +109,12 @@ export default async function MesAssemblees() {
     .order('date_ag', { ascending: false })
 
   // Résolutions + votes de l'utilisateur
-  const agIds = (ags ?? []).map((ag: AssembleeGenerale) => ag.id)
+  const agIds = (ags ?? []).map((ag) => ag.id)
   const { data: resolutions } = agIds.length > 0
     ? await supabase.from('ag_resolutions').select('*').in('ag_id', agIds).order('ordre')
     : { data: [] }
 
-  const resolutionIds = (resolutions ?? []).map((r: AgResolution) => r.id)
+  const resolutionIds = (resolutions ?? []).map((r) => r.id)
   const { data: mesVotes } = resolutionIds.length > 0
     ? await supabase.from('ag_votes')
         .select('*')
@@ -123,14 +123,14 @@ export default async function MesAssemblees() {
     : { data: [] }
 
   const votesByResolution = Object.fromEntries(
-    (mesVotes ?? []).map((v: AgVote) => [v.resolution_id, v])
+    (mesVotes ?? []).map((v) => [v.resolution_id, v])
   )
-  const resolutionsByAg = Object.groupBy(resolutions ?? [], (r: AgResolution) => r.ag_id)
+  const resolutionsByAg = Object.groupBy(resolutions ?? [], (r) => r.ag_id)
 
-  const agsAVenir  = (ags ?? []).filter((ag: AssembleeGenerale) =>
-    ['planifiee', 'convocations_envoyees', 'en_cours'].includes(ag.status))
-  const agsPassees = (ags ?? []).filter((ag: AssembleeGenerale) =>
-    ['terminee', 'annulee'].includes(ag.status))
+  const agsAVenir  = (ags ?? []).filter((ag) =>
+    ['planifiee', 'convocations_envoyees', 'en_cours'].includes(ag.status ?? ''))
+  const agsPassees = (ags ?? []).filter((ag) =>
+    ['terminee', 'annulee'].includes(ag.status ?? ''))
 
   // Récupérer les documents PV pour les AGs passées (query séparée)
   const pvDocIds = agsPassees
@@ -146,7 +146,7 @@ export default async function MesAssemblees() {
 
   const pvDocMap: Record<string, { nom: string; storage_path: string; storage_bucket: string }> = {}
   for (const doc of pvDocuments ?? []) {
-    pvDocMap[doc.id] = doc
+    pvDocMap[doc.id] = { nom: doc.nom, storage_path: doc.storage_path, storage_bucket: doc.storage_bucket ?? 'documents' }
   }
 
   // Signed URLs pour les PV
@@ -178,10 +178,10 @@ export default async function MesAssemblees() {
           <h2 className="font-semibold text-sm uppercase tracking-wide text-coplio-text flex items-center gap-2">
             <Clock className="w-4 h-4 text-coplio-green" /> À venir
           </h2>
-          {agsAVenir.map((ag: AssembleeGenerale) => {
+          {agsAVenir.map((ag) => {
             const agResolutions = (resolutionsByAg[ag.id] ?? []) as AgResolution[]
-            const peutVoter = ['convocations_envoyees', 'en_cours'].includes(ag.status)
-            const statusInfo = AG_STATUS_LABELS[ag.status] ?? { label: ag.status, color: 'bg-gray-100 text-gray-500' }
+            const peutVoter = ['convocations_envoyees', 'en_cours'].includes(ag.status ?? '')
+            const statusInfo = AG_STATUS_LABELS[ag.status ?? ''] ?? { label: ag.status, color: 'bg-gray-100 text-gray-500' }
 
             return (
               <div key={ag.id} className="coplio-card border-coplio-green/20">
@@ -274,9 +274,9 @@ export default async function MesAssemblees() {
           <h2 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" /> Passées
           </h2>
-          {agsPassees.map((ag: AssembleeGenerale) => {
+          {agsPassees.map((ag) => {
             const agResolutions = (resolutionsByAg[ag.id] ?? []) as AgResolution[]
-            const statusInfo = AG_STATUS_LABELS[ag.status] ?? { label: ag.status, color: 'bg-gray-100 text-gray-500' }
+            const statusInfo = AG_STATUS_LABELS[ag.status ?? ''] ?? { label: ag.status, color: 'bg-gray-100 text-gray-500' }
             const pvEntry = pvUrls[ag.id]
             return (
               <div key={ag.id} className="coplio-card">

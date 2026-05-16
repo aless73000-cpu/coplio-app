@@ -132,13 +132,13 @@ export async function GET(
         appel.date_echeance ? `Échéance : ${date(appel.date_echeance)}` : '—',
         euro(appel.montant),
       ],
-      ...(appel.montant_paye > 0 ? [
-        ['Acompte versé', '—', `- ${euro(appel.montant_paye)}`],
+      ...((appel.montant_paye ?? 0) > 0 ? [
+        ['Acompte versé', '—', `- ${euro(appel.montant_paye ?? 0)}`],
       ] : []),
     ],
     foot: [[
       { content: 'SOLDE À RÉGLER', colSpan: 2, styles: { fontStyle: 'bold', halign: 'right' } },
-      { content: euro(appel.montant - appel.montant_paye), styles: { fontStyle: 'bold', textColor: appel.paye ? [15, 110, 86] : [220, 50, 50] } },
+      { content: euro(appel.montant - (appel.montant_paye ?? 0)), styles: { fontStyle: 'bold', textColor: appel.paye ? [15, 110, 86] : [220, 50, 50] } },
     ]],
     headStyles: { fillColor: [15, 110, 86], textColor: 255, fontStyle: 'bold' },
     footStyles: { fillColor: [245, 245, 245] },

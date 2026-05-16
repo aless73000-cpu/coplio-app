@@ -97,7 +97,7 @@ export async function GET(request: Request) {
       }
 
       // Ne pas envoyer un niveau inférieur à ce qui a déjà été envoyé
-      if (appel.nb_relances >= palier.niveau) { totalSkipped++; continue }
+      if ((appel.nb_relances ?? 0) >= palier.niveau) { totalSkipped++; continue }
 
       // Trouver le copropriétaire lié au lot
       const { data: ownerProfile } = await admin
@@ -117,7 +117,7 @@ export async function GET(request: Request) {
         .eq('id', copropriete?.cabinet_id ?? '')
         .single()
 
-      const montantDu = appel.montant - appel.montant_paye
+      const montantDu = appel.montant - (appel.montant_paye ?? 0)
 
       const result = await Email.relanceImpayes(
         {

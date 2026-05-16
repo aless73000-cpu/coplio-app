@@ -87,10 +87,10 @@ export default async function AgendaPage() {
 
   return (
     <AgendaClient
-      systemEvents={systemEvents}
-      customEvents={evenements.data ?? []}
+      systemEvents={systemEvents as Parameters<typeof AgendaClient>[0]['systemEvents']}
+      customEvents={(evenements.data ?? []) as unknown as Parameters<typeof AgendaClient>[0]['customEvents']}
       coproprietes={coproprietes ?? []}
-      gestionnaires={gestionnaires.data ?? []}
+      gestionnaires={(gestionnaires.data ?? []).map(g => ({ id: g.id, prenom: g.prenom ?? '', nom: g.nom ?? '' }))}
     />
   )
 }

@@ -41,15 +41,15 @@ export default async function MesChargesPage() {
   const lot = profile.lot as any as { numero: string; etage?: string; copropriete: { id: string; nom: string; iban?: string; banque?: string } } | null
 
   const total_du = (appels ?? []).reduce(
-    (s: number, a: AppelCharges) => (!a.paye ? s + (a.montant - a.montant_paye) : s), 0
+    (s: number, a) => (!a.paye ? s + (a.montant - (a.montant_paye ?? 0)) : s), 0
   )
   const total_annuel = (appels ?? [])
-    .filter((a: AppelCharges) => new Date(a.date_appel).getFullYear() === new Date().getFullYear())
-    .reduce((s: number, a: AppelCharges) => s + a.montant, 0)
+    .filter((a) => new Date(a.date_appel).getFullYear() === new Date().getFullYear())
+    .reduce((s: number, a) => s + a.montant, 0)
   const enRetard = (appels ?? []).filter(
-    (a: AppelCharges) => !a.paye && new Date(a.date_echeance) < new Date()
+    (a) => !a.paye && new Date(a.date_echeance) < new Date()
   )
-  const pays = (appels ?? []).filter((a: AppelCharges) => a.paye)
+  const pays = (appels ?? []).filter((a) => a.paye)
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -63,13 +63,13 @@ export default async function MesChargesPage() {
           </p>
         </div>
         <DownloadChargesPDF
-          charges={(appels ?? []).map((a: AppelCharges) => ({
+          charges={(appels ?? []).map((a) => ({
             libelle: a.libelle,
             date_appel: a.date_appel,
             date_echeance: a.date_echeance,
             montant: a.montant,
-            montant_paye: a.montant_paye,
-            paye: a.paye,
+            montant_paye: a.montant_paye ?? 0,
+            paye: a.paye ?? false,
           }))}
           lotNumero={lot?.numero ?? ''}
           coproprieteNom={lot?.copropriete?.nom ?? ''}
@@ -204,16 +204,16 @@ export default async function MesChargesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {appels.map((appel: AppelCharges) => {
+              {appels.map((appel) => {
                 const isLate = !appel.paye && new Date(appel.date_echeance) < new Date()
-                const restant = appel.montant - appel.montant_paye
+                const restant = appel.montant - (appel.montant_paye ?? 0)
                 return (
                   <tr key={appel.id} className="hover:bg-coplio-bg/50 transition-colors">
                     <td className="px-6 py-4">
                       <p className="text-sm font-medium text-coplio-text">{appel.libelle}</p>
-                      {!appel.paye && appel.montant_paye > 0 && (
+                      {!appel.paye && (appel.montant_paye ?? 0) > 0 && (
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {formatEuro(appel.montant_paye)} réglé · reste {formatEuro(restant)}
+                          {formatEuro(appel.montant_paye ?? 0)} réglé · reste {formatEuro(restant)}
                         </p>
                       )}
                     </td>

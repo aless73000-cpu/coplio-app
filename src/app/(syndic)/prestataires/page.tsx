@@ -1,39 +1,24 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Wrench, Phone, Mail, Star, Pencil, Trash2, Loader2, CheckCircle2, X, Building2 } from 'lucide-react'
+import { Plus, Wrench, Phone, Mail, Pencil, Trash2, Loader2, X, Building2 } from 'lucide-react'
 
 interface Prestataire {
   id: string
   nom: string
-  metier?: string
+  categorie?: string
   telephone?: string
   email?: string
   adresse?: string
   siret?: string
-  note?: number
-  commentaire?: string
-  actif: boolean
+  notes?: string
 }
 
-const METIERS = [
+const CATEGORIES = [
   'Plomberie', 'Électricité', 'Menuiserie', 'Peinture', 'Maçonnerie',
   'Serrurerie', 'Ascensoriste', 'Chauffage/Climatisation', 'Jardinage',
   'Nettoyage', 'Assurance', 'Avocat', 'Autre',
 ]
-
-function StarRating({ value, onChange }: { value?: number; onChange?: (v: number) => void }) {
-  return (
-    <div className="flex gap-1">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <button key={s} type="button" onClick={() => onChange?.(s)}
-          className={`text-lg transition-colors ${s <= (value ?? 0) ? 'text-amber-400' : 'text-gray-200'} ${onChange ? 'hover:text-amber-300 cursor-pointer' : 'cursor-default'}`}>
-          ★
-        </button>
-      ))}
-    </div>
-  )
-}
 
 function Modal({ open, onClose, onSave, initial }: {
   open: boolean; onClose: () => void
@@ -41,19 +26,19 @@ function Modal({ open, onClose, onSave, initial }: {
   initial?: Prestataire | null
 }) {
   const [form, setForm] = useState({
-    nom: '', metier: '', telephone: '', email: '', adresse: '', siret: '', note: 0, commentaire: '',
+    nom: '', categorie: '', telephone: '', email: '', adresse: '', siret: '', notes: '',
   })
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (initial) {
       setForm({
-        nom: initial.nom, metier: initial.metier ?? '', telephone: initial.telephone ?? '',
+        nom: initial.nom, categorie: initial.categorie ?? '', telephone: initial.telephone ?? '',
         email: initial.email ?? '', adresse: initial.adresse ?? '', siret: initial.siret ?? '',
-        note: initial.note ?? 0, commentaire: initial.commentaire ?? '',
+        notes: initial.notes ?? '',
       })
     } else {
-      setForm({ nom: '', metier: '', telephone: '', email: '', adresse: '', siret: '', note: 0, commentaire: '' })
+      setForm({ nom: '', categorie: '', telephone: '', email: '', adresse: '', siret: '', notes: '' })
     }
   }, [initial, open])
 
@@ -62,7 +47,7 @@ function Modal({ open, onClose, onSave, initial }: {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    await onSave({ ...form, note: form.note || undefined })
+    await onSave(form)
     setSaving(false)
   }
 
@@ -81,11 +66,11 @@ function Modal({ open, onClose, onSave, initial }: {
                 className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-coplio-text mb-1.5">Métier</label>
-              <select value={form.metier} onChange={e => setForm(f => ({ ...f, metier: e.target.value }))}
+              <label className="block text-sm font-medium text-coplio-text mb-1.5">Métier / Catégorie</label>
+              <select value={form.categorie} onChange={e => setForm(f => ({ ...f, categorie: e.target.value }))}
                 className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green bg-white">
                 <option value="">Sélectionner…</option>
-                {METIERS.map(m => <option key={m} value={m}>{m}</option>)}
+                {CATEGORIES.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
             <div>
@@ -109,12 +94,8 @@ function Modal({ open, onClose, onSave, initial }: {
                 className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-coplio-text mb-1.5">Note</label>
-              <StarRating value={form.note} onChange={v => setForm(f => ({ ...f, note: v }))} />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-coplio-text mb-1.5">Commentaire</label>
-              <textarea rows={3} value={form.commentaire} onChange={e => setForm(f => ({ ...f, commentaire: e.target.value }))}
+              <label className="block text-sm font-medium text-coplio-text mb-1.5">Notes</label>
+              <textarea rows={3} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
                 className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green resize-none" />
             </div>
           </div>
@@ -173,7 +154,7 @@ export default function PrestatairesPage() {
 
   const filtered = prestataires.filter(p =>
     p.nom.toLowerCase().includes(search.toLowerCase()) ||
-    (p.metier ?? '').toLowerCase().includes(search.toLowerCase())
+    (p.categorie ?? '').toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -216,7 +197,7 @@ export default function PrestatairesPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-coplio-text text-sm">{p.nom}</p>
-                    {p.metier && <p className="text-xs text-muted-foreground">{p.metier}</p>}
+                    {p.categorie && <p className="text-xs text-muted-foreground">{p.categorie}</p>}
                   </div>
                 </div>
                 <div className="flex gap-1">
@@ -231,8 +212,6 @@ export default function PrestatairesPage() {
                 </div>
               </div>
 
-              {p.note && <StarRating value={p.note} />}
-
               <div className="space-y-1.5">
                 {p.telephone && (
                   <a href={`tel:${p.telephone}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-coplio-green transition-colors">
@@ -246,8 +225,8 @@ export default function PrestatairesPage() {
                 )}
               </div>
 
-              {p.commentaire && (
-                <p className="text-xs text-muted-foreground border-t border-border pt-2 line-clamp-2">{p.commentaire}</p>
+              {p.notes && (
+                <p className="text-xs text-muted-foreground border-t border-border pt-2 line-clamp-2">{p.notes}</p>
               )}
             </div>
           ))}

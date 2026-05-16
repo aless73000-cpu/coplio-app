@@ -41,17 +41,17 @@ export default async function ImpayésPage() {
     .order('date_echeance', { ascending: true })
 
   const total = (impayes ?? []).reduce(
-    (s: number, a: AppelWithDetails) => s + (a.montant - a.montant_paye),
+    (s: number, a) => s + (a.montant - (a.montant_paye ?? 0)),
     0
   )
 
   const categories = {
-    recent: (impayes ?? []).filter((a: AppelWithDetails) => getOverdueDays(a.date_echeance) < 30),
-    moyen: (impayes ?? []).filter((a: AppelWithDetails) => {
+    recent: (impayes ?? []).filter((a) => getOverdueDays(a.date_echeance) < 30),
+    moyen: (impayes ?? []).filter((a) => {
       const d = getOverdueDays(a.date_echeance)
       return d >= 30 && d < 90
     }),
-    ancien: (impayes ?? []).filter((a: AppelWithDetails) => getOverdueDays(a.date_echeance) >= 90),
+    ancien: (impayes ?? []).filter((a) => getOverdueDays(a.date_echeance) >= 90),
   }
 
   return (
@@ -75,19 +75,19 @@ export default async function ImpayésPage() {
           {
             label: '< 30 jours',
             count: categories.recent.length,
-            montant: categories.recent.reduce((s: number, a: AppelWithDetails) => s + (a.montant - a.montant_paye), 0),
+            montant: categories.recent.reduce((s: number, a) => s + (a.montant - (a.montant_paye ?? 0)), 0),
             color: 'amber',
           },
           {
             label: '30 – 90 jours',
             count: categories.moyen.length,
-            montant: categories.moyen.reduce((s: number, a: AppelWithDetails) => s + (a.montant - a.montant_paye), 0),
+            montant: categories.moyen.reduce((s: number, a) => s + (a.montant - (a.montant_paye ?? 0)), 0),
             color: 'amber',
           },
           {
             label: '> 90 jours',
             count: categories.ancien.length,
-            montant: categories.ancien.reduce((s: number, a: AppelWithDetails) => s + (a.montant - a.montant_paye), 0),
+            montant: categories.ancien.reduce((s: number, a) => s + (a.montant - (a.montant_paye ?? 0)), 0),
             color: 'red',
           },
         ].map(({ label, count, montant, color }) => (

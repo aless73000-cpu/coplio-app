@@ -24,7 +24,7 @@ export default async function AdminRevenusPage() {
   // MRR actuel
   const mrr = all
     .filter(c => c.subscription_status === 'active')
-    .reduce((sum, c) => sum + (PLAN_PRICES[c.plan] ?? 0), 0)
+    .reduce((sum, c) => sum + (PLAN_PRICES[c.plan ?? 'trial'] ?? 0), 0)
 
   const arr = mrr * 12
 
@@ -38,8 +38,8 @@ export default async function AdminRevenusPage() {
   const mrrByMonth: Record<string, number> = {}
   all.forEach(c => {
     if (c.subscription_status !== 'active') return
-    const month = c.created_at.slice(0, 7) // YYYY-MM
-    mrrByMonth[month] = (mrrByMonth[month] ?? 0) + (PLAN_PRICES[c.plan] ?? 0)
+    const month = (c.created_at ?? '').slice(0, 7) // YYYY-MM
+    mrrByMonth[month] = (mrrByMonth[month] ?? 0) + (PLAN_PRICES[c.plan ?? 'trial'] ?? 0)
   })
 
   // Convertir en série cumulée

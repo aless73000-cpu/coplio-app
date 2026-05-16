@@ -58,7 +58,7 @@ export default async function AdminClientsPage() {
             </thead>
             <tbody>
               {all.map(c => {
-                const status = STATUS_LABELS[c.subscription_status] ?? STATUS_LABELS.incomplete
+                const status = STATUS_LABELS[c.subscription_status ?? 'incomplete'] ?? STATUS_LABELS.incomplete
                 return (
                   <tr key={c.id} className="border-b border-border last:border-0 hover:bg-coplio-bg transition-colors">
                     <td className="px-5 py-3">
@@ -66,7 +66,7 @@ export default async function AdminClientsPage() {
                       <p className="text-xs text-muted-foreground">{c.email_contact}</p>
                     </td>
                     <td className="px-5 py-3">
-                      <span className="text-coplio-text">{PLAN_LABELS[c.plan] ?? c.plan}</span>
+                      <span className="text-coplio-text">{PLAN_LABELS[c.plan ?? 'trial'] ?? c.plan}</span>
                     </td>
                     <td className="px-5 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${status.color}`}>
@@ -74,7 +74,7 @@ export default async function AdminClientsPage() {
                       </span>
                     </td>
                     <td className="px-5 py-3 text-muted-foreground">
-                      {new Date(c.created_at).toLocaleDateString('fr-FR')}
+                      {c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '—'}
                     </td>
                     <td className="px-5 py-3">
                       <Link href={`/admin/clients/${c.id}`} className="text-coplio-green hover:underline text-xs font-medium">

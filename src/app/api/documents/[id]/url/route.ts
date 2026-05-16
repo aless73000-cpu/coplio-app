@@ -17,7 +17,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     if (!doc) return NextResponse.json({ error: 'Document introuvable' }, { status: 404 })
 
     const { data, error } = await admin.storage
-      .from(doc.storage_bucket)
+      .from(doc.storage_bucket ?? 'documents')
       .createSignedUrl(doc.storage_path, 60 * 60) // 1h
 
     if (error || !data?.signedUrl) return NextResponse.json({ error: 'Erreur génération URL' }, { status: 500 })

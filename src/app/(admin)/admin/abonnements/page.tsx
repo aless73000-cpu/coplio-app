@@ -70,8 +70,8 @@ export default async function AdminAbonnementsPage() {
           </thead>
           <tbody>
             {all.map(c => {
-              const status = STATUS_LABELS[c.subscription_status] ?? STATUS_LABELS.incomplete
-              const price = PLAN_PRICES[c.plan] ?? 0
+              const status = STATUS_LABELS[c.subscription_status ?? 'incomplete'] ?? STATUS_LABELS.incomplete
+              const price = PLAN_PRICES[c.plan ?? 'trial'] ?? 0
               const finPeriode = c.current_period_end ?? c.trial_ends_at
               return (
                 <tr key={c.id} className="border-b border-border last:border-0 hover:bg-coplio-bg transition-colors">
@@ -79,7 +79,7 @@ export default async function AdminAbonnementsPage() {
                     <p className="font-medium text-coplio-text">{c.nom}</p>
                     <p className="text-xs text-muted-foreground">{c.email_contact}</p>
                   </td>
-                  <td className="px-5 py-3 text-coplio-text">{PLAN_LABELS[c.plan] ?? c.plan}</td>
+                  <td className="px-5 py-3 text-coplio-text">{PLAN_LABELS[c.plan ?? 'trial'] ?? c.plan}</td>
                   <td className="px-5 py-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${status.color}`}>{status.label}</span>
                   </td>

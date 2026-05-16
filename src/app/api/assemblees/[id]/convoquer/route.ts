@@ -32,7 +32,7 @@ export async function POST(
     // Récupérer l'AG + résolutions
     const { data: ag } = await admin
       .from('assemblees_generales')
-      .select('*, copropriete:coproprietes(id, nom), resolutions:resolutions_ag(titre, ordre)')
+      .select('*, copropriete:coproprietes(id, nom), resolutions:ag_resolutions(titre, ordre)')
       .eq('id', params.id)
       .eq('cabinet_id', profile.cabinet_id)
       .single()

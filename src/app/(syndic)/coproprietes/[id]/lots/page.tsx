@@ -65,7 +65,7 @@ export default async function LotsPage({ params }: { params: { id: string } }) {
               </tr>
             </thead>
             <tbody>
-              {lots.map((lot: Lot) => (
+              {lots.map((lot) => (
                 <tr key={lot.id} className="border-b border-border hover:bg-coplio-bg transition-colors">
                   <td className="py-3">
                     <Link href={`/lots/${lot.id}`} className="font-medium text-coplio-green hover:underline">

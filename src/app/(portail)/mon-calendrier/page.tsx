@@ -61,7 +61,7 @@ export default async function MonCalendrier() {
         titre: ag.titre,
         sous_titre: ag.status === 'terminee' ? 'Terminée' : undefined,
         type: 'ag',
-        lieu: ag.lieu,
+        lieu: ag.lieu ?? undefined,
         isPast,
         isToday,
       })
@@ -88,8 +88,8 @@ export default async function MonCalendrier() {
         date: d,
         titre: a.libelle,
         type: isRetard ? 'charge_retard' : 'charge',
-        montant: a.montant - a.montant_paye,
-        isPast: a.paye,
+        montant: a.montant - (a.montant_paye ?? 0),
+        isPast: a.paye ?? false,
         isToday,
         isUrgent: isRetard,
       })
@@ -113,7 +113,7 @@ export default async function MonCalendrier() {
         id: s.id,
         date: d,
         titre: s.titre,
-        sous_titre: s.reference,
+        sous_titre: s.reference ?? undefined,
         type: 'sinistre',
         isPast: false,
         isToday: false,
