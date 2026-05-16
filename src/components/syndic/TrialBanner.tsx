@@ -21,7 +21,7 @@ export function TrialBanner({ trialEndsAt, plan }: TrialBannerProps) {
   }, [])
 
   // Seulement pour les comptes en trial
-  if (plan !== 'trial' && plan !== null) return null
+  if (plan !== 'trial') return null
   if (!mounted || dismissed) return null
 
   // Calcul des jours restants

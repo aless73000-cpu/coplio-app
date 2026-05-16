@@ -1,19 +1,63 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { captureException } from '@/lib/monitoring'
+import { z } from 'zod'
+
+const patchSchema = z.object({
+  cotisation_annuelle: z.number().min(0).optional(),
+  solde_actuel: z.number().optional(),
+  objectif_5ans: z.number().min(0).optional(),
+  compte_bancaire: z.string().optional(),
+  notes: z.string().optional(),
+})
+
+const mouvementSchema = z.object({
+  type: z.enum(['depot', 'retrait', 'virement']),
+  montant: z.number().positive(),
+  libelle: z.string().optional(),
+  date_mouvement: z.string().optional(),
+})
+
+async function getCallerCabinetId() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { user: null, cabinetId: null, supabase }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('cabinet_id')
+    .single()
+
+  return { user, cabinetId: profile?.cabinet_id ?? null, supabase }
+}
+
+async function verifyFondsOwnership(supabase: Awaited<ReturnType<typeof createClient>>, fondsId: string, cabinetId: string) {
+  const { data } = await supabase
+    .from('fonds_travaux')
+    .select('id, copropriete:coproprietes(cabinet_id)')
+    .eq('id', fondsId)
+    .single()
+
+  if (!data) return false
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data.copropriete as any)?.cabinet_id === cabinetId
+}
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { user, cabinetId, supabase } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
+
+    const owns = await verifyFondsOwnership(supabase, params.id, cabinetId)
+    if (!owns) return NextResponse.json({ error: 'Non trouvé ou accès refusé' }, { status: 404 })
 
     const body = await request.json()
-    const { cotisation_annuelle, solde_actuel, objectif_5ans, compte_bancaire, notes } = body
+    const parsed = patchSchema.safeParse(body)
+    if (!parsed.success) return NextResponse.json({ error: 'Données invalides', details: parsed.error.flatten() }, { status: 400 })
 
     const { data, error } = await supabase
       .from('fonds_travaux')
-      .update({ cotisation_annuelle, solde_actuel, objectif_5ans, compte_bancaire, notes, updated_at: new Date().toISOString() })
+      .update({ ...parsed.data, updated_at: new Date().toISOString() })
       .eq('id', params.id)
       .select()
       .single()
@@ -21,7 +65,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data)
   } catch (err) {
-    captureException(err, { context: 'fonds-travaux-id' })
+    console.error('[API Error]', err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
@@ -29,14 +73,18 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
     // Add mouvement
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { user, cabinetId, supabase } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
+
+    const owns = await verifyFondsOwnership(supabase, params.id, cabinetId)
+    if (!owns) return NextResponse.json({ error: 'Non trouvé ou accès refusé' }, { status: 404 })
 
     const body = await request.json()
-    const { type, montant, libelle, date_mouvement } = body
+    const parsed = mouvementSchema.safeParse(body)
+    if (!parsed.success) return NextResponse.json({ error: 'Données invalides', details: parsed.error.flatten() }, { status: 400 })
 
-    if (!type || !montant) return NextResponse.json({ error: 'type et montant requis' }, { status: 400 })
+    const { type, montant, libelle, date_mouvement } = parsed.data
 
     const { data: mouvement, error: mErr } = await supabase
       .from('fonds_travaux_mouvements')
@@ -53,22 +101,25 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     return NextResponse.json(mouvement)
   } catch (err) {
-    captureException(err, { context: 'fonds-travaux-id' })
+    console.error('[API Error]', err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
 
 export async function DELETE(_: Request, { params }: { params: { id: string } }) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { user, cabinetId, supabase } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
+
+    const owns = await verifyFondsOwnership(supabase, params.id, cabinetId)
+    if (!owns) return NextResponse.json({ error: 'Non trouvé ou accès refusé' }, { status: 404 })
 
     const { error } = await supabase.from('fonds_travaux').delete().eq('id', params.id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ ok: true })
   } catch (err) {
-    captureException(err, { context: 'fonds-travaux-id' })
+    console.error('[API Error]', err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

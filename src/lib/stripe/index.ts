@@ -30,10 +30,13 @@ export const STRIPE_PRICES = {
   addon_portail: process.env.STRIPE_PRICE_ADDON_PORTAIL ?? '',
 }
 
+// ⚠️ Ces valeurs DOIVENT correspondre à PLANS_CONFIG (src/types/index.ts)
+// et à la landing page (/src/app/page.tsx). Toute modification ici
+// doit être répercutée dans les deux autres fichiers.
 export const PLAN_LIMITS = {
-  trial:   { max_gestionnaires: 1, max_lots: 50 },
-  starter: { max_gestionnaires: 1, max_lots: 50 },
-  pro:     { max_gestionnaires: 5, max_lots: 200 },
+  trial:   { max_gestionnaires: 1, max_lots: 50 },   // limité intentionnellement pendant l'essai
+  starter: { max_gestionnaires: 1, max_lots: 75 },   // aligné landing + PLANS_CONFIG
+  pro:     { max_gestionnaires: 5, max_lots: 400 },  // aligné landing + PLANS_CONFIG
   expert:  { max_gestionnaires: 999, max_lots: 999 },
 }
 

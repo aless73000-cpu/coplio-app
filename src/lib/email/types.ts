@@ -91,6 +91,8 @@ export interface WelcomeSyndicProps {
   prenom: string
   nomCabinet: string
   appUrl?: string
+  /** Lien de confirmation d'email (si fourni, le CTA principal pointe vers ce lien). */
+  confirmUrl?: string
 }
 
 export interface ResetPasswordProps {

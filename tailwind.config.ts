@@ -65,7 +65,8 @@ const config: Config = {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        // var(--font-inter) est injecté par next/font → 0 FOUT (Flash of Unstyled Text)
+        sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
       },
       keyframes: {
         'accordion-down': {

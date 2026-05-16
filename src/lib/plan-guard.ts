@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { PLAN_LIMITS } from '@/lib/stripe'
 
@@ -85,7 +86,6 @@ export async function checkQuota(
 
 /** Réponse 403 standard avec détails pour le frontend */
 export function quotaExceededResponse(quota: QuotaResult) {
-  const { NextResponse } = require('next/server')
   return NextResponse.json(
     {
       error: 'QUOTA_EXCEEDED',

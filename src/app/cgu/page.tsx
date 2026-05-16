@@ -4,8 +4,9 @@ import { ArrowLeft } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: "Conditions générales d'utilisation",
-  description: "Consultez les conditions générales d'utilisation de Coplio, le logiciel de gestion de copropriété pour syndics indépendants.",
+  description: "Conditions générales d'utilisation du logiciel Coplio — gestion de copropriété pour syndics indépendants.",
   alternates: { canonical: 'https://coplio.fr/cgu' },
+  robots: { index: true, follow: false },
 }
 
 export default function CGUPage() {

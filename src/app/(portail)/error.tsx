@@ -1,10 +1,10 @@
 'use client'
-import { captureException } from '@/lib/monitoring'
 import { useEffect } from 'react'
+import * as Sentry from '@sentry/nextjs'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  useEffect(() => { captureException(error) }, [error])
+  useEffect(() => { Sentry.captureException(error) }, [error])
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8">
       <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mb-4">

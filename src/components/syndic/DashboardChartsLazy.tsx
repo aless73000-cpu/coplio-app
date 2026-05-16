@@ -7,8 +7,15 @@
 import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
 
+// Hauteur identique aux charts réels → évite le CLS au chargement
 const ChartSkeleton = () => (
-  <div className="h-48 flex items-center justify-center text-muted-foreground">
+  <div className="h-48 flex items-center justify-center text-muted-foreground" aria-hidden="true">
+    <Loader2 className="w-5 h-5 animate-spin" />
+  </div>
+)
+
+const TauxSkeleton = () => (
+  <div className="h-32 flex items-center justify-center text-muted-foreground" aria-hidden="true">
     <Loader2 className="w-5 h-5 animate-spin" />
   </div>
 )
@@ -30,5 +37,5 @@ export const EvolutionChartLazy = dynamic(
 
 export const TauxGlobalCardLazy = dynamic(
   () => import('./DashboardCharts').then(m => ({ default: m.TauxGlobalCard })),
-  { ssr: false, loading: ChartSkeleton }
+  { ssr: false, loading: TauxSkeleton }
 )

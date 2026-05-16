@@ -26,7 +26,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
 
-    // ── Pages auth ───────────────────────────────────────────────
+    // ── Pages auth (indexables uniquement) ──────────────────────
     {
       url: `${BASE}/login`,
       lastModified: now,
@@ -39,12 +39,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.6,
     },
-    {
-      url: `${BASE}/forgot-password`,
-      lastModified: now,
-      changeFrequency: 'yearly',
-      priority: 0.2,
-    },
+    // Note : /forgot-password et /reset-password ont robots noindex → absents du sitemap
 
     // ── Pages légales ────────────────────────────────────────────
     {

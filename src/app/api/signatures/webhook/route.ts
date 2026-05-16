@@ -6,7 +6,8 @@ import { captureException } from '@/lib/monitoring'
 // Bug #1 fix: verify Yousign HMAC-SHA256 signature before processing
 function verifyYousignSignature(rawBody: string, signatureHeader: string | null): boolean {
   const secret = process.env.YOUSIGN_WEBHOOK_SECRET
-  if (!secret) return true // skip in dev if not configured
+  // Fail-closed in production; only skip in explicit dev mode
+  if (!secret) return process.env.NODE_ENV === 'development'
   if (!signatureHeader) return false
 
   // Header format: "sha256=<hex-digest>"

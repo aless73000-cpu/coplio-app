@@ -7,7 +7,7 @@ import type { WelcomeSyndicProps } from '@/lib/email/types'
 
 const { brand } = EMAIL_CONFIG
 
-export function WelcomeSyndic({ prenom, nomCabinet, appUrl = brand.appUrl }: WelcomeSyndicProps) {
+export function WelcomeSyndic({ prenom, nomCabinet, appUrl = brand.appUrl, confirmUrl }: WelcomeSyndicProps) {
   const steps = [
     { icon: '🏢', label: 'Ajoutez votre première copropriété' },
     { icon: '👥', label: 'Invitez vos copropriétaires' },
@@ -46,11 +46,22 @@ export function WelcomeSyndic({ prenom, nomCabinet, appUrl = brand.appUrl }: Wel
           ))}
         </Section>
 
-        {/* CTA */}
+        {/* CTA — confirmation email si lien fourni, dashboard sinon */}
         <Section style={{ textAlign: 'center' as const, marginBottom: '24px' }}>
-          <EmailButton href={`${appUrl}/dashboard`}>
-            Accéder à mon tableau de bord →
-          </EmailButton>
+          {confirmUrl ? (
+            <>
+              <EmailButton href={confirmUrl}>
+                ✉️ Confirmer mon adresse email →
+              </EmailButton>
+              <Text style={{ margin: '12px 0 0', fontSize: '12px', color: brand.mutedColor, textAlign: 'center' as const }}>
+                Ce lien expire dans 24h. Après confirmation, vous accéderez directement à votre tableau de bord.
+              </Text>
+            </>
+          ) : (
+            <EmailButton href={`${appUrl}/dashboard`}>
+              Accéder à mon tableau de bord →
+            </EmailButton>
+          )}
         </Section>
 
         <Text style={{ margin: 0, fontSize: '13px', color: brand.mutedColor, textAlign: 'center' as const }}>

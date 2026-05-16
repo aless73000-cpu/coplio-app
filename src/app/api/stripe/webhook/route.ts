@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { createAdminClient } from '@/lib/supabase/server'
 import { PLAN_LIMITS } from '@/lib/stripe'
+import { Email } from '@/lib/email'
 import type Stripe from 'stripe'
 
 export const runtime = 'nodejs'
@@ -15,6 +16,81 @@ const RELEVANT_EVENTS = new Set([
   'invoice.paid',
   'invoice.payment_failed',
 ])
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
+
+// ─── Helpers ───────────────────────────────────────────────────
+
+/** Récupère le profil owner d'un cabinet (prenom + email + nom cabinet). */
+async function getOwnerProfile(
+  supabase: ReturnType<typeof createAdminClient>,
+  cabinetId: string
+): Promise<{ prenom: string; email: string; nomCabinet: string } | null> {
+  const { data } = await supabase
+    .from('profiles')
+    .select('prenom, email, cabinets(nom)')
+    .eq('cabinet_id', cabinetId)
+    .eq('role', 'owner')
+    .maybeSingle()
+
+  if (!data?.email) return null
+
+  return {
+    prenom: data.prenom ?? '',
+    email: data.email,
+    nomCabinet: (data.cabinets as unknown as { nom: string } | null)?.nom ?? '',
+  }
+}
+
+/** Récupère le profil owner depuis un stripe_customer_id. */
+async function getOwnerByCustomerId(
+  supabase: ReturnType<typeof createAdminClient>,
+  customerId: string
+): Promise<{ prenom: string; email: string; nomCabinet: string; cabinetId: string } | null> {
+  const { data: cabinet } = await supabase
+    .from('cabinets')
+    .select('id, nom')
+    .eq('stripe_customer_id', customerId)
+    .maybeSingle()
+
+  if (!cabinet) return null
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('prenom, email')
+    .eq('cabinet_id', cabinet.id)
+    .eq('role', 'owner')
+    .maybeSingle()
+
+  if (!profile?.email) return null
+
+  return {
+    prenom: profile.prenom ?? '',
+    email: profile.email,
+    nomCabinet: cabinet.nom ?? '',
+    cabinetId: cabinet.id,
+  }
+}
+
+/** Formate un montant en centimes en chaîne lisible (ex: "29,00 €"). */
+function formatAmount(amountCents: number | null | undefined, currency = 'eur'): string {
+  if (!amountCents) return '—'
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+  }).format(amountCents / 100)
+}
+
+/** Formate un timestamp Unix en date ISO lisible (ex: "1 juin 2025"). */
+function formatDate(unixTs: number): string {
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(unixTs * 1000))
+}
+
+// ─── Webhook handler ──────────────────────────────────────────
 
 export async function POST(request: Request) {
   const body = await request.text()
@@ -45,6 +121,8 @@ export async function POST(request: Request) {
 
   try {
     switch (event.type) {
+
+      // ── Checkout complété ────────────────────────────────────
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
         const cabinetId = session.metadata?.cabinet_id
@@ -63,10 +141,58 @@ export async function POST(request: Request) {
               max_lots: limits.max_lots,
             })
             .eq('id', cabinetId)
+
+          // ── Email confirmation abonnement ──────────────────
+          const owner = await getOwnerProfile(supabase, cabinetId)
+          if (owner) {
+            // Récupération des dates de période depuis l'abonnement
+            let periodeDebut = ''
+            let periodeFin = ''
+            let factureUrl: string | undefined
+
+            if (session.subscription) {
+              try {
+                const sub = await stripe.subscriptions.retrieve(
+                  session.subscription as string
+                )
+                periodeDebut = formatDate(sub.current_period_start)
+                periodeFin = formatDate(sub.current_period_end)
+              } catch {
+                // Non bloquant — les dates resteront vides
+              }
+            }
+
+            if (session.invoice) {
+              try {
+                const inv = await stripe.invoices.retrieve(
+                  session.invoice as string
+                )
+                factureUrl = inv.hosted_invoice_url ?? undefined
+              } catch {
+                // Non bloquant
+              }
+            }
+
+            await Email.checkoutConfirm(
+              {
+                prenom: owner.prenom,
+                nomCabinet: owner.nomCabinet,
+                plan,
+                montant: formatAmount(session.amount_total, session.currency ?? 'eur'),
+                periodeDebut,
+                periodeFin,
+                factureUrl,
+              },
+              owner.email
+            ).catch((err) =>
+              console.error('[webhook] checkout-confirm email error:', err)
+            )
+          }
         }
         break
       }
 
+      // ── Abonnement créé / mis à jour ─────────────────────────
       case 'customer.subscription.updated':
       case 'customer.subscription.created': {
         const sub = event.data.object as Stripe.Subscription
@@ -87,27 +213,69 @@ export async function POST(request: Request) {
               max_lots: limits.max_lots,
             })
             .eq('id', cabinetId)
+
+          // ── Email changement de plan (updated seulement) ──────
+          if (event.type === 'customer.subscription.updated') {
+            const prevAttrs = event.data.previous_attributes as
+              | Partial<Stripe.Subscription>
+              | undefined
+            const ancienPlan = (prevAttrs?.metadata as Record<string, string> | undefined)?.plan
+
+            if (ancienPlan && ancienPlan !== plan) {
+              const owner = await getOwnerProfile(supabase, cabinetId)
+              if (owner) {
+                // Montant du prochain prélèvement
+                const montant = sub.items.data[0]?.price.unit_amount
+                  ? formatAmount(
+                      sub.items.data[0].price.unit_amount,
+                      sub.items.data[0].price.currency
+                    )
+                  : '—'
+
+                await Email.planChange(
+                  {
+                    prenom: owner.prenom,
+                    nomCabinet: owner.nomCabinet,
+                    ancienPlan,
+                    nouveauPlan: plan,
+                    montant,
+                    effectifLe: formatDate(sub.current_period_start),
+                  },
+                  owner.email
+                ).catch((err) =>
+                  console.error('[webhook] plan-change email error:', err)
+                )
+              }
+            }
+          }
         }
         break
       }
 
+      // ── Abonnement annulé ────────────────────────────────────
       case 'customer.subscription.deleted': {
         const sub = event.data.object as Stripe.Subscription
         const cabinetId = sub.metadata?.cabinet_id
 
         if (cabinetId) {
+          const starterLimits = PLAN_LIMITS['starter']
           await supabase
             .from('cabinets')
             .update({
               plan: 'starter',
               subscription_status: 'canceled',
               stripe_subscription_id: null,
+              // Réinitialise les quotas au niveau Starter — empêche un
+              // ancien client Pro/Expert de conserver ses limites élevées
+              max_lots: starterLimits.max_lots,
+              max_gestionnaires: starterLimits.max_gestionnaires,
             })
             .eq('id', cabinetId)
         }
         break
       }
 
+      // ── Paiement échoué ──────────────────────────────────────
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice
         const customerId = invoice.customer as string
@@ -116,9 +284,30 @@ export async function POST(request: Request) {
           .from('cabinets')
           .update({ subscription_status: 'past_due' })
           .eq('stripe_customer_id', customerId)
+
+        // ── Email échec de paiement ────────────────────────────
+        const owner = await getOwnerByCustomerId(supabase, customerId)
+        if (owner) {
+          await Email.paymentFailed(
+            {
+              prenom: owner.prenom,
+              nomCabinet: owner.nomCabinet,
+              montant: formatAmount(
+                invoice.amount_due,
+                invoice.currency
+              ),
+              dateEchec: formatDate(invoice.created),
+              updatePaymentUrl: `${APP_URL}/dashboard/abonnement`,
+            },
+            owner.email
+          ).catch((err) =>
+            console.error('[webhook] payment-failed email error:', err)
+          )
+        }
         break
       }
 
+      // ── Paiement réussi ──────────────────────────────────────
       case 'invoice.paid': {
         const invoice = event.data.object as Stripe.Invoice
         const customerId = invoice.customer as string

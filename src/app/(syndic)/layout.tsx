@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
   title: { default: 'Tableau de bord — Coplio', template: '%s | Coplio' },
   robots: { index: false, follow: false },
 }
-import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 import { MobileSidebar } from '@/components/layout/MobileSidebar'
@@ -43,38 +43,40 @@ export default async function SyndicLayout({
     redirect('/onboarding')
   }
 
-  const { data: cabinet } = await supabase
-    .from('cabinets')
-    .select('*')
-    .eq('id', profile.cabinet_id)
-    .single()
+  // Cabinet + notifications + sinistres urgents : requêtes parallélisées
+  const [
+    { data: cabinet },
+    { data: notifications },
+    { count: unreadMessages },
+    { count: urgentSinistres },
+  ] = await Promise.all([
+    supabase
+      .from('cabinets')
+      .select('*')
+      .eq('id', profile.cabinet_id)
+      .single(),
+    supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20),
+    supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('lu', false)
+      .eq('lien', '/messages'),
+    supabase
+      .from('sinistres')
+      .select('*', { count: 'exact', head: true })
+      .eq('cabinet_id', profile.cabinet_id!)
+      .eq('status', 'urgence'),
+  ])
 
   if (!cabinet) {
     redirect('/onboarding')
   }
-
-  // Notifications non lues
-  const { data: notifications } = await supabase
-    .from('notifications')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(20)
-
-  // Compter les notifications non lues liées aux messages
-  const { count: unreadMessages } = await supabase
-    .from('notifications')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
-    .eq('lu', false)
-    .eq('lien', '/messages')
-
-  // Compter les sinistres urgents ouverts
-  const { count: urgentSinistres } = await supabase
-    .from('sinistres')
-    .select('*', { count: 'exact', head: true })
-    .eq('cabinet_id', profile.cabinet_id)
-    .eq('status', 'urgence')
 
   return (
     <div className="flex h-screen bg-coplio-bg overflow-hidden">

@@ -28,44 +28,57 @@ export default async function AccueilPage() {
 
   const coproprieteId = lot?.copropriete?.id
 
-  const [
-    { data: appels },
-    { data: documents },
-    { data: sinistres },
-    { data: notifications },
-    { data: fondsTravaux },
-  ] = await Promise.all([
-    lotId
-      ? supabase.from('appels_charges').select('*').eq('lot_id', lotId).eq('paye', false)
-          .order('date_echeance', { ascending: true }).limit(3)
-      : Promise.resolve({ data: [] }),
-    supabase
-      .from('documents').select('*').eq('visible_coproprietaires', true)
-      .or(`lot_id.eq.${lotId ?? 'null'},lot_id.is.null`)
-      .order('created_at', { ascending: false }).limit(4),
-    lotId
-      ? supabase.from('sinistres').select('id, titre, status, reference')
-          .contains('lots_concernes', [lotId]).neq('status', 'cloture')
-          .order('created_at', { ascending: false }).limit(4)
-      : Promise.resolve({ data: [] }),
-    supabase
-      .from('notifications').select('*').eq('user_id', user.id).eq('lu', false)
-      .order('created_at', { ascending: false }).limit(5),
-    coproprieteId
-      ? supabase
-          .from('fonds_travaux')
-          .select('id, annee, solde_actuel, objectif_5ans')
-          .eq('copropriete_id', coproprieteId)
-          .order('annee', { ascending: false })
-          .limit(1)
-          .maybeSingle()
-      : Promise.resolve({ data: null }),
-  ])
+  const { data: appels } = lotId
+    ? await supabase.from('appels_charges').select('*').eq('lot_id', lotId).eq('paye', false)
+        .order('date_echeance', { ascending: true }).limit(3)
+    : { data: [] }
 
   const montantDu = (appels ?? []).reduce(
     (s: number, a) => s + (a.montant - (a.montant_paye ?? 0)), 0
   )
   const prochainAppel = (appels ?? [])[0]
+
+  // Sécurité RGPD : les documents sans lot_id sont filtrés par copropriete_id
+  // pour éviter qu'un résident voie les documents d'un autre immeuble du cabinet.
+  const documentsQuery = supabase
+    .from('documents')
+    .select('*')
+    .eq('visible_coproprietaires', true)
+    .order('created_at', { ascending: false })
+    .limit(4)
+
+  if (lotId && coproprieteId) {
+    documentsQuery.or(
+      `lot_id.eq.${lotId},and(lot_id.is.null,copropriete_id.eq.${coproprieteId})`
+    )
+  } else if (coproprieteId) {
+    documentsQuery.is('lot_id', null).eq('copropriete_id', coproprieteId)
+  } else {
+    documentsQuery.eq('lot_id', lotId ?? '')
+  }
+
+  const { data: documents } = await documentsQuery
+
+  const { data: sinistres } = lotId
+    ? await supabase.from('sinistres').select('id, titre, status, reference')
+        .contains('lots_concernes', [lotId]).neq('status', 'cloture')
+        .order('created_at', { ascending: false }).limit(4)
+    : { data: [] }
+
+  const { data: notifications } = await supabase
+    .from('notifications').select('*').eq('user_id', user.id).eq('lu', false)
+    .order('created_at', { ascending: false }).limit(5)
+
+  // Fonds de travaux ALUR
+  const { data: fondsTravaux } = coproprieteId
+    ? await supabase
+        .from('fonds_travaux')
+        .select('id, annee, solde_actuel, objectif_5ans')
+        .eq('copropriete_id', coproprieteId)
+        .order('annee', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+    : { data: null }
 
   const nbNotifs = notifications?.length ?? 0
   const prenom = profile?.prenom ?? 'Bienvenue'
@@ -102,7 +115,7 @@ export default async function AccueilPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* En-tête */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">Bonjour, {prenom} 👋</h1>
           {lot?.copropriete && (
@@ -176,7 +189,7 @@ export default async function AccueilPage() {
       {/* Fonds de travaux */}
       {fondsTravaux && (
         <div className="coplio-card border-blue-200 bg-blue-50/40">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Landmark className="w-5 h-5 text-blue-600" />
@@ -187,7 +200,7 @@ export default async function AccueilPage() {
               </div>
             </div>
             {fondsTravaux.objectif_5ans && fondsTravaux.objectif_5ans > 0 && (
-              <div className="sm:text-right">
+              <div className="text-right">
                 <p className="text-xs text-muted-foreground mb-1">
                   Objectif 5 ans : {formatEuro(fondsTravaux.objectif_5ans)}
                 </p>

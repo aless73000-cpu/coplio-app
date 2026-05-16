@@ -1,7 +1,7 @@
 'use client'
 
-import { captureException } from '@/lib/monitoring'
 import { useEffect } from 'react'
+import * as Sentry from '@sentry/nextjs'
 import Link from 'next/link'
 import { Home, RefreshCw } from 'lucide-react'
 
@@ -13,7 +13,7 @@ export default function GlobalError({
   reset: () => void
 }) {
   useEffect(() => {
-    captureException(error)
+    Sentry.captureException(error)
   }, [error])
 
   return (

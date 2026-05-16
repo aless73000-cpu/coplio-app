@@ -4,8 +4,9 @@ import { ArrowLeft } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Politique de confidentialité',
-  description: 'Politique de confidentialité et traitement des données personnelles de Coplio.',
+  description: 'Politique de confidentialité et traitement des données personnelles de Coplio — conformité RGPD.',
   alternates: { canonical: 'https://coplio.fr/confidentialite' },
+  robots: { index: true, follow: false },
 }
 
 export default function ConfidentialitePage() {
