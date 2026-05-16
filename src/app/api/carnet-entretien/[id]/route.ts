@@ -34,13 +34,24 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
   const admin = createAdminClient()
-  const { data, error } = await admin
+  let { data, error } = await admin
     .from('carnet_entretien')
     .update({ ...parsed.data, updated_at: new Date().toISOString() })
     .eq('id', id)
     .eq('cabinet_id', cabinetId)
     .select()
     .single()
+
+  // Fallback sans updated_at si colonne manquante
+  if (error && (error.message.includes('updated_at') || error.code === '42703')) {
+    ;({ data, error } = await admin
+      .from('carnet_entretien')
+      .update(parsed.data)
+      .eq('id', id)
+      .eq('cabinet_id', cabinetId)
+      .select()
+      .single())
+  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)

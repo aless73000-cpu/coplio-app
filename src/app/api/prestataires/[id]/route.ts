@@ -32,13 +32,34 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
   const admin = createAdminClient()
-  const { data, error } = await admin
+  const updatePayload = { ...parsed.data }
+
+  // Essai complet avec updated_at (colonnes complètes après migration)
+  let { data, error } = await admin
     .from('prestataires')
-    .update({ ...parsed.data, updated_at: new Date().toISOString() })
+    .update({ ...updatePayload, updated_at: new Date().toISOString() })
     .eq('id', id)
     .eq('cabinet_id', cabinetId)
     .select()
     .single()
+
+  // Fallback: si colonne manquante (avant migration), on n'envoie que les colonnes de base
+  if (error && error.code === '42703') {
+    const { nom, telephone, email, adresse, siret } = parsed.data
+    const basePayload: Record<string, unknown> = {}
+    if (nom) basePayload.nom = nom
+    if (telephone !== undefined) basePayload.telephone = telephone
+    if (email !== undefined) basePayload.email = email
+    if (adresse !== undefined) basePayload.adresse = adresse
+    if (siret !== undefined) basePayload.siret = siret
+    ;({ data, error } = await admin
+      .from('prestataires')
+      .update(basePayload)
+      .eq('id', id)
+      .eq('cabinet_id', cabinetId)
+      .select()
+      .single())
+  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
@@ -50,12 +71,26 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
   if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
   const admin = createAdminClient()
-  const { error } = await admin
+
+  // Essai soft-delete via actif (existe après migration)
+  const { error: softError } = await admin
     .from('prestataires')
     .update({ actif: false })
     .eq('id', id)
     .eq('cabinet_id', cabinetId)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ success: true })
+  if (!softError) return NextResponse.json({ success: true })
+
+  // Fallback: hard delete si colonne actif manquante
+  if (softError.message.includes('actif') || softError.code === '42703') {
+    const { error } = await admin
+      .from('prestataires')
+      .delete()
+      .eq('id', id)
+      .eq('cabinet_id', cabinetId)
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ success: true })
+  }
+
+  return NextResponse.json({ error: softError.message }, { status: 500 })
 }

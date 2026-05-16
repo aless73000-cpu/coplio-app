@@ -20,7 +20,7 @@ export async function GET(request: Request) {
   const admin = createAdminClient()
   let query = admin
     .from('carnet_entretien')
-    .select('*, prestataire:prestataires(id, nom, metier), copropriete:coproprietes(id, nom)')
+    .select('*, prestataire:prestataires(id, nom), copropriete:coproprietes(id, nom)')
     .eq('cabinet_id', cabinetId)
     .order('date_intervention', { ascending: false })
 

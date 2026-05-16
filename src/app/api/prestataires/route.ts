@@ -15,15 +15,17 @@ export async function GET() {
   if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
   const admin = createAdminClient()
+  // Ne pas filtrer par `actif` — la colonne peut ne pas encore exister si la migration n'a pas encore été appliquée
   const { data, error } = await admin
     .from('prestataires')
     .select('*')
     .eq('cabinet_id', cabinetId)
-    .eq('actif', true)
     .order('nom')
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data ?? [])
+  // Filtrer les inactifs côté serveur si la colonne existe
+  const result = (data ?? []).filter((p: Record<string, unknown>) => p.actif !== false)
+  return NextResponse.json(result)
 }
 
 const schema = z.object({
@@ -46,11 +48,21 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
   const admin = createAdminClient()
-  const { data, error } = await admin
+  const payload = { ...parsed.data, cabinet_id: cabinetId }
+
+  // Essai avec toutes les colonnes
+  let { data, error } = await admin
     .from('prestataires')
-    .insert({ ...parsed.data, cabinet_id: cabinetId })
+    .insert(payload)
     .select()
     .single()
+
+  // Fallback: si une colonne n'existe pas encore (avant migration), on réessaie avec les colonnes de base
+  if (error && (error.message.includes('column') || error.code === 'PGRST204' || error.code === '42703')) {
+    const { nom, telephone, email, adresse, siret } = parsed.data
+    const basePayload = { nom, cabinet_id: cabinetId, ...(telephone && { telephone }), ...(email && { email }), ...(adresse && { adresse }), ...(siret && { siret }) }
+    ;({ data, error } = await admin.from('prestataires').insert(basePayload).select().single())
+  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
