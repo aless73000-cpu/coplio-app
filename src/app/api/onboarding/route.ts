@@ -45,6 +45,7 @@ export async function POST(request: Request) {
         email_contact: emailContact || user.email,
         plan: 'trial',
         subscription_status: 'trialing',
+        trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
       })
       .select()
       .single()

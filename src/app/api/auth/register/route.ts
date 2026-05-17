@@ -15,7 +15,7 @@ const schema = z.object({
 export async function POST(request: Request) {
   // 5 inscriptions max par IP par heure
   const ip = getIP(request)
-  const limit = rateLimit(`register:${ip}`, { max: 5, windowMs: 60 * 60 * 1000 })
+  const limit = await rateLimit(`register:${ip}`, { max: 5, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   try {
@@ -29,22 +29,31 @@ export async function POST(request: Request) {
     const { email, password, prenom, nom, nomCabinet } = parsed.data
     const supabase = createAdminClient()
 
-    // 1. Créer l'utilisateur
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    // 1. Générer le lien de confirmation et créer l'utilisateur en une seule opération.
+    //    generateLink crée le compte SANS le confirmer (email_confirm implicitement false)
+    //    et retourne un action_link à envoyer au propriétaire.
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'signup',
       email,
       password,
-      user_metadata: { prenom, nom, nom_cabinet: nomCabinet, role: 'owner' },
-      email_confirm: true,
+      options: {
+        data: { prenom, nom, nom_cabinet: nomCabinet, role: 'owner' },
+      },
     })
 
-    if (authError) {
-      if (authError.message.includes('already registered') || authError.message.includes('already been registered')) {
+    if (linkError) {
+      if (
+        linkError.message.includes('already registered') ||
+        linkError.message.includes('already been registered') ||
+        linkError.message.includes('already exists')
+      ) {
         return NextResponse.json({ error: 'Cet email est déjà utilisé.' }, { status: 409 })
       }
-      return NextResponse.json({ error: authError.message }, { status: 400 })
+      return NextResponse.json({ error: linkError.message }, { status: 400 })
     }
 
-    const userId = authData.user.id
+    const userId = linkData.user.id
+    const confirmUrl = linkData.properties.action_link
 
     // 2. Créer le profil
     const { error: profileError } = await supabase
@@ -56,8 +65,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Erreur lors de la création du profil.' }, { status: 500 })
     }
 
-    // 3. Email de bienvenue (non bloquant)
-    Email.welcomeSyndic({ prenom, nomCabinet }, email).catch(console.error)
+    // 3. Email de bienvenue avec lien de confirmation (non bloquant)
+    //    Le CTA de l'email pointe vers confirmUrl pour valider l'adresse email.
+    Email.welcomeSyndic({ prenom, nomCabinet, confirmUrl }, email).catch(console.error)
 
     return NextResponse.json({ success: true })
   } catch {

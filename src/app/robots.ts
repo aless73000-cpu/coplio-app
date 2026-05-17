@@ -34,18 +34,16 @@ export default function robots(): MetadataRoute.Robots {
           '/mon-compte',
           '/mon-calendrier',
           '/onboarding',
+          '/reset-password',
         ],
       },
-      {
-        // GPTBot (OpenAI) — exclure toutes les pages app
-        userAgent: 'GPTBot',
-        disallow: '/',
-      },
-      {
-        // CCBot (Common Crawl, utilisé pour entraînement LLM)
-        userAgent: 'CCBot',
-        disallow: '/',
-      },
+      // ── AI training crawlers — exclure tout ──────────────────────
+      { userAgent: 'GPTBot',         disallow: '/' }, // OpenAI
+      { userAgent: 'CCBot',          disallow: '/' }, // Common Crawl
+      { userAgent: 'anthropic-ai',   disallow: '/' }, // Anthropic
+      { userAgent: 'Google-Extended', disallow: '/' }, // Google Bard/Vertex
+      { userAgent: 'PerplexityBot',  disallow: '/' }, // Perplexity
+      { userAgent: 'Applebot-Extended', disallow: '/' }, // Apple AI
     ],
     sitemap: 'https://coplio.fr/sitemap.xml',
     host: 'https://coplio.fr',

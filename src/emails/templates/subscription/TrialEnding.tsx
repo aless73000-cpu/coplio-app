@@ -3,6 +3,7 @@ import * as React from 'react'
 import { EmailBase, EmailBody } from '@/emails/layouts/EmailBase'
 import { EmailButton } from '@/emails/components/EmailButton'
 import { EMAIL_CONFIG } from '@/lib/email/config'
+import { PLAN_LIMITS } from '@/lib/stripe'
 import type { TrialEndingProps } from '@/lib/email/types'
 
 const { brand } = EMAIL_CONFIG
@@ -45,8 +46,8 @@ export function TrialEnding({
           }}
         >
           {[
-            { name: 'Starter', price: '99€/mois', detail: '1 gestionnaire · 50 lots' },
-            { name: 'Pro', price: '189€/mois', detail: '5 gestionnaires · 200 lots' },
+            { name: 'Starter', price: '99€/mois', detail: `1 gestionnaire · ${PLAN_LIMITS.starter.max_lots} lots` },
+            { name: 'Pro',     price: '189€/mois', detail: `${PLAN_LIMITS.pro.max_gestionnaires} gestionnaires · ${PLAN_LIMITS.pro.max_lots} lots` },
             { name: 'Cabinet', price: '279€/mois', detail: 'Illimité · Support prioritaire' },
           ].map((plan) => (
             <Section key={plan.name} style={{ marginBottom: '8px' }}>

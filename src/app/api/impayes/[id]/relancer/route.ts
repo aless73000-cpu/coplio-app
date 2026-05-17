@@ -10,7 +10,7 @@ export async function POST(
 ) {
   // 20 relances max par IP par heure
   const ip = getIP(_req)
-  const limit = rateLimit(`relancer:${ip}`, { max: 20, windowMs: 60 * 60 * 1000 })
+  const limit = await rateLimit(`relancer:${ip}`, { max: 20, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   try {

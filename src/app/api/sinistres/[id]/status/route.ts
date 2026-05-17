@@ -12,6 +12,12 @@ export async function POST(
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('cabinet_id')
+      .single()
+    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
+
     // Support both form data and JSON
     let status: string | null = null
     const contentType = request.headers.get('content-type') ?? ''
@@ -28,6 +34,19 @@ export async function POST(
     }
 
     const admin = createAdminClient()
+
+    // Verify cabinet ownership before update
+    const { data: sinistre } = await admin
+      .from('sinistres')
+      .select('cabinet_id, titre, lots_concernes')
+      .eq('id', params.id)
+      .single()
+
+    if (!sinistre) return NextResponse.json({ error: 'Non trouvé' }, { status: 404 })
+    if (sinistre.cabinet_id !== profile.cabinet_id) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+    }
+
     const { error } = await admin
       .from('sinistres')
       .update({ status: status as 'signale' | 'assurance_declaree' | 'urgence' | 'expertise' | 'travaux' | 'cloture' })
@@ -37,13 +56,7 @@ export async function POST(
 
     // Notifier les copropriétaires des lots concernés
     try {
-      const { data: sinistre } = await admin
-        .from('sinistres')
-        .select('titre, lots_concernes')
-        .eq('id', params.id)
-        .single()
-
-      if (sinistre?.lots_concernes?.length) {
+      if (sinistre.lots_concernes?.length) {
         const { data: residents } = await admin
           .from('profiles')
           .select('id')
@@ -65,7 +78,7 @@ export async function POST(
             residents.map((r: { id: string }) => ({
               user_id: r.id,
               type: notifType,
-              titre: `Sinistre mis à jour : ${STATUS_LABELS[status] ?? status}`,
+              titre: `Sinistre mis à jour : ${STATUS_LABELS[status!] ?? status}`,
               message: sinistre.titre,
               lu: false,
             }))

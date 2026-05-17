@@ -41,15 +41,20 @@ export default function SignaturesPage() {
   const [signataires, setSignataires] = useState<Signataire[]>([{ ...emptySignataire }])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const hasYousign = true // Sera vérifié côté serveur
+  const [hasYousign, setHasYousign] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const [sRes, cRes] = await Promise.all([fetch('/api/signatures'), fetch('/api/coproprietes')])
-      const [sData, cData] = await Promise.all([sRes.json(), cRes.json()])
+      const [sRes, cRes, cfgRes] = await Promise.all([
+        fetch('/api/signatures'),
+        fetch('/api/coproprietes'),
+        fetch('/api/signatures/config'),
+      ])
+      const [sData, cData, cfgData] = await Promise.all([sRes.json(), cRes.json(), cfgRes.json()])
       setItems(Array.isArray(sData) ? sData : [])
       setCoproprietes(Array.isArray(cData) ? cData : [])
+      setHasYousign(cfgData.yousign_configured === true)
     } finally {
       setLoading(false)
     }
@@ -111,21 +116,23 @@ export default function SignaturesPage() {
         </div>
       </div>
 
-      {/* Info Yousign */}
-      <div className="coplio-card bg-blue-50 border-blue-200">
-        <div className="flex items-start gap-3">
-          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <PenLine className="w-4 h-4 text-blue-600" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-blue-800">Intégration Yousign</p>
-            <p className="text-xs text-blue-600 mt-0.5">
-              Pour activer les signatures électroniques, ajoutez <code className="bg-blue-100 px-1 rounded">YOUSIGN_API_KEY</code> dans vos variables Vercel.
-              Créez un compte sur <strong>yousign.com</strong> pour obtenir votre clé API.
-            </p>
+      {/* Info Yousign — affiché uniquement si non configuré */}
+      {!hasYousign && (
+        <div className="coplio-card bg-blue-50 border-blue-200">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <PenLine className="w-4 h-4 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-blue-800">Intégration Yousign non configurée</p>
+              <p className="text-xs text-blue-600 mt-0.5">
+                Pour activer les signatures électroniques, ajoutez <code className="bg-blue-100 px-1 rounded">YOUSIGN_API_KEY</code> dans vos variables Vercel.
+                Créez un compte sur <strong>yousign.com</strong> pour obtenir votre clé API.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Formulaire */}
       {showForm && (

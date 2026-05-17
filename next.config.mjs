@@ -7,11 +7,20 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: { ignoreBuildErrors: true },
   // Compression gzip/brotli activée
   compress: true,
   // Pas de X-Powered-By header
   poweredByHeader: false,
+
+  // Réduit la taille des server bundles déployés (exclut les fichiers non nécessaires)
+  outputFileTracingExcludes: {
+    '*': [
+      './node_modules/@swc/core-linux-x64-gnu',
+      './node_modules/@swc/core-linux-x64-musl',
+      './node_modules/esbuild',
+      './node_modules/webpack',
+    ],
+  },
 
   // Optimisations expérimentales
   experimental: {
@@ -49,6 +58,35 @@ const nextConfig = {
   },
 
   async headers() {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://*.supabase.co'
+    const supabaseHost = supabaseUrl.replace('https://', '')
+
+    // Content Security Policy
+    // Note: 'unsafe-inline' for scripts is required by Next.js (inline hydration scripts).
+    // 'unsafe-eval' is removed in production; Next.js 14 no longer requires it.
+    const isDev = process.env.NODE_ENV === 'development'
+    const csp = [
+      `default-src 'self'`,
+      // Scripts: self + Stripe + inline (Next.js hydration)
+      `script-src 'self' 'unsafe-inline' https://js.stripe.com https://cdn.jsdelivr.net${isDev ? " 'unsafe-eval'" : ''}`,
+      // Styles: self + inline (Tailwind / CSS-in-JS)
+      `style-src 'self' 'unsafe-inline'`,
+      // Images: self + Supabase storage + data URIs + blob (optimised images)
+      `img-src 'self' data: blob: https://${supabaseHost} https://*.supabase.co`,
+      // Fonts: self only (Inter is self-hosted via next/font)
+      `font-src 'self'`,
+      // API & WebSocket connections
+      `connect-src 'self' https://${supabaseHost} wss://${supabaseHost} https://api.stripe.com https://generativelanguage.googleapis.com https://sentry.io https://*.sentry.io https://o*.ingest.sentry.io`,
+      // Stripe Elements iframe
+      `frame-src https://js.stripe.com https://hooks.stripe.com`,
+      // Workers (service worker for push)
+      `worker-src 'self' blob:`,
+      // Manifest
+      `manifest-src 'self'`,
+      // Prevent embedding in iframes
+      `frame-ancestors 'none'`,
+    ].join('; ')
+
     return [
       {
         source: '/(.*)',
@@ -61,6 +99,8 @@ const nextConfig = {
             value: 'camera=(), microphone=(), geolocation=()',
           },
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+          { key: 'Content-Security-Policy', value: csp },
         ],
       },
       // Cache long pour les fichiers statiques Next.js (hashed)

@@ -19,15 +19,29 @@ const etapeSchema = z.object({
   montant: z.number().min(0).optional().nullable(),
 })
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+async function getCallerInfo() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { user: null, cabinetId: null, supabase }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('cabinet_id')
+    .single()
+
+  return { user, cabinetId: profile?.cabinet_id ?? null, supabase }
+}
+
+export async function GET(_request: Request, { params }: { params: { id: string } }) {
+  const { user, cabinetId, supabase } = await getCallerInfo()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
 
   const { data, error } = await supabase
     .from('travaux')
     .select('*, prestataire:prestataires(id, nom, telephone), etapes:travaux_etapes(*)')
     .eq('id', params.id)
+    .eq('cabinet_id', cabinetId) // isolation cabinet
     .single()
 
   if (error || !data) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
@@ -35,9 +49,9 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 }
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { user, cabinetId, supabase } = await getCallerInfo()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
 
   const body = await request.json()
 
@@ -45,6 +59,16 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (body._etape) {
     const parsed = etapeSchema.safeParse(body._etape)
     if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 })
+
+    // Verify ownership before insert
+    const { data: travail } = await supabase
+      .from('travaux')
+      .select('id')
+      .eq('id', params.id)
+      .eq('cabinet_id', cabinetId)
+      .single()
+    if (!travail) return NextResponse.json({ error: 'Non trouvé ou accès refusé' }, { status: 404 })
+
     await supabase.from('travaux_etapes').insert({ ...parsed.data, travail_id: params.id, created_by: user.id })
   }
 
@@ -54,23 +78,34 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 })
 
   if (Object.keys(parsed.data).length > 0) {
-    await supabase.from('travaux').update({ ...parsed.data, updated_at: new Date().toISOString() }).eq('id', params.id)
+    await supabase
+      .from('travaux')
+      .update({ ...parsed.data, updated_at: new Date().toISOString() })
+      .eq('id', params.id)
+      .eq('cabinet_id', cabinetId) // isolation cabinet
   }
 
   const { data } = await supabase
     .from('travaux')
     .select('*, prestataire:prestataires(id, nom, telephone), etapes:travaux_etapes(*)')
     .eq('id', params.id)
+    .eq('cabinet_id', cabinetId) // isolation cabinet
     .single()
 
   return NextResponse.json(data)
 }
 
 export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { user, cabinetId, supabase } = await getCallerInfo()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
 
-  await supabase.from('travaux').delete().eq('id', params.id)
+  const { error } = await supabase
+    .from('travaux')
+    .delete()
+    .eq('id', params.id)
+    .eq('cabinet_id', cabinetId) // isolation cabinet
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 }

@@ -4,6 +4,7 @@ import { Check, Zap, Crown, Star, AlertTriangle, Mail } from 'lucide-react'
 import { PLANS_CONFIG } from '@/types'
 import { SubscribeButton } from '@/components/stripe/SubscribeButton'
 import { ManageButton } from '@/components/stripe/ManageButton'
+import { AddonPortailButton } from '@/components/stripe/AddonPortailButton'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Facturation' }
@@ -217,19 +218,27 @@ export default async function FacturationPage({
 
       {/* Add-on portail brandé */}
       <div className="coplio-card">
-        <div className="flex items-start justify-between">
-          <div>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">
             <h3 className="font-semibold text-coplio-text">Add-on : Portail copropriétaire brandé</h3>
             <p className="text-sm text-muted-foreground mt-1">
               Personnalisez le portail aux couleurs de votre cabinet (logo, couleurs, nom de domaine)
             </p>
             <p className="text-sm font-semibold text-coplio-text mt-2">0,30€ / lot / mois</p>
           </div>
-          <span className={`text-xs px-2 py-1 rounded-full ${
-            cabinet?.addon_portail_actif ? 'badge-a-jour' : 'bg-coplio-bg text-muted-foreground'
-          }`}>
-            {cabinet?.addon_portail_actif ? 'Actif' : 'Inactif'}
-          </span>
+          <div className="flex flex-col items-end gap-2">
+            <span className={`text-xs px-2 py-1 rounded-full ${
+              cabinet?.addon_portail_actif ? 'badge-a-jour' : 'bg-coplio-bg text-muted-foreground'
+            }`}>
+              {cabinet?.addon_portail_actif ? 'Actif' : 'Inactif'}
+            </span>
+            {!cabinet?.addon_portail_actif && isActive && (
+              <AddonPortailButton />
+            )}
+            {!cabinet?.addon_portail_actif && !isActive && (
+              <p className="text-xs text-muted-foreground">Abonnement requis</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

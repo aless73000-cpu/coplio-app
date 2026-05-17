@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
-async function signout(request: Request) {
+export async function POST(request: Request) {
   const supabase = await createClient()
   await supabase.auth.signOut()
   const referer = request.headers.get('referer') ?? ''
@@ -9,10 +9,5 @@ async function signout(request: Request) {
   return NextResponse.redirect(new URL(dest, request.url))
 }
 
-export async function POST(request: Request) {
-  return signout(request)
-}
-
-export async function GET(request: Request) {
-  return signout(request)
-}
+// GET removed — GET /signout is a CSRF vector (triggered by <img>, <link>, etc.)
+// All logout buttons must use POST.

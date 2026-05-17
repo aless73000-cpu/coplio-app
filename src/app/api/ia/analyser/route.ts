@@ -1,11 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
+  // Limite : 10 analyses PDF par utilisateur par heure
+  // ⚠️ Ce rate limit est in-memory : effectif sur instances chaudes uniquement.
+  //    Migrer vers Upstash Redis pour une application stricte en production.
+  const limit = await rateLimit(`ia-analyser:${user.id}`, { max: 10, windowMs: 60 * 60 * 1000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'Clé API IA non configurée' }, { status: 503 })
