@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Check, ArrowLeft } from 'lucide-react'
 import { SoftwareApplicationJsonLd } from '@/components/seo/JsonLd'
+import { PLANS_CONFIG } from '@/types'
 
 export const metadata: Metadata = {
   title: 'Tarifs',
   description:
-    'Découvrez les tarifs de Coplio — logiciel de gestion de copropriété. Plans Starter (79€/mois), Pro (149€/mois) et Business (299€/mois). Essai gratuit 14 jours, sans carte bancaire.',
+    'Découvrez les tarifs de Coplio — logiciel de gestion de copropriété. Plans Starter (79€/mois), Pro (149€/mois) et Cabinet (299€/mois). Essai gratuit 14 jours, sans carte bancaire.',
   alternates: { canonical: 'https://coplio.fr/tarifs' },
   openGraph: {
     title: 'Tarifs Coplio — Logiciel syndic à partir de 79€/mois',
@@ -17,57 +18,26 @@ export const metadata: Metadata = {
   },
 }
 
-const PLANS = [
-  {
-    name: 'Starter',
-    price: 79,
-    description: "Idéal pour les syndics qui démarrent",
-    features: [
-      "Jusqu'à 5 copropriétés",
-      "Lots illimités",
-      "Portail copropriétaire inclus",
-      "Appels de charges & relances",
-      "Assemblées générales",
-      "Support email",
-    ],
-    cta: 'Démarrer gratuitement',
-    highlight: false,
-  },
-  {
-    name: 'Pro',
-    price: 149,
-    description: "Pour les cabinets en pleine croissance",
-    features: [
-      "Jusqu'à 20 copropriétés",
-      "Tout Starter inclus",
-      "Signatures électroniques",
-      "Suivi sinistres & travaux",
-      "Export PDF & Excel",
-      "Assistant IA intégré",
-      "Support prioritaire",
-    ],
-    cta: 'Choisir Pro',
-    highlight: true,
-  },
-  {
-    name: 'Business',
-    price: 299,
-    description: "Pour les cabinets établis sans limite",
-    features: [
-      "Copropriétés illimitées",
-      "Tout Pro inclus",
-      "Multi-gestionnaires",
-      "Rapports avancés",
-      "Import CSV en masse",
-      "Onboarding dédié",
-      "Support téléphonique",
-    ],
-    cta: 'Choisir Business',
-    highlight: false,
-  },
-]
+const PLAN_CTA: Record<string, string> = {
+  starter: 'Démarrer gratuitement',
+  pro: 'Essayer 14 jours gratuits',
+  expert: 'Nous contacter',
+}
+
+const PLAN_HREF: Record<string, string> = {
+  starter: '/register',
+  pro: '/register',
+  expert: 'mailto:contact@coplio.fr',
+}
 
 export default function TarifsPage() {
+  const plans = Object.entries(PLANS_CONFIG).map(([key, plan]) => ({
+    key,
+    ...plan,
+    cta: PLAN_CTA[key],
+    href: PLAN_HREF[key],
+  }))
+
   return (
     <>
       <SoftwareApplicationJsonLd />
@@ -99,16 +69,15 @@ export default function TarifsPage() {
         {/* Plans */}
         <div className="max-w-5xl mx-auto px-6 pb-24">
           <div className="grid md:grid-cols-3 gap-6">
-            {PLANS.map((plan) => (
+            {plans.map((plan) => (
               <div
-                key={plan.name}
-                className={`rounded-2xl border p-8 flex flex-col ${
-                  plan.highlight
-                    ? 'border-[#0F6E56] shadow-lg shadow-[#0F6E56]/10 relative'
-                    : 'border-gray-200'
+                key={plan.key}
+                className={`rounded-2xl border p-8 flex flex-col ${'popular' in plan && plan.popular
+                  ? 'border-[#0F6E56] shadow-lg shadow-[#0F6E56]/10 relative'
+                  : 'border-gray-200'
                 }`}
               >
-                {plan.highlight && (
+                {'popular' in plan && plan.popular && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                     <span className="bg-[#0F6E56] text-white text-[11px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">
                       Le plus populaire
@@ -118,7 +87,6 @@ export default function TarifsPage() {
 
                 <div className="mb-6">
                   <h2 className="text-xl font-bold text-[#1C1C1A]">{plan.name}</h2>
-                  <p className="text-gray-500 text-sm mt-1">{plan.description}</p>
                 </div>
 
                 <div className="mb-8">
@@ -136,16 +104,15 @@ export default function TarifsPage() {
                   ))}
                 </ul>
 
-                <Link
-                  href="/register"
-                  className={`w-full py-3 rounded-xl text-sm font-semibold text-center transition-colors ${
-                    plan.highlight
-                      ? 'bg-[#0F6E56] text-white hover:bg-[#0F6E56]/90'
-                      : 'bg-gray-100 text-[#1C1C1A] hover:bg-gray-200'
+                <a
+                  href={plan.href}
+                  className={`w-full py-3 rounded-xl text-sm font-semibold text-center transition-colors ${'popular' in plan && plan.popular
+                    ? 'bg-[#0F6E56] text-white hover:bg-[#0F6E56]/90'
+                    : 'bg-gray-100 text-[#1C1C1A] hover:bg-gray-200'
                   }`}
                 >
                   {plan.cta}
-                </Link>
+                </a>
               </div>
             ))}
           </div>

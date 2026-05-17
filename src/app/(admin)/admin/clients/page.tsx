@@ -1,9 +1,10 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Users } from 'lucide-react'
+import { Users, ChevronLeft, ChevronRight } from 'lucide-react'
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase())
+const PAGE_SIZE = 25
 
 const PLAN_LABELS: Record<string, string> = {
   trial: 'Essai', starter: 'Starter', pro: 'Pro', expert: 'Expert',
@@ -17,25 +18,38 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   incomplete: { label: 'Incomplet', color: 'bg-gray-100 text-gray-600' },
 }
 
-export default async function AdminClientsPage() {
+export default async function AdminClientsPage({
+  searchParams,
+}: {
+  searchParams: { page?: string }
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || !ADMIN_EMAILS.includes(user.email?.toLowerCase() ?? '')) redirect('/login')
 
+  const page = Math.max(0, parseInt(searchParams.page ?? '0', 10) || 0)
+  const from = page * PAGE_SIZE
+  const to = from + PAGE_SIZE - 1
+
   const admin = createAdminClient()
-  const { data: cabinets } = await admin
+  const { data: cabinets, count } = await admin
     .from('cabinets')
-    .select('id, nom, email_contact, plan, subscription_status, created_at, max_lots')
+    .select('id, nom, email_contact, plan, subscription_status, created_at, max_lots', { count: 'exact' })
     .order('created_at', { ascending: false })
+    .range(from, to)
 
   const all = cabinets ?? []
+  const total = count ?? 0
+  const totalPages = Math.ceil(total / PAGE_SIZE)
 
   return (
     <div className="max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-7">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">Clients</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">{all.length} cabinet{all.length > 1 ? 's' : ''}</p>
+          <p className="text-muted-foreground text-sm mt-0.5">
+            {total} cabinet{total > 1 ? 's' : ''} · page {page + 1}/{Math.max(1, totalPages)}
+          </p>
         </div>
       </div>
 
@@ -88,6 +102,41 @@ export default async function AdminClientsPage() {
           </table>
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <p className="text-xs text-muted-foreground">
+            {from + 1}–{Math.min(from + PAGE_SIZE, total)} sur {total}
+          </p>
+          <div className="flex items-center gap-2">
+            {page > 0 ? (
+              <Link
+                href={`/admin/clients?page=${page - 1}`}
+                className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-border hover:bg-coplio-bg transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />Précédent
+              </Link>
+            ) : (
+              <span className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-border opacity-40 cursor-not-allowed">
+                <ChevronLeft className="w-4 h-4" />Précédent
+              </span>
+            )}
+            {page < totalPages - 1 ? (
+              <Link
+                href={`/admin/clients?page=${page + 1}`}
+                className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-border hover:bg-coplio-bg transition-colors"
+              >
+                Suivant<ChevronRight className="w-4 h-4" />
+              </Link>
+            ) : (
+              <span className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-border opacity-40 cursor-not-allowed">
+                Suivant<ChevronRight className="w-4 h-4" />
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
