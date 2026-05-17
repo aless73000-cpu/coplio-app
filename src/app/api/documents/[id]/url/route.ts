@@ -1,5 +1,6 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { getSignedDocumentUrl } from '@/lib/storage'
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
   try {
@@ -16,13 +17,10 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 
     if (!doc) return NextResponse.json({ error: 'Document introuvable' }, { status: 404 })
 
-    const { data, error } = await admin.storage
-      .from(doc.storage_bucket ?? 'documents')
-      .createSignedUrl(doc.storage_path, 60 * 60) // 1h
+    const url = await getSignedDocumentUrl(doc.storage_bucket ?? 'documents', doc.storage_path)
+    if (!url) return NextResponse.json({ error: 'Erreur génération URL' }, { status: 500 })
 
-    if (error || !data?.signedUrl) return NextResponse.json({ error: 'Erreur génération URL' }, { status: 500 })
-
-    return NextResponse.json({ url: data.signedUrl, nom: doc.nom, type_mime: doc.type_mime })
+    return NextResponse.json({ url, nom: doc.nom, type_mime: doc.type_mime })
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }

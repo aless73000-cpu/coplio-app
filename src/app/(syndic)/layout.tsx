@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 import { MobileSidebar } from '@/components/layout/MobileSidebar'
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
 import { SessionGuard } from '@/components/auth/SessionGuard'
 import type { Profile, Cabinet } from '@/types'
 
@@ -81,10 +82,11 @@ export default async function SyndicLayout({
             />
           }
         />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6">
           {children}
         </main>
       </div>
+      <MobileBottomNav unreadMessages={unreadMessages ?? 0} />
     </div>
   )
 }

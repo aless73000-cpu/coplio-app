@@ -1,19 +1,13 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-
-async function getCabinetId() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  return profile?.cabinet_id ?? null
-}
+import { requireCabinetUser } from '@/lib/api-handler'
 
 export async function GET() {
-  const cabinetId = await getCabinetId()
-  if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const ctx = await requireCabinetUser()
+  if (ctx instanceof NextResponse) return ctx
 
+  const { cabinetId } = ctx
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('prestataires')
@@ -38,9 +32,10 @@ const schema = z.object({
 })
 
 export async function POST(request: Request) {
-  const cabinetId = await getCabinetId()
-  if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const ctx = await requireCabinetUser()
+  if (ctx instanceof NextResponse) return ctx
 
+  const { cabinetId } = ctx
   const body = await request.json()
   const parsed = schema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })

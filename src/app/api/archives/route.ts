@@ -1,16 +1,13 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { createHash } from 'crypto'
+import { requireCabinetUser } from '@/lib/api-handler'
 
 export async function GET(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    const ctx = await requireCabinetUser()
+    if (ctx instanceof NextResponse) return ctx
 
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json([])
-
+    const { supabase, cabinetId } = ctx
     const { searchParams } = new URL(request.url)
     const coproprieteId = searchParams.get('copropriete_id')
     const type = searchParams.get('type')
@@ -18,7 +15,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from('archives')
       .select('*, copropriete:coproprietes(id, nom)')
-      .eq('cabinet_id', profile.cabinet_id)
+      .eq('cabinet_id', cabinetId)
       .order('created_at', { ascending: false })
 
     if (coproprieteId) query = query.eq('copropriete_id', coproprieteId)
@@ -35,13 +32,10 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    const ctx = await requireCabinetUser()
+    if (ctx instanceof NextResponse) return ctx
 
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
-
+    const { supabase, userId, cabinetId } = ctx
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     const nom = formData.get('nom') as string
@@ -55,7 +49,7 @@ export async function POST(request: Request) {
     const buffer = await file.arrayBuffer()
     const hash = createHash('sha256').update(Buffer.from(buffer)).digest('hex')
     const ext = file.name.split('.').pop() ?? 'bin'
-    const path = `${profile.cabinet_id}/archives/${Date.now()}_${hash.slice(0, 8)}.${ext}`
+    const path = `${cabinetId}/archives/${Date.now()}_${hash.slice(0, 8)}.${ext}`
 
     const { error: uploadError } = await supabase.storage
       .from('documents')
@@ -65,14 +59,13 @@ export async function POST(request: Request) {
 
     const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(path)
 
-    // Rétention 10 ans
     const retention = new Date()
     retention.setFullYear(retention.getFullYear() + 10)
 
     const { data, error } = await supabase
       .from('archives')
       .insert({
-        cabinet_id: profile.cabinet_id,
+        cabinet_id: cabinetId,
         copropriete_id: coproprieteId || null,
         type,
         nom,
@@ -81,7 +74,7 @@ export async function POST(request: Request) {
         hash_sha256: hash,
         date_document: dateDocument ? new Date(dateDocument).toISOString() : null,
         retention_jusqu_au: retention.toISOString(),
-        created_by: user.id,
+        created_by: userId,
       })
       .select('*, copropriete:coproprietes(id, nom)')
       .single()

@@ -6,6 +6,7 @@ import {
   AlertTriangle, Calendar, ChevronRight, Download,
 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import { getSignedDocumentUrl } from '@/lib/storage'
 
 const AG_STATUS_LABELS: Record<string, string> = {
   planifiee: 'Planifiée',
@@ -51,18 +52,12 @@ export default async function MesSignaturesPage() {
         .limit(10)
     : { data: [] }
 
-  // Générer les signed URLs pour chaque document
+  // Générer les signed URLs pour chaque document (cachées 45 min)
   type DocWithUrl = { id: string; nom: string; categorie: string | null; created_at: string | null; signedUrl: string | null }
   const docsWithUrls: DocWithUrl[] = await Promise.all(
     (documents ?? []).map(async (doc) => {
-      try {
-        const { data } = await supabase.storage
-          .from(doc.storage_bucket ?? 'documents')
-          .createSignedUrl(doc.storage_path, 3600)
-        return { ...doc, signedUrl: data?.signedUrl ?? null }
-      } catch {
-        return { ...doc, signedUrl: null }
-      }
+      const signedUrl = await getSignedDocumentUrl(doc.storage_bucket ?? 'documents', doc.storage_path)
+      return { ...doc, signedUrl }
     })
   )
 

@@ -1,6 +1,7 @@
-import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { requireCabinetUser } from '@/lib/api-handler'
 
 const schema = z.object({
   titre: z.string().min(3),
@@ -11,26 +12,22 @@ const schema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    const ctx = await requireCabinetUser()
+    if (ctx instanceof NextResponse) return ctx
 
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
-
+    const { userId, cabinetId } = ctx
     const body = await request.json()
     const parsed = schema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
-    // Générer une référence unique
     const ref = `SIN-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`
 
     const admin = createAdminClient()
     const { data, error } = await admin.from('sinistres').insert({
       ...parsed.data,
-      cabinet_id: profile.cabinet_id,
+      cabinet_id: cabinetId,
       reference: ref,
-      gestionnaire_id: user.id,
+      gestionnaire_id: userId,
     }).select().single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -39,12 +36,12 @@ export async function POST(request: Request) {
     const { data: members } = await admin
       .from('profiles')
       .select('id')
-      .eq('cabinet_id', profile.cabinet_id)
+      .eq('cabinet_id', cabinetId)
     if (members) {
       await admin.from('notifications').insert(
         members.map((m: { id: string }) => ({
           user_id: m.id,
-          cabinet_id: profile.cabinet_id,
+          cabinet_id: cabinetId,
           type: 'urgent',
           titre: `Nouveau sinistre : ${parsed.data.titre}`,
           message: parsed.data.description ?? null,

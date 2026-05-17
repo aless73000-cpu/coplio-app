@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 
 /**
  * Wraps an API handler with a global try/catch so any unhandled error
@@ -18,4 +19,33 @@ export function withErrorHandler<T extends unknown[]>(
       )
     }
   }
+}
+
+export type CabinetContext = {
+  supabase: Awaited<ReturnType<typeof createClient>>
+  userId: string
+  cabinetId: string
+}
+
+/**
+ * Resolves the authenticated user and their cabinet_id in a single call.
+ * Returns a NextResponse error if unauthenticated or cabinet not found,
+ * or a CabinetContext object to use directly in the handler.
+ */
+export async function requireCabinetUser(): Promise<NextResponse | CabinetContext> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('cabinet_id')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile?.cabinet_id) {
+    return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+  }
+
+  return { supabase, userId: user.id, cabinetId: profile.cabinet_id }
 }

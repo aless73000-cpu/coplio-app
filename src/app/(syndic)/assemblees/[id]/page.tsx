@@ -8,6 +8,7 @@ import { ExportAGButton } from '@/components/syndic/ExportAGButton'
 import { AgStatutButtons } from '@/components/syndic/AgStatutButtons'
 import { AgResolutionsManager } from '@/components/syndic/AgResolutionsManager'
 import { AgPVSection } from '@/components/syndic/AgPVSection'
+import { getSignedDocumentUrl } from '@/lib/storage'
 import type { AgStatus } from '@/types'
 
 const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
@@ -46,10 +47,7 @@ export default async function AssembléePage({ params }: { params: { id: string 
       .single()
     if (pvDoc) {
       pvNom = pvDoc.nom
-      const { data: signed } = await supabase.storage
-        .from(pvDoc.storage_bucket ?? 'documents')
-        .createSignedUrl(pvDoc.storage_path, 3600)
-      pvUrl = signed?.signedUrl ?? null
+      pvUrl = await getSignedDocumentUrl(pvDoc.storage_bucket ?? 'documents', pvDoc.storage_path)
     }
   }
 

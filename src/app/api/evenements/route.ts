@@ -1,6 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { requireCabinetUser } from '@/lib/api-handler'
 
 const schema = z.object({
   titre: z.string().min(1),
@@ -15,13 +15,10 @@ const schema = z.object({
 
 export async function GET(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    const ctx = await requireCabinetUser()
+    if (ctx instanceof NextResponse) return ctx
 
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json([])
-
+    const { supabase, cabinetId } = ctx
     const { searchParams } = new URL(request.url)
     const from = searchParams.get('from')
     const to = searchParams.get('to')
@@ -29,7 +26,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from('evenements_cabinet')
       .select('*, assignee:profiles(id, prenom, nom), copropriete:coproprietes(id, nom)')
-      .eq('cabinet_id', profile.cabinet_id)
+      .eq('cabinet_id', cabinetId)
       .order('date_debut', { ascending: true })
 
     if (from) query = query.gte('date_debut', from)
@@ -46,20 +43,17 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    const ctx = await requireCabinetUser()
+    if (ctx instanceof NextResponse) return ctx
 
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
-
+    const { supabase, userId, cabinetId } = ctx
     const body = await request.json()
     const parsed = schema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 })
 
     const { data, error } = await supabase
       .from('evenements_cabinet')
-      .insert({ ...parsed.data, cabinet_id: profile.cabinet_id, created_by: user.id })
+      .insert({ ...parsed.data, cabinet_id: cabinetId, created_by: userId })
       .select('*, assignee:profiles(id, prenom, nom), copropriete:coproprietes(id, nom)')
       .single()
 

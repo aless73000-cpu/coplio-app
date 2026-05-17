@@ -115,9 +115,7 @@ export default async function DashboardPage() {
 
   // Onboarding checklist
   const nbLots = (coproprietes ?? []).reduce((s: number, c) => s + (c.nb_lots ?? 0), 0)
-  const { count: nbCoproprietaires } = coproprieteIds.length > 0
-    ? await supabase.from('coproprietaires').select('id', { count: 'exact', head: true }).in('copropriete_id', coproprieteIds)
-    : { count: 0 }
+  const nbCoproprietaires = nbCoproprietairesTotal
   const onboardingSteps = [
     {
       id: 'copropriete',

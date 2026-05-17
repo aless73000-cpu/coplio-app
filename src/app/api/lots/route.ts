@@ -1,19 +1,17 @@
-import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
+import { requireCabinetUser } from '@/lib/api-handler'
 
 export async function GET() {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    const ctx = await requireCabinetUser()
+    if (ctx instanceof NextResponse) return ctx
 
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
-
+    const { cabinetId } = ctx
     const admin = createAdminClient()
-    const { data: coproprietes } = await admin.from('coproprietes').select('id').eq('cabinet_id', profile.cabinet_id)
+    const { data: coproprietes } = await admin.from('coproprietes').select('id').eq('cabinet_id', cabinetId)
     const coproprieteIds = (coproprietes ?? []).map((c: { id: string }) => c.id)
     if (coproprieteIds.length === 0) return NextResponse.json([])
 
@@ -41,19 +39,15 @@ const schema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    const ctx = await requireCabinetUser()
+    if (ctx instanceof NextResponse) return ctx
 
+    const { cabinetId } = ctx
     const body = await request.json()
     const parsed = schema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
-    // Vérification quota via plan-guard
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet introuvable' }, { status: 400 })
-
-    const quota = await checkQuota(profile.cabinet_id, 'lots', 1)
+    const quota = await checkQuota(cabinetId, 'lots', 1)
     if (!quota.allowed) return quotaExceededResponse(quota)
 
     const admin = createAdminClient()

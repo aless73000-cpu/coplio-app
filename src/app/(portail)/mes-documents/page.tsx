@@ -4,6 +4,7 @@ import { FileText, Download, FolderOpen } from 'lucide-react'
 import { formatDate, formatFileSize } from '@/lib/utils'
 import { DOCUMENT_CATEGORY_LABELS } from '@/types'
 import type { Document, DocumentCategory } from '@/types'
+import { getSignedDocumentUrl } from '@/lib/storage'
 
 const CATEGORY_ICONS: Record<DocumentCategory, string> = {
   pv_ag: '📋',
@@ -30,14 +31,8 @@ export default async function MesDocuments() {
 
   const docsWithUrls = await Promise.all(
     (documents ?? []).map(async (doc) => {
-      try {
-        const { data } = await supabase.storage
-          .from(doc.storage_bucket ?? 'documents')
-          .createSignedUrl(doc.storage_path, 3600)
-        return { ...doc, signed_url: data?.signedUrl ?? null }
-      } catch {
-        return { ...doc, signed_url: null }
-      }
+      const signed_url = await getSignedDocumentUrl(doc.storage_bucket ?? 'documents', doc.storage_path)
+      return { ...doc, signed_url }
     })
   )
 

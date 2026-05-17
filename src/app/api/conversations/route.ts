@@ -1,27 +1,21 @@
 // GET  → liste des conversations du cabinet
 // POST → créer ou récupérer une conversation avec un copropriétaire
 
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-
-async function getContext() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  return profile?.cabinet_id ? { user, cabinet_id: profile.cabinet_id } : null
-}
+import { requireCabinetUser } from '@/lib/api-handler'
 
 export async function GET() {
-  const ctx = await getContext()
-  if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const ctx = await requireCabinetUser()
+  if (ctx instanceof NextResponse) return ctx
 
+  const { cabinetId } = ctx
   const admin = createAdminClient()
   const { data: convs, error } = await admin
     .from('conversations')
     .select('id, sujet, derniere_activite, coproprietaire_id, copropriete_id')
-    .eq('cabinet_id', ctx.cabinet_id)
+    .eq('cabinet_id', cabinetId)
     .order('derniere_activite', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -51,8 +45,10 @@ const createSchema = z.object({
 })
 
 export async function POST(req: Request) {
-  const ctx = await getContext()
-  if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const ctx = await requireCabinetUser()
+  if (ctx instanceof NextResponse) return ctx
+
+  const { cabinetId } = ctx
 
   const body = await req.json()
   const parsed = createSchema.safeParse(body)
@@ -64,7 +60,7 @@ export async function POST(req: Request) {
   const { data: existing } = await admin
     .from('conversations')
     .select('id, sujet, derniere_activite, coproprietaire_id')
-    .eq('cabinet_id', ctx.cabinet_id)
+    .eq('cabinet_id', cabinetId)
     .eq('coproprietaire_id', parsed.data.coproprietaire_id)
     .order('derniere_activite', { ascending: false })
     .limit(1)
@@ -79,7 +75,7 @@ export async function POST(req: Request) {
   const { data: created, error } = await admin
     .from('conversations')
     .insert({
-      cabinet_id: ctx.cabinet_id,
+      cabinet_id: cabinetId,
       coproprietaire_id: parsed.data.coproprietaire_id,
       sujet: parsed.data.sujet ?? null,
       derniere_activite: new Date().toISOString(),

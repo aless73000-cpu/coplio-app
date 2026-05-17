@@ -53,6 +53,13 @@ export function MobileSidebar({ profile, cabinet, unreadMessages = 0 }: MobileSi
 
   useEffect(() => { setOpen(false) }, [pathname])
 
+  // Ouverture via le bouton "Plus" de la MobileBottomNav
+  useEffect(() => {
+    const handler = () => setOpen(true)
+    document.addEventListener('open-mobile-sidebar', handler)
+    return () => document.removeEventListener('open-mobile-sidebar', handler)
+  }, [])
+
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }

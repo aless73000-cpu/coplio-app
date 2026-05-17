@@ -6,6 +6,7 @@ import { Calendar, MapPin, Video, Clock, CheckCircle2, XCircle, MinusCircle, Thu
 import { formatDate } from '@/lib/utils'
 import type { AssembleeGenerale, AgResolution, AgVote, VoteValue } from '@/types'
 import { VOTE_TYPE_LABELS } from '@/types'
+import { getSignedDocumentUrl } from '@/lib/storage'
 
 const AG_STATUS_LABELS: Record<string, { label: string; color: string }> = {
   planifiee:               { label: 'Planifiée',             color: 'bg-blue-50 text-blue-600' },
@@ -165,17 +166,19 @@ export default async function MesAssemblees() {
     pvDocMap[doc.id] = { nom: doc.nom, storage_path: doc.storage_path, storage_bucket: doc.storage_bucket ?? 'documents' }
   }
 
-  // Signed URLs pour les PV
-  const pvUrls: Record<string, { url: string; nom: string }> = {}
-  for (const ag of agsPassees) {
-    if (ag.pv_document_id && pvDocMap[ag.pv_document_id]) {
-      const doc = pvDocMap[ag.pv_document_id]
-      const { data } = await supabase.storage
-        .from(doc.storage_bucket)
-        .createSignedUrl(doc.storage_path, 3600)
-      if (data?.signedUrl) pvUrls[ag.id] = { url: data.signedUrl, nom: doc.nom }
-    }
-  }
+  // Signed URLs pour les PV (cachées 45 min)
+  const pvUrlEntries = await Promise.all(
+    agsPassees
+      .filter(ag => ag.pv_document_id && pvDocMap[ag.pv_document_id])
+      .map(async (ag) => {
+        const doc = pvDocMap[ag.pv_document_id!]
+        const url = await getSignedDocumentUrl(doc.storage_bucket, doc.storage_path)
+        return url ? [ag.id, { url, nom: doc.nom }] as const : null
+      })
+  )
+  const pvUrls: Record<string, { url: string; nom: string }> = Object.fromEntries(
+    pvUrlEntries.filter((e): e is readonly [string, { url: string; nom: string }] => e !== null)
+  )
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

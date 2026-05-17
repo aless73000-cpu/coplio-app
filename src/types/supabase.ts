@@ -1673,40 +1673,55 @@ export type Database = {
       }
       prestataires: {
         Row: {
+          actif: boolean
           adresse: string | null
           cabinet_id: string
-          categorie: string
+          categorie: string | null
+          commentaire: string | null
           created_at: string
           email: string | null
           id: string
+          metier: string | null
           nom: string
+          note: number | null
           notes: string | null
           siret: string | null
           telephone: string | null
+          updated_at: string | null
         }
         Insert: {
+          actif?: boolean
           adresse?: string | null
           cabinet_id: string
-          categorie?: string
+          categorie?: string | null
+          commentaire?: string | null
           created_at?: string
           email?: string | null
           id?: string
+          metier?: string | null
           nom: string
+          note?: number | null
           notes?: string | null
           siret?: string | null
           telephone?: string | null
+          updated_at?: string | null
         }
         Update: {
+          actif?: boolean
           adresse?: string | null
           cabinet_id?: string
-          categorie?: string
+          categorie?: string | null
+          commentaire?: string | null
           created_at?: string
           email?: string | null
           id?: string
+          metier?: string | null
           nom?: string
+          note?: number | null
           notes?: string | null
           siret?: string | null
           telephone?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {

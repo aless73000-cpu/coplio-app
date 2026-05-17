@@ -28,41 +28,44 @@ export default async function AccueilPage() {
 
   const coproprieteId = lot?.copropriete?.id
 
-  const { data: appels } = lotId
-    ? await supabase.from('appels_charges').select('*').eq('lot_id', lotId).eq('paye', false)
-        .order('date_echeance', { ascending: true }).limit(3)
-    : { data: [] }
+  const [
+    { data: appels },
+    { data: documents },
+    { data: sinistres },
+    { data: notifications },
+    { data: fondsTravaux },
+  ] = await Promise.all([
+    lotId
+      ? supabase.from('appels_charges').select('*').eq('lot_id', lotId).eq('paye', false)
+          .order('date_echeance', { ascending: true }).limit(3)
+      : Promise.resolve({ data: [] }),
+    supabase
+      .from('documents').select('*').eq('visible_coproprietaires', true)
+      .or(`lot_id.eq.${lotId ?? 'null'},lot_id.is.null`)
+      .order('created_at', { ascending: false }).limit(4),
+    lotId
+      ? supabase.from('sinistres').select('id, titre, status, reference')
+          .contains('lots_concernes', [lotId]).neq('status', 'cloture')
+          .order('created_at', { ascending: false }).limit(4)
+      : Promise.resolve({ data: [] }),
+    supabase
+      .from('notifications').select('*').eq('user_id', user.id).eq('lu', false)
+      .order('created_at', { ascending: false }).limit(5),
+    coproprieteId
+      ? supabase
+          .from('fonds_travaux')
+          .select('id, annee, solde_actuel, objectif_5ans')
+          .eq('copropriete_id', coproprieteId)
+          .order('annee', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+  ])
 
   const montantDu = (appels ?? []).reduce(
     (s: number, a) => s + (a.montant - (a.montant_paye ?? 0)), 0
   )
   const prochainAppel = (appels ?? [])[0]
-
-  const { data: documents } = await supabase
-    .from('documents').select('*').eq('visible_coproprietaires', true)
-    .or(`lot_id.eq.${lotId ?? 'null'},lot_id.is.null`)
-    .order('created_at', { ascending: false }).limit(4)
-
-  const { data: sinistres } = lotId
-    ? await supabase.from('sinistres').select('id, titre, status, reference')
-        .contains('lots_concernes', [lotId]).neq('status', 'cloture')
-        .order('created_at', { ascending: false }).limit(4)
-    : { data: [] }
-
-  const { data: notifications } = await supabase
-    .from('notifications').select('*').eq('user_id', user.id).eq('lu', false)
-    .order('created_at', { ascending: false }).limit(5)
-
-  // Fonds de travaux ALUR
-  const { data: fondsTravaux } = coproprieteId
-    ? await supabase
-        .from('fonds_travaux')
-        .select('id, annee, solde_actuel, objectif_5ans')
-        .eq('copropriete_id', coproprieteId)
-        .order('annee', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-    : { data: null }
 
   const nbNotifs = notifications?.length ?? 0
   const prenom = profile?.prenom ?? 'Bienvenue'

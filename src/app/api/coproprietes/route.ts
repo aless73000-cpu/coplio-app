@@ -1,19 +1,17 @@
-import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { requireCabinetUser } from '@/lib/api-handler'
 
 export async function GET() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  const ctx = await requireCabinetUser()
+  if (ctx instanceof NextResponse) return ctx
 
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json([])
-
+  const { supabase, cabinetId } = ctx
   const { data, error } = await supabase
     .from('coproprietes')
     .select('id, nom, adresse, ville, nb_lots')
-    .eq('cabinet_id', profile.cabinet_id)
+    .eq('cabinet_id', cabinetId)
     .order('nom')
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -34,13 +32,10 @@ const schema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    const ctx = await requireCabinetUser()
+    if (ctx instanceof NextResponse) return ctx
 
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
-
+    const { userId, cabinetId } = ctx
     const body = await request.json()
     const parsed = schema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
@@ -50,8 +45,8 @@ export async function POST(request: Request) {
     const { tantiemes_totaux: _t, ...rest } = parsed.data
     const { data, error } = await admin.from('coproprietes').insert({
       ...rest,
-      cabinet_id: profile.cabinet_id,
-      gestionnaire_id: user.id,
+      cabinet_id: cabinetId,
+      gestionnaire_id: userId,
     }).select().single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
