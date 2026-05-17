@@ -425,14 +425,14 @@ export interface DashboardKPIs {
 }
 
 // Plans Stripe
-// ⚠️ Ces valeurs DOIVENT correspondre à la landing page (/src/app/page.tsx)
-// et aux prix Stripe configurés en dashboard.
+// ⚠️ Ces valeurs DOIVENT correspondre aux prix Stripe configurés en dashboard.
+// Stripe : Starter 99€ · Pro 189€ · Cabinet 279€ · Add-on portail 0,30€/lot/mois
 export const PLANS_CONFIG = {
   starter: {
     name: 'Starter',
-    price: 79,
+    price: 99,
     max_gestionnaires: 1,
-    max_lots: 75,        // aligné landing page
+    max_lots: 75,
     features: [
       '1 gestionnaire',
       'Jusqu\'à 75 lots',
@@ -443,9 +443,9 @@ export const PLANS_CONFIG = {
   },
   pro: {
     name: 'Pro',
-    price: 149,
+    price: 189,
     max_gestionnaires: 5,
-    max_lots: 400,       // aligné landing page
+    max_lots: 400,
     popular: true,
     features: [
       '2 à 5 gestionnaires',
@@ -458,7 +458,7 @@ export const PLANS_CONFIG = {
   },
   expert: {
     name: 'Cabinet',
-    price: 299,
+    price: 279,
     max_gestionnaires: 999,
     max_lots: 999,
     features: [
