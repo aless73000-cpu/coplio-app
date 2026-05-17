@@ -1676,7 +1676,6 @@ export type Database = {
           actif: boolean
           adresse: string | null
           cabinet_id: string
-          categorie: string | null
           commentaire: string | null
           created_at: string
           email: string | null
@@ -1684,16 +1683,14 @@ export type Database = {
           metier: string | null
           nom: string
           note: number | null
-          notes: string | null
           siret: string | null
           telephone: string | null
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
           actif?: boolean
           adresse?: string | null
           cabinet_id: string
-          categorie?: string | null
           commentaire?: string | null
           created_at?: string
           email?: string | null
@@ -1701,16 +1698,14 @@ export type Database = {
           metier?: string | null
           nom: string
           note?: number | null
-          notes?: string | null
           siret?: string | null
           telephone?: string | null
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
           actif?: boolean
           adresse?: string | null
           cabinet_id?: string
-          categorie?: string | null
           commentaire?: string | null
           created_at?: string
           email?: string | null
@@ -1718,10 +1713,9 @@ export type Database = {
           metier?: string | null
           nom?: string
           note?: number | null
-          notes?: string | null
           siret?: string | null
           telephone?: string | null
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: [
           {

@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
 
 const PUBLIC_ROUTES = [
   '/login',
@@ -84,6 +85,14 @@ export async function middleware(request: NextRequest) {
   // Autoriser les routes publiques sans vérification
   if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
     return NextResponse.next({ request })
+  }
+
+  // Rate limiting sur les méthodes d'écriture des routes API (POST/PUT/PATCH/DELETE)
+  const WRITE_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE']
+  if (pathname.startsWith('/api/') && WRITE_METHODS.includes(request.method)) {
+    const ip = getIP(request)
+    const limit = await rateLimit(`api-write:${ip}`, { max: 60, windowMs: 60_000 })
+    if (!limit.success) return rateLimitResponse(limit.resetAt)
   }
 
   let supabaseResponse = NextResponse.next({ request })
