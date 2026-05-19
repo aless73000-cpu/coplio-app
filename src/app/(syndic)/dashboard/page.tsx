@@ -653,8 +653,8 @@ function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }: KpiCa
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function CoproprieteAlertRow({ copropriete }: { copropriete: any }) {
+type CoproprieteAlert = { id: string; nom: string; nb_lots: number | null; ville: string | null; statut: string | null }
+function CoproprieteAlertRow({ copropriete }: { copropriete: CoproprieteAlert }) {
   return (
     <Link
       href={`/coproprietes/${copropriete.id}`}
@@ -686,8 +686,8 @@ function CoproprieteAlertRow({ copropriete }: { copropriete: any }) {
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function SinistreRow({ sinistre }: { sinistre: any }) {
+type SinistreItem = { id: string; titre: string | null; reference: string | null; status: string | null; copropriete?: { nom: string } | null }
+function SinistreRow({ sinistre }: { sinistre: SinistreItem }) {
   const statusColors: Record<string, string> = {
     signale: 'badge-attention',
     urgence: 'badge-urgent',
@@ -715,15 +715,15 @@ function SinistreRow({ sinistre }: { sinistre: any }) {
           {sinistre.reference} · {sinistre.copropriete?.nom}
         </p>
       </div>
-      <span className={`ml-3 text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${statusColors[sinistre.status] || 'badge-a-jour'}`}>
-        {statusLabels[sinistre.status] || sinistre.status}
+      <span className={`ml-3 text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${statusColors[sinistre.status ?? ''] || 'badge-a-jour'}`}>
+        {statusLabels[sinistre.status ?? ''] || sinistre.status}
       </span>
     </Link>
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function AgRow({ ag }: { ag: any }) {
+type AgItem = { id: string; titre: string; date_ag: string; copropriete?: { nom: string } }
+function AgRow({ ag }: { ag: AgItem }) {
   const date = new Date(ag.date_ag)
   const jours = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
 

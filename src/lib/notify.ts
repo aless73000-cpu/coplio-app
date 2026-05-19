@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/server'
+import { captureException } from '@/lib/monitoring'
 
 /**
  * Notifie tous les syndics d'un cabinet qu'un nouveau message a été reçu.
@@ -43,7 +44,7 @@ export async function notifySyndics({
         lu: false,
       }))
     )
-  } catch {
-    // Fire-and-forget — ne jamais bloquer l'envoi du message
+  } catch (err) {
+    captureException(err, { context: 'notifySyndics', conversationId })
   }
 }
