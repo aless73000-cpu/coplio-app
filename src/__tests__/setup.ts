@@ -20,3 +20,8 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(),
   createAdminClient: vi.fn(),
 }))
+
+// Mock monitoring — évite les vrais appels réseau vers GlitchTip pendant les tests
+vi.mock('@/lib/monitoring', () => ({
+  captureException: vi.fn().mockResolvedValue(undefined),
+}))
