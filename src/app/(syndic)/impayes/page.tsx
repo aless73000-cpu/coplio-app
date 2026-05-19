@@ -56,14 +56,14 @@ export default async function ImpayésPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">Impayés & Relances</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {impayes?.length ?? 0} dossier{(impayes?.length ?? 0) > 1 ? 's' : ''} impayé{(impayes?.length ?? 0) > 1 ? 's' : ''}
           </p>
         </div>
-        <div className="text-right">
+        <div className="sm:text-right">
           <p className="text-2xl font-bold text-coplio-red">{formatEuro(total)}</p>
           <p className="text-xs text-muted-foreground">Total à recouvrer</p>
         </div>

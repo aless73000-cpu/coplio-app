@@ -305,8 +305,8 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
       </div>
 
       <div className="flex-1 flex gap-5 min-h-0">
-        {/* Colonne gauche */}
-        <div className="w-72 flex-shrink-0 flex flex-col gap-3">
+        {/* Colonne gauche — cachée sur mobile quand un chat est ouvert */}
+        <div className={`w-full md:w-72 flex-shrink-0 flex-col gap-3 ${showChat ? 'hidden md:flex' : 'flex'}`}>
           <div className="flex gap-2">
             <button onClick={() => { setTab('copro'); setSelectedConv(null) }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors ${tab === 'copro' ? 'bg-coplio-green text-white' : 'bg-white text-coplio-text border border-border hover:bg-coplio-bg'}`}>
@@ -369,8 +369,8 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
           )}
         </div>
 
-        {/* Zone de chat */}
-        <div className="flex-1 coplio-card p-0 overflow-hidden flex flex-col min-h-0">
+        {/* Zone de chat — cachée sur mobile quand aucun chat sélectionné */}
+        <div className={`flex-1 coplio-card p-0 overflow-hidden flex-col min-h-0 ${showChat ? 'flex' : 'hidden md:flex'}`}>
           {!showChat ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
               <div className="w-16 h-16 bg-coplio-green/10 rounded-full flex items-center justify-center mb-4">

@@ -27,35 +27,39 @@ export function MobileBottomNav({ unreadMessages = 0 }: MobileBottomNavProps) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-border safe-bottom">
-      <div className="flex items-stretch h-16">
+    <nav
+      className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t border-border"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
+      <div className="flex items-stretch h-[60px]">
         {BOTTOM_NAV.map(({ label, href, icon: Icon }) => (
           <Link
             key={href}
             href={href}
-            className={cn(
-              'flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors relative',
-              isActive(href)
-                ? 'text-coplio-green'
-                : 'text-muted-foreground hover:text-coplio-text'
-            )}
+            className="flex-1 flex flex-col items-center justify-center gap-[3px]"
           >
-            <div className="relative">
-              <Icon className={cn('w-5 h-5', isActive(href) && 'stroke-[2.5px]')} />
+            <div className={cn(
+              'flex items-center justify-center w-10 h-[26px] rounded-full transition-all duration-200 relative',
+              isActive(href) ? 'bg-coplio-green-light' : ''
+            )}>
+              <Icon className={cn(
+                'w-[19px] h-[19px] transition-colors duration-200',
+                isActive(href) ? 'text-coplio-green stroke-[2.5px]' : 'text-muted-foreground'
+              )} />
               {href === '/messages' && unreadMessages > 0 && (
-                <span className="absolute -top-1 -right-1.5 min-w-[16px] h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5">
+                <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-[15px] bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
                   {unreadMessages > 9 ? '9+' : unreadMessages}
                 </span>
               )}
             </div>
-            <span>{label}</span>
-            {isActive(href) && (
-              <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-coplio-green rounded-b-full" />
-            )}
+            <span className={cn(
+              'text-[10px] font-medium leading-none transition-colors duration-200',
+              isActive(href) ? 'text-coplio-green' : 'text-muted-foreground'
+            )}>
+              {label}
+            </span>
           </Link>
         ))}
-
-        {/* Bouton "Plus" — ouvre le drawer existant, géré via un événement custom */}
         <MoreButton />
       </div>
     </nav>
@@ -65,13 +69,13 @@ export function MobileBottomNav({ unreadMessages = 0 }: MobileBottomNavProps) {
 function MoreButton() {
   return (
     <button
-      className="flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium text-muted-foreground hover:text-coplio-text transition-colors"
-      onClick={() => {
-        document.dispatchEvent(new CustomEvent('open-mobile-sidebar'))
-      }}
+      className="flex-1 flex flex-col items-center justify-center gap-[3px]"
+      onClick={() => document.dispatchEvent(new CustomEvent('open-mobile-sidebar'))}
     >
-      <MoreHorizontal className="w-5 h-5" />
-      <span>Plus</span>
+      <div className="flex items-center justify-center w-10 h-[26px]">
+        <MoreHorizontal className="w-[19px] h-[19px] text-muted-foreground" />
+      </div>
+      <span className="text-[10px] font-medium leading-none text-muted-foreground">Plus</span>
     </button>
   )
 }

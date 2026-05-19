@@ -17,26 +17,38 @@ export function PortailBottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border flex md:hidden safe-bottom">
-      {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-        const active = pathname === href || pathname.startsWith(href + '/')
-        return (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              'flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors',
-              active ? 'text-coplio-green' : 'text-muted-foreground'
-            )}
-          >
-            <Icon className="w-5 h-5" />
-            <span className="text-[10px] font-medium">{label}</span>
-            {active && (
-              <span className="absolute bottom-0 w-8 h-0.5 bg-coplio-green rounded-full" />
-            )}
-          </Link>
-        )
-      })}
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/95 backdrop-blur-sm border-t border-border"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
+      <div className="flex items-stretch h-[60px]">
+        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          const active = pathname === href || pathname.startsWith(href + '/')
+          return (
+            <Link
+              key={href}
+              href={href}
+              className="flex-1 flex flex-col items-center justify-center gap-[3px]"
+            >
+              <div className={cn(
+                'flex items-center justify-center w-10 h-[26px] rounded-full transition-all duration-200',
+                active ? 'bg-coplio-green-light' : ''
+              )}>
+                <Icon className={cn(
+                  'w-[19px] h-[19px] transition-colors duration-200',
+                  active ? 'text-coplio-green stroke-[2.5px]' : 'text-muted-foreground'
+                )} />
+              </div>
+              <span className={cn(
+                'text-[10px] font-medium leading-none transition-colors duration-200',
+                active ? 'text-coplio-green' : 'text-muted-foreground'
+              )}>
+                {label}
+              </span>
+            </Link>
+          )
+        })}
+      </div>
     </nav>
   )
 }

@@ -104,9 +104,9 @@ export function ImpayesTable({ impayes: initial }: Props) {
 
   return (
     <div className="coplio-card">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h2 className="font-semibold text-coplio-text">Détail des impayés</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={handleExportCSV}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-coplio-bg border border-border text-coplio-text rounded-lg
