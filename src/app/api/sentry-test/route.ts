@@ -8,6 +8,7 @@ export async function GET() {
   const url = `https://${host}/api/${projectId}/store/`
 
   const payload = {
+    event_id: crypto.randomUUID().replace(/-/g, ''),
     message: 'Test direct GlitchTip depuis Coplio ✓',
     level: 'error',
     platform: 'node',
