@@ -1,5 +1,6 @@
 'use client'
 
+import * as Sentry from '@sentry/nextjs'
 import { useEffect } from 'react'
 import Link from 'next/link'
 import { Home, RefreshCw } from 'lucide-react'
@@ -12,8 +13,7 @@ export default function GlobalError({
   reset: () => void
 }) {
   useEffect(() => {
-    // Log to Sentry in production
-    console.error('Global error:', error)
+    Sentry.captureException(error)
   }, [error])
 
   return (

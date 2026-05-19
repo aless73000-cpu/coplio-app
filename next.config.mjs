@@ -60,6 +60,21 @@ const nextConfig = {
             value: 'camera=(), microphone=(), geolocation=()',
           },
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' plausible.io",
+              "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
+              "font-src 'self' fonts.gstatic.com",
+              "img-src 'self' blob: data: *.supabase.co",
+              "connect-src 'self' *.supabase.co wss://*.supabase.co *.sentry.io plausible.io",
+              "worker-src 'self' blob:",
+              "frame-ancestors 'none'",
+              "form-action 'self'",
+              "base-uri 'self'",
+            ].join('; '),
+          },
         ],
       },
       // Cache long pour les fichiers statiques Next.js (hashed)
@@ -87,7 +102,5 @@ export default withBundleAnalyzer(
     silent: true,
     widenClientFileUpload: true,
     hideSourceMaps: true,
-    disableLogger: true,
-    automaticVercelMonitors: true,
   })
 )

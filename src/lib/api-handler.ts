@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
@@ -12,7 +13,7 @@ export function withErrorHandler<T extends unknown[]>(
     try {
       return await handler(...args)
     } catch (err) {
-      console.error('[API Error]', err)
+      Sentry.captureException(err)
       return NextResponse.json(
         { error: 'Erreur serveur inattendue' },
         { status: 500 }
