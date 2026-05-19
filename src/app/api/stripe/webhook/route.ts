@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/nextjs'
+import { captureException } from '@/lib/monitoring'
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { createAdminClient } from '@/lib/supabase/server'
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       process.env.STRIPE_WEBHOOK_SECRET!
     )
   } catch (err) {
-    Sentry.captureException(err, { tags: { webhook: 'stripe', phase: 'signature' } })
+    captureException(err, { webhook: 'stripe', phase: 'signature' })
     return NextResponse.json({ error: 'Signature invalide' }, { status: 400 })
   }
 
@@ -133,7 +133,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true })
   } catch (error) {
-    Sentry.captureException(error, { tags: { webhook: 'stripe', event: event.type } })
+    captureException(error, { webhook: 'stripe', event: event.type })
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
 }

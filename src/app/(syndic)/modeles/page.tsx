@@ -446,7 +446,7 @@ function TemplateCard({ template }: { template: typeof TEMPLATES[number] }) {
     try {
       await generatePDF(template.id, values)
     } catch (err) {
-      import('@sentry/nextjs').then(({ captureException }) => captureException(err))
+      import('@/lib/monitoring').then(({ captureException }) => captureException(err))
       alert('Erreur lors de la génération du PDF')
     } finally {
       setGenerating(false)

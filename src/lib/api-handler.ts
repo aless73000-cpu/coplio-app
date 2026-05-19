@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/nextjs'
+import { captureException } from '@/lib/monitoring'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
@@ -13,7 +13,7 @@ export function withErrorHandler<T extends unknown[]>(
     try {
       return await handler(...args)
     } catch (err) {
-      Sentry.captureException(err)
+      await captureException(err)
       return NextResponse.json(
         { error: 'Erreur serveur inattendue' },
         { status: 500 }
