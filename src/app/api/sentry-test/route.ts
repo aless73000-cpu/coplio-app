@@ -2,8 +2,9 @@ import * as Sentry from '@sentry/nextjs'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
+  const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN
   const err = new Error('Test GlitchTip — si tu vois ça, le monitoring fonctionne ✓')
   Sentry.captureException(err)
-  await Sentry.flush(2000)
-  return NextResponse.json({ sent: true })
+  const flushed = await Sentry.flush(5000)
+  return NextResponse.json({ sent: true, flushed, dsn_present: !!dsn })
 }
