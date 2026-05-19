@@ -635,7 +635,7 @@ function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }: KpiCa
   }
 
   return (
-    <Link href={href} className="coplio-card hover:shadow-md transition-shadow group">
+    <Link href={href} className="coplio-card !p-4 md:!p-6 hover:shadow-md transition-shadow group">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{title}</p>
@@ -644,8 +644,8 @@ function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }: KpiCa
           </p>
           {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
         </div>
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors[color]}`}>
-          <Icon className="w-5 h-5" />
+        <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colors[color]}`}>
+          <Icon className="w-4 h-4 md:w-5 md:h-5" />
         </div>
       </div>
       <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground group-hover:text-coplio-green transition-colors">
