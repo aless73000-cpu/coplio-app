@@ -635,18 +635,16 @@ function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }: KpiCa
   }
 
   return (
-    <Link href={href} className="coplio-card !p-4 md:!p-6 hover:shadow-md transition-shadow group">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{title}</p>
-          <p className={`text-2xl font-bold mt-1 ${isAmount && typeof value === 'string' && value.includes('-') ? 'text-coplio-red' : 'text-coplio-text'}`}>
-            {value}
-          </p>
-          {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
-        </div>
-        <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colors[color]}`}>
-          <Icon className="w-4 h-4 md:w-5 md:h-5" />
-        </div>
+    <Link href={href} className="coplio-card !p-4 md:!p-6 hover:shadow-md transition-shadow group relative">
+      <div className={`absolute top-3 right-3 w-7 h-7 rounded-lg flex items-center justify-center ${colors[color]}`}>
+        <Icon className="w-3.5 h-3.5" />
+      </div>
+      <div className="pr-10">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{title}</p>
+        <p className={`text-xl font-bold mt-1 ${isAmount && typeof value === 'string' && value.includes('-') ? 'text-coplio-red' : 'text-coplio-text'}`}>
+          {value}
+        </p>
+        {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
       </div>
       <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground group-hover:text-coplio-green transition-colors">
         Voir le détail <ArrowRight className="w-3 h-3" />
