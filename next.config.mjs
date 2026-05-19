@@ -68,7 +68,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
               "font-src 'self' fonts.gstatic.com",
               "img-src 'self' blob: data: *.supabase.co",
-              "connect-src 'self' *.supabase.co wss://*.supabase.co *.sentry.io plausible.io",
+              "connect-src 'self' *.supabase.co wss://*.supabase.co *.sentry.io app.glitchtip.com plausible.io",
               "worker-src 'self' blob:",
               "frame-ancestors 'none'",
               "form-action 'self'",
