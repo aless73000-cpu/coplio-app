@@ -277,13 +277,15 @@ export default async function DashboardPage() {
             })}
           </p>
         </div>
-        <RapportMensuelButton data={{
-          coproprietes: (coproprietes ?? []) as Copropriete[],
-          totalEmis,
-          totalRecouvre,
-          tauxGlobal,
-          cabinetNom: (profile.cabinet as { nom?: string } | null)?.nom ?? 'Mon cabinet',
-        }} />
+        <div className="hidden md:block">
+          <RapportMensuelButton data={{
+            coproprietes: (coproprietes ?? []) as Copropriete[],
+            totalEmis,
+            totalRecouvre,
+            tauxGlobal,
+            cabinetNom: (profile.cabinet as { nom?: string } | null)?.nom ?? 'Mon cabinet',
+          }} />
+        </div>
       </div>
 
       {/* Trial banner */}
