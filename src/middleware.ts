@@ -16,6 +16,7 @@ const PUBLIC_ROUTES = [
   '/api/stripe/webhook',
   '/api/auth/register',
   '/api/auth/signout',
+  '/api/sentry-test',
 ]
 
 export async function middleware(request: NextRequest) {
