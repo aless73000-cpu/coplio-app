@@ -102,8 +102,13 @@ export default async function CopropriétairesPage() {
       )}
 
       {copropriétaires && copropriétaires.length > 0 ? (
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        <CoproprietairesClient data={copropriétaires as any[]} />
+        <CoproprietairesClient data={copropriétaires.map((c) => ({
+          ...c,
+          email: c.email ?? undefined,
+          telephone: c.telephone ?? undefined,
+          portail_actif: c.portail_actif ?? undefined,
+          invitation_envoyee_at: c.invitation_envoyee_at ?? undefined,
+        }))} />
       ) : (
         <div className="coplio-card text-center py-16">
           <div className="w-14 h-14 bg-coplio-green/10 rounded-full flex items-center justify-center mx-auto mb-4">

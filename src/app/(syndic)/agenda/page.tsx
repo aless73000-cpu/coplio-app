@@ -63,24 +63,23 @@ export default async function AgendaPage() {
       .order('date_debut').limit(50),
   ])
 
+  type WithCopropriete = { copropriete: { nom: string } | null }
+
   const systemEvents = [
     ...(ags.data ?? []).map((a) => ({
       id: a.id, type: 'ag' as const,
       titre: a.titre ?? 'Assemblée générale',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      sous_titre: (a.copropriete as any)?.nom,
+      sous_titre: (a as unknown as WithCopropriete).copropriete?.nom,
       date: a.date_ag, lien: `/assemblees/${a.id}`, statut: a.status,
     })),
     ...(echeances.data ?? []).map((e) => ({
       id: e.id, type: 'echeance' as const, titre: e.libelle,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      sous_titre: (e.copropriete as any)?.nom,
+      sous_titre: (e as unknown as WithCopropriete).copropriete?.nom,
       date: e.date_echeance, lien: `/appels-charges`, statut: 'À régler',
     })),
     ...(sinistres.data ?? []).map((s) => ({
       id: s.id, type: 'sinistre' as const, titre: s.titre,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      sous_titre: (s.copropriete as any)?.nom,
+      sous_titre: (s as unknown as WithCopropriete).copropriete?.nom,
       date: s.date_sinistre, lien: `/sinistres/${s.id}`, statut: s.status,
     })),
   ]

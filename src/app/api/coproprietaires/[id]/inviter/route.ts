@@ -48,9 +48,7 @@ export async function POST(
     } | undefined
 
     const lotId = firstJunction?.lot_id
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const copropriete = firstJunction?.lot?.copropriete as any
-    const nomCopropriete = copropriete?.nom ?? 'votre résidence'
+    const nomCopropriete = firstJunction?.lot?.copropriete?.nom ?? 'votre résidence'
 
     // Récupérer le cabinet
     const { data: cabinet } = await admin

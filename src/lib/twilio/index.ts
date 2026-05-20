@@ -24,8 +24,8 @@ export async function sendSMS(to: string, body: string) {
   try {
     const FROM = process.env.TWILIO_FROM_NUMBER
     if (!FROM) return { success: false, error: 'TWILIO_FROM_NUMBER manquant' }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const message = await (client as any).messages.create({
+    // Le client Twilio est chargé dynamiquement via require() — cast nécessaire
+    const message = await (client as { messages: { create: (opts: { from: string; to: string; body: string }) => Promise<{ sid: string }> } }).messages.create({
       from: FROM,
       to: normalizePhone(to),
       body,

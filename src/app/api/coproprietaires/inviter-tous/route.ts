@@ -71,8 +71,8 @@ export async function POST() {
           .eq('coproprietaire_id', copro.id)
           .limit(1)
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const nomCopropriete = (junctions?.[0] as any)?.lot?.copropriete?.nom ?? 'votre résidence'
+        type Junction = { lot_id: string; lot: { copropriete: { nom: string } | null } | null }
+        const nomCopropriete = (junctions?.[0] as unknown as Junction | undefined)?.lot?.copropriete?.nom ?? 'votre résidence'
         const lotId = junctions?.[0]?.lot_id ?? null
 
         // Générer le lien d'invitation

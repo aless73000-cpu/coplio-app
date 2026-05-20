@@ -338,8 +338,8 @@ export default async function CopropriétairePage({ params }: { params: { id: st
         {lots.length > 0 ? (
           <div className="space-y-3">
             {lots.map((cl) => {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const lot = cl.lot as any
+              type LotWithCopropriete = { id: string; numero: string; etage?: string; surface?: number; tantiemes?: number; solde_compte?: number; copropriete: { id: string; nom: string } | { id: string; nom: string }[] | null }
+              const lot = cl.lot as unknown as LotWithCopropriete
               const coproprieteNom = Array.isArray(lot.copropriete) ? lot.copropriete[0]?.nom : lot.copropriete?.nom
               return (
                 <Link
@@ -362,9 +362,9 @@ export default async function CopropriétairePage({ params }: { params: { id: st
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-xs text-muted-foreground">{lot.tantiemes} t.</p>
-                    {lot.solde_compte !== 0 && (
-                      <p className={`text-xs font-medium ${lot.solde_compte < 0 ? 'text-red-500' : 'text-coplio-green'}`}>
-                        {formatEuro(lot.solde_compte)}
+                    {(lot.solde_compte ?? 0) !== 0 && (
+                      <p className={`text-xs font-medium ${(lot.solde_compte ?? 0) < 0 ? 'text-red-500' : 'text-coplio-green'}`}>
+                        {formatEuro(lot.solde_compte ?? 0)}
                       </p>
                     )}
                   </div>

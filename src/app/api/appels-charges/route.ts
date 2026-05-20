@@ -88,8 +88,7 @@ async function sendNotificationsCharges(
 
     if (!lot) continue
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const nomCopropriete = (lot.copropriete as any)?.nom ?? 'votre résidence'
+    const nomCopropriete = (lot.copropriete as { nom: string } | null)?.nom ?? 'votre résidence'
     const lotAppels = appels.filter(a => a.lot_id === lotId)
 
     // Un email par appel

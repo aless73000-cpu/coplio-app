@@ -48,10 +48,12 @@ export async function POST(
       .eq('id', profile.cabinet_id)
       .single()
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const coproprieteId = (ag.copropriete as any)?.id
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const nomCopropriete = (ag.copropriete as any)?.nom ?? 'votre résidence'
+    const agCopropriete = ag.copropriete as { id: string; nom: string } | null
+    if (!agCopropriete?.id) {
+      return NextResponse.json({ error: 'Copropriété introuvable sur cette AG' }, { status: 400 })
+    }
+    const coproprieteId = agCopropriete.id
+    const nomCopropriete = agCopropriete.nom ?? 'votre résidence'
 
     // Récupérer tous les copropriétaires de la résidence
     const { data: lots } = await admin
