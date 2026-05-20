@@ -3,6 +3,19 @@ import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
 import { formatEuro, formatDate } from '@/lib/utils'
 import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
+import { captureException } from '@/lib/monitoring'
+
+type AppelWithJoins = {
+  id: string
+  lot_id: string
+  nb_relances: number
+  montant: number
+  montant_paye: number | null
+  date_echeance: string
+  paye: boolean
+  copropriete: { id: string; nom: string; cabinet_id: string } | null
+  lot: { id: string; numero: string } | null
+}
 
 export async function POST(
   _req: Request,
@@ -44,9 +57,13 @@ export async function POST(
 
     if (!appel) return NextResponse.json({ error: 'Appel introuvable' }, { status: 404 })
 
-    // Vérifier que l'appel appartient au cabinet
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((appel.copropriete as any)?.cabinet_id !== profile.cabinet_id) {
+    const appelTyped = appel as unknown as AppelWithJoins
+
+    // Vérifier que l'appel appartient au cabinet (vérification explicite + hard fail si null)
+    if (!appelTyped.copropriete?.cabinet_id) {
+      return NextResponse.json({ error: 'Données copropriété manquantes' }, { status: 500 })
+    }
+    if (appelTyped.copropriete.cabinet_id !== profile.cabinet_id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
     }
 
@@ -81,10 +98,8 @@ export async function POST(
         montant: formatEuro(appel.montant - (appel.montant_paye ?? 0)),
         dateEcheance: formatDate(appel.date_echeance),
         cabinetNom: cabinet?.nom ?? 'Votre syndic',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        nomCopropriete: (appel.copropriete as any)?.nom ?? 'votre résidence',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        numeroLot: (appel.lot as any)?.numero ?? '',
+        nomCopropriete: appelTyped.copropriete?.nom ?? 'votre résidence',
+        numeroLot: appelTyped.lot?.numero ?? '',
         niveau,
         portailUrl: `${appUrl}/mes-charges`,
       },
@@ -106,7 +121,7 @@ export async function POST(
 
     return NextResponse.json({ success: true, niveau, emailId: result.emailId })
   } catch (err) {
-    console.error('[Relance impayé]', err)
+    await captureException(err, { context: 'relancer-impaye', appelId: params.id })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

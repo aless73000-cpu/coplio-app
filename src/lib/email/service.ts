@@ -7,6 +7,7 @@
 import { Resend } from 'resend'
 import { EMAIL_CONFIG } from './config'
 import type { EmailPayload, SendResult, EmailLog } from './types'
+import { captureException } from '@/lib/monitoring'
 
 // ─── Client Resend (lazy) ─────────────────────────────────────
 
@@ -77,15 +78,22 @@ function validateRecipients(to: string | string[]): string[] {
 // ─── Logging structuré ────────────────────────────────────────
 
 function logEmail(log: EmailLog) {
-  const prefix = log.success ? '✅ [Email sent]' : '❌ [Email failed]'
-  console.log(
-    JSON.stringify({
-      level: log.success ? 'info' : 'error',
-      service: 'email',
-      ...log,
-      _prefix: prefix,
+  const structured = JSON.stringify({
+    level: log.success ? 'info' : 'error',
+    service: 'email',
+    ...log,
+  })
+  if (log.success) {
+    console.log(structured)
+  } else {
+    // Erreur structurée dans les logs Vercel + remontée GlitchTip
+    console.error(structured)
+    captureException(new Error(`Email failed: ${log.error ?? 'unknown'}`), {
+      to: Array.isArray(log.to) ? log.to.join(', ') : log.to,
+      subject: log.subject,
+      attempts: log.attempts,
     })
-  )
+  }
 }
 
 // ─── Erreurs retryable ────────────────────────────────────────
@@ -121,7 +129,6 @@ export async function sendEmail(payload: EmailPayload): Promise<SendResult> {
 
   // 1. Idempotence
   if (payload.idempotencyKey && _sentKeys.has(payload.idempotencyKey)) {
-    console.log(`[Email] Doublon ignoré (idempotencyKey=${payload.idempotencyKey})`)
     return { success: true, attempts: 0, durationMs: 0 }
   }
 
@@ -217,10 +224,6 @@ export async function sendEmail(payload: EmailPayload): Promise<SendResult> {
 
       if (attempt < maxAttempts && retryable) {
         const delay = delays[attempt - 1] ?? 2000
-        console.warn(
-          `[Email] Tentative ${attempt}/${maxAttempts} échouée — retry dans ${delay}ms`,
-          err instanceof Error ? err.message : err
-        )
         await sleep(delay)
       } else {
         // Erreur définitive ou non-retryable
@@ -279,6 +282,5 @@ export async function sendEmailBatch(
     if (delayBetweenMs > 0) await sleep(delayBetweenMs)
   }
 
-  console.log(`[Email batch] ${sent} envoyés, ${failed} échoués sur ${payloads.length}`)
   return { sent, failed, results }
 }

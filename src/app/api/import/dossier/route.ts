@@ -172,7 +172,6 @@ export async function POST(request: Request) {
       errors: lotsErrors,
     })
   } catch (err) {
-    console.error('Import error:', err)
     return NextResponse.json({ error: 'Erreur lors de l\'import' }, { status: 500 })
   }
 }
