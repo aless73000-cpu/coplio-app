@@ -1,4 +1,3 @@
-import { withSentryConfig } from '@sentry/nextjs'
 import bundleAnalyzer from '@next/bundle-analyzer'
 
 const withBundleAnalyzer = bundleAnalyzer({
@@ -95,12 +94,4 @@ const nextConfig = {
   },
 }
 
-export default withBundleAnalyzer(
-  withSentryConfig(nextConfig, {
-    org: process.env.SENTRY_ORG,
-    project: process.env.SENTRY_PROJECT,
-    silent: true,
-    widenClientFileUpload: true,
-    hideSourceMaps: true,
-  })
-)
+export default withBundleAnalyzer(nextConfig)

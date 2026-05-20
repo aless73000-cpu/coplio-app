@@ -106,7 +106,7 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
     statusConfig[copropriete.statut as keyof typeof statusConfig] ?? statusConfig.a_jour
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
       {/* Navigation */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Link href="/coproprietes" className="hover:text-coplio-green flex items-center gap-1">

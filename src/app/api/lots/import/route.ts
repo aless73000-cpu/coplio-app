@@ -1,6 +1,6 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
 
 const LOT_TYPES = ['appartement', 'maison', 'local_commercial', 'parking', 'cave', 'autre'] as const
@@ -61,9 +61,25 @@ export async function POST(request: Request) {
 
     // Parse Excel
     const arrayBuffer = await file.arrayBuffer()
-    const wb = XLSX.read(arrayBuffer, { type: 'array' })
-    const sheet = wb.Sheets['Lots'] || wb.Sheets[wb.SheetNames[0]]
-    const rows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(sheet, { defval: '' })
+    const wb = new ExcelJS.Workbook()
+    await wb.xlsx.load(arrayBuffer)
+    const sheet = wb.getWorksheet('Lots') ?? wb.worksheets[0]
+    if (!sheet) return NextResponse.json({ error: 'Aucune feuille trouvée dans le fichier.' }, { status: 400 })
+
+    // Extraire les en-têtes depuis la 1ère ligne
+    const headerRow = sheet.getRow(1).values as (string | undefined)[]
+    const headers = headerRow.slice(1) // ExcelJS commence à l'index 1
+
+    const rows: Record<string, unknown>[] = []
+    sheet.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return // skip header
+      const values = row.values as unknown[]
+      const obj: Record<string, unknown> = {}
+      headers.forEach((h, i) => {
+        if (h) obj[h] = values[i + 1] ?? ''
+      })
+      rows.push(obj)
+    })
 
     const toInsert: {
       copropriete_id: string

@@ -1,6 +1,6 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 
 const LOT_TYPES = ['appartement', 'maison', 'local_commercial', 'parking', 'cave', 'autre'] as const
 type LotType = typeof LOT_TYPES[number]
@@ -48,11 +48,28 @@ export async function POST(request: Request) {
 
     // Parse Excel
     const arrayBuffer = await file.arrayBuffer()
-    const wb = XLSX.read(arrayBuffer, { type: 'array' })
+    const wb = new ExcelJS.Workbook()
+    await wb.xlsx.load(arrayBuffer)
+
+    // Helper : convertit une feuille ExcelJS en tableau d'objets
+    const sheetToJson = (ws: ExcelJS.Worksheet): Record<string, unknown>[] => {
+      const headerRow = ws.getRow(1).values as (string | undefined)[]
+      const headers = headerRow.slice(1)
+      const result: Record<string, unknown>[] = []
+      ws.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return
+        const vals = row.values as unknown[]
+        const obj: Record<string, unknown> = {}
+        headers.forEach((h, i) => { if (h) obj[h] = vals[i + 1] ?? '' })
+        result.push(obj)
+      })
+      return result
+    }
 
     // ─── Parse Lots sheet ─────────────────────────────────────
-    const lotsSheet = wb.Sheets['Lots'] || wb.Sheets[wb.SheetNames[0]]
-    const rawLots: Record<string, unknown>[] = XLSX.utils.sheet_to_json(lotsSheet, { defval: '' })
+    const lotsSheet = wb.getWorksheet('Lots') ?? wb.worksheets[0]
+    if (!lotsSheet) return NextResponse.json({ error: 'Feuille Lots introuvable' }, { status: 400 })
+    const rawLots = sheetToJson(lotsSheet)
 
     const lotsCreated: { numero: string; id: string }[] = []
     const lotsErrors: string[] = []
@@ -91,16 +108,17 @@ export async function POST(request: Request) {
     }
 
     // ─── Parse Copropriétaires sheet ──────────────────────────
-    const coprosSheetName = wb.SheetNames.find(
-      (n) => n.toLowerCase().includes('copro') || n.toLowerCase().includes('proprio')
-    ) || wb.SheetNames[1]
+    const coprosSheetName = wb.worksheets
+      .map((ws) => ws.name)
+      .find((n) => n.toLowerCase().includes('copro') || n.toLowerCase().includes('proprio'))
+      ?? wb.worksheets[1]?.name
 
     const coprosCreated: number = await (async () => {
       if (!coprosSheetName) return 0
-      const coprosSheet = wb.Sheets[coprosSheetName]
+      const coprosSheet = wb.getWorksheet(coprosSheetName)
       if (!coprosSheet) return 0
 
-      const rawCopros: Record<string, unknown>[] = XLSX.utils.sheet_to_json(coprosSheet, { defval: '' })
+      const rawCopros = sheetToJson(coprosSheet)
       let count = 0
 
       for (const row of rawCopros) {

@@ -1,35 +1,42 @@
 import { NextResponse } from 'next/server'
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 
 export async function GET() {
-  const wb = XLSX.utils.book_new()
+  const wb = new ExcelJS.Workbook()
 
-  // Sheet 1: Lots
-  const lotsData = [
-    ['numero', 'type', 'etage', 'surface_m2', 'tantiemes'],
-    ['A01', 'appartement', 'RDC', 45, 250],
-    ['A02', 'appartement', '1er', 60, 320],
-    ['P01', 'parking', '', '', 50],
+  // ─── Feuille Lots ────────────────────────────────────────────
+  const lotsSheet = wb.addWorksheet('Lots')
+  lotsSheet.columns = [
+    { header: 'numero',     key: 'numero',     width: 10 },
+    { header: 'type',       key: 'type',       width: 20 },
+    { header: 'etage',      key: 'etage',      width: 10 },
+    { header: 'surface_m2', key: 'surface_m2', width: 12 },
+    { header: 'tantiemes',  key: 'tantiemes',  width: 12 },
   ]
-  const lotsSheet = XLSX.utils.aoa_to_sheet(lotsData)
-  lotsSheet['!cols'] = [
-    { wch: 10 }, { wch: 20 }, { wch: 10 }, { wch: 12 }, { wch: 12 },
-  ]
-  XLSX.utils.book_append_sheet(wb, lotsSheet, 'Lots')
+  lotsSheet.getRow(1).eachCell((cell) => { cell.font = { bold: true } })
+  lotsSheet.addRows([
+    { numero: 'A01', type: 'appartement', etage: 'RDC', surface_m2: 45, tantiemes: 250 },
+    { numero: 'A02', type: 'appartement', etage: '1er', surface_m2: 60, tantiemes: 320 },
+    { numero: 'P01', type: 'parking',     etage: '',    surface_m2: '',  tantiemes: 50  },
+  ])
 
-  // Sheet 2: Copropriétaires
-  const coprosData = [
-    ['prenom', 'nom', 'email', 'telephone', 'adresse', 'lots'],
-    ['Jean', 'Dupont', 'jean.dupont@email.com', '0612345678', '12 rue de la Paix, 75001 Paris', 'A01'],
-    ['Marie', 'Martin', 'marie.martin@email.com', '0698765432', '', 'A02 P01'],
+  // ─── Feuille Copropriétaires ─────────────────────────────────
+  const coprosSheet = wb.addWorksheet('Copropriétaires')
+  coprosSheet.columns = [
+    { header: 'prenom',    key: 'prenom',    width: 15 },
+    { header: 'nom',       key: 'nom',       width: 15 },
+    { header: 'email',     key: 'email',     width: 30 },
+    { header: 'telephone', key: 'telephone', width: 14 },
+    { header: 'adresse',   key: 'adresse',   width: 35 },
+    { header: 'lots',      key: 'lots',      width: 15 },
   ]
-  const coprosSheet = XLSX.utils.aoa_to_sheet(coprosData)
-  coprosSheet['!cols'] = [
-    { wch: 15 }, { wch: 15 }, { wch: 30 }, { wch: 14 }, { wch: 35 }, { wch: 15 },
-  ]
-  XLSX.utils.book_append_sheet(wb, coprosSheet, 'Copropriétaires')
+  coprosSheet.getRow(1).eachCell((cell) => { cell.font = { bold: true } })
+  coprosSheet.addRows([
+    { prenom: 'Jean',  nom: 'Dupont', email: 'jean.dupont@email.com',   telephone: '0612345678', adresse: '12 rue de la Paix, 75001 Paris', lots: 'A01'     },
+    { prenom: 'Marie', nom: 'Martin', email: 'marie.martin@email.com',  telephone: '0698765432', adresse: '',                               lots: 'A02 P01' },
+  ])
 
-  const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
+  const buffer = await wb.xlsx.writeBuffer()
 
   return new NextResponse(buffer, {
     headers: {

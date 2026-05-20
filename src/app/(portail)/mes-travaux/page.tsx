@@ -121,7 +121,7 @@ export default async function MesTravaux({
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* En-tête */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">Travaux & sinistres</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
@@ -131,7 +131,7 @@ export default async function MesTravaux({
         </div>
         <a
           href="/mes-travaux?nouveau=1"
-          className="flex items-center gap-2 bg-coplio-green text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+          className="flex items-center gap-2 bg-coplio-green text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-coplio-green/90 transition-colors self-start"
         >
           <Plus className="w-4 h-4" />
           Signaler un problème

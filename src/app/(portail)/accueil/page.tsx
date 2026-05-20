@@ -102,7 +102,7 @@ export default async function AccueilPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* En-tête */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">Bonjour, {prenom} 👋</h1>
           {lot?.copropriete && (
@@ -176,7 +176,7 @@ export default async function AccueilPage() {
       {/* Fonds de travaux */}
       {fondsTravaux && (
         <div className="coplio-card border-blue-200 bg-blue-50/40">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Landmark className="w-5 h-5 text-blue-600" />
@@ -187,7 +187,7 @@ export default async function AccueilPage() {
               </div>
             </div>
             {fondsTravaux.objectif_5ans && fondsTravaux.objectif_5ans > 0 && (
-              <div className="text-right">
+              <div className="sm:text-right">
                 <p className="text-xs text-muted-foreground mb-1">
                   Objectif 5 ans : {formatEuro(fondsTravaux.objectif_5ans)}
                 </p>
