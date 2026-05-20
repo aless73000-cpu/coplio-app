@@ -1,5 +1,6 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { captureException } from '@/lib/monitoring'
 
 export async function POST(request: Request) {
   try {
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ logo_url: publicUrl })
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err, { context: 'cabinet-logo' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

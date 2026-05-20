@@ -14,6 +14,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { Email } from '@/lib/email'
 import { formatEuro, formatDate } from '@/lib/utils'
+import { captureException } from '@/lib/monitoring'
 
 export const runtime = 'nodejs'
 export const maxDuration = 120
@@ -66,7 +67,7 @@ export async function GET(request: Request) {
     .not('lot_id', 'is', null)
 
   if (error) {
-    console.error('[Cron relances] Erreur Supabase:', error)
+    captureException(error, { context: 'cron-relances-supabase' })
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
@@ -150,7 +151,7 @@ export async function GET(request: Request) {
       }
     } catch (err) {
       totalFailed++
-      console.error(`[Cron relances] Erreur appel ${appel.id}:`, err)
+      captureException(err, { context: 'cron-relances-appel', appelId: appel.id })
     }
   }
 

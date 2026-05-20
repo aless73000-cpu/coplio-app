@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createHash } from 'crypto'
 import { requireCabinetUser } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
 
 export async function GET(request: Request) {
   try {
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data ?? [])
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err, { context: 'archives-get' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
@@ -82,7 +83,7 @@ export async function POST(request: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data, { status: 201 })
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err, { context: 'archives-post' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

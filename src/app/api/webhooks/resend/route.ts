@@ -17,6 +17,7 @@
 import { NextResponse } from 'next/server'
 import type { ResendWebhookEvent } from '@/lib/email/types'
 import { Email } from '@/lib/email'
+import { captureException } from '@/lib/monitoring'
 
 export const runtime = 'nodejs'
 
@@ -32,7 +33,7 @@ async function verifySignature(
   if (!secret) {
     // En dev sans secret configuré, on laisse passer (warn uniquement)
     if (process.env.NODE_ENV === 'development') {
-      console.warn('[Resend Webhook] RESEND_WEBHOOK_SECRET non configuré — signature non vérifiée')
+      captureException(new Error('RESEND_WEBHOOK_SECRET non configuré en production'), { context: 'resend-webhook-auth' })
       return true
     }
     return false
@@ -47,7 +48,7 @@ async function verifySignature(
   // Vérification anti-replay : timestamp max 5 minutes
   const ts = parseInt(svixTimestamp, 10)
   if (isNaN(ts) || Math.abs(Date.now() / 1000 - ts) > 300) {
-    console.warn('[Resend Webhook] Timestamp trop ancien — possible replay attack')
+    captureException(new Error('Resend webhook timestamp trop ancien — possible replay attack'), { context: 'resend-webhook-replay' })
     return false
   }
 
@@ -85,13 +86,13 @@ async function handleBounce(event: ResendWebhookEvent) {
         },
       },
       process.env.ADMIN_ALERT_EMAIL ?? 'team@coplio.fr'
-    ).catch(console.error)
+    ).catch((e) => captureException(e, { context: 'resend-webhook-critical-alert' }))
   }
 }
 
 async function handleComplaint(event: ResendWebhookEvent) {
   const { email_id, to } = event.data
-  console.warn(`[Resend] Plainte spam de ${to.join(', ')} (emailId=${email_id})`)
+  captureException(new Error(`Plainte spam de ${to.join(', ')} (emailId=${email_id})`), { context: 'resend-webhook-complaint', emailId: email_id })
 
   // Signalement de spam → alerter l'admin
   await Email.criticalAlert(
@@ -106,7 +107,7 @@ async function handleComplaint(event: ResendWebhookEvent) {
       },
     },
     process.env.ADMIN_ALERT_EMAIL ?? 'team@coplio.fr'
-  ).catch(console.error)
+  ).catch((err: unknown) => captureException(err, { context: 'webhook-resend-alert' }))
 }
 
 // ─── Handler principal ────────────────────────────────────────
@@ -117,7 +118,7 @@ export async function POST(request: Request) {
   // 1. Vérifier la signature
   const valid = await verifySignature(payload, request.headers)
   if (!valid) {
-    console.error('[Resend Webhook] Signature invalide — requête rejetée')
+    captureException(new Error('Resend Webhook — signature invalide'), { context: 'resend-webhook-invalid-sig' })
     return NextResponse.json({ error: 'Signature invalide' }, { status: 401 })
   }
 
@@ -143,7 +144,7 @@ export async function POST(request: Request) {
         // Confirmé livré → pas d'action, log suffit
         break
       case 'email.delivery_delayed':
-        console.warn(`[Resend] Livraison retardée pour ${event.data.to.join(', ')}`)
+        captureException(new Error(`Livraison retardée pour ${event.data.to.join(', ')}`), { context: 'resend-webhook-delivery-delayed' })
         break
       case 'email.opened':
       case 'email.clicked':
@@ -154,9 +155,9 @@ export async function POST(request: Request) {
         break
     }
   } catch (err) {
-    console.error('[Resend Webhook] Erreur handler:', err)
+    captureException(err, { context: 'resend-webhook-handler' })
     // On retourne 200 quand même pour éviter les retries Resend
-    // (l'erreur est loggée, pas bloquante)
+    // (l'erreur est capturée, pas bloquante)
   }
 
   return NextResponse.json({ received: true })

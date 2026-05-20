@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { captureException } from '@/lib/monitoring'
 
 const schema = z.object({
   copropriete_id: z.string().uuid(),
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data ?? [])
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err, { context: 'obligations-legales' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data, { status: 201 })
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err, { context: 'obligations-legales' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

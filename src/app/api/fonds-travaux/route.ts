@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { captureException } from '@/lib/monitoring'
 
 export async function GET(request: Request) {
   try {
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
     }))
     return NextResponse.json(mapped)
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err, { context: 'fonds-travaux' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data)
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err, { context: 'fonds-travaux' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

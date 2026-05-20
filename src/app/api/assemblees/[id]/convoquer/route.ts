@@ -2,6 +2,7 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
 import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
+import { captureException } from '@/lib/monitoring'
 
 export async function POST(
   _request: Request,
@@ -106,7 +107,7 @@ export async function POST(
 
     return NextResponse.json({ success: true, sent })
   } catch (err) {
-    console.error('Convocation error:', err)
+    captureException(err, { context: 'convoquer' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

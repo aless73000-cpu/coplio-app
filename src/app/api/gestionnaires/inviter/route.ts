@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
 import { Email } from '@/lib/email'
+import { captureException } from '@/lib/monitoring'
+import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
 
 const schema = z.object({
   email: z.string().email(),
@@ -11,6 +13,10 @@ const schema = z.object({
 })
 
 export async function POST(request: Request) {
+  const ip = getIP(request)
+  const limit = rateLimit(`invite:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -71,7 +77,7 @@ export async function POST(request: Request) {
     })
 
     if (linkError || !linkData?.properties?.action_link) {
-      console.error('Erreur génération lien invitation gestionnaire:', linkError)
+      captureException(linkError ?? new Error('generateLink returned no action_link'), { context: 'gestionnaires-inviter-generateLink' })
       return NextResponse.json({ error: "Impossible de générer le lien d'invitation" }, { status: 500 })
     }
 
@@ -87,7 +93,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('Invitation gestionnaire error:', err)
+    captureException(err, { context: 'gestionnaires-inviter' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

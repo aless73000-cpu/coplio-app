@@ -2,6 +2,8 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
+import { captureException } from '@/lib/monitoring'
+import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
 
 const lotSchema = z.object({
   numero: z.string().min(1),
@@ -17,6 +19,10 @@ const schema = z.object({
 })
 
 export async function POST(request: Request) {
+  const ip = getIP(request)
+  const limit = rateLimit(`generer:${ip}`, { max: 5, windowMs: 60 * 60 * 1000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -84,7 +90,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ lots_created: inserted?.length ?? 0, errors })
   } catch (err) {
-    console.error('Génération lots error:', err)
+    captureException(err, { context: 'lots-generer' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

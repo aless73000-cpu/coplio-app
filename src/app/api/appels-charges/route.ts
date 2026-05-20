@@ -2,6 +2,7 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { Email } from '@/lib/email'
+import { captureException } from '@/lib/monitoring'
 
 // Augmentation du timeout Vercel pour l'envoi d'emails en batch (100 lots = ~20s)
 export const maxDuration = 60
@@ -47,11 +48,11 @@ export async function POST(request: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
     // Envoyer des emails aux copropriétaires concernés (non bloquant)
-    sendNotificationsCharges(admin, parsed.data.appels).catch(console.error)
+    sendNotificationsCharges(admin, parsed.data.appels).catch((e) => captureException(e, { context: 'appels-charges-notifications' }))
 
     return NextResponse.json({ data, count: data?.length ?? 0 })
   } catch (err) {
-    console.error('appels-charges POST error:', err)
+    captureException(err, { context: 'appels-charges-post' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

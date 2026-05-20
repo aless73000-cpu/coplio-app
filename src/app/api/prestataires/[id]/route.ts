@@ -1,6 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { captureException } from '@/lib/monitoring'
 
 async function getCabinetId() {
   const supabase = await createClient()
@@ -23,40 +24,50 @@ const schema = z.object({
 })
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const cabinetId = await getCabinetId()
-  if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  try {
+    const { id } = await params
+    const cabinetId = await getCabinetId()
+    if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-  const body = await request.json()
-  const parsed = schema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
+    const body = await request.json()
+    const parsed = schema.safeParse(body)
+    if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
-  const admin = createAdminClient()
-  const { data, error } = await admin
-    .from('prestataires')
-    .update({ ...parsed.data, updated_at: new Date().toISOString() })
-    .eq('id', id)
-    .eq('cabinet_id', cabinetId)
-    .select()
-    .single()
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from('prestataires')
+      .update({ ...parsed.data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .eq('cabinet_id', cabinetId)
+      .select()
+      .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(data)
+  } catch (err) {
+    captureException(err, { context: 'prestataires-id-patch' })
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+  }
 }
 
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const cabinetId = await getCabinetId()
-  if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  try {
+    const { id } = await params
+    const cabinetId = await getCabinetId()
+    if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-  const admin = createAdminClient()
-  // Soft delete — le prestataire reste en DB mais n'apparaît plus
-  const { error } = await admin
-    .from('prestataires')
-    .update({ actif: false })
-    .eq('id', id)
-    .eq('cabinet_id', cabinetId)
+    const admin = createAdminClient()
+    // Soft delete — le prestataire reste en DB mais n'apparaît plus
+    const { error } = await admin
+      .from('prestataires')
+      .update({ actif: false })
+      .eq('id', id)
+      .eq('cabinet_id', cabinetId)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ success: true })
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    captureException(err, { context: 'prestataires-id-delete' })
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+  }
 }

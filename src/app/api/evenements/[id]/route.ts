@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { captureException } from '@/lib/monitoring'
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -18,7 +19,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data)
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err, { context: 'evenements-id' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
@@ -32,7 +33,7 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
     await supabase.from('evenements_cabinet').delete().eq('id', params.id)
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err, { context: 'evenements-id' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

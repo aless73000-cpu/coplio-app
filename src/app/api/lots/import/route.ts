@@ -2,6 +2,8 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import ExcelJS from 'exceljs'
 import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
+import { captureException } from '@/lib/monitoring'
+import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
 
 const LOT_TYPES = ['appartement', 'maison', 'local_commercial', 'parking', 'cave', 'autre'] as const
 type LotType = typeof LOT_TYPES[number]
@@ -18,6 +20,10 @@ function normalizeLotType(raw: string): LotType {
 }
 
 export async function POST(request: Request) {
+  const ip = getIP(request)
+  const limit = rateLimit(`import:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -143,7 +149,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ lots_created: lotsCreated, errors })
   } catch (err) {
-    console.error('Import lots error:', err)
+    captureException(err, { context: 'lots-import' })
     return NextResponse.json({ error: "Erreur lors de l'import" }, { status: 500 })
   }
 }

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { Email } from '@/lib/email'
 import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
+import { captureException } from '@/lib/monitoring'
 
 const schema = z.object({
   email: z.string().email(),
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
     }
 
     // 3. Email de bienvenue (non bloquant)
-    Email.welcomeSyndic({ prenom, nomCabinet }, email).catch(console.error)
+    Email.welcomeSyndic({ prenom, nomCabinet }, email).catch((e) => captureException(e, { context: 'register-welcome-email' }))
 
     return NextResponse.json({ success: true })
   } catch {

@@ -1,6 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { captureException } from '@/lib/monitoring'
 
 async function getCabinetId() {
   const supabase = await createClient()
@@ -39,7 +40,7 @@ export async function GET(request: Request) {
       deuxieme_rappel_sms: false,
     })
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err, { context: 'relances-parametres' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data)
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err, { context: 'relances-parametres' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

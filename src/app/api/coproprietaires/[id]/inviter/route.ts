@@ -1,6 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
+import { captureException } from '@/lib/monitoring'
 
 export async function POST(
   _request: Request,
@@ -99,7 +100,7 @@ export async function POST(
     }
 
     if (linkError || !linkData?.properties?.action_link) {
-      console.error('generateLink error:', linkError)
+      captureException(linkError ?? new Error('generateLink returned no action_link'), { context: 'inviter-generateLink' })
       return NextResponse.json({ error: 'Erreur génération du lien' }, { status: 500 })
     }
 
@@ -126,7 +127,7 @@ export async function POST(
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('Invitation error:', err)
+    captureException(err, { context: 'coproprietaires-inviter' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

@@ -1,4 +1,10 @@
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+
+export const metadata: Metadata = {
+  title: { default: 'Mon espace — Coplio', template: '%s | Coplio' },
+  robots: { index: false, follow: false },
+}
 import { createClient } from '@/lib/supabase/server'
 import { PortailSidebar } from '@/components/portail/PortailSidebar'
 import { PortailBottomNav } from '@/components/portail/PortailBottomNav'

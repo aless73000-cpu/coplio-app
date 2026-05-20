@@ -13,6 +13,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { Email } from '@/lib/email'
 import { EMAIL_CONFIG } from '@/lib/email/config'
+import { captureException } from '@/lib/monitoring'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60 // secondes — large pour les gros volumes
@@ -26,7 +27,7 @@ function isAuthorized(request: Request): boolean {
   if (!secret) {
     // En dev sans secret : autoriser (warn uniquement)
     if (process.env.NODE_ENV === 'development') {
-      console.warn('[Cron] CRON_SECRET non défini — accès non protégé')
+      captureException(new Error('CRON_SECRET non défini en production'), { context: 'cron-auth' })
       return true
     }
     return false
@@ -77,7 +78,7 @@ export async function GET(request: Request) {
       .lte('trial_ends_at', dateEnd)
 
     if (error) {
-      console.error(`[Cron trial-ending] Erreur Supabase (${label}):`, error)
+      captureException(error, { context: 'cron-trial-ending-supabase', label })
       continue
     }
 
@@ -99,7 +100,7 @@ export async function GET(request: Request) {
 
         const recipientEmail = owner?.email ?? cabinet.email_contact
         if (!recipientEmail) {
-          console.warn(`[Cron trial-ending] Pas d'email pour le cabinet ${cabinet.id}`)
+          captureException(new Error(`Pas d'email pour le cabinet ${cabinet.id}`), { context: 'cron-trial-ending-no-email' })
           continue
         }
 
@@ -117,11 +118,11 @@ export async function GET(request: Request) {
           totalSent++
         } else {
           totalFailed++
-          console.error(`[Cron trial-ending] Échec ${label} → ${recipientEmail}:`, result.error?.message)
+          captureException(result.error ?? new Error(`Échec envoi email ${label} → ${recipientEmail}`), { context: 'cron-trial-ending-email', label, recipientEmail })
         }
       } catch (err) {
         totalFailed++
-        console.error(`[Cron trial-ending] Erreur cabinet ${cabinet.id}:`, err)
+        captureException(err, { context: 'cron-trial-ending-cabinet', cabinetId: cabinet.id })
       }
     }
 

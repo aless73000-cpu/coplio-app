@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { createHmac, timingSafeEqual } from 'crypto'
+import { captureException } from '@/lib/monitoring'
 
 // Bug #1 fix: verify Yousign HMAC-SHA256 signature before processing
 function verifyYousignSignature(rawBody: string, signatureHeader: string | null): boolean {
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
     .eq('yousign_request_id', yousignId)
 
   if (error) {
-    console.error('[Yousign webhook] Erreur mise à jour signature:', error)
+    captureException(error, { context: 'signatures-webhook', yousignId })
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 

@@ -1,7 +1,13 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { captureException } from '@/lib/monitoring'
+import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
+  const ip = getIP(request)
+  const limit = rateLimit(`upload:${ip}`, { max: 20, windowMs: 60 * 60 * 1000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -103,7 +109,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(doc)
   } catch (err) {
-    console.error('Upload error:', err)
+    captureException(err, { context: 'documents-upload' })
     return NextResponse.json({ error: 'Erreur inattendue' }, { status: 500 })
   }
 }

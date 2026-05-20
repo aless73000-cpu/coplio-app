@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { stripe, STRIPE_PRICES } from '@/lib/stripe'
 import type { PlanKey } from '@/lib/stripe'
+import { captureException } from '@/lib/monitoring'
 
 export async function POST(request: Request) {
   try {
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: session.url })
   } catch (error) {
-    console.error('Stripe checkout error:', error)
+    captureException(error, { context: 'stripe-checkout' })
     return NextResponse.json(
       { error: 'Erreur lors de la création du paiement' },
       { status: 500 }

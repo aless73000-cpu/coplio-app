@@ -1,4 +1,10 @@
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+
+export const metadata: Metadata = {
+  title: { default: 'Tableau de bord — Coplio', template: '%s | Coplio' },
+  robots: { index: false, follow: false },
+}
 import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
@@ -83,7 +89,9 @@ export default async function SyndicLayout({
           }
         />
         <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-nav md:pb-6">
-          {children}
+          <div className="max-w-7xl mx-auto w-full">
+            {children}
+          </div>
         </main>
       </div>
       <MobileBottomNav unreadMessages={unreadMessages ?? 0} />

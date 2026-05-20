@@ -6,6 +6,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
+import { captureException } from '@/lib/monitoring'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -140,7 +141,7 @@ export async function POST() {
 
     return NextResponse.json({ success: true, sent, skipped, failed })
   } catch (err) {
-    console.error('[inviter-tous]', err)
+    captureException(err, { context: 'inviter-tous' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
