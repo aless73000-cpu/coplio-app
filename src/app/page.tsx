@@ -1167,8 +1167,9 @@ function Footer() {
             <ul className="space-y-3 text-sm text-white/40">
               <li><Link href="/portail"         className="hover:text-white/75 transition-colors">Espace copropriétaire</Link></li>
               <li><a href="#qui-sommes-nous"     className="hover:text-white/75 transition-colors">Qui sommes-nous</a></li>
-              <li><Link href="/cgu"             className="hover:text-white/75 transition-colors">CGU</Link></li>
-              <li><Link href="/confidentialite" className="hover:text-white/75 transition-colors">Confidentialité</Link></li>
+              <li><Link href="/cgu"              className="hover:text-white/75 transition-colors">CGU</Link></li>
+              <li><Link href="/confidentialite"  className="hover:text-white/75 transition-colors">Confidentialité</Link></li>
+              <li><Link href="/mentions-legales" className="hover:text-white/75 transition-colors">Mentions légales</Link></li>
             </ul>
           </div>
         </div>

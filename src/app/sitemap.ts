@@ -59,5 +59,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'yearly',
       priority: 0.3,
     },
+    {
+      url: `${BASE}/mentions-legales`,
+      lastModified: new Date('2026-05-01'),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
   ]
 }

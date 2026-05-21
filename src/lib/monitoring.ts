@@ -1,4 +1,4 @@
-const DSN = 'https://485d4c2b88b64f28998de65fc967e294@app.glitchtip.com/23645'
+const DSN = process.env.GLITCHTIP_DSN ?? ''
 
 function parseDsn(dsn: string) {
   const withoutScheme = dsn.replace('https://', '')
@@ -11,6 +11,7 @@ export async function captureException(
   err: unknown,
   context?: Record<string, unknown>
 ): Promise<void> {
+  if (!DSN) return // Silencieux si DSN non configuré (ex: dev sans .env)
   try {
     const { key, url } = parseDsn(DSN)
     const error = err instanceof Error ? err : new Error(String(err))
