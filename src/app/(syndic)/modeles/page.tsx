@@ -102,18 +102,24 @@ async function generatePDF(templateId: TemplateId, values: Record<string, string
   const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 
   function addHeader() {
-    // Header bar
+    // Bande verte
     doc.setFillColor(GREEN)
     doc.rect(0, 0, PAGE_W, 18, 'F')
-    doc.setTextColor('#FFFFFF')
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'bold')
-    doc.text('COPLIO — Logiciel de gestion syndic', MARGIN, 12)
 
-    // Cabinet name on right
-    doc.setFontSize(9)
-    doc.setFont('helvetica', 'normal')
+    // Logo wordmark — contour blanc arrondi, texte blanc, sans fond
+    doc.setDrawColor('#FFFFFF')
+    doc.setLineWidth(0.6)
+    doc.roundedRect(MARGIN, 3.5, 34, 11, 2.5, 2.5, 'D')
+    doc.setTextColor('#FFFFFF')
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Coplio', MARGIN + 17, 11.2, { align: 'center' })
+
+    // Nom du cabinet à droite
     if (values.cabinetNom) {
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor('#FFFFFF')
       doc.text(values.cabinetNom, PAGE_W - MARGIN, 12, { align: 'right' })
     }
     doc.setTextColor(TEXT)
