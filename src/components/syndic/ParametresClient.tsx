@@ -275,8 +275,6 @@ export function ParametresClient({ profile }: Props) {
 function MigrationSection() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error' | 'no-db'>('idle')
   const [results, setResults] = useState<{ id: string; status: string; message: string }[]>([])
-  const cronSecret = process.env.NEXT_PUBLIC_CRON_SECRET // non dispo côté client — on passe par le formulaire
-
   async function runMigrations() {
     setStatus('loading')
     setResults([])

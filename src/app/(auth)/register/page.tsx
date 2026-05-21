@@ -56,8 +56,9 @@ export default function RegisterPage() {
 
           <p className="mt-4 text-center text-xs text-muted-foreground">
             En créant un compte, vous acceptez nos{' '}
-            <a href="/cgu" className="hover:underline">CGU</a> et notre{' '}
-            <a href="/confidentialite" className="hover:underline">politique de confidentialité</a>.
+            <a href="/cgu" className="hover:underline">CGU</a>,{' '}
+            notre <a href="/confidentialite" className="hover:underline">politique de confidentialité</a>{' '}
+            et nos <a href="/mentions-legales" className="hover:underline">mentions légales</a>.
           </p>
         </div>
       </div>

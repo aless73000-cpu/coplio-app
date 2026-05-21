@@ -9,6 +9,8 @@ const PUBLIC_ROUTES = [
   '/reset-password',
   '/cgu',
   '/confidentialite',
+  '/mentions-legales',
+  '/offline',
   '/auth/callback',
   '/auth/confirm',
   '/tarifs',
@@ -16,7 +18,6 @@ const PUBLIC_ROUTES = [
   '/api/stripe/webhook',
   '/api/auth/register',
   '/api/auth/signout',
-  '/api/sentry-test',
 ]
 
 export async function middleware(request: NextRequest) {
@@ -35,11 +36,10 @@ export async function middleware(request: NextRequest) {
       {
         cookies: {
           getAll() { return request.cookies.getAll() },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          setAll(cookiesToSet: any[]) {
-            cookiesToSet.forEach(({ name, value }: { name: string; value: string }) => request.cookies.set(name, value))
+          setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
             supabaseResponse = NextResponse.next({ request })
-            cookiesToSet.forEach(({ name, value, options }: { name: string; value: string; options?: object }) => supabaseResponse.cookies.set(name, value, options))
+            cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options as Parameters<typeof supabaseResponse.cookies.set>[2]))
           },
         },
       }
@@ -68,11 +68,10 @@ export async function middleware(request: NextRequest) {
       {
         cookies: {
           getAll() { return request.cookies.getAll() },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          setAll(cookiesToSet: any[]) {
-            cookiesToSet.forEach(({ name, value }: { name: string; value: string }) => request.cookies.set(name, value))
+          setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
             supabaseResponse = NextResponse.next({ request })
-            cookiesToSet.forEach(({ name, value, options }: { name: string; value: string; options?: object }) => supabaseResponse.cookies.set(name, value, options))
+            cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options as Parameters<typeof supabaseResponse.cookies.set>[2]))
           },
         },
       }
@@ -97,14 +96,11 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setAll(cookiesToSet: any[]) {
-          cookiesToSet.forEach(({ name, value }: { name: string; value: string }) =>
-            request.cookies.set(name, value)
-          )
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({ request })
-          cookiesToSet.forEach(({ name, value, options }: { name: string; value: string; options?: object }) =>
-            supabaseResponse.cookies.set(name, value, options)
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options as Parameters<typeof supabaseResponse.cookies.set>[2])
           )
         },
       },
