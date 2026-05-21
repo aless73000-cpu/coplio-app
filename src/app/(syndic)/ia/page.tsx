@@ -25,6 +25,126 @@ interface RiskScore { copropriete_id: string; nom: string; score: number; niveau
 interface Anomalie { titre: string; description: string; severite: 'haute' | 'moyenne' | 'faible'; copropriete?: string }
 interface AnalyseCabinet { scores: RiskScore[]; analyse: { anomalies: Anomalie[]; recommandations: string[]; points_positifs: string[]; resume: string } }
 
+// ─── Export PDF IA ────────────────────────────────────────────
+async function exportIAPDF(text: string, titre: string, cabinetNom: string) {
+  const { jsPDF } = await import('jspdf')
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+
+  const GREEN  = '#0F6E56'
+  const TEXT   = '#1C1C1A'
+  const PAGE_W = 210
+  const MARGIN = 20
+  const CONTENT_W = PAGE_W - MARGIN * 2
+  const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+  let pageNum = 1
+
+  function addHeader() {
+    const H = 26
+    doc.setFillColor(GREEN)
+    doc.rect(0, 0, PAGE_W, H, 'F')
+    doc.setFillColor('#0a5244')
+    doc.rect(0, H - 2, PAGE_W, 2, 'F')
+
+    // Logo mark — carré blanc arrondi
+    const lx = MARGIN, ly = 6, ls = 14
+    doc.setFillColor('#FFFFFF')
+    doc.roundedRect(lx, ly, ls, ls, 3, 3, 'F')
+
+    // Icône maison
+    doc.setDrawColor(GREEN)
+    doc.setLineWidth(0.75)
+    const cx = lx + ls / 2
+    const roofTop = ly + 2, roofBase = ly + 6.5
+    doc.line(lx + 2.5, roofBase, cx, roofTop)
+    doc.line(cx, roofTop, lx + ls - 2.5, roofBase)
+    const bL = lx + 3.5, bR = lx + ls - 3.5, bB = ly + ls - 2
+    doc.line(bL, roofBase, bL, bB)
+    doc.line(bR, roofBase, bR, bB)
+    doc.line(bL, bB, bR, bB)
+    const dW = 3, dX = cx - dW / 2, dY = bB - 3.5
+    doc.line(dX, dY, dX, bB)
+    doc.line(dX + dW, dY, dX + dW, bB)
+    doc.line(dX, dY, dX + dW, dY)
+
+    // Wordmark + cabinet
+    doc.setTextColor('#FFFFFF')
+    doc.setFontSize(15)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Coplio', lx + ls + 5, ly + 9.8)
+    if (cabinetNom) {
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor('#C5E8E1')
+      doc.text(cabinetNom, PAGE_W - MARGIN, ly + 9, { align: 'right' })
+    }
+    doc.setTextColor(TEXT)
+  }
+
+  function addFooter(n: number) {
+    const FY = 285
+    doc.setDrawColor('#DEDEDE')
+    doc.setLineWidth(0.3)
+    doc.line(MARGIN, FY, PAGE_W - MARGIN, FY)
+    doc.setFontSize(7.5)
+    doc.setTextColor('#AAAAAA')
+    doc.text(`Coplio · ${today}`, MARGIN, FY + 5)
+    doc.text(`Page ${n}`, PAGE_W - MARGIN, FY + 5, { align: 'right' })
+    doc.setTextColor(TEXT)
+  }
+
+  // — Page 1 —
+  addHeader()
+  let y = 38
+
+  // Titre du document
+  doc.setFontSize(13)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(GREEN)
+  doc.text(titre.toUpperCase(), MARGIN, y)
+  y += 3
+  doc.setDrawColor(GREEN)
+  doc.setLineWidth(0.4)
+  doc.line(MARGIN, y, PAGE_W - MARGIN, y)
+  y += 8
+
+  // Corps du texte — gestion des sauts de page
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(10)
+  doc.setTextColor(TEXT)
+
+  for (const para of text.split('\n')) {
+    if (!para.trim()) { y += 4; continue }
+
+    // Détecte les titres (lignes en majuscules ou commençant par **)
+    const isHeading = /^[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ\s\-—:]{5,}$/.test(para.trim()) || para.startsWith('**')
+    if (isHeading) {
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(10.5)
+    } else {
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(10)
+    }
+
+    const clean = para.replace(/\*\*/g, '').trim()
+    const lines = doc.splitTextToSize(clean, CONTENT_W)
+    const blockH = lines.length * 5.5
+
+    if (y + blockH > 280) {
+      addFooter(pageNum)
+      doc.addPage()
+      pageNum++
+      addHeader()
+      y = 38
+    }
+
+    doc.text(lines, MARGIN, y)
+    y += blockH + (isHeading ? 3 : 1.5)
+  }
+
+  addFooter(pageNum)
+  doc.save(`${titre.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}.pdf`)
+}
+
 const CHAMPS_EXTRA: Record<string, { key: string; label: string; placeholder: string }[]> = {
   convocation_ag: [
     { key: 'date_ag', label: 'Date AG', placeholder: 'Ex: 15 juin 2026 à 18h00' },
@@ -63,6 +183,7 @@ export default function IAPage() {
   const [generating, setGenerating] = useState(false)
   const [result, setResult] = useState('')
   const [copied, setCopied] = useState(false)
+  const [pdfLoading, setPdfLoading] = useState(false)
 
   // Analyse document
   const [file, setFile] = useState<File | null>(null)
@@ -264,9 +385,24 @@ export default function IAPage() {
                       {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-coplio-green" /> : <Copy className="w-3.5 h-3.5" />}
                       {copied ? 'Copié' : 'Copier'}
                     </button>
-                    <button onClick={() => handleDownload(result, `${template}_${Date.now()}.txt`)}
-                      className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-coplio-text px-2.5 py-1.5 rounded-lg border border-border transition-colors">
-                      <Download className="w-3.5 h-3.5" />Télécharger
+                    <button
+                      onClick={async () => {
+                        setPdfLoading(true)
+                        try {
+                          await exportIAPDF(
+                            result,
+                            currentTpl?.label ?? 'Document',
+                            coproprietes.find(c => c.id === coproprieteId)?.nom ?? ''
+                          )
+                        } finally { setPdfLoading(false) }
+                      }}
+                      disabled={pdfLoading}
+                      className="flex items-center gap-1.5 text-xs font-medium text-white bg-coplio-green hover:bg-coplio-green/90 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60"
+                    >
+                      {pdfLoading
+                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        : <Download className="w-3.5 h-3.5" />}
+                      {pdfLoading ? 'Génération…' : 'PDF'}
                     </button>
                   </div>
                 )}
