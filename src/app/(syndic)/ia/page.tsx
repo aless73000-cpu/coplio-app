@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Sparkles, FileText, Upload, Copy, Download, Loader2, CheckCircle2, FileSearch, MessageCircle, BarChart2, AlertTriangle, TrendingDown, TrendingUp, Send, Bot, User } from 'lucide-react'
+import { Sparkles, FileText, Upload, Copy, Download, Loader2, CheckCircle2, FileSearch, MessageCircle, BarChart2, AlertTriangle, TrendingDown, TrendingUp, Send, Bot, User, Home, Eye, Pencil } from 'lucide-react'
 
 const TEMPLATES = [
   { value: 'convocation_ag', label: 'Convocation AG', desc: 'Lettre de convocation à l\'assemblée générale', icon: '📋' },
@@ -184,6 +184,7 @@ export default function IAPage() {
   const [result, setResult] = useState('')
   const [copied, setCopied] = useState(false)
   const [pdfLoading, setPdfLoading] = useState(false)
+  const [viewMode, setViewMode] = useState<'preview' | 'edit'>('preview')
 
   // Analyse document
   const [file, setFile] = useState<File | null>(null)
@@ -220,7 +221,7 @@ export default function IAPage() {
 
   async function handleGenerate() {
     if (!coproprieteId) return
-    setGenerating(true); setResult('')
+    setGenerating(true); setResult(''); setViewMode('preview')
     try {
       const res = await fetch('/api/ia/rediger', {
         method: 'POST',
@@ -376,15 +377,40 @@ export default function IAPage() {
             </button>
           </div>
           <div className="col-span-3">
-            <div className="coplio-card h-full flex flex-col min-h-[500px]">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-coplio-text">{result ? currentTpl?.label : 'Document généré'}</p>
+            <div className="coplio-card h-full flex flex-col min-h-[560px] p-0 overflow-hidden">
+
+              {/* Toolbar */}
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-border flex-shrink-0">
+                <p className="text-sm font-semibold text-coplio-text">
+                  {result ? currentTpl?.label : 'Document généré'}
+                </p>
                 {result && (
-                  <div className="flex gap-2">
-                    <button onClick={handleCopy} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-coplio-text px-2.5 py-1.5 rounded-lg border border-border transition-colors">
+                  <div className="flex items-center gap-2">
+                    {/* Toggle aperçu / modifier */}
+                    <div className="flex items-center bg-coplio-bg rounded-lg p-0.5 gap-0.5">
+                      <button
+                        onClick={() => setViewMode('preview')}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${viewMode === 'preview' ? 'bg-white text-coplio-text shadow-sm' : 'text-muted-foreground hover:text-coplio-text'}`}
+                      >
+                        <Eye className="w-3 h-3" /> Aperçu
+                      </button>
+                      <button
+                        onClick={() => setViewMode('edit')}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${viewMode === 'edit' ? 'bg-white text-coplio-text shadow-sm' : 'text-muted-foreground hover:text-coplio-text'}`}
+                      >
+                        <Pencil className="w-3 h-3" /> Modifier
+                      </button>
+                    </div>
+
+                    <div className="w-px h-4 bg-border" />
+
+                    {/* Copier */}
+                    <button onClick={handleCopy} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-coplio-text px-2.5 py-1.5 rounded-lg border border-border transition-colors bg-white">
                       {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-coplio-green" /> : <Copy className="w-3.5 h-3.5" />}
                       {copied ? 'Copié' : 'Copier'}
                     </button>
+
+                    {/* Télécharger PDF */}
                     <button
                       onClick={async () => {
                         setPdfLoading(true)
@@ -399,25 +425,102 @@ export default function IAPage() {
                       disabled={pdfLoading}
                       className="flex items-center gap-1.5 text-xs font-medium text-white bg-coplio-green hover:bg-coplio-green/90 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60"
                     >
-                      {pdfLoading
-                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        : <Download className="w-3.5 h-3.5" />}
-                      {pdfLoading ? 'Génération…' : 'PDF'}
+                      {pdfLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                      {pdfLoading ? 'Export…' : 'PDF'}
                     </button>
                   </div>
                 )}
               </div>
+
+              {/* Contenu */}
               {generating ? (
                 <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center"><Loader2 className="w-8 h-8 animate-spin text-coplio-green mx-auto mb-3" /><p className="text-sm text-muted-foreground">L&apos;IA rédige votre document...</p></div>
+                  <div className="text-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-coplio-green mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">L&apos;IA rédige votre document…</p>
+                  </div>
                 </div>
-              ) : result ? (
-                <textarea value={result} onChange={e => setResult(e.target.value)} className="flex-1 w-full text-sm text-coplio-text leading-relaxed resize-none focus:outline-none font-mono" />
+
+              ) : result && viewMode === 'preview' ? (
+                /* ── Aperçu papier PDF ─────────────────────────────── */
+                <div className="flex-1 overflow-auto bg-[#E8E8E8] p-5">
+                  <div
+                    className="w-full max-w-[520px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.18)] overflow-hidden"
+                    style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", borderRadius: 2 }}
+                  >
+                    {/* Header vert */}
+                    <div
+                      className="relative flex items-center px-7 flex-shrink-0"
+                      style={{ background: 'linear-gradient(to bottom, #0F6E56 92%, #0a5244 100%)', height: 68 }}
+                    >
+                      {/* Logo mark */}
+                      <div className="w-[42px] h-[42px] bg-white rounded-[9px] flex items-center justify-center flex-shrink-0 mr-3.5">
+                        <Home className="w-[18px] h-[18px] text-coplio-green" />
+                      </div>
+                      <span className="text-white font-bold text-[19px] tracking-tight">Coplio</span>
+                      {coproprietes.find(c => c.id === coproprieteId)?.nom && (
+                        <span className="ml-auto text-[11px]" style={{ color: '#C5E8E1' }}>
+                          {coproprietes.find(c => c.id === coproprieteId)?.nom}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Corps du document */}
+                    <div className="px-8 pt-7 pb-6" style={{ minHeight: 480 }}>
+                      {/* Titre */}
+                      <h2 className="font-bold uppercase tracking-wide mb-1" style={{ color: '#0F6E56', fontSize: 12.5 }}>
+                        {currentTpl?.label}
+                      </h2>
+                      <div className="mb-5" style={{ height: 1, background: '#0F6E56', opacity: 0.6 }} />
+
+                      {/* Texte formaté */}
+                      <div style={{ fontSize: 10, lineHeight: 1.7, color: '#1C1C1A' }}>
+                        {result.split('\n').map((para, i) => {
+                          if (!para.trim()) return <div key={i} style={{ height: 7 }} />
+                          const isHeading = para.startsWith('**') || /^[A-ZÀÁÂÃÄÇÈÉÊËÎÏÔÙÛÜ\s\-—:]{6,}$/.test(para.trim())
+                          const clean = para.replace(/\*\*/g, '').replace(/^\*/, '•').trim()
+                          return (
+                            <p key={i} style={{
+                              margin: 0,
+                              marginBottom: 3,
+                              marginTop: isHeading ? 10 : 0,
+                              fontWeight: isHeading ? 700 : 400,
+                              fontSize: isHeading ? 10.5 : 10,
+                              letterSpacing: isHeading ? '0.2px' : 'normal',
+                            }}>
+                              {clean}
+                            </p>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="px-8 py-2.5" style={{ borderTop: '1px solid #DEDEDE', display: 'flex', justifyContent: 'space-between', fontSize: 7.5, color: '#AAAAAA' }}>
+                      <span>Coplio · {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                      <span>Page 1</span>
+                    </div>
+                  </div>
+                </div>
+
+              ) : result && viewMode === 'edit' ? (
+                /* ── Mode édition ─────────────────────────────────── */
+                <textarea
+                  value={result}
+                  onChange={e => setResult(e.target.value)}
+                  className="flex-1 w-full text-sm text-coplio-text leading-relaxed resize-none focus:outline-none font-mono p-4"
+                  placeholder="Le document généré apparaîtra ici…"
+                />
+
               ) : (
                 <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center text-muted-foreground"><Sparkles className="w-12 h-12 mx-auto mb-3 opacity-30" /><p className="text-sm">Sélectionnez un type de document<br />et cliquez sur &quot;Générer&quot;</p></div>
+                  <div className="text-center text-muted-foreground">
+                    <Sparkles className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm">Sélectionnez un type de document<br />et cliquez sur &quot;Générer&quot;</p>
+                  </div>
                 </div>
               )}
+
             </div>
           </div>
         </div>
