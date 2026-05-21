@@ -102,40 +102,57 @@ async function generatePDF(templateId: TemplateId, values: Record<string, string
   const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 
   function addHeader() {
-    // Bande verte
+    const H = 26
+
+    // ── Bande verte principale ──────────────────────────────────
     doc.setFillColor(GREEN)
-    doc.rect(0, 0, PAGE_W, 18, 'F')
+    doc.rect(0, 0, PAGE_W, H, 'F')
 
-    // Logo wordmark — contour blanc arrondi, texte blanc, sans fond
-    doc.setDrawColor('#FFFFFF')
-    doc.setLineWidth(0.6)
-    doc.roundedRect(MARGIN, 3.5, 34, 11, 2.5, 2.5, 'D')
-    doc.setTextColor('#FFFFFF')
-    doc.setFontSize(10)
+    // Lisière inférieure plus sombre — donne de la profondeur
+    doc.setFillColor('#0a5244')
+    doc.rect(0, H - 2, PAGE_W, 2, 'F')
+
+    // ── Logo mark : carré blanc arrondi + initiale verte ────────
+    const lx = MARGIN, ly = 6, ls = 14
+    doc.setFillColor('#FFFFFF')
+    doc.roundedRect(lx, ly, ls, ls, 3, 3, 'F')
+    doc.setTextColor(GREEN)
+    doc.setFontSize(11)
     doc.setFont('helvetica', 'bold')
-    doc.text('Coplio', MARGIN + 17, 11.2, { align: 'center' })
+    doc.text('C', lx + ls / 2, ly + 9.8, { align: 'center' })
 
-    // Nom du cabinet à droite
+    // ── Wordmark "Coplio" ───────────────────────────────────────
+    doc.setTextColor('#FFFFFF')
+    doc.setFontSize(15)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Coplio', lx + ls + 5, ly + 9.8)
+
+    // ── Nom du cabinet — aligné à droite, ton atténué ──────────
     if (values.cabinetNom) {
       doc.setFontSize(9)
       doc.setFont('helvetica', 'normal')
-      doc.setTextColor('#FFFFFF')
-      doc.text(values.cabinetNom, PAGE_W - MARGIN, 12, { align: 'right' })
+      doc.setTextColor('#C5E8E1')
+      doc.text(values.cabinetNom, PAGE_W - MARGIN, ly + 9, { align: 'right' })
     }
+
     doc.setTextColor(TEXT)
   }
 
   function addFooter(pageNum: number) {
-    doc.setFontSize(8)
-    doc.setTextColor(MUTED)
-    doc.text(`Document généré par Coplio · ${today} · Page ${pageNum}`, PAGE_W / 2, 288, { align: 'center' })
-    doc.setDrawColor('#E5E5E5')
-    doc.line(MARGIN, 283, PAGE_W - MARGIN, 283)
+    const FY = 285
+    doc.setDrawColor('#DEDEDE')
+    doc.setLineWidth(0.3)
+    doc.line(MARGIN, FY, PAGE_W - MARGIN, FY)
+    doc.setFontSize(7.5)
+    doc.setTextColor('#AAAAAA')
+    doc.text(`Coplio · ${today}`, MARGIN, FY + 5)
+    doc.text(`Page ${pageNum}`, PAGE_W - MARGIN, FY + 5, { align: 'right' })
+    doc.setTextColor(TEXT)
   }
 
   if (templateId === 'convocation-ag') {
     addHeader()
-    let y = 30
+    let y = 38
 
     // Expéditeur
     doc.setFontSize(10)
@@ -212,7 +229,7 @@ async function generatePDF(templateId: TemplateId, values: Record<string, string
 
   } else if (templateId === 'relance-impaye') {
     addHeader()
-    let y = 30
+    let y = 38
 
     // Expéditeur
     doc.setFontSize(10)
@@ -280,7 +297,7 @@ async function generatePDF(templateId: TemplateId, values: Record<string, string
 
   } else if (templateId === 'courrier-syndic') {
     addHeader()
-    let y = 30
+    let y = 38
 
     doc.setFontSize(10)
     doc.setFont('helvetica', 'bold')
@@ -319,7 +336,7 @@ async function generatePDF(templateId: TemplateId, values: Record<string, string
 
   } else if (templateId === 'pv-ag') {
     addHeader()
-    let y = 30
+    let y = 38
 
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
