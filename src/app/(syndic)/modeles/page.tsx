@@ -112,14 +112,37 @@ async function generatePDF(templateId: TemplateId, values: Record<string, string
     doc.setFillColor('#0a5244')
     doc.rect(0, H - 2, PAGE_W, 2, 'F')
 
-    // ── Logo mark : carré blanc arrondi + initiale verte ────────
+    // ── Logo mark : carré blanc arrondi + icône maison ─────────
     const lx = MARGIN, ly = 6, ls = 14
     doc.setFillColor('#FFFFFF')
     doc.roundedRect(lx, ly, ls, ls, 3, 3, 'F')
-    doc.setTextColor(GREEN)
-    doc.setFontSize(11)
-    doc.setFont('helvetica', 'bold')
-    doc.text('C', lx + ls / 2, ly + 9.8, { align: 'center' })
+
+    // Icône maison (style Lucide Home) tracée en vert
+    doc.setDrawColor(GREEN)
+    doc.setLineWidth(0.75)
+    const cx = lx + ls / 2          // 27 — axe de symétrie
+
+    // Toit : pente gauche + pente droite
+    const roofTop  = ly + 2          // y=8
+    const roofBase = ly + 6.5        // y=12.5
+    doc.line(lx + 2.5, roofBase, cx, roofTop)           // pente gauche
+    doc.line(cx, roofTop, lx + ls - 2.5, roofBase)      // pente droite
+
+    // Corps de la maison (trois côtés — ouvert en haut)
+    const bodyL = lx + 3.5           // x=23.5
+    const bodyR = lx + ls - 3.5      // x=30.5
+    const bodyB = ly + ls - 2        // y=18
+    doc.line(bodyL, roofBase, bodyL, bodyB)              // mur gauche
+    doc.line(bodyR, roofBase, bodyR, bodyB)              // mur droit
+    doc.line(bodyL, bodyB, bodyR, bodyB)                 // sol
+
+    // Porte (centrée, ouverte en bas)
+    const dW = 3, dH = 3.5
+    const dX = cx - dW / 2           // x=25.5
+    const dY = bodyB - dH            // y=14.5
+    doc.line(dX, dY, dX, bodyB)                         // jambage gauche
+    doc.line(dX + dW, dY, dX + dW, bodyB)               // jambage droit
+    doc.line(dX, dY, dX + dW, dY)                       // linteau
 
     // ── Wordmark "Coplio" ───────────────────────────────────────
     doc.setTextColor('#FFFFFF')
