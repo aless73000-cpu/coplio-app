@@ -9,7 +9,7 @@ import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
 
 export async function GET(request: Request) {
   const ip = getIP(request)
-  const limit = rateLimit(`fec:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
+  const limit = await rateLimit(`fec:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   try {

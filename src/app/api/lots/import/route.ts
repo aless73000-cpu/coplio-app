@@ -21,7 +21,7 @@ function normalizeLotType(raw: string): LotType {
 
 export async function POST(request: Request) {
   const ip = getIP(request)
-  const limit = rateLimit(`import:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
+  const limit = await rateLimit(`import:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   try {

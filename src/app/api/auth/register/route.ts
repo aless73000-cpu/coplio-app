@@ -16,7 +16,7 @@ const schema = z.object({
 export async function POST(request: Request) {
   // 5 inscriptions max par IP par heure
   const ip = getIP(request)
-  const limit = rateLimit(`register:${ip}`, { max: 5, windowMs: 60 * 60 * 1000 })
+  const limit = await rateLimit(`register:${ip}`, { max: 5, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   try {

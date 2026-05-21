@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   if (!apiKey) return NextResponse.json({ error: 'Clé API IA non configurée' }, { status: 503 })
 
   // Rate limiting : max 50 messages/heure par utilisateur (contrôle des coûts Anthropic)
-  const rl = rateLimit(`ia-chat:${user.id}`, { max: 50, windowMs: 60 * 60 * 1000 })
+  const rl = await rateLimit(`ia-chat:${user.id}`, { max: 50, windowMs: 60 * 60 * 1000 })
   if (!rl.success) {
     return NextResponse.json(
       { error: 'Limite atteinte (50 messages/heure). Réessayez plus tard.' },

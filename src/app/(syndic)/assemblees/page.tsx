@@ -64,7 +64,7 @@ export default async function AssembleesPage() {
           <h2 className="font-semibold text-coplio-text mb-3">À venir</h2>
           <div className="space-y-3">
             {aVenir.map((ag) => (
-              <AgCard key={ag.id} ag={ag} />
+              <AgCard key={ag.id} ag={ag as AgWithJoins} />
             ))}
           </div>
         </div>
@@ -76,7 +76,7 @@ export default async function AssembleesPage() {
           <h2 className="font-semibold text-coplio-text mb-3">Historique</h2>
           <div className="space-y-3">
             {passees.slice(0, 10).map((ag) => (
-              <AgCard key={ag.id} ag={ag} />
+              <AgCard key={ag.id} ag={ag as AgWithJoins} />
             ))}
           </div>
         </div>
@@ -103,10 +103,9 @@ export default async function AssembleesPage() {
   )
 }
 
-function AgCard({ ag }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ag: any
-}) {
+type AgWithJoins = { id: string; titre: string; date_ag: string; status: string | null; lieu?: string | null; heure?: string | null; est_visio?: boolean | null; copropriete?: { nom: string } | null; resolutions?: { count: number }[] | null }
+
+function AgCard({ ag }: { ag: AgWithJoins }) {
   const date = new Date(ag.date_ag)
   const isUpcoming = date >= new Date() && ag.status !== 'annulee'
   const daysUntil = getDaysUntil(ag.date_ag)

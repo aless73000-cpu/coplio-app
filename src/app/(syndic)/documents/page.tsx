@@ -60,8 +60,7 @@ export default async function DocumentsPage({
   ])
 
   // Grouper par catégorie
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const byCategorie = (documents ?? []).reduce<Record<string, any[]>>((acc, doc) => {
+  const byCategorie = (documents ?? []).reduce<Record<string, NonNullable<typeof documents>>>((acc, doc) => {
     const cat = doc.categorie || 'autre'
     if (!acc[cat]) acc[cat] = []
     acc[cat].push(doc)
@@ -149,8 +148,8 @@ export default async function DocumentsPage({
               </div>
 
               <div className="space-y-1">
-                {docs.map((doc: Document & { copropriete?: { nom: string } }) => (
-                  <DocumentRow key={doc.id} document={doc} />
+                {docs.map((doc) => (
+                  <DocumentRow key={doc.id} document={doc as Document & { copropriete?: { nom: string } }} />
                 ))}
               </div>
             </div>

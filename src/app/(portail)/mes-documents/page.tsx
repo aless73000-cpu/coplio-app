@@ -36,8 +36,7 @@ export default async function MesDocuments() {
     })
   )
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const byCategorie = docsWithUrls.reduce<Record<string, any[]>>(
+  const byCategorie = docsWithUrls.reduce<Record<string, typeof docsWithUrls>>(
     (acc, doc) => {
       const cat = doc.categorie || 'autre'
       if (!acc[cat]) acc[cat] = []
@@ -98,7 +97,7 @@ export default async function MesDocuments() {
                           <p className="text-sm font-medium text-coplio-text">{doc.nom}</p>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-sm text-muted-foreground">{formatDate(doc.created_at)}</td>
+                      <td className="px-4 py-4 text-sm text-muted-foreground">{doc.created_at ? formatDate(doc.created_at) : '—'}</td>
                       <td className="px-4 py-4 text-sm text-muted-foreground">
                         {doc.taille_bytes ? formatFileSize(doc.taille_bytes) : '—'}
                       </td>

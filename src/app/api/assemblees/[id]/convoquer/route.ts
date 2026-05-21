@@ -10,7 +10,7 @@ export async function POST(
 ) {
   // 10 convocations max par IP par heure (chaque envoi = plusieurs emails)
   const ip = getIP(_request)
-  const limit = rateLimit(`convoquer:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
+  const limit = await rateLimit(`convoquer:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   try {

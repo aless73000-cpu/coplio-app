@@ -43,6 +43,8 @@
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.44.4",
     "@tailwindcss/typography": "^0.5.15",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",

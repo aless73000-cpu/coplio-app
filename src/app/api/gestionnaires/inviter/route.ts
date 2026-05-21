@@ -14,7 +14,7 @@ const schema = z.object({
 
 export async function POST(request: Request) {
   const ip = getIP(request)
-  const limit = rateLimit(`invite:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
+  const limit = await rateLimit(`invite:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   try {

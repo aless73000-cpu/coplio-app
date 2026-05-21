@@ -131,7 +131,7 @@ export default async function SinistresPage({
       ) : (
         <div className="space-y-3">
           {sinistres.map((s) => (
-            <SinistreCard key={s.id} sinistre={s} />
+            <SinistreCard key={s.id} sinistre={s as SinistreWithJoins} />
           ))}
         </div>
       )}
@@ -139,8 +139,16 @@ export default async function SinistresPage({
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function SinistreCard({ sinistre }: { sinistre: any }) {
+type SinistreWithJoins = {
+  id: string
+  titre: string
+  status: string
+  reference?: string | null
+  date_sinistre?: string | null
+  copropriete?: { nom: string } | null
+}
+
+function SinistreCard({ sinistre }: { sinistre: SinistreWithJoins }) {
   const statusColors: Record<string, string> = {
     signale: 'badge-attention',
     urgence: 'badge-urgent',

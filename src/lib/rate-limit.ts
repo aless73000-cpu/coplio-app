@@ -1,23 +1,71 @@
 /**
- * Rate limiter in-memory simple.
- * Fonctionne par IP. Reset à chaque cold start serverless.
- * Suffisant pour bloquer les abus basiques sans infrastructure externe.
+ * Rate limiter hybride.
+ *
+ * - Si UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN sont définis :
+ *   utilise @upstash/ratelimit (sliding window, persisté entre cold starts).
+ * - Sinon : fallback in-memory (dev local ou environnements sans Redis).
  */
 
-interface RateLimitEntry {
-  count: number
-  resetAt: number
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
+
+// ─── Upstash Redis (lazy init) ────────────────────────────────
+
+let _redis: Redis | null = null
+function getRedis(): Redis | null {
+  if (_redis) return _redis
+  const url = process.env.UPSTASH_REDIS_REST_URL
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN
+  if (!url || !token) return null
+  _redis = new Redis({ url, token })
+  return _redis
 }
 
+// Cache des limiters Upstash par clé de config (max:window)
+const _limiters = new Map<string, Ratelimit>()
+
+function getUpstashLimiter(max: number, windowMs: number): Ratelimit | null {
+  const redis = getRedis()
+  if (!redis) return null
+  const cacheKey = `${max}:${windowMs}`
+  if (_limiters.has(cacheKey)) return _limiters.get(cacheKey)!
+  const limiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(max, `${windowMs}ms`),
+    analytics: false,
+  })
+  _limiters.set(cacheKey, limiter)
+  return limiter
+}
+
+// ─── Fallback in-memory ───────────────────────────────────────
+
+interface RateLimitEntry { count: number; resetAt: number }
 const store = new Map<string, RateLimitEntry>()
 
-// Nettoyage toutes les 5 minutes pour éviter les fuites mémoire
-setInterval(() => {
+function inMemoryRateLimit(
+  identifier: string,
+  max: number,
+  windowMs: number
+): RateLimitResult {
   const now = Date.now()
-  store.forEach((entry, key) => {
-    if (entry.resetAt < now) store.delete(key)
-  })
-}, 5 * 60 * 1000)
+  const existing = store.get(identifier)
+
+  if (!existing || existing.resetAt < now) {
+    const entry: RateLimitEntry = { count: 1, resetAt: now + windowMs }
+    store.set(identifier, entry)
+    return { success: true, remaining: max - 1, resetAt: entry.resetAt }
+  }
+
+  if (existing.count >= max) {
+    return { success: false, remaining: 0, resetAt: existing.resetAt }
+  }
+
+  existing.count++
+  return { success: true, remaining: max - existing.count, resetAt: existing.resetAt }
+}
+
+// ─── Interface publique ───────────────────────────────────────
 
 interface RateLimitOptions {
   /** Nombre max de requêtes dans la fenêtre */
@@ -32,35 +80,23 @@ interface RateLimitResult {
   resetAt: number
 }
 
-export function rateLimit(
+export async function rateLimit(
   identifier: string,
   options: RateLimitOptions
-): RateLimitResult {
-  const now = Date.now()
-  const key = identifier
-  const existing = store.get(key)
+): Promise<RateLimitResult> {
+  const limiter = getUpstashLimiter(options.max, options.windowMs)
 
-  // Fenêtre expirée ou première requête
-  if (!existing || existing.resetAt < now) {
-    const entry: RateLimitEntry = {
-      count: 1,
-      resetAt: now + options.windowMs,
+  if (limiter) {
+    const result = await limiter.limit(identifier)
+    return {
+      success: result.success,
+      remaining: result.remaining,
+      resetAt: result.reset,
     }
-    store.set(key, entry)
-    return { success: true, remaining: options.max - 1, resetAt: entry.resetAt }
   }
 
-  // Fenêtre active
-  if (existing.count >= options.max) {
-    return { success: false, remaining: 0, resetAt: existing.resetAt }
-  }
-
-  existing.count++
-  return {
-    success: true,
-    remaining: options.max - existing.count,
-    resetAt: existing.resetAt,
-  }
+  // Fallback synchrone wrappé en Promise
+  return inMemoryRateLimit(identifier, options.max, options.windowMs)
 }
 
 /** Extrait l'IP depuis les headers Next.js */

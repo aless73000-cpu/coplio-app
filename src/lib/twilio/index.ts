@@ -1,18 +1,22 @@
 // ─── Twilio SMS — lazy init (no crash if env vars missing) ───
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { captureException } from '@/lib/monitoring'
 
-let _client: any = null
-
-function getClient() {
-  if (!_client) {
-    const sid = process.env.TWILIO_ACCOUNT_SID
-    const token = process.env.TWILIO_AUTH_TOKEN
-    if (!sid || !token) return null
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const twilio = require('twilio')
-    _client = twilio(sid, token)
+interface TwilioClient {
+  messages: {
+    create: (opts: { from: string; to: string; body: string }) => Promise<{ sid: string }>
   }
+}
+
+let _client: TwilioClient | null = null
+
+function getClient(): TwilioClient | null {
+  if (_client) return _client
+  const sid = process.env.TWILIO_ACCOUNT_SID
+  const token = process.env.TWILIO_AUTH_TOKEN
+  if (!sid || !token) return null
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const twilio = require('twilio')
+  _client = twilio(sid, token) as TwilioClient
   return _client
 }
 
@@ -24,8 +28,7 @@ export async function sendSMS(to: string, body: string) {
   try {
     const FROM = process.env.TWILIO_FROM_NUMBER
     if (!FROM) return { success: false, error: 'TWILIO_FROM_NUMBER manquant' }
-    // Le client Twilio est chargé dynamiquement via require() — cast nécessaire
-    const message = await (client as { messages: { create: (opts: { from: string; to: string; body: string }) => Promise<{ sid: string }> } }).messages.create({
+    const message = await client.messages.create({
       from: FROM,
       to: normalizePhone(to),
       body,

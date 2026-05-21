@@ -17,7 +17,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   const ip = getIP(_request)
-  const limit = rateLimit(`pdf:${ip}`, { max: 20, windowMs: 60 * 60 * 1000 })
+  const limit = await rateLimit(`pdf:${ip}`, { max: 20, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   try {

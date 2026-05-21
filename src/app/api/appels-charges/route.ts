@@ -58,8 +58,7 @@ export async function POST(request: Request) {
 }
 
 async function sendNotificationsCharges(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  admin: any,
+  admin: ReturnType<typeof createAdminClient>,
   appels: z.infer<typeof appelSchema>[]
 ) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'

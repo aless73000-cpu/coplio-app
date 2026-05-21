@@ -5,7 +5,7 @@ import { captureException } from '@/lib/monitoring'
 
 export async function GET(request: Request) {
   const ip = getIP(request)
-  const limit = rateLimit(`search:${ip}`, { max: 60, windowMs: 60 * 1000 })
+  const limit = await rateLimit(`search:${ip}`, { max: 60, windowMs: 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   try {

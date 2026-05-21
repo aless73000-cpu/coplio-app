@@ -5,7 +5,7 @@ import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
   const ip = getIP(request)
-  const limit = rateLimit(`upload:${ip}`, { max: 20, windowMs: 60 * 60 * 1000 })
+  const limit = await rateLimit(`upload:${ip}`, { max: 20, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   try {

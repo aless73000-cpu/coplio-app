@@ -11,35 +11,35 @@ describe('rateLimit', () => {
     vi.useRealTimers()
   })
 
-  it('autorise la première requête', () => {
+  it('autorise la première requête', async () => {
     const id = `test-${Date.now()}-a`
-    const result = rateLimit(id, { max: 5, windowMs: 60_000 })
+    const result = await rateLimit(id, { max: 5, windowMs: 60_000 })
     expect(result.success).toBe(true)
     expect(result.remaining).toBe(4)
   })
 
-  it('bloque après avoir dépassé max requêtes', () => {
+  it('bloque après avoir dépassé max requêtes', async () => {
     const id = `test-${Date.now()}-b`
     const opts = { max: 3, windowMs: 60_000 }
-    rateLimit(id, opts)
-    rateLimit(id, opts)
-    rateLimit(id, opts)
-    const blocked = rateLimit(id, opts)
+    await rateLimit(id, opts)
+    await rateLimit(id, opts)
+    await rateLimit(id, opts)
+    const blocked = await rateLimit(id, opts)
     expect(blocked.success).toBe(false)
     expect(blocked.remaining).toBe(0)
   })
 
-  it('réinitialise après la fenêtre', () => {
+  it('réinitialise après la fenêtre', async () => {
     const id = `test-${Date.now()}-c`
     const opts = { max: 1, windowMs: 5_000 }
-    const first = rateLimit(id, opts)
+    const first = await rateLimit(id, opts)
     expect(first.success).toBe(true)
-    const blocked = rateLimit(id, opts)
+    const blocked = await rateLimit(id, opts)
     expect(blocked.success).toBe(false)
 
     // Avancer le temps au-delà de la fenêtre
     vi.advanceTimersByTime(6_000)
-    const reset = rateLimit(id, opts)
+    const reset = await rateLimit(id, opts)
     expect(reset.success).toBe(true)
   })
 })

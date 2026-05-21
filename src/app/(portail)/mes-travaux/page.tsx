@@ -299,7 +299,7 @@ export default async function MesTravaux({
           </div>
           <div className="grid grid-cols-2 gap-4">
             {enCours.map((sinistre) => (
-              <TravauxCard key={sinistre.id} sinistre={sinistre} />
+              <TravauxCard key={sinistre.id} sinistre={sinistre as TravauxItem} />
             ))}
           </div>
         </div>
@@ -314,7 +314,7 @@ export default async function MesTravaux({
           </div>
           <div className="grid grid-cols-2 gap-4">
             {clotures.map((sinistre) => (
-              <TravauxCard key={sinistre.id} sinistre={sinistre} />
+              <TravauxCard key={sinistre.id} sinistre={sinistre as TravauxItem} />
             ))}
           </div>
         </div>
@@ -323,8 +323,24 @@ export default async function MesTravaux({
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function TravauxCard({ sinistre }: { sinistre: any }) {
+type TravauxItem = {
+  id: string
+  titre: string
+  status: string
+  reference?: string | null
+  description?: string | null
+  copropriete?: { nom: string } | null
+  compagnie_assurance?: string | null
+  numero_declaration_assurance?: string | null
+  montant_sinistre?: number | null
+  montant_indemnise?: number | null
+  montant_indemnisation?: number | null
+  montant_travaux_estime?: number | null
+  date_sinistre?: string | null
+  date_cloture?: string | null
+}
+
+function TravauxCard({ sinistre }: { sinistre: TravauxItem }) {
   const stepIndex = STEP_ORDER.indexOf(sinistre.status as Sinistre['status'])
   const progress = Math.round(((stepIndex + 1) / STEP_ORDER.length) * 100)
   const isClosed = sinistre.status === 'cloture'
