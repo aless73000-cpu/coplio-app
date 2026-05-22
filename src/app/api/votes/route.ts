@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 
     let query = supabase
       .from('votes')
-      .select('*, options:vote_options(*), reponses:vote_reponses(id, option_id, coproprietaire_id)')
+      .select('*, copropriete:coproprietes(id, nom), options:vote_options(*), reponses:vote_reponses(id, option_id, coproprietaire_id)')
       .order('created_at', { ascending: false })
 
     if (coproprieteId) query = query.eq('copropriete_id', coproprieteId)

@@ -22,6 +22,7 @@ import {
   Sparkles,
   BookOpen,
   Bell,
+  Vote,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -41,6 +42,7 @@ const NAV_ITEMS = [
   { label: 'Copropriétés',      href: '/coproprietes',   icon: Building2 },
   { label: 'Copropriétaires',   href: '/coproprietaires',icon: Users },
   { label: 'Assemblées',        href: '/assemblees',     icon: CalendarDays },
+  { label: 'Votes',             href: '/votes',          icon: Vote },
   { label: 'Appels de charges', href: '/appels-charges', icon: Receipt },
   { label: 'Impayés',           href: '/impayes',        icon: CreditCard },
   { label: 'Sinistres',         href: '/sinistres',      icon: AlertTriangle },
