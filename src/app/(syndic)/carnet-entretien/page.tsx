@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, BookOpen, Wrench, Loader2, X, ChevronDown, CalendarDays, Euro, CheckCircle2, Clock, AlertTriangle } from 'lucide-react'
+import { Plus, BookOpen, Wrench, Loader2, X, CalendarDays, Euro, CheckCircle2, Clock, AlertTriangle, Pencil } from 'lucide-react'
 
 interface Prestataire { id: string; nom: string; metier?: string }
 interface Copropriete { id: string; nom: string }
@@ -49,23 +49,40 @@ function CategorieBadge({ cat }: { cat: string }) {
   return <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${c.color}`}>{c.label}</span>
 }
 
-function Modal({ open, onClose, onSave, coproprietes, prestataires }: {
+function Modal({ open, onClose, onSave, coproprietes, prestataires, initial }: {
   open: boolean; onClose: () => void
   onSave: (data: Partial<Entree>) => Promise<void>
   coproprietes: Copropriete[]; prestataires: Prestataire[]
+  initial?: Entree | null
 }) {
-  const [form, setForm] = useState({
+  const defaultForm = {
     copropriete_id: '', prestataire_id: '', titre: '', description: '',
     categorie: 'entretien', statut: 'planifie', date_intervention: '',
     cout_prevu: '', periodicite: 'unique', prochaine_echeance: '',
-  })
+  }
+  const [form, setForm] = useState(defaultForm)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    if (!open) setForm({ copropriete_id: '', prestataire_id: '', titre: '', description: '',
-      categorie: 'entretien', statut: 'planifie', date_intervention: '',
-      cout_prevu: '', periodicite: 'unique', prochaine_echeance: '' })
-  }, [open])
+    if (!open) { setForm(defaultForm); return }
+    if (initial) {
+      setForm({
+        copropriete_id: initial.copropriete_id ?? '',
+        prestataire_id: initial.prestataire_id ?? '',
+        titre: initial.titre,
+        description: initial.description ?? '',
+        categorie: initial.categorie,
+        statut: initial.statut,
+        date_intervention: initial.date_intervention ?? '',
+        cout_prevu: initial.cout_prevu ? String(initial.cout_prevu) : '',
+        periodicite: initial.periodicite ?? 'unique',
+        prochaine_echeance: initial.prochaine_echeance ?? '',
+      })
+    } else {
+      setForm(defaultForm)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initial])
 
   if (!open) return null
 
@@ -90,7 +107,7 @@ function Modal({ open, onClose, onSave, coproprietes, prestataires }: {
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-6 border-b border-border sticky top-0 bg-white">
-          <h2 className="font-semibold text-coplio-text">Nouvelle entrée</h2>
+          <h2 className="font-semibold text-coplio-text">{initial ? 'Modifier l\'entrée' : 'Nouvelle entrée'}</h2>
           <button onClick={onClose} className="p-1 hover:bg-coplio-bg rounded-lg"><X className="w-4 h-4" /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -159,6 +176,7 @@ export default function CarnetEntretienPage() {
   const [prestataires, setPrestataires] = useState<Prestataire[]>([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
+  const [editEntry, setEditEntry] = useState<Entree | null>(null)
   const [filterStatut, setFilterStatut] = useState('')
   const [filterCopro, setFilterCopro] = useState('')
 
@@ -177,11 +195,23 @@ export default function CarnetEntretienPage() {
   useEffect(() => { load() }, [])
 
   async function handleSave(data: Partial<Entree>) {
-    await fetch('/api/carnet-entretien', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
-    })
+    if (editEntry) {
+      await fetch(`/api/carnet-entretien/${editEntry.id}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+      })
+    } else {
+      await fetch('/api/carnet-entretien', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+      })
+    }
     setModalOpen(false)
+    setEditEntry(null)
     load()
+  }
+
+  function handleEdit(entry: Entree) {
+    setEditEntry(entry)
+    setModalOpen(true)
   }
 
   async function handleStatut(id: string, statut: string) {
@@ -309,6 +339,10 @@ export default function CarnetEntretienPage() {
                 </div>
 
                 <div className="flex gap-1 flex-shrink-0">
+                  <button onClick={() => handleEdit(e)}
+                    className="p-1.5 hover:bg-coplio-bg rounded-lg transition-colors text-muted-foreground hover:text-coplio-green" title="Modifier">
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
                   {e.statut !== 'realise' && (
                     <button onClick={() => handleStatut(e.id, 'realise')}
                       className="p-1.5 hover:bg-green-50 rounded-lg transition-colors text-muted-foreground hover:text-green-600" title="Marquer réalisé">
@@ -326,8 +360,8 @@ export default function CarnetEntretienPage() {
         </div>
       )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}
-        onSave={handleSave} coproprietes={coproprietes} prestataires={prestataires} />
+      <Modal open={modalOpen} onClose={() => { setModalOpen(false); setEditEntry(null) }}
+        onSave={handleSave} coproprietes={coproprietes} prestataires={prestataires} initial={editEntry} />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Send, Loader2, Download, FileText } from 'lucide-react'
+import { Send, Loader2, Download, FileText, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { RelanceButton } from './RelanceButton'
 import { formatEuro, formatDate, getOverdueDays } from '@/lib/utils'
@@ -69,6 +69,17 @@ export function ImpayesTable({ impayes: initial }: Props) {
           : a
       )
     )
+  }
+
+  async function handlePayer(id: string) {
+    if (!confirm('Marquer cet appel de charges comme intégralement payé ?')) return
+    const res = await fetch(`/api/appels-charges/${id}/payer`, { method: 'PATCH' })
+    if (res.ok) {
+      setItems((prev) => prev.filter((a) => a.id !== id))
+      toast.success('Appel de charges marqué payé')
+    } else {
+      toast.error('Erreur lors de la mise à jour')
+    }
   }
 
   async function handleRelanceTous() {
@@ -175,11 +186,21 @@ export function ImpayesTable({ impayes: initial }: Props) {
                     )}
                   </td>
                   <td className="py-3">
-                    <RelanceButton
-                      appelId={appel.id}
-                      nbRelances={appel.nb_relances}
-                      onSuccess={(n) => handleSuccess(appel.id, n)}
-                    />
+                    <div className="flex items-center gap-3">
+                      <RelanceButton
+                        appelId={appel.id}
+                        nbRelances={appel.nb_relances}
+                        onSuccess={(n) => handleSuccess(appel.id, n)}
+                      />
+                      <button
+                        onClick={() => handlePayer(appel.id)}
+                        className="flex items-center gap-1 text-xs text-coplio-green font-medium hover:text-coplio-green/70 transition-colors"
+                        title="Marquer payé"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Payé
+                      </button>
+                    </div>
                   </td>
                 </tr>
               )

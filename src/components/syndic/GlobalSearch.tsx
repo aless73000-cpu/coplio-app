@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, Building2, Home, Users, X, Loader2 } from 'lucide-react'
+import { Search, Building2, Home, Users, AlertTriangle, CalendarDays, X, Loader2 } from 'lucide-react'
 
 type SearchResult = {
-  type: 'copropriete' | 'lot' | 'coproprietaire'
+  type: 'copropriete' | 'lot' | 'coproprietaire' | 'sinistre' | 'assemblee'
   id: string
   label: string
   sub?: string
@@ -16,12 +16,16 @@ const TYPE_ICON = {
   copropriete: Building2,
   lot: Home,
   coproprietaire: Users,
+  sinistre: AlertTriangle,
+  assemblee: CalendarDays,
 }
 
 const TYPE_LABEL = {
   copropriete: 'Copropriété',
   lot: 'Lot',
   coproprietaire: 'Copropriétaire',
+  sinistre: 'Sinistre',
+  assemblee: 'AG',
 }
 
 export function GlobalSearch() {

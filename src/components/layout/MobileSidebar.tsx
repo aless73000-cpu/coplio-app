@@ -8,7 +8,7 @@ import {
   Menu, X, Home, LayoutDashboard, Building2, Users, FileText,
   AlertTriangle, CalendarDays, CreditCard, Settings, LogOut,
   Receipt, MessageSquare, Sparkles, Wrench, BookOpen, Calendar,
-  UsersRound,
+  UsersRound, Bell,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -31,7 +31,8 @@ const NAV_ITEMS = [
 const OUTILS_ITEMS = [
   { label: 'Agenda',             href: '/agenda',          icon: Calendar },
   { label: 'Prestataires',       href: '/prestataires',    icon: Wrench },
-  { label: "Carnet d'entretien", href: '/carnet-entretien',icon: BookOpen },
+  { label: "Carnet d'entretien", href: '/carnet-entretien', icon: BookOpen },
+  { label: 'Relances auto',      href: '/relances-config', icon: Bell },
 ]
 
 const BOTTOM_ITEMS = [
@@ -44,9 +45,10 @@ interface MobileSidebarProps {
   profile: Profile
   cabinet: Cabinet
   unreadMessages?: number
+  urgentSinistres?: number
 }
 
-export function MobileSidebar({ profile, cabinet, unreadMessages = 0 }: MobileSidebarProps) {
+export function MobileSidebar({ profile, cabinet, unreadMessages = 0, urgentSinistres = 0 }: MobileSidebarProps) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
@@ -133,6 +135,11 @@ export function MobileSidebar({ profile, cabinet, unreadMessages = 0 }: MobileSi
               {item.href === '/messages' && unreadMessages > 0 && (
                 <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
                   {unreadMessages > 99 ? '99+' : unreadMessages}
+                </span>
+              )}
+              {item.href === '/sinistres' && urgentSinistres > 0 && (
+                <span className="ml-auto bg-coplio-amber text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
+                  {urgentSinistres > 9 ? '9+' : urgentSinistres}
                 </span>
               )}
             </Link>

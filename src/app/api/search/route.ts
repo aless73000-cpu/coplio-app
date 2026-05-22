@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     const cabinetId = profile.cabinet_id
     const search = `%${q}%`
 
-    const [coproprietes, lots, profiles] = await Promise.all([
+    const [coproprietes, lots, profiles, sinistres, assemblees] = await Promise.all([
       supabase
         .from('coproprietes')
         .select('id, nom, adresse, ville')
@@ -50,6 +50,20 @@ export async function GET(request: Request) {
         .or(`prenom.ilike.${search},nom.ilike.${search},email.ilike.${search}`)
         .eq('role', 'owner_resident')
         .limit(5),
+
+      supabase
+        .from('sinistres')
+        .select('id, titre, reference, status, copropriete:coproprietes(nom)')
+        .eq('cabinet_id', cabinetId)
+        .or(`titre.ilike.${search},reference.ilike.${search}`)
+        .limit(4),
+
+      supabase
+        .from('assemblees_generales')
+        .select('id, titre, date_ag, copropriete:coproprietes(nom)')
+        .eq('cabinet_id', cabinetId)
+        .ilike('titre', search)
+        .limit(4),
     ])
 
     const results = [
@@ -73,6 +87,23 @@ export async function GET(request: Request) {
         label: `${p.prenom ?? ''} ${p.nom ?? ''}`.trim(),
         sub: p.email ?? 'Copropriétaire',
         href: `/coproprietaires/${p.id}`,
+      })),
+      ...(sinistres.data ?? []).map((s) => ({
+        type: 'sinistre' as const,
+        id: s.id,
+        label: s.titre ?? 'Sinistre',
+        sub: (s.copropriete as { nom: string } | null)?.nom ?? (s.reference ?? 'Sinistre'),
+        href: `/sinistres/${s.id}`,
+      })),
+      ...(assemblees.data ?? []).map((a) => ({
+        type: 'assemblee' as const,
+        id: a.id,
+        label: a.titre ?? 'Assemblée générale',
+        sub: [
+          (a.copropriete as { nom: string } | null)?.nom,
+          a.date_ag ? new Date(a.date_ag).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : null,
+        ].filter(Boolean).join(' · '),
+        href: `/assemblees/${a.id}`,
       })),
     ]
 

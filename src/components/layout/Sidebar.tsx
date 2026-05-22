@@ -21,6 +21,7 @@ import {
   Wrench,
   Sparkles,
   BookOpen,
+  Bell,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -32,6 +33,7 @@ interface SidebarProps {
   profile: Profile
   cabinet: Cabinet
   unreadMessages?: number
+  urgentSinistres?: number
 }
 
 const NAV_ITEMS = [
@@ -49,9 +51,10 @@ const NAV_ITEMS = [
 
 // Outils — accès secondaire, visible mais moins mis en avant
 const OUTILS_ITEMS = [
-  { label: 'Agenda',            href: '/agenda',         icon: Calendar },
-  { label: 'Prestataires',      href: '/prestataires',   icon: Wrench },
-  { label: "Carnet d'entretien",href: '/carnet-entretien',icon: BookOpen },
+  { label: 'Agenda',            href: '/agenda',          icon: Calendar },
+  { label: 'Prestataires',      href: '/prestataires',    icon: Wrench },
+  { label: "Carnet d'entretien",href: '/carnet-entretien', icon: BookOpen },
+  { label: 'Relances auto',     href: '/relances-config', icon: Bell },
 ]
 
 const BOTTOM_ITEMS = [
@@ -60,7 +63,7 @@ const BOTTOM_ITEMS = [
   { label: 'Facturation', href: '/facturation',icon: CreditCard },
 ]
 
-export function Sidebar({ profile, cabinet, unreadMessages: initialUnread = 0 }: SidebarProps) {
+export function Sidebar({ profile, cabinet, unreadMessages: initialUnread = 0, urgentSinistres = 0 }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)
@@ -160,6 +163,11 @@ export function Sidebar({ profile, cabinet, unreadMessages: initialUnread = 0 }:
             {item.href === '/messages' && unreadMessages > 0 && (
               <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
                 {unreadMessages > 99 ? '99+' : unreadMessages}
+              </span>
+            )}
+            {item.href === '/sinistres' && urgentSinistres > 0 && (
+              <span className="ml-auto bg-coplio-amber text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
+                {urgentSinistres > 9 ? '9+' : urgentSinistres}
               </span>
             )}
           </Link>

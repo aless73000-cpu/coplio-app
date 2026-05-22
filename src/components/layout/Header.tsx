@@ -1,6 +1,6 @@
 'use client'
 
-import { Bell, Search, Building2, Home, Users, Loader2 } from 'lucide-react'
+import { Bell, Search, Building2, Home, Users, AlertTriangle, CalendarDays, Loader2 } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -10,7 +10,7 @@ import type { Notification } from '@/types'
 // ─── Recherche globale ──────────────────────────────────────────────
 
 interface SearchResult {
-  type: 'copropriete' | 'lot' | 'coproprietaire'
+  type: 'copropriete' | 'lot' | 'coproprietaire' | 'sinistre' | 'assemblee'
   id: string
   label: string
   sub: string
@@ -21,6 +21,8 @@ const ICONS = {
   copropriete: Building2,
   lot: Home,
   coproprietaire: Users,
+  sinistre: AlertTriangle,
+  assemblee: CalendarDays,
 }
 
 function GlobalSearch() {

@@ -69,12 +69,19 @@ export default async function SyndicLayout({
     .eq('lu', false)
     .eq('lien', '/messages')
 
+  // Compter les sinistres urgents ouverts
+  const { count: urgentSinistres } = await supabase
+    .from('sinistres')
+    .select('*', { count: 'exact', head: true })
+    .eq('cabinet_id', profile.cabinet_id)
+    .eq('status', 'urgence')
+
   return (
     <div className="flex h-screen bg-coplio-bg overflow-hidden">
       <SessionGuard loginPath="/login" />
       {/* Sidebar desktop — cachée sur mobile */}
       <div className="hidden md:flex">
-        <Sidebar profile={profile as Profile} cabinet={cabinet as Cabinet} unreadMessages={unreadMessages ?? 0} />
+        <Sidebar profile={profile as Profile} cabinet={cabinet as Cabinet} unreadMessages={unreadMessages ?? 0} urgentSinistres={urgentSinistres ?? 0} />
       </div>
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <Header
@@ -85,6 +92,7 @@ export default async function SyndicLayout({
               profile={profile as Profile}
               cabinet={cabinet as Cabinet}
               unreadMessages={unreadMessages ?? 0}
+              urgentSinistres={urgentSinistres ?? 0}
             />
           }
         />
