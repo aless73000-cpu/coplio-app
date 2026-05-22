@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import webpush from 'web-push'
+import { withErrorHandler } from '@/lib/api-handler'
 
 const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
 const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY!
@@ -22,7 +23,7 @@ export interface PushPayload {
  * Protected by a shared secret (CRON_SECRET or internal calls only).
  * Body: { cabinetId?: string, profileIds?: string[], payload: PushPayload }
  */
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
   // Fail-closed: if secret is not configured, deny all requests
@@ -78,4 +79,4 @@ export async function POST(request: Request) {
   )
 
   return NextResponse.json({ sent, failed })
-}
+})

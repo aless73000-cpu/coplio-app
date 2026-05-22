@@ -1,13 +1,10 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withErrorHandler } from '@/lib/api-handler'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { captureException } from '@/lib/monitoring'
-import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
 
-export async function POST(request: Request) {
-  const ip = getIP(request)
-  const limit = await rateLimit(`upload:${ip}`, { max: 20, windowMs: 60 * 60 * 1000 })
-  if (!limit.success) return rateLimitResponse(limit.resetAt)
-
+export const POST = withErrorHandler(async (request: Request) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -19,6 +16,9 @@ export async function POST(request: Request) {
       .eq('id', user.id)
       .single()
     if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+
+    const limit = await rateLimit(`upload:${user.id}`, { max: 20, windowMs: 60_000 })
+    if (!limit.success) return rateLimitResponse(limit.resetAt)
 
     const formData = await request.formData()
     const file = formData.get('file') as File | null
@@ -112,4 +112,4 @@ export async function POST(request: Request) {
     captureException(err, { context: 'documents-upload' })
     return NextResponse.json({ error: 'Erreur inattendue' }, { status: 500 })
   }
-}
+})

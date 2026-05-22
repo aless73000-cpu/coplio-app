@@ -32,27 +32,27 @@ export default async function CopropriétairesPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-coplio-text">Copropriétaires</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-coplio-text">Copropriétaires</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
             {total} copropriétaire{total > 1 ? 's' : ''}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Link
             href="/coproprietaires/import"
-            className="flex items-center gap-2 bg-coplio-bg text-coplio-text text-sm font-medium px-4 py-2 rounded-lg hover:bg-border transition-colors border border-border"
+            className="flex items-center gap-2 bg-coplio-bg text-coplio-text text-sm font-medium px-3 py-2 rounded-lg hover:bg-border transition-colors border border-border"
           >
             <Upload className="w-4 h-4" />
-            Importer Excel
+            <span className="hidden sm:inline">Importer Excel</span>
           </Link>
           <Link
             href="/coproprietaires/new"
-            className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors"
+            className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
-            Ajouter
+            <span className="hidden sm:inline">Ajouter</span>
           </Link>
         </div>
       </div>
@@ -102,13 +102,7 @@ export default async function CopropriétairesPage() {
       )}
 
       {copropriétaires && copropriétaires.length > 0 ? (
-        <CoproprietairesClient data={copropriétaires.map((c) => ({
-          ...c,
-          email: c.email ?? undefined,
-          telephone: c.telephone ?? undefined,
-          portail_actif: c.portail_actif ?? undefined,
-          invitation_envoyee_at: c.invitation_envoyee_at ?? undefined,
-        }))} />
+        <CoproprietairesClient data={copropriétaires} />
       ) : (
         <div className="coplio-card text-center py-16">
           <div className="w-14 h-14 bg-coplio-green/10 rounded-full flex items-center justify-center mx-auto mb-4">

@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { stripe, STRIPE_PRICES } from '@/lib/stripe'
-
-export async function POST() {
+import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
+export const POST = withErrorHandler(async () => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -67,7 +68,7 @@ export async function POST() {
 
     return NextResponse.json({ url: session.url })
   } catch (error) {
-    console.error('Addon portail checkout error:', error)
+    captureException(error, { context: 'stripe-addon-portail' })
     return NextResponse.json({ error: 'Erreur lors de la création du paiement' }, { status: 500 })
   }
-}
+})

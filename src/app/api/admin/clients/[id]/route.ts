@@ -1,6 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase())
 
@@ -10,7 +11,7 @@ async function checkAdmin() {
   return user && ADMIN_EMAILS.includes(user.email?.toLowerCase() ?? '') ? user : null
 }
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export const GET = withErrorHandler(async (_req: Request, { params }: { params: { id: string } }) => {
   try {
     if (!await checkAdmin()) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
 
@@ -25,14 +26,14 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
 const updateSchema = z.object({
   plan: z.enum(['trial', 'starter', 'pro', 'expert']).optional(),
   subscription_status: z.enum(['active', 'trialing', 'past_due', 'canceled', 'incomplete']).optional(),
 })
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export const PATCH = withErrorHandler(async (req: Request, { params }: { params: { id: string } }) => {
   try {
     if (!await checkAdmin()) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
 
@@ -47,9 +48,9 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export const DELETE = withErrorHandler(async (_req: Request, { params }: { params: { id: string } }) => {
   try {
     if (!await checkAdmin()) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
 
@@ -60,4 +61,4 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

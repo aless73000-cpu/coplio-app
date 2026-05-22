@@ -16,7 +16,11 @@ import Link from 'next/link'
 import { formatEuro, formatDate } from '@/lib/utils'
 import { RecouvrementChartLazy as RecouvrementChart, StatutChartLazy as StatutChart, EvolutionChartLazy as EvolutionChart, TauxGlobalCardLazy as TauxGlobalCard } from '@/components/syndic/DashboardChartsLazy'
 import { OnboardingChecklist } from '@/components/syndic/OnboardingChecklist'
-import { RapportMensuelButton } from '@/components/syndic/RapportMensuelButton'
+import dynamic from 'next/dynamic'
+const RapportMensuelButton = dynamic(
+  () => import('@/components/syndic/RapportMensuelButton').then(m => m.RapportMensuelButton),
+  { ssr: false }
+)
 import { TrialBanner } from '@/components/syndic/TrialBanner'
 import type { Copropriete, Sinistre, AssembleeGenerale } from '@/types'
 
@@ -115,7 +119,9 @@ export default async function DashboardPage() {
 
   // Onboarding checklist
   const nbLots = (coproprietes ?? []).reduce((s: number, c) => s + (c.nb_lots ?? 0), 0)
-  const nbCoproprietaires = nbCoproprietairesTotal
+  const { count: nbCoproprietaires } = coproprieteIds.length > 0
+    ? await supabase.from('coproprietaires').select('id', { count: 'exact', head: true }).in('copropriete_id', coproprieteIds)
+    : { count: 0 }
   const onboardingSteps = [
     {
       id: 'copropriete',
@@ -262,30 +268,28 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Salutation */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">
             Bonjour, {profile.prenom} 👋
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
             Voici un résumé de votre activité au{' '}
-            {new Date().toLocaleDateString('fr-FR', {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
+            <span className="hidden sm:inline">
+              {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </span>
+            <span className="sm:hidden">
+              {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </span>
           </p>
         </div>
-        <div className="hidden md:block">
-          <RapportMensuelButton data={{
-            coproprietes: (coproprietes ?? []) as Copropriete[],
-            totalEmis,
-            totalRecouvre,
-            tauxGlobal,
-            cabinetNom: (profile.cabinet as { nom?: string } | null)?.nom ?? 'Mon cabinet',
-          }} />
-        </div>
+        <RapportMensuelButton data={{
+          coproprietes: (coproprietes ?? []) as Copropriete[],
+          totalEmis,
+          totalRecouvre,
+          tauxGlobal,
+          cabinetNom: (profile.cabinet as { nom?: string } | null)?.nom ?? 'Mon cabinet',
+        }} />
       </div>
 
       {/* Trial banner */}
@@ -635,16 +639,18 @@ function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }: KpiCa
   }
 
   return (
-    <Link href={href} className="coplio-card !p-4 md:!p-6 hover:shadow-md transition-shadow group relative">
-      <div className={`absolute top-3 right-3 w-7 h-7 rounded-lg flex items-center justify-center ${colors[color]}`}>
-        <Icon className="w-3.5 h-3.5" />
-      </div>
-      <div className="pr-10">
-        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{title}</p>
-        <p className={`text-xl font-bold mt-1 ${isAmount && typeof value === 'string' && value.includes('-') ? 'text-coplio-red' : 'text-coplio-text'}`}>
-          {value}
-        </p>
-        {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
+    <Link href={href} className="coplio-card hover:shadow-md transition-shadow group">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{title}</p>
+          <p className={`text-2xl font-bold mt-1 ${isAmount && typeof value === 'string' && value.includes('-') ? 'text-coplio-red' : 'text-coplio-text'}`}>
+            {value}
+          </p>
+          {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
+        </div>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors[color]}`}>
+          <Icon className="w-5 h-5" />
+        </div>
       </div>
       <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground group-hover:text-coplio-green transition-colors">
         Voir le détail <ArrowRight className="w-3 h-3" />
@@ -653,8 +659,7 @@ function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }: KpiCa
   )
 }
 
-type CoproprieteAlert = { id: string; nom: string; nb_lots: number | null; ville: string | null; statut: string | null }
-function CoproprieteAlertRow({ copropriete }: { copropriete: CoproprieteAlert }) {
+function CoproprieteAlertRow({ copropriete }: { copropriete: Copropriete }) {
   return (
     <Link
       href={`/coproprietes/${copropriete.id}`}
@@ -686,8 +691,7 @@ function CoproprieteAlertRow({ copropriete }: { copropriete: CoproprieteAlert })
   )
 }
 
-type SinistreItem = { id: string; titre: string | null; reference: string | null; status: string | null; copropriete?: { nom: string } | null }
-function SinistreRow({ sinistre }: { sinistre: SinistreItem }) {
+function SinistreRow({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom: string } | null } }) {
   const statusColors: Record<string, string> = {
     signale: 'badge-attention',
     urgence: 'badge-urgent',
@@ -715,15 +719,14 @@ function SinistreRow({ sinistre }: { sinistre: SinistreItem }) {
           {sinistre.reference} · {sinistre.copropriete?.nom}
         </p>
       </div>
-      <span className={`ml-3 text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${statusColors[sinistre.status ?? ''] || 'badge-a-jour'}`}>
-        {statusLabels[sinistre.status ?? ''] || sinistre.status}
+      <span className={`ml-3 text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${statusColors[sinistre.status ?? 'signale'] || 'badge-a-jour'}`}>
+        {statusLabels[sinistre.status ?? 'signale'] || sinistre.status}
       </span>
     </Link>
   )
 }
 
-type AgItem = { id: string; titre: string; date_ag: string; copropriete?: { nom: string } }
-function AgRow({ ag }: { ag: AgItem }) {
+function AgRow({ ag }: { ag: AssembleeGenerale & { copropriete?: { nom: string } | null } }) {
   const date = new Date(ag.date_ag)
   const jours = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
 

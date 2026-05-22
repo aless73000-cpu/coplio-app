@@ -1,9 +1,13 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import type { Database } from '@/types/supabase'
+import { withErrorHandler } from '@/lib/api-handler'
+
+type SinistreUpdate = Database['public']['Tables']['sinistres']['Update']
 
 const ALLOWED_FIELDS = ['compagnie_assurance', 'numero_declaration_assurance', 'montant_sinistre', 'montant_indemnise', 'description', 'titre'] as const
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export const PATCH = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -36,12 +40,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
   const { data, error } = await admin
     .from('sinistres')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .update(update as any)
+    .update(update as SinistreUpdate)
     .eq('id', params.id)
     .select()
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
-}
+})

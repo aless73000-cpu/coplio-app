@@ -1,8 +1,9 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export const GET = withErrorHandler(async (_request: Request, { params }: { params: { id: string } }) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -19,11 +20,11 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
 const schema = z.object({ lot_ids: z.array(z.string().uuid()) })
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export const PUT = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -61,4 +62,4 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

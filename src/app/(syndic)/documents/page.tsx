@@ -60,7 +60,7 @@ export default async function DocumentsPage({
   ])
 
   // Grouper par catégorie
-  const byCategorie = (documents ?? []).reduce<Record<string, NonNullable<typeof documents>>>((acc, doc) => {
+  const byCategorie = (documents ?? []).reduce<Record<string, Document[]>>((acc, doc) => {
     const cat = doc.categorie || 'autre'
     if (!acc[cat]) acc[cat] = []
     acc[cat].push(doc)
@@ -148,8 +148,8 @@ export default async function DocumentsPage({
               </div>
 
               <div className="space-y-1">
-                {docs.map((doc) => (
-                  <DocumentRow key={doc.id} document={doc as Document & { copropriete?: { nom: string } }} />
+                {docs.map((doc: Document & { copropriete?: { nom: string } }) => (
+                  <DocumentRow key={doc.id} document={doc} />
                 ))}
               </div>
             </div>
@@ -184,7 +184,7 @@ function DocumentRow({ document: doc }: {
       </div>
 
       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-        <DocumentActions documentId={doc.id} typeMime={doc.type_mime} />
+        <DocumentActions documentId={doc.id} typeMime={doc.type_mime ?? undefined} />
       </div>
     </div>
   )

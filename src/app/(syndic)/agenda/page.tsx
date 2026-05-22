@@ -63,23 +63,21 @@ export default async function AgendaPage() {
       .order('date_debut').limit(50),
   ])
 
-  type WithCopropriete = { copropriete: { nom: string } | null }
-
   const systemEvents = [
     ...(ags.data ?? []).map((a) => ({
       id: a.id, type: 'ag' as const,
       titre: a.titre ?? 'Assemblée générale',
-      sous_titre: (a as unknown as WithCopropriete).copropriete?.nom,
+      sous_titre: (a.copropriete as { nom: string } | null)?.nom,
       date: a.date_ag, lien: `/assemblees/${a.id}`, statut: a.status,
     })),
     ...(echeances.data ?? []).map((e) => ({
       id: e.id, type: 'echeance' as const, titre: e.libelle,
-      sous_titre: (e as unknown as WithCopropriete).copropriete?.nom,
+      sous_titre: (e.copropriete as { nom: string } | null)?.nom,
       date: e.date_echeance, lien: `/appels-charges`, statut: 'À régler',
     })),
     ...(sinistres.data ?? []).map((s) => ({
       id: s.id, type: 'sinistre' as const, titre: s.titre,
-      sous_titre: (s as unknown as WithCopropriete).copropriete?.nom,
+      sous_titre: (s.copropriete as { nom: string } | null)?.nom,
       date: s.date_sinistre, lien: `/sinistres/${s.id}`, statut: s.status,
     })),
   ]

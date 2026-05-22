@@ -1,7 +1,8 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withErrorHandler } from '@/lib/api-handler'
 
-export async function PATCH(_req: Request, { params }: { params: { id: string } }) {
+export const PATCH = withErrorHandler(async (_req: Request, { params }: { params: { id: string } }) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -25,7 +26,7 @@ export async function PATCH(_req: Request, { params }: { params: { id: string } 
 
     if (!appel) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((appel.copropriete as any)?.cabinet_id !== profile.cabinet_id) {
+    if ((appel.copropriete as { cabinet_id: string } | null)?.cabinet_id !== profile.cabinet_id) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
     }
 
@@ -38,4 +39,4 @@ export async function PATCH(_req: Request, { params }: { params: { id: string } 
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

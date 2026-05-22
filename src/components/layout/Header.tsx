@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Notification } from '@/types'
+import { cn } from '@/lib/utils'
 
 // ─── Recherche globale ──────────────────────────────────────────────
 
@@ -25,7 +26,7 @@ const ICONS = {
   assemblee: CalendarDays,
 }
 
-function GlobalSearch() {
+function GlobalSearch({ className }: { className?: string }) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(false)
@@ -82,7 +83,7 @@ function GlobalSearch() {
   }
 
   return (
-    <div className="relative flex-1 max-w-md" ref={ref}>
+    <div className={cn('relative flex-1 max-w-md', className)} ref={ref}>
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
       <input
         type="text"
@@ -196,7 +197,7 @@ export function Header({ title, notifications: initial = [], userId, mobileSideb
         <h1 className="text-base font-semibold text-coplio-text hidden md:block">{title}</h1>
       )}
 
-      <GlobalSearch />
+      <GlobalSearch className="hidden md:flex flex-1" />
 
       <div className="flex items-center gap-2 ml-auto">
         <div className="relative" ref={dropdownRef}>

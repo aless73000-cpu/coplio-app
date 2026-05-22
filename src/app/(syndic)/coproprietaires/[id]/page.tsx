@@ -338,8 +338,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
         {lots.length > 0 ? (
           <div className="space-y-3">
             {lots.map((cl) => {
-              type LotWithCopropriete = { id: string; numero: string; etage?: string; surface?: number; tantiemes?: number; solde_compte?: number; copropriete: { id: string; nom: string } | { id: string; nom: string }[] | null }
-              const lot = cl.lot as unknown as LotWithCopropriete
+              const lot = cl.lot as { id: string; numero: string; type?: string; etage?: string; surface?: number; tantiemes?: number; solde_compte?: number; copropriete?: { id: string; nom: string } | { id: string; nom: string }[] | null }
               const coproprieteNom = Array.isArray(lot.copropriete) ? lot.copropriete[0]?.nom : lot.copropriete?.nom
               return (
                 <Link

@@ -34,7 +34,7 @@ export default function BentoFeatures() {
             </div>
             {/* Mini dashboard preview */}
             <div className="mx-6 bg-[#F4F2EB] rounded-t-2xl p-4 overflow-hidden border-t-0">
-              <div className="grid grid-cols-4 gap-2 mb-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
                 {[
                   { v: '12',    l: 'Copropriétés', c: 'text-[#0F6E56]' },
                   { v: '284',   l: 'Lots',          c: 'text-blue-600' },

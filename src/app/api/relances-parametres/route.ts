@@ -1,6 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 import { captureException } from '@/lib/monitoring'
 
 async function getCabinetId() {
@@ -11,7 +12,7 @@ async function getCabinetId() {
   return profile?.cabinet_id ?? null
 }
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   try {
     const cabinetId = await getCabinetId()
     if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -40,10 +41,10 @@ export async function GET(request: Request) {
       deuxieme_rappel_sms: false,
     })
   } catch (err) {
-    captureException(err, { context: 'relances-parametres' })
+    captureException(err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
 const schema = z.object({
   copropriete_id: z.string().uuid(),
@@ -59,7 +60,7 @@ const schema = z.object({
   texte_deuxieme_rappel: z.string().optional(),
 })
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   try {
     const cabinetId = await getCabinetId()
     if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -88,7 +89,7 @@ export async function POST(request: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data)
   } catch (err) {
-    captureException(err, { context: 'relances-parametres' })
+    captureException(err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

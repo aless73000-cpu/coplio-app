@@ -1,6 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
 const schema = z.object({
   numero: z.string().min(1),
@@ -23,10 +24,10 @@ async function getCallerCabinetId() {
   return { user, cabinetId: profile?.cabinet_id ?? null }
 }
 
-export async function PATCH(
+export const PATCH = withErrorHandler(async (
   request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const { user, cabinetId } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -47,7 +48,7 @@ export async function PATCH(
 
     if (!lot) return NextResponse.json({ error: 'Non trouvé' }, { status: 404 })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const lotCabinetId = (lot.copropriete as any)?.cabinet_id
+    const lotCabinetId = (lot.copropriete as { cabinet_id: string } | null)?.cabinet_id
     if (lotCabinetId !== cabinetId) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
     }
@@ -64,12 +65,12 @@ export async function PATCH(
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
-export async function DELETE(
+export const DELETE = withErrorHandler(async (
   _request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const { user, cabinetId } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -86,7 +87,7 @@ export async function DELETE(
 
     if (!lot) return NextResponse.json({ error: 'Non trouvé' }, { status: 404 })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const lotCabinetId = (lot.copropriete as any)?.cabinet_id
+    const lotCabinetId = (lot.copropriete as { cabinet_id: string } | null)?.cabinet_id
     if (lotCabinetId !== cabinetId) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
     }
@@ -97,4 +98,4 @@ export async function DELETE(
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

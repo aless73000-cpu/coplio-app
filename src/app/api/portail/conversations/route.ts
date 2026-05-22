@@ -3,7 +3,7 @@
 
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { captureException } from '@/lib/monitoring'
+import { withErrorHandler } from '@/lib/api-handler'
 
 async function getContext() {
   const supabase = await createClient()
@@ -21,60 +21,50 @@ async function getContext() {
   return { user, coproprietaireId: copro.id, cabinetId: copro.cabinet_id }
 }
 
-export async function GET() {
-  try {
-    const ctx = await getContext()
-    if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+export const GET = withErrorHandler(async () => {
+  const ctx = await getContext()
+  if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const admin = createAdminClient()
-    const { data: convs, error } = await admin
-      .from('conversations')
-      .select('id, sujet, derniere_activite')
-      .eq('coproprietaire_id', ctx.coproprietaireId)
-      .order('derniere_activite', { ascending: false })
+  const admin = createAdminClient()
+  const { data: convs, error } = await admin
+    .from('conversations')
+    .select('id, sujet, derniere_activite')
+    .eq('coproprietaire_id', ctx.coproprietaireId)
+    .order('derniere_activite', { ascending: false })
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json(convs ?? [])
-  } catch (err) {
-    captureException(err, { context: 'portail-conversations-get' })
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
-  }
-}
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(convs ?? [])
+})
 
-export async function POST() {
-  try {
-    const ctx = await getContext()
-    if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+export const POST = withErrorHandler(async () => {
+  const ctx = await getContext()
+  if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const admin = createAdminClient()
+  const admin = createAdminClient()
 
-    // Chercher une conversation existante
-    const { data: existing } = await admin
-      .from('conversations')
-      .select('id, sujet, derniere_activite')
-      .eq('coproprietaire_id', ctx.coproprietaireId)
-      .order('derniere_activite', { ascending: false })
-      .limit(1)
-      .single()
+  // Chercher une conversation existante
+  const { data: existing } = await admin
+    .from('conversations')
+    .select('id, sujet, derniere_activite')
+    .eq('coproprietaire_id', ctx.coproprietaireId)
+    .order('derniere_activite', { ascending: false })
+    .limit(1)
+    .single()
 
-    if (existing) return NextResponse.json(existing)
+  if (existing) return NextResponse.json(existing)
 
-    // Créer une nouvelle conversation
-    const { data: created, error } = await admin
-      .from('conversations')
-      .insert({
-        cabinet_id: ctx.cabinetId,
-        coproprietaire_id: ctx.coproprietaireId,
-        sujet: 'Message au syndic',
-        derniere_activite: new Date().toISOString(),
-      })
-      .select('id, sujet, derniere_activite')
-      .single()
+  // Créer une nouvelle conversation
+  const { data: created, error } = await admin
+    .from('conversations')
+    .insert({
+      cabinet_id: ctx.cabinetId,
+      coproprietaire_id: ctx.coproprietaireId,
+      sujet: 'Message au syndic',
+      derniere_activite: new Date().toISOString(),
+    })
+    .select('id, sujet, derniere_activite')
+    .single()
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json(created, { status: 201 })
-  } catch (err) {
-    captureException(err, { context: 'portail-conversations-post' })
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
-  }
-}
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(created, { status: 201 })
+})

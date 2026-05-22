@@ -1,7 +1,8 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withErrorHandler } from '@/lib/api-handler'
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export const GET = withErrorHandler(async (_req: Request, { params }: { params: { id: string } }) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -46,4 +47,4 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

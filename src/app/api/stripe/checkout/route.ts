@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { stripe, STRIPE_PRICES } from '@/lib/stripe'
 import type { PlanKey } from '@/lib/stripe'
+import { withErrorHandler } from '@/lib/api-handler'
 import { captureException } from '@/lib/monitoring'
-
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -94,4 +94,4 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-}
+})

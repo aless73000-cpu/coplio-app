@@ -13,8 +13,8 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { Email } from '@/lib/email'
 import { EMAIL_CONFIG } from '@/lib/email/config'
+import { withErrorHandler } from '@/lib/api-handler'
 import { captureException } from '@/lib/monitoring'
-
 export const runtime = 'nodejs'
 export const maxDuration = 60 // secondes — large pour les gros volumes
 
@@ -27,7 +27,7 @@ function isAuthorized(request: Request): boolean {
   if (!secret) {
     // En dev sans secret : autoriser (warn uniquement)
     if (process.env.NODE_ENV === 'development') {
-      captureException(new Error('CRON_SECRET non défini en production'), { context: 'cron-auth' })
+      console.warn('[Cron] CRON_SECRET non défini — accès non protégé')
       return true
     }
     return false
@@ -38,7 +38,7 @@ function isAuthorized(request: Request): boolean {
 
 // ─── Handler ─────────────────────────────────────────────────
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   }
@@ -78,7 +78,7 @@ export async function GET(request: Request) {
       .lte('trial_ends_at', dateEnd)
 
     if (error) {
-      captureException(error, { context: 'cron-trial-ending-supabase', label })
+      captureException(error, { context: 'cron-trial-supabase' }) // [Cron trial-ending] Erreur Supabase (${label}):`, error)
       continue
     }
 
@@ -100,7 +100,7 @@ export async function GET(request: Request) {
 
         const recipientEmail = owner?.email ?? cabinet.email_contact
         if (!recipientEmail) {
-          captureException(new Error(`Pas d'email pour le cabinet ${cabinet.id}`), { context: 'cron-trial-ending-no-email' })
+          console.warn(`[Cron trial-ending] Pas d'email pour le cabinet ${cabinet.id}`)
           continue
         }
 
@@ -118,11 +118,11 @@ export async function GET(request: Request) {
           totalSent++
         } else {
           totalFailed++
-          captureException(result.error ?? new Error(`Échec envoi email ${label} → ${recipientEmail}`), { context: 'cron-trial-ending-email', label, recipientEmail })
+          captureException(new Error(`[Cron trial-ending] Échec ${label} → ${recipientEmail}`), { context: "cron-trial-email", error: result.error?.message })
         }
       } catch (err) {
         totalFailed++
-        captureException(err, { context: 'cron-trial-ending-cabinet', cabinetId: cabinet.id })
+        captureException(err, { context: "cron-trial-cabinet", cabinet_id: cabinet.id })
       }
     }
 
@@ -138,4 +138,4 @@ export async function GET(request: Request) {
     durationMs,
     details,
   })
-}
+})

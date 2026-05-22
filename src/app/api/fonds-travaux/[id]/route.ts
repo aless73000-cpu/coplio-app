@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-
+import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
 const patchSchema = z.object({
   cotisation_annuelle: z.number().min(0).optional(),
   solde_actuel: z.number().optional(),
@@ -39,10 +40,10 @@ async function verifyFondsOwnership(supabase: Awaited<ReturnType<typeof createCl
 
   if (!data) return false
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (data.copropriete as any)?.cabinet_id === cabinetId
+  return (data.copropriete as unknown as { cabinet_id: string } | null)?.cabinet_id === cabinetId
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export const PATCH = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
   try {
     const { user, cabinetId, supabase } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -65,12 +66,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data)
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export const POST = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
   try {
     // Add mouvement
     const { user, cabinetId, supabase } = await getCallerCabinetId()
@@ -101,12 +102,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     return NextResponse.json(mouvement)
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export const DELETE = withErrorHandler(async (_: Request, { params }: { params: { id: string } }) => {
   try {
     const { user, cabinetId, supabase } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -119,7 +120,7 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

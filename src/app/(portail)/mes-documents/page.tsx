@@ -4,7 +4,6 @@ import { FileText, Download, FolderOpen } from 'lucide-react'
 import { formatDate, formatFileSize } from '@/lib/utils'
 import { DOCUMENT_CATEGORY_LABELS } from '@/types'
 import type { Document, DocumentCategory } from '@/types'
-import { getSignedDocumentUrl } from '@/lib/storage'
 
 const CATEGORY_ICONS: Record<DocumentCategory, string> = {
   pv_ag: '📋',
@@ -31,12 +30,18 @@ export default async function MesDocuments() {
 
   const docsWithUrls = await Promise.all(
     (documents ?? []).map(async (doc) => {
-      const signed_url = await getSignedDocumentUrl(doc.storage_bucket ?? 'documents', doc.storage_path)
-      return { ...doc, signed_url }
+      try {
+        const { data } = await supabase.storage
+          .from(doc.storage_bucket ?? 'documents')
+          .createSignedUrl(doc.storage_path, 3600)
+        return { ...doc, signed_url: data?.signedUrl ?? null }
+      } catch {
+        return { ...doc, signed_url: null }
+      }
     })
   )
 
-  const byCategorie = docsWithUrls.reduce<Record<string, typeof docsWithUrls>>(
+  const byCategorie = docsWithUrls.reduce<Record<string, (Document & { signed_url: string | null })[]>>(
     (acc, doc) => {
       const cat = doc.categorie || 'autre'
       if (!acc[cat]) acc[cat] = []
@@ -97,7 +102,7 @@ export default async function MesDocuments() {
                           <p className="text-sm font-medium text-coplio-text">{doc.nom}</p>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-sm text-muted-foreground">{doc.created_at ? formatDate(doc.created_at) : '—'}</td>
+                      <td className="px-4 py-4 text-sm text-muted-foreground">{formatDate(doc.created_at)}</td>
                       <td className="px-4 py-4 text-sm text-muted-foreground">
                         {doc.taille_bytes ? formatFileSize(doc.taille_bytes) : '—'}
                       </td>

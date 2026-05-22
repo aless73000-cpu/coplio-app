@@ -1,8 +1,9 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withErrorHandler } from '@/lib/api-handler'
 import { captureException } from '@/lib/monitoring'
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ logo_url: publicUrl })
   } catch (err) {
-    captureException(err, { context: 'cabinet-logo' })
+    captureException(err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

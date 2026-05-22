@@ -2,8 +2,9 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
+import { withErrorHandler } from '@/lib/api-handler'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { captureException } from '@/lib/monitoring'
-import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
 
 const lotSchema = z.object({
   numero: z.string().min(1),
@@ -18,11 +19,7 @@ const schema = z.object({
   lots: z.array(lotSchema).min(1).max(500),
 })
 
-export async function POST(request: Request) {
-  const ip = getIP(request)
-  const limit = await rateLimit(`generer:${ip}`, { max: 5, windowMs: 60 * 60 * 1000 })
-  if (!limit.success) return rateLimitResponse(limit.resetAt)
-
+export const POST = withErrorHandler(async (request: Request) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -34,6 +31,9 @@ export async function POST(request: Request) {
       .eq('id', user.id)
       .single()
     if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+
+    const limit = await rateLimit(`lots-gen:${user.id}`, { max: 10, windowMs: 60_000 })
+    if (!limit.success) return rateLimitResponse(limit.resetAt)
 
     const body = await request.json()
     const parsed = schema.safeParse(body)
@@ -93,4 +93,4 @@ export async function POST(request: Request) {
     captureException(err, { context: 'lots-generer' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

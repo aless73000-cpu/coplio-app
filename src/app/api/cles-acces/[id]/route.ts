@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-
+import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
 const patchSchema = z.object({
   description: z.string().min(1).optional(),
   type: z.string().optional(),
@@ -21,7 +22,7 @@ async function getProfile(supabase: Awaited<ReturnType<typeof createClient>>) {
   return profile
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export const PATCH = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -46,12 +47,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (!data) return NextResponse.json({ error: 'Non trouvé ou accès refusé' }, { status: 404 })
     return NextResponse.json(data)
   } catch (err) {
-    console.error('[API Error] cles-acces PATCH', err)
+    captureException(err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export const DELETE = withErrorHandler(async (_request: Request, { params }: { params: { id: string } }) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -69,7 +70,7 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error('[API Error] cles-acces DELETE', err)
+    captureException(err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

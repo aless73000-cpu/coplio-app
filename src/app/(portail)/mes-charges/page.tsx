@@ -37,7 +37,7 @@ export default async function MesChargesPage() {
     .order('date_echeance', { ascending: false })
     .limit(50)
 
-  const lot = profile.lot as unknown as { numero: string; etage?: string; copropriete: { id: string; nom: string; iban?: string; banque?: string } } | null
+  const lot = profile.lot as { numero: string; etage?: string; copropriete: { id: string; nom: string; iban?: string; banque?: string } } | null
 
   const total_du = (appels ?? []).reduce(
     (s: number, a) => (!a.paye ? s + (a.montant - (a.montant_paye ?? 0)) : s), 0
@@ -53,7 +53,7 @@ export default async function MesChargesPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* En-tête */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">Mes charges</h1>
           <p className="text-muted-foreground text-sm mt-0.5">

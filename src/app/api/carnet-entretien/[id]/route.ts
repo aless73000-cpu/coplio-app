@@ -1,7 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { captureException } from '@/lib/monitoring'
+import { withErrorHandler } from '@/lib/api-handler'
 
 async function getCabinetId() {
   const supabase = await createClient()
@@ -25,61 +25,51 @@ const schema = z.object({
   prochaine_echeance: z.string().optional(),
 })
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const { id } = await params
-    const cabinetId = await getCabinetId()
-    if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+export const PATCH = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
+  const cabinetId = await getCabinetId()
+  if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const body = await request.json()
-    const parsed = schema.safeParse(body)
-    if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
+  const body = await request.json()
+  const parsed = schema.safeParse(body)
+  if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
-    const admin = createAdminClient()
-    let { data, error } = await admin
+  const admin = createAdminClient()
+  let { data, error } = await admin
+    .from('carnet_entretien')
+    .update({ ...parsed.data, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .eq('cabinet_id', cabinetId)
+    .select()
+    .single()
+
+  // Fallback sans updated_at si colonne manquante
+  if (error && (error.message.includes('updated_at') || error.code === '42703')) {
+    ;({ data, error } = await admin
       .from('carnet_entretien')
-      .update({ ...parsed.data, updated_at: new Date().toISOString() })
+      .update(parsed.data)
       .eq('id', id)
       .eq('cabinet_id', cabinetId)
       .select()
-      .single()
-
-    // Fallback sans updated_at si colonne manquante
-    if (error && (error.message.includes('updated_at') || error.code === '42703')) {
-      ;({ data, error } = await admin
-        .from('carnet_entretien')
-        .update(parsed.data)
-        .eq('id', id)
-        .eq('cabinet_id', cabinetId)
-        .select()
-        .single())
-    }
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json(data)
-  } catch (err) {
-    captureException(err, { context: 'carnet-entretien-id-patch' })
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+      .single())
   }
-}
 
-export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const { id } = await params
-    const cabinetId = await getCabinetId()
-    if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data)
+})
 
-    const admin = createAdminClient()
-    const { error } = await admin
-      .from('carnet_entretien')
-      .delete()
-      .eq('id', id)
-      .eq('cabinet_id', cabinetId)
+export const DELETE = withErrorHandler(async (_: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
+  const cabinetId = await getCabinetId()
+  if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ success: true })
-  } catch (err) {
-    captureException(err, { context: 'carnet-entretien-id-delete' })
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
-  }
-}
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('carnet_entretien')
+    .delete()
+    .eq('id', id)
+    .eq('cabinet_id', cabinetId)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
+})

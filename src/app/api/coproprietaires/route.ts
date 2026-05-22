@@ -1,23 +1,26 @@
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { requireCabinetUser } from '@/lib/api-handler'
+import { withErrorHandler } from '@/lib/api-handler'
 
-export async function GET() {
-  const ctx = await requireCabinetUser()
-  if (ctx instanceof NextResponse) return ctx
+export const GET = withErrorHandler(async () => {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-  const { cabinetId } = ctx
+  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
+  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('coproprietaires')
     .select('id, prenom, nom, email')
-    .eq('cabinet_id', cabinetId)
+    .eq('cabinet_id', profile.cabinet_id)
     .order('nom')
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data ?? [])
-}
+})
 
 const schema = z.object({
   prenom: z.string().min(1),
@@ -27,12 +30,15 @@ const schema = z.object({
   adresse_correspondance: z.string().optional(),
 })
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   try {
-    const ctx = await requireCabinetUser()
-    if (ctx instanceof NextResponse) return ctx
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const { cabinetId } = ctx
+    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
+    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+
     const body = await request.json()
     const parsed = schema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
@@ -44,7 +50,7 @@ export async function POST(request: Request) {
       .insert({
         ...rest,
         ...(email ? { email } : {}),
-        cabinet_id: cabinetId,
+        cabinet_id: profile.cabinet_id,
       })
       .select()
       .single()
@@ -54,4 +60,4 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

@@ -3,24 +3,14 @@ import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
 import { formatEuro, formatDate } from '@/lib/utils'
 import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
+import { withErrorHandler } from '@/lib/api-handler'
 import { captureException } from '@/lib/monitoring'
+import { sendSMS, smsRelanceImpayes } from '@/lib/twilio'
 
-type AppelWithJoins = {
-  id: string
-  lot_id: string
-  nb_relances: number
-  montant: number
-  montant_paye: number | null
-  date_echeance: string
-  paye: boolean
-  copropriete: { id: string; nom: string; cabinet_id: string } | null
-  lot: { id: string; numero: string } | null
-}
-
-export async function POST(
+export const POST = withErrorHandler(async (
   _req: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   // 20 relances max par IP par heure
   const ip = getIP(_req)
   const limit = await rateLimit(`relancer:${ip}`, { max: 20, windowMs: 60 * 60 * 1000 })
@@ -57,20 +47,15 @@ export async function POST(
 
     if (!appel) return NextResponse.json({ error: 'Appel introuvable' }, { status: 404 })
 
-    const appelTyped = appel as unknown as AppelWithJoins
-
-    // Vérifier que l'appel appartient au cabinet (vérification explicite + hard fail si null)
-    if (!appelTyped.copropriete?.cabinet_id) {
-      return NextResponse.json({ error: 'Données copropriété manquantes' }, { status: 500 })
-    }
-    if (appelTyped.copropriete.cabinet_id !== profile.cabinet_id) {
+    // Vérifier que l'appel appartient au cabinet
+    if ((appel.copropriete as { cabinet_id: string } | null)?.cabinet_id !== profile.cabinet_id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
     }
 
     // Récupérer le copropriétaire (owner_resident lié au lot)
     const { data: ownerProfile } = await admin
       .from('profiles')
-      .select('prenom, nom, email')
+      .select('prenom, nom, email, telephone')
       .eq('lot_id', appel.lot_id)
       .eq('role', 'owner_resident')
       .single()
@@ -98,8 +83,8 @@ export async function POST(
         montant: formatEuro(appel.montant - (appel.montant_paye ?? 0)),
         dateEcheance: formatDate(appel.date_echeance),
         cabinetNom: cabinet?.nom ?? 'Votre syndic',
-        nomCopropriete: appelTyped.copropriete?.nom ?? 'votre résidence',
-        numeroLot: appelTyped.lot?.numero ?? '',
+        nomCopropriete: (appel.copropriete as { nom: string } | null)?.nom ?? 'votre résidence',
+        numeroLot: (appel.lot as { numero: string } | null)?.numero ?? '',
         niveau,
         portailUrl: `${appUrl}/mes-charges`,
       },
@@ -108,6 +93,18 @@ export async function POST(
 
     if (!result.success) {
       return NextResponse.json({ error: 'Erreur envoi email' }, { status: 500 })
+    }
+
+    // SMS de relance (non bloquant)
+    if (ownerProfile.telephone) {
+      sendSMS(
+        ownerProfile.telephone,
+        smsRelanceImpayes({
+          prenom: ownerProfile.prenom ?? '',
+          montant: formatEuro(appel.montant - (appel.montant_paye ?? 0)),
+          nomCopropriete: (appel.copropriete as { nom: string } | null)?.nom ?? 'votre résidence',
+        })
+      ).catch((err) => captureException(err, { context: 'impayes-relancer-sms' }))
     }
 
     // Mettre à jour le compteur de relances
@@ -121,7 +118,7 @@ export async function POST(
 
     return NextResponse.json({ success: true, niveau, emailId: result.emailId })
   } catch (err) {
-    await captureException(err, { context: 'relancer-impaye', appelId: params.id })
+    captureException(err, { context: 'impayes-relancer' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

@@ -416,7 +416,7 @@ export default function FeaturesShowcase() {
         {/* Content panel */}
         <div
           key={activeTab}
-          className="grid md:grid-cols-2 gap-8 bg-[#F4F2EB] rounded-3xl p-8 border border-gray-100"
+          className="grid md:grid-cols-2 gap-6 md:gap-8 bg-[#F4F2EB] rounded-3xl p-5 sm:p-8 border border-gray-100"
           style={{ animation: 'fadeUp .35s ease both' }}
         >
           {/* Left — description */}
@@ -446,8 +446,8 @@ export default function FeaturesShowcase() {
             </Link>
           </div>
 
-          {/* Right — preview */}
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+          {/* Right — preview (masqué sur mobile) */}
+          <div className="hidden md:block bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
             <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
               <div className="flex gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-red-300" />

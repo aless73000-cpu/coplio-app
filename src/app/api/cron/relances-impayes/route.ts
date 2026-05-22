@@ -14,6 +14,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { Email } from '@/lib/email'
 import { formatEuro, formatDate } from '@/lib/utils'
+import { withErrorHandler } from '@/lib/api-handler'
 import { captureException } from '@/lib/monitoring'
 
 export const runtime = 'nodejs'
@@ -36,7 +37,7 @@ const NIVEAUX = [
   { joursMin: 90, joursMax: 999, niveau: 3 },
 ] as const
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   }
@@ -151,7 +152,7 @@ export async function GET(request: Request) {
       }
     } catch (err) {
       totalFailed++
-      captureException(err, { context: 'cron-relances-appel', appelId: appel.id })
+      captureException(err, { context: 'cron-relances', appel_id: appel.id })
     }
   }
 
@@ -164,4 +165,4 @@ export async function GET(request: Request) {
     totalFailed,
     durationMs,
   })
-}
+})

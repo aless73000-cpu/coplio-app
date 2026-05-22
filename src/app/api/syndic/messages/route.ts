@@ -1,6 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
 async function getCabinetId() {
   const supabase = await createClient()
@@ -10,7 +11,7 @@ async function getCabinetId() {
   return { user, cabinet_id: profile?.cabinet_id }
 }
 
-export async function GET(req: Request) {
+export const GET = withErrorHandler(async (req: Request) => {
   try {
     const ctx = await getCabinetId()
     if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -34,11 +35,11 @@ export async function GET(req: Request) {
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
 const schema = z.object({ contenu: z.string().min(1) })
 
-export async function POST(req: Request) {
+export const POST = withErrorHandler(async (req: Request) => {
   try {
     const ctx = await getCabinetId()
     if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -63,4 +64,4 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

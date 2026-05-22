@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 import { MobileSidebar } from '@/components/layout/MobileSidebar'
-import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
+import { SyndicBottomNav } from '@/components/layout/SyndicBottomNav'
 import { SessionGuard } from '@/components/auth/SessionGuard'
 import type { Profile, Cabinet } from '@/types'
 
@@ -43,12 +43,11 @@ export default async function SyndicLayout({
     redirect('/onboarding')
   }
 
-  // Cabinet + notifications + sinistres urgents : requêtes parallélisées
+  // Cabinet + notifications : requêtes indépendantes → parallélisées
   const [
     { data: cabinet },
     { data: notifications },
     { count: unreadMessages },
-    { count: urgentSinistres },
   ] = await Promise.all([
     supabase
       .from('cabinets')
@@ -67,11 +66,6 @@ export default async function SyndicLayout({
       .eq('user_id', user.id)
       .eq('lu', false)
       .eq('lien', '/messages'),
-    supabase
-      .from('sinistres')
-      .select('*', { count: 'exact', head: true })
-      .eq('cabinet_id', profile.cabinet_id!)
-      .eq('status', 'urgence'),
   ])
 
   if (!cabinet) {
@@ -83,7 +77,7 @@ export default async function SyndicLayout({
       <SessionGuard loginPath="/login" />
       {/* Sidebar desktop — cachée sur mobile */}
       <div className="hidden md:flex">
-        <Sidebar profile={profile as Profile} cabinet={cabinet as Cabinet} unreadMessages={unreadMessages ?? 0} urgentSinistres={urgentSinistres ?? 0} />
+        <Sidebar profile={profile as Profile} cabinet={cabinet as Cabinet} unreadMessages={unreadMessages ?? 0} />
       </div>
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <Header
@@ -94,17 +88,16 @@ export default async function SyndicLayout({
               profile={profile as Profile}
               cabinet={cabinet as Cabinet}
               unreadMessages={unreadMessages ?? 0}
-              urgentSinistres={urgentSinistres ?? 0}
             />
           }
         />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-nav md:pb-6">
-          <div className="max-w-7xl mx-auto w-full">
+        <main className="flex-1 overflow-y-auto p-4 pb-24 md:p-6">
+          <div className="max-w-7xl mx-auto">
             {children}
           </div>
         </main>
       </div>
-      <MobileBottomNav unreadMessages={unreadMessages ?? 0} />
+      <SyndicBottomNav unreadMessages={unreadMessages ?? 0} />
     </div>
   )
 }

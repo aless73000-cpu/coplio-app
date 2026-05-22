@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { notifySyndics } from '@/lib/notify'
+import { withErrorHandler } from '@/lib/api-handler'
 
 const schema = z.object({
   conversation_id: z.string().uuid(),
@@ -9,7 +10,7 @@ const schema = z.object({
   expediteur_nom: z.string().optional(),
 })
 
-export async function POST(req: Request) {
+export const POST = withErrorHandler(async (req: Request) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -29,4 +30,4 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

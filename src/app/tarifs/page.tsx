@@ -4,13 +4,15 @@ import { Check, ArrowLeft } from 'lucide-react'
 import { SoftwareApplicationJsonLd } from '@/components/seo/JsonLd'
 import { PLANS_CONFIG } from '@/types'
 
+const { starter, pro, expert } = PLANS_CONFIG
+
 export const metadata: Metadata = {
   title: 'Tarifs',
   description:
-    'Découvrez les tarifs de Coplio — logiciel de gestion de copropriété. Plans Starter (79€/mois), Pro (149€/mois) et Cabinet (299€/mois). Essai gratuit 14 jours, sans carte bancaire.',
+    `Découvrez les tarifs de Coplio — logiciel de gestion de copropriété. Plans ${starter.name} (${starter.price}€/mois), ${pro.name} (${pro.price}€/mois) et ${expert.name} (${expert.price}€/mois). Essai gratuit 14 jours, sans carte bancaire.`,
   alternates: { canonical: 'https://coplio.fr/tarifs' },
   openGraph: {
-    title: 'Tarifs Coplio — Logiciel syndic à partir de 79€/mois',
+    title: `Tarifs Coplio — Logiciel syndic à partir de ${starter.price}€/mois`,
     description:
       'Plans adaptés à chaque cabinet syndic. Essai gratuit 14 jours sans engagement.',
     url: 'https://coplio.fr/tarifs',

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
 const patchSchema = z.object({
   titre: z.string().min(1).optional(),
@@ -32,7 +33,7 @@ async function getCallerInfo() {
   return { user, cabinetId: profile?.cabinet_id ?? null, supabase }
 }
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export const GET = withErrorHandler(async (_request: Request, { params }: { params: { id: string } }) => {
   const { user, cabinetId, supabase } = await getCallerInfo()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
@@ -46,9 +47,9 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 
   if (error || !data) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
   return NextResponse.json(data)
-}
+})
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export const PATCH = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
   const { user, cabinetId, supabase } = await getCallerInfo()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
@@ -93,9 +94,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     .single()
 
   return NextResponse.json(data)
-}
+})
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export const DELETE = withErrorHandler(async (_request: Request, { params }: { params: { id: string } }) => {
   const { user, cabinetId, supabase } = await getCallerInfo()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
@@ -108,4 +109,4 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
-}
+})

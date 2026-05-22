@@ -16,27 +16,17 @@ export default async function AccueilPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*, lot:lots(id, numero, type, etage, copropriete:coproprietes(id, nom, adresse, ville))')
+    .select('*, lot:lots(id, numero, type, etage, solde_compte, copropriete:coproprietes(id, nom, adresse, ville))')
     .eq('id', user.id)
     .single()
 
   const lotId = profile?.lot_id
   const lot = profile?.lot as {
-    id: string; numero: string; type: string; etage?: string
+    id: string; numero: string; type: string; etage?: string; solde_compte?: number | null
     copropriete: { id: string; nom: string; adresse?: string; ville?: string }
   } | null
 
   const coproprieteId = lot?.copropriete?.id
-
-  const { data: appels } = lotId
-    ? await supabase.from('appels_charges').select('*').eq('lot_id', lotId).eq('paye', false)
-        .order('date_echeance', { ascending: true }).limit(3)
-    : { data: [] }
-
-  const montantDu = (appels ?? []).reduce(
-    (s: number, a) => s + (a.montant - (a.montant_paye ?? 0)), 0
-  )
-  const prochainAppel = (appels ?? [])[0]
 
   // Sécurité RGPD : les documents sans lot_id sont filtrés par copropriete_id
   // pour éviter qu'un résident voie les documents d'un autre immeuble du cabinet.
@@ -57,28 +47,36 @@ export default async function AccueilPage() {
     documentsQuery.eq('lot_id', lotId ?? '')
   }
 
-  const { data: documents } = await documentsQuery
+  const [
+    { data: appels },
+    { data: documents },
+    { data: sinistres },
+    { data: notifications },
+    { data: fondsTravaux },
+  ] = await Promise.all([
+    lotId
+      ? supabase.from('appels_charges').select('*').eq('lot_id', lotId).eq('paye', false)
+          .order('date_echeance', { ascending: true }).limit(3)
+      : Promise.resolve({ data: [] }),
+    documentsQuery,
+    lotId
+      ? supabase.from('sinistres').select('id, titre, status, reference')
+          .contains('lots_concernes', [lotId]).neq('status', 'cloture')
+          .order('created_at', { ascending: false }).limit(4)
+      : Promise.resolve({ data: [] }),
+    supabase.from('notifications').select('*').eq('user_id', user.id).eq('lu', false)
+      .order('created_at', { ascending: false }).limit(5),
+    coproprieteId
+      ? supabase.from('fonds_travaux').select('id, annee, solde_actuel, objectif_5ans')
+          .eq('copropriete_id', coproprieteId).order('annee', { ascending: false })
+          .limit(1).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ])
 
-  const { data: sinistres } = lotId
-    ? await supabase.from('sinistres').select('id, titre, status, reference')
-        .contains('lots_concernes', [lotId]).neq('status', 'cloture')
-        .order('created_at', { ascending: false }).limit(4)
-    : { data: [] }
-
-  const { data: notifications } = await supabase
-    .from('notifications').select('*').eq('user_id', user.id).eq('lu', false)
-    .order('created_at', { ascending: false }).limit(5)
-
-  // Fonds de travaux ALUR
-  const { data: fondsTravaux } = coproprieteId
-    ? await supabase
-        .from('fonds_travaux')
-        .select('id, annee, solde_actuel, objectif_5ans')
-        .eq('copropriete_id', coproprieteId)
-        .order('annee', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-    : { data: null }
+  const montantDu = (appels ?? []).reduce(
+    (s: number, a) => s + (a.montant - (a.montant_paye ?? 0)), 0
+  )
+  const prochainAppel = (appels ?? [])[0]
 
   const nbNotifs = notifications?.length ?? 0
   const prenom = profile?.prenom ?? 'Bienvenue'
@@ -141,7 +139,7 @@ export default async function AccueilPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Solde */}
         <div className={`coplio-card ${montantDu > 0 ? 'border-coplio-red/30 bg-coplio-red-bg' : ''}`}>
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Solde à régler</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Charges à régler</p>
           <p className={`text-4xl font-bold ${montantDu > 0 ? 'text-coplio-red' : 'text-coplio-green'}`}>
             {formatEuro(montantDu)}
           </p>
@@ -158,7 +156,12 @@ export default async function AccueilPage() {
               : <><CheckCircle2 className="w-3 h-3" /> À jour</>
             }
           </div>
-          <Link href="/mes-charges" className="flex items-center gap-1 text-sm font-medium text-coplio-green mt-4 hover:underline">
+          {lot?.solde_compte != null && (
+            <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border/50">
+              Solde compte lot : <span className={`font-semibold ${lot.solde_compte >= 0 ? 'text-coplio-green' : 'text-coplio-red'}`}>{formatEuro(lot.solde_compte)}</span>
+            </p>
+          )}
+          <Link href="/mes-charges" className="flex items-center gap-1 text-sm font-medium text-coplio-green mt-3 hover:underline">
             Voir mes charges <ChevronRight className="w-4 h-4" />
           </Link>
         </div>

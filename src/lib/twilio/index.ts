@@ -1,28 +1,27 @@
 // ─── Twilio SMS — lazy init (no crash if env vars missing) ───
-import { captureException } from '@/lib/monitoring'
 
 interface TwilioClient {
-  messages: {
-    create: (opts: { from: string; to: string; body: string }) => Promise<{ sid: string }>
-  }
+  messages: { create(params: { from: string; to: string; body: string }): Promise<{ sid: string }> }
 }
 
 let _client: TwilioClient | null = null
 
 function getClient(): TwilioClient | null {
-  if (_client) return _client
-  const sid = process.env.TWILIO_ACCOUNT_SID
-  const token = process.env.TWILIO_AUTH_TOKEN
-  if (!sid || !token) return null
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const twilio = require('twilio')
-  _client = twilio(sid, token) as TwilioClient
+  if (!_client) {
+    const sid = process.env.TWILIO_ACCOUNT_SID
+    const token = process.env.TWILIO_AUTH_TOKEN
+    if (!sid || !token) return null
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const twilio = require('twilio')
+    _client = twilio(sid, token) as TwilioClient
+  }
   return _client
 }
 
 export async function sendSMS(to: string, body: string) {
   const client = getClient()
   if (!client) {
+    console.warn('[Twilio] SMS non envoyé — TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN manquants')
     return { success: false, error: 'Twilio non configuré' }
   }
   try {
@@ -35,7 +34,7 @@ export async function sendSMS(to: string, body: string) {
     })
     return { success: true, sid: message.sid }
   } catch (error) {
-    captureException(error, { context: 'sendSMS', to })
+    console.error('[Twilio] Erreur envoi SMS:', error)
     return { success: false, error }
   }
 }

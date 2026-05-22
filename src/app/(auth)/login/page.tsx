@@ -78,7 +78,7 @@ export default function LoginPage({
       </div>
 
       {/* Panneau droit — formulaire */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
         <div className="w-full max-w-md">
           {/* Logo mobile uniquement */}
           <Link href="/" className="lg:hidden flex items-center gap-2 mb-8 w-fit">

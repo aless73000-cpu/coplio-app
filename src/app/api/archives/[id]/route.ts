@@ -1,7 +1,8 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withErrorHandler } from '@/lib/api-handler'
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export const DELETE = withErrorHandler(async (_request: Request, { params }: { params: { id: string } }) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -35,4 +36,4 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
   const { error } = await admin.from('archives').delete().eq('id', params.id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
-}
+})

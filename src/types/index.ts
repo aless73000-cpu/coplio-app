@@ -73,28 +73,28 @@ export interface ProfileWithCabinet extends Profile {
 export interface Copropriete {
   id: string
   cabinet_id: string
-  gestionnaire_id?: string
+  gestionnaire_id?: string | null
   nom: string
   adresse: string
-  code_postal?: string
-  ville?: string
-  pays: string
-  annee_construction?: number
-  nb_etages?: number
-  tantiemes_totaux: number
-  surface_totale?: number
-  assureur?: string
-  numero_contrat_assurance?: string
-  expiration_assurance?: string
-  iban?: string
-  banque?: string
-  statut: CoproprieteStatut
-  nb_lots: number
-  nb_coproprietaires: number
-  nb_sinistres_ouverts: number
-  montant_impayes: number
-  created_at: string
-  updated_at: string
+  code_postal?: string | null
+  ville?: string | null
+  pays: string | null
+  annee_construction?: number | null
+  nb_etages?: number | null
+  tantiemes_totaux: number | null
+  surface_totale?: number | null
+  assureur?: string | null
+  numero_contrat_assurance?: string | null
+  expiration_assurance?: string | null
+  iban?: string | null
+  banque?: string | null
+  statut: CoproprieteStatut | string | null
+  nb_lots: number | null
+  nb_coproprietaires: number | null
+  nb_sinistres_ouverts: number | null
+  montant_impayes: number | null
+  created_at: string | null
+  updated_at: string | null
 }
 
 export interface CoproprieteWithDetails extends Copropriete {
@@ -130,16 +130,16 @@ export interface LotWithCoproprietaire extends Lot {
 export interface Coproprietaire {
   id: string
   cabinet_id: string
-  profile_id?: string
+  profile_id?: string | null
   prenom: string
   nom: string
-  email?: string
-  telephone?: string
-  adresse_correspondance?: string
-  portail_actif: boolean
-  invitation_envoyee_at?: string
-  created_at: string
-  updated_at: string
+  email?: string | null
+  telephone?: string | null
+  adresse_correspondance?: string | null
+  portail_actif: boolean | null
+  invitation_envoyee_at?: string | null
+  created_at: string | null
+  updated_at: string | null
 }
 
 export interface CoproprietaireWithLots extends Coproprietaire {
@@ -171,21 +171,21 @@ export interface AppelCharges {
 export interface Document {
   id: string
   cabinet_id: string
-  copropriete_id?: string
-  lot_id?: string
-  sinistre_id?: string
-  ag_id?: string
+  copropriete_id?: string | null
+  lot_id?: string | null
+  sinistre_id?: string | null
+  ag_id?: string | null
   nom: string
-  description?: string
-  categorie: DocumentCategory
-  taille_bytes?: number
-  type_mime?: string
+  description?: string | null
+  categorie: DocumentCategory | null
+  taille_bytes?: number | null
+  type_mime?: string | null
   storage_path: string
-  storage_bucket: string
-  visible_coproprietaires: boolean
-  upload_par?: string
-  created_at: string
-  updated_at: string
+  storage_bucket: string | null
+  visible_coproprietaires: boolean | null
+  upload_par?: string | null
+  created_at: string | null
+  updated_at: string | null
 }
 
 // ─── SINISTRE ─────────────────────────────────────────────────
@@ -194,23 +194,23 @@ export interface Sinistre {
   id: string
   copropriete_id: string
   cabinet_id: string
-  gestionnaire_id?: string
-  reference?: string
+  gestionnaire_id?: string | null
+  reference?: string | null
   titre: string
-  description?: string
-  status: SinistreStatus
-  lots_concernes?: string[]
-  numero_declaration_assurance?: string
-  compagnie_assurance?: string
-  montant_franchise?: number
-  montant_indemnisation?: number
-  date_sinistre?: string
-  date_declaration?: string
-  date_cloture?: string
-  montant_travaux_estime?: number
-  montant_travaux_reel?: number
-  created_at: string
-  updated_at: string
+  description?: string | null
+  status: SinistreStatus | null
+  lots_concernes?: string[] | null
+  numero_declaration_assurance?: string | null
+  compagnie_assurance?: string | null
+  montant_franchise?: number | null
+  montant_indemnisation?: number | null
+  date_sinistre?: string | null
+  date_declaration?: string | null
+  date_cloture?: string | null
+  montant_travaux_estime?: number | null
+  montant_travaux_reel?: number | null
+  created_at: string | null
+  updated_at: string | null
 }
 
 export interface SinistreWithDetails extends Sinistre {
@@ -259,21 +259,21 @@ export interface AssembleeGenerale {
   id: string
   copropriete_id: string
   cabinet_id: string
-  gestionnaire_id?: string
+  gestionnaire_id?: string | null
   titre: string
-  type: AgType
-  status: AgStatus
+  type: AgType | null
+  status: AgStatus | null
   date_ag: string
-  lieu?: string
-  lien_visio?: string
-  est_visio: boolean
-  tantiemes_presents: number
-  tantiemes_requis?: number
-  date_limite_vote?: string
-  convocations_envoyees_at?: string
-  pv_document_id?: string
-  created_at: string
-  updated_at: string
+  lieu?: string | null
+  lien_visio?: string | null
+  est_visio: boolean | null
+  tantiemes_presents: number | null
+  tantiemes_requis?: number | null
+  date_limite_vote?: string | null
+  convocations_envoyees_at?: string | null
+  pv_document_id?: string | null
+  created_at: string | null
+  updated_at: string | null
 }
 
 export interface AgResolution {

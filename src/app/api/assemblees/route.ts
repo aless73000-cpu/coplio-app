@@ -1,7 +1,7 @@
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { requireCabinetUser } from '@/lib/api-handler'
+import { withErrorHandler } from '@/lib/api-handler'
 
 const schema = z.object({
   copropriete_id: z.string().uuid(),
@@ -11,12 +11,15 @@ const schema = z.object({
   lieu: z.string().optional(),
 })
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   try {
-    const ctx = await requireCabinetUser()
-    if (ctx instanceof NextResponse) return ctx
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const { cabinetId } = ctx
+    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
+    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+
     const body = await request.json()
     const parsed = schema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
@@ -24,7 +27,7 @@ export async function POST(request: Request) {
     const admin = createAdminClient()
     const { data, error } = await admin.from('assemblees_generales').insert({
       ...parsed.data,
-      cabinet_id: cabinetId,
+      cabinet_id: profile.cabinet_id,
       status: 'planifiee',
     }).select().single()
 
@@ -33,4 +36,4 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

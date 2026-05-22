@@ -6,10 +6,10 @@ import { FileText, Loader2, ChevronDown } from 'lucide-react'
 interface Copropriete {
   id: string
   nom: string
-  ville?: string
-  nb_lots: number
-  montant_impayes: number
-  statut: string
+  ville?: string | null
+  nb_lots: number | null
+  montant_impayes: number | null
+  statut: string | null
 }
 
 interface RapportData {
@@ -138,15 +138,17 @@ export function RapportMensuelButton({ data }: { data: RapportData }) {
         doc.text(copro.ville ?? '—', cols[1].x + 2, y + 4)
         doc.text(String(copro.nb_lots), cols[2].x + 2, y + 4)
 
-        const impayes = copro.montant_impayes > 0
-          ? `${copro.montant_impayes.toLocaleString('fr-FR')} €`
+        const montantImpayes = copro.montant_impayes ?? 0
+        const impayes = montantImpayes > 0
+          ? `${montantImpayes.toLocaleString('fr-FR')} €`
           : '—'
-        doc.setTextColor(copro.montant_impayes > 0 ? '#D04040' : MUTED)
+        doc.setTextColor(montantImpayes > 0 ? '#D04040' : MUTED)
         doc.text(impayes, cols[3].x + 2, y + 4)
 
-        doc.setTextColor(statutColor[copro.statut] ?? MUTED)
+        const statut = copro.statut ?? 'a_jour'
+        doc.setTextColor(statutColor[statut] ?? MUTED)
         doc.setFont('helvetica', 'bold')
-        doc.text(statutLabel[copro.statut] ?? copro.statut, cols[4].x + 2, y + 4)
+        doc.text(statutLabel[statut] ?? statut, cols[4].x + 2, y + 4)
         doc.setFont('helvetica', 'normal')
         doc.setTextColor(TEXT)
 
@@ -184,12 +186,12 @@ export function RapportMensuelButton({ data }: { data: RapportData }) {
       <button
         onClick={() => setOpen(!open)}
         disabled={loading}
-        className="flex items-center gap-2 px-3 py-2 bg-white border border-border rounded-xl text-sm font-medium text-coplio-text hover:bg-coplio-bg transition-colors disabled:opacity-50"
+        className="flex items-center gap-2 px-3 py-2 bg-white border border-border rounded-xl text-sm font-medium text-coplio-text hover:bg-coplio-bg transition-colors disabled:opacity-50 whitespace-nowrap"
       >
         {loading
           ? <Loader2 className="w-4 h-4 animate-spin" />
           : <FileText className="w-4 h-4 text-muted-foreground" />}
-        Rapport PDF
+        <span className="hidden sm:inline">Rapport PDF</span>
         <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
