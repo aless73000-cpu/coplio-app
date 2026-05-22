@@ -92,7 +92,7 @@ function GlobalSearch() {
         placeholder="Rechercher… (⌘K)"
         className="w-full pl-9 pr-4 py-1.5 text-sm bg-coplio-bg border border-border rounded-lg
                    focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
-                   placeholder:text-muted-foreground"
+                   placeholder:text-gray-400"
       />
       {loading && (
         <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground animate-spin" />

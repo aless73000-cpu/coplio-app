@@ -110,7 +110,7 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
 
   const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
     focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
-    placeholder:text-muted-foreground transition-shadow`
+    placeholder:text-gray-400 transition-shadow`
 
   return (
     <div className="w-full max-w-lg">

@@ -99,7 +99,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
           placeholder="vous@cabinet.fr"
           className="w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
                      focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
-                     placeholder:text-muted-foreground transition-shadow"
+                     placeholder:text-gray-400 transition-shadow"
         />
         {errors.email && (
           <p className="mt-1 text-xs text-coplio-red">{errors.email.message}</p>
@@ -126,7 +126,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             placeholder="••••••••"
             className="w-full px-3 py-2.5 pr-10 text-sm bg-white border border-border rounded-lg
                        focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
-                       placeholder:text-muted-foreground transition-shadow"
+                       placeholder:text-gray-400 transition-shadow"
           />
           <button
             type="button"

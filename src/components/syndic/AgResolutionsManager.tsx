@@ -29,7 +29,7 @@ interface Props {
   canEdit: boolean
 }
 
-const inputClass = 'w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent placeholder:text-muted-foreground'
+const inputClass = 'w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent placeholder:text-gray-400'
 
 export function AgResolutionsManager({ agId, initialResolutions, canEdit }: Props) {
   const router = useRouter()

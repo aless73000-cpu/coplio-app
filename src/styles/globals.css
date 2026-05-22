@@ -17,6 +17,12 @@
 }
 
 @layer base {
+  /* Placeholders gris clair dans tous les champs de texte */
+  ::placeholder {
+    color: #9CA3AF;
+    opacity: 1;
+  }
+
   html {
     -webkit-text-size-adjust: 100%;
     overflow-x: hidden;

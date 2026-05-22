@@ -377,7 +377,7 @@ function Field({
         onChange={(e) => onChange?.(e.target.value)}
         className="w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
           focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
-          placeholder:text-muted-foreground disabled:bg-coplio-bg disabled:text-muted-foreground
+          placeholder:text-gray-400 disabled:bg-coplio-bg disabled:text-muted-foreground
           transition-shadow"
       />
     </div>

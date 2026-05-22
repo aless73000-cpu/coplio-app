@@ -344,7 +344,7 @@ export default function EquipePage() {
             required
             className="flex-1 px-3 py-2.5 text-sm bg-white border border-border rounded-xl
               focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
-              placeholder:text-muted-foreground"
+              placeholder:text-gray-400"
           />
           <button
             type="submit"
