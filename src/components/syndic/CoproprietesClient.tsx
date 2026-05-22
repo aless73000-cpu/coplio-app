@@ -153,7 +153,7 @@ export function CoproprietesClient({ coproprietes }: Props) {
                           </p>
                           <div className="flex items-center gap-2 mt-1.5 text-xs text-muted-foreground">
                             <span className="flex items-center gap-0.5"><Home className="w-3 h-3" />{c.nb_lots}</span>
-                            {c.montant_impayes > 0 && <span className="text-coplio-red font-medium">{formatEuro(c.montant_impayes)}</span>}
+                            {(c.montant_impayes ?? 0) > 0 && <span className="text-coplio-red font-medium">{formatEuro(c.montant_impayes ?? 0)}</span>}
                           </div>
                         </div>
                       </div>
@@ -323,9 +323,9 @@ function CoproprieteCard({ copropriete }: { copropriete: Copropriete }) {
           </div>
         )}
         <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border">
-          <StatItem icon={Home} label="Lots" value={copropriete.nb_lots} />
-          <StatItem icon={AlertTriangle} label="Sinistres" value={copropriete.nb_sinistres_ouverts} alert={copropriete.nb_sinistres_ouverts > 0} />
-          <StatItem icon={CreditCard} label="Impayés" value={copropriete.montant_impayes > 0 ? formatEuro(copropriete.montant_impayes) : '0'} alert={copropriete.montant_impayes > 0} />
+          <StatItem icon={Home} label="Lots" value={copropriete.nb_lots ?? 0} />
+          <StatItem icon={AlertTriangle} label="Sinistres" value={copropriete.nb_sinistres_ouverts ?? 0} alert={(copropriete.nb_sinistres_ouverts ?? 0) > 0} />
+          <StatItem icon={CreditCard} label="Impayés" value={(copropriete.montant_impayes ?? 0) > 0 ? formatEuro(copropriete.montant_impayes ?? 0) : '0'} alert={(copropriete.montant_impayes ?? 0) > 0} />
         </div>
       </Link>
       <div className="flex gap-2 mt-3 pt-3 border-t border-border">

@@ -3,10 +3,10 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, AlertTriangle, Clock, CheckCircle2 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
-import type { Sinistre } from '@/types'
+import type { Sinistre, SinistreStatus } from '@/types'
 import { SINISTRE_STATUS_LABELS } from '@/types'
 
-const STATUS_ORDER: Sinistre['status'][] = [
+const STATUS_ORDER: SinistreStatus[] = [
   'signale',
   'assurance_declaree',
   'urgence',
@@ -53,25 +53,25 @@ export default async function SinistresPage({
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-coplio-text">Sinistres</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-coplio-text">Sinistres</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {stats.ouverts} dossier{stats.ouverts > 1 ? 's' : ''} en cours
           </p>
         </div>
         <Link
           href="/sinistres/new"
-          className="flex items-center gap-2 bg-coplio-green text-white px-4 py-2.5 rounded-lg
-                     text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+          className="flex items-center gap-2 bg-coplio-green text-white px-3 py-2 rounded-lg
+                     text-sm font-medium hover:bg-coplio-green/90 transition-colors flex-shrink-0"
         >
           <Plus className="w-4 h-4" />
-          Déclarer un sinistre
+          <span className="hidden sm:inline">Déclarer un sinistre</span>
         </Link>
       </div>
 
       {/* Stats rapides */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="coplio-card flex items-center gap-3">
           <div className="w-10 h-10 bg-coplio-amber-bg rounded-xl flex items-center justify-center">
             <AlertTriangle className="w-5 h-5 text-coplio-amber" />
@@ -139,8 +139,7 @@ export default async function SinistresPage({
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function SinistreCard({ sinistre }: { sinistre: any }) {
+function SinistreCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom: string } | null } }) {
   const statusColors: Record<string, string> = {
     signale: 'badge-attention',
     urgence: 'badge-urgent',
@@ -151,7 +150,7 @@ function SinistreCard({ sinistre }: { sinistre: any }) {
   }
 
   // Calcul de la progression
-  const stepIndex = STATUS_ORDER.indexOf(sinistre.status as Sinistre['status'])
+  const stepIndex = STATUS_ORDER.indexOf((sinistre.status ?? 'signale') as SinistreStatus)
   const progress = Math.round(((stepIndex + 1) / STATUS_ORDER.length) * 100)
 
   return (
@@ -179,8 +178,8 @@ function SinistreCard({ sinistre }: { sinistre: any }) {
               {sinistre.date_sinistre && ` · Sinistre le ${formatDate(sinistre.date_sinistre)}`}
             </p>
           </div>
-          <span className={`text-xs font-medium px-2 py-1 rounded-full flex-shrink-0 ${statusColors[sinistre.status] || 'badge-a-jour'}`}>
-            {SINISTRE_STATUS_LABELS[sinistre.status as Sinistre['status']]}
+          <span className={`text-xs font-medium px-2 py-1 rounded-full flex-shrink-0 ${statusColors[sinistre.status ?? 'signale'] || 'badge-a-jour'}`}>
+            {SINISTRE_STATUS_LABELS[(sinistre.status ?? 'signale') as SinistreStatus]}
           </span>
         </div>
 

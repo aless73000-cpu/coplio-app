@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
 const schema = z.object({
   prenom: z.string().min(1),
@@ -8,7 +9,7 @@ const schema = z.object({
   telephone: z.string().optional(),
 })
 
-export async function PATCH(req: Request) {
+export const PATCH = withErrorHandler(async (req: Request) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -25,4 +26,4 @@ export async function PATCH(req: Request) {
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

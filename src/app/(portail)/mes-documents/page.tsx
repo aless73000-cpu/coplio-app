@@ -41,8 +41,7 @@ export default async function MesDocuments() {
     })
   )
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const byCategorie = docsWithUrls.reduce<Record<string, any[]>>(
+  const byCategorie = docsWithUrls.reduce<Record<string, (Document & { signed_url: string | null })[]>>(
     (acc, doc) => {
       const cat = doc.categorie || 'autre'
       if (!acc[cat]) acc[cat] = []

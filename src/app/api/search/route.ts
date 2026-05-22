@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
+import { withErrorHandler } from '@/lib/api-handler'
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const ip = getIP(request)
   const limit = await rateLimit(`search:${ip}`, { max: 60, windowMs: 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
@@ -63,7 +64,7 @@ export async function GET(request: Request) {
       id: l.id,
       label: `Lot ${l.numero}${l.etage ? ` — Étage ${l.etage}` : ''}`,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      sub: (l.copropriete as any)?.nom ?? 'Lot',
+      sub: (l.copropriete as { nom: string } | null)?.nom ?? 'Lot',
       href: `/lots/${l.id}`,
     })),
     ...(profiles.data ?? []).map((p) => ({
@@ -76,4 +77,4 @@ export async function GET(request: Request) {
   ]
 
   return NextResponse.json({ results })
-}
+})

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { captureException } from '@/lib/monitoring'
 
 /**
  * Wraps an API handler with a global try/catch so any unhandled error
@@ -11,7 +12,7 @@ export function withErrorHandler<T extends unknown[]>(
     try {
       return await handler(...args)
     } catch (err) {
-      console.error('[API Error]', err)
+      captureException(err)
       return NextResponse.json(
         { error: 'Erreur serveur inattendue' },
         { status: 500 }

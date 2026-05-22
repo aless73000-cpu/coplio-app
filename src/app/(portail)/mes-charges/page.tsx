@@ -37,8 +37,7 @@ export default async function MesChargesPage() {
     .order('date_echeance', { ascending: false })
     .limit(50)
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const lot = profile.lot as any as { numero: string; etage?: string; copropriete: { id: string; nom: string; iban?: string; banque?: string } } | null
+  const lot = profile.lot as { numero: string; etage?: string; copropriete: { id: string; nom: string; iban?: string; banque?: string } } | null
 
   const total_du = (appels ?? []).reduce(
     (s: number, a) => (!a.paye ? s + (a.montant - (a.montant_paye ?? 0)) : s), 0

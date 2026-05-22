@@ -1,13 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
 const createSchema = z.object({
   copropriete_id: z.string().uuid(),
   annee: z.number().int().min(2020).max(2100),
 })
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -21,9 +22,9 @@ export async function GET(request: Request) {
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
-}
+})
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -44,4 +45,4 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json(data, { status: 201 })
-}
+})

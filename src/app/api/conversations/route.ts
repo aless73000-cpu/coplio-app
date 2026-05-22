@@ -4,6 +4,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
 async function getContext() {
   const supabase = await createClient()
@@ -13,7 +14,7 @@ async function getContext() {
   return profile?.cabinet_id ? { user, cabinet_id: profile.cabinet_id } : null
 }
 
-export async function GET() {
+export const GET = withErrorHandler(async () => {
   const ctx = await getContext()
   if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
@@ -43,14 +44,14 @@ export async function GET() {
   }))
 
   return NextResponse.json(result)
-}
+})
 
 const createSchema = z.object({
   coproprietaire_id: z.string().uuid(),
   sujet: z.string().optional(),
 })
 
-export async function POST(req: Request) {
+export const POST = withErrorHandler(async (req: Request) => {
   const ctx = await getContext()
   if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
@@ -91,4 +92,4 @@ export async function POST(req: Request) {
 
   const { data: copro } = await admin.from('coproprietaires').select('id, prenom, nom').eq('id', parsed.data.coproprietaire_id).single()
   return NextResponse.json({ ...created, coproprietaire: copro ?? null }, { status: 201 })
-}
+})

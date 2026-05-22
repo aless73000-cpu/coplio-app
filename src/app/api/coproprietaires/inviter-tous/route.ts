@@ -6,11 +6,14 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
+import { withErrorHandler } from '@/lib/api-handler'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { captureException } from '@/lib/monitoring'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
-export async function POST() {
+export const POST = withErrorHandler(async () => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -25,6 +28,9 @@ export async function POST() {
     if (!syndicProfile?.cabinet_id || syndicProfile.role === 'owner_resident') {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
     }
+
+    const limit = await rateLimit(`inviter-tous:${user.id}`, { max: 5, windowMs: 300_000 })
+    if (!limit.success) return rateLimitResponse(limit.resetAt)
 
     const admin = createAdminClient()
 
@@ -52,6 +58,29 @@ export async function POST() {
 
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 
+    // Pré-charger tous les lots en une seule requête pour éviter le N+1
+    const coproIdsToProcess = copros
+      .filter((c) => !(c.invitation_envoyee_at && c.invitation_envoyee_at > oneDayAgo))
+      .map((c) => c.id)
+
+    type JunctionRow = { coproprietaire_id: string; lot_id: string | null; lot?: { copropriete?: { nom: string } | null } | null }
+    const { data: allJunctions } = coproIdsToProcess.length > 0
+      ? await admin
+          .from('coproprietaire_lots')
+          .select('coproprietaire_id, lot_id, lot:lots(copropriete:coproprietes(nom))')
+          .in('coproprietaire_id', coproIdsToProcess)
+      : { data: [] as JunctionRow[] }
+
+    const junctionMap = new Map<string, { lot_id: string | null; nomCopropriete: string }>()
+    for (const j of (allJunctions ?? []) as JunctionRow[]) {
+      if (!junctionMap.has(j.coproprietaire_id)) {
+        junctionMap.set(j.coproprietaire_id, {
+          lot_id: j.lot_id ?? null,
+          nomCopropriete: j.lot?.copropriete?.nom ?? 'votre résidence',
+        })
+      }
+    }
+
     let sent = 0
     let skipped = 0
     let failed = 0
@@ -64,16 +93,8 @@ export async function POST() {
       }
 
       try {
-        // Lot associé pour le nom de copropriété
-        const { data: junctions } = await admin
-          .from('coproprietaire_lots')
-          .select('lot_id, lot:lots(copropriete:coproprietes(nom))')
-          .eq('coproprietaire_id', copro.id)
-          .limit(1)
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const nomCopropriete = (junctions?.[0] as any)?.lot?.copropriete?.nom ?? 'votre résidence'
-        const lotId = junctions?.[0]?.lot_id ?? null
+        const junction = junctionMap.get(copro.id) ?? { lot_id: null, nomCopropriete: 'votre résidence' }
+        const { lot_id: lotId, nomCopropriete } = junction
 
         // Générer le lien d'invitation
         let { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
@@ -112,6 +133,7 @@ export async function POST() {
         }
 
         if (linkError || !linkData?.properties?.action_link) {
+          captureException(new Error('generateLink failed'), { copro_id: copro.id, email: copro.email, error: linkError?.message })
           failed++
           continue
         }
@@ -131,16 +153,18 @@ export async function POST() {
             .eq('id', copro.id)
           sent++
         } else {
+          captureException(new Error('email failed'), { context: 'inviter-tous-email', copro_id: copro.id })
           failed++
         }
-      } catch {
+      } catch (err) {
+        captureException(err, { context: 'inviter-tous', copro_id: copro.id })
         failed++
       }
     }
 
     return NextResponse.json({ success: true, sent, skipped, failed })
   } catch (err) {
-    console.error('[inviter-tous]', err)
+    captureException(err, { context: 'inviter-tous' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

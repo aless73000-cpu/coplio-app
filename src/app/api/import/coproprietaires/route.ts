@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { withErrorHandler } from '@/lib/api-handler'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
-export async function POST(request: NextRequest) {
+export const POST = withErrorHandler(async (request: NextRequest) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -10,6 +12,9 @@ export async function POST(request: NextRequest) {
   if (!profile?.cabinet_id || !['owner', 'manager'].includes(profile.role)) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
   }
+
+  const limit = await rateLimit(`import-copros:${user.id}`, { max: 10, windowMs: 60_000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   const body = await request.json()
   const { rows, copropriete_id } = body as {
@@ -94,4 +99,4 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json(results)
-}
+})

@@ -1,6 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
 async function getCallerCabinetId() {
   const supabase = await createClient()
@@ -15,7 +16,7 @@ async function getCallerCabinetId() {
   return { user, cabinetId: profile?.cabinet_id ?? null, supabase }
 }
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export const GET = withErrorHandler(async (_request: Request, { params }: { params: { id: string } }) => {
   try {
     const { user, cabinetId } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -34,7 +35,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
 const schema = z.object({
   prenom: z.string().min(1),
@@ -45,7 +46,7 @@ const schema = z.object({
   notes_internes: z.string().optional(),
 })
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export const PUT = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
   try {
     const { user, cabinetId } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -81,8 +82,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     if (notes_internes !== undefined) {
       await admin
         .from('coproprietaires')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .update({ notes_internes: notes_internes || null } as any)
+        .update({ notes_internes: notes_internes || null } as { notes_internes: string | null })
         .eq('id', params.id)
         .then(() => { /* ignore error if column missing */ })
     }
@@ -91,9 +91,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export const DELETE = withErrorHandler(async (_request: Request, { params }: { params: { id: string } }) => {
   try {
     const { user, cabinetId } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -120,4 +120,4 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

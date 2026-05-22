@@ -2,6 +2,8 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { Email } from '@/lib/email'
+import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
 
 // Augmentation du timeout Vercel pour l'envoi d'emails en batch (100 lots = ~20s)
 export const maxDuration = 60
@@ -19,7 +21,7 @@ const schema = z.object({
   appels: z.array(appelSchema).min(1),
 })
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -47,18 +49,17 @@ export async function POST(request: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
     // Envoyer des emails aux copropriétaires concernés (non bloquant)
-    sendNotificationsCharges(admin, parsed.data.appels).catch(console.error)
+    sendNotificationsCharges(admin, parsed.data.appels).catch(err => captureException(err, { context: 'appels-charges-notify' }))
 
     return NextResponse.json({ data, count: data?.length ?? 0 })
   } catch (err) {
-    console.error('appels-charges POST error:', err)
+    captureException(err, { context: 'appels-charges-post' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
 async function sendNotificationsCharges(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  admin: any,
+  admin: ReturnType<typeof import('@/lib/supabase/server').createAdminClient>,
   appels: z.infer<typeof appelSchema>[]
 ) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
@@ -89,7 +90,7 @@ async function sendNotificationsCharges(
     if (!lot) continue
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const nomCopropriete = (lot.copropriete as any)?.nom ?? 'votre résidence'
+    const nomCopropriete = (lot.copropriete as { nom: string } | null)?.nom ?? 'votre résidence'
     const lotAppels = appels.filter(a => a.lot_id === lotId)
 
     // Un email par appel

@@ -1,6 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase())
 
@@ -11,7 +12,7 @@ async function checkAdmin() {
 }
 
 // GET - récupérer les messages (support ou interne)
-export async function GET(req: Request) {
+export const GET = withErrorHandler(async (req: Request) => {
   try {
     const user = await checkAdmin()
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
@@ -45,7 +46,7 @@ export async function GET(req: Request) {
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
 const schema = z.object({
   type: z.enum(['support', 'interne']),
@@ -54,7 +55,7 @@ const schema = z.object({
 })
 
 // POST - envoyer un message
-export async function POST(req: Request) {
+export const POST = withErrorHandler(async (req: Request) => {
   try {
     const user = await checkAdmin()
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
@@ -110,4 +111,4 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

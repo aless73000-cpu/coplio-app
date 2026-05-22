@@ -62,8 +62,10 @@ export function RegisterForm() {
     })
 
     if (signInError) {
-      // Compte créé mais connexion échouée → rediriger vers login
-      router.push('/login')
+      // Compte créé mais email non confirmé → informer l'utilisateur
+      router.push(
+        `/login?message=${encodeURIComponent('Un email de confirmation vous a été envoyé. Cliquez sur le lien pour activer votre compte.')}`
+      )
       return
     }
 

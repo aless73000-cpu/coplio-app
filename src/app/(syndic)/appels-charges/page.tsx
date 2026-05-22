@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, CreditCard, CheckCircle2, Clock, AlertTriangle, FileDown } from 'lucide-react'
+import { Plus, CreditCard, CheckCircle2, Clock, AlertTriangle, FileDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { formatEuro, formatDate, getOverdueDays } from '@/lib/utils'
 import { PayerButton } from '@/components/syndic/PayerButton'
 import { ExportAppelsButton } from '@/components/syndic/ExportAppelsButton'
@@ -12,10 +12,12 @@ type AppelWithDetails = AppelCharges & {
   copropriete?: Pick<Copropriete, 'id' | 'nom'>
 }
 
+const PAGE_SIZE = 50
+
 export default async function AppelsChargesPage({
   searchParams,
 }: {
-  searchParams: { copropriete?: string; statut?: string }
+  searchParams: { copropriete?: string; statut?: string; page?: string }
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -27,12 +29,18 @@ export default async function AppelsChargesPage({
     .eq('id', user.id)
     .single()
 
-  const { data: coproprietes } = await supabase
+  // Une seule requête coproprietes avec nom pour le filtre ET les IDs pour la clause IN
+  const { data: coprops } = await supabase
     .from('coproprietes')
-    .select('id')
+    .select('id, nom')
     .eq('cabinet_id', profile?.cabinet_id ?? '')
+    .order('nom')
 
-  const coproprieteIds = (coproprietes ?? []).map((c) => c.id)
+  const coproprieteIds = (coprops ?? []).map((c) => c.id)
+
+  const page = Math.max(0, parseInt(searchParams.page ?? '0', 10) || 0)
+  const from = page * PAGE_SIZE
+  const to = from + PAGE_SIZE - 1
 
   let query = supabase
     .from('appels_charges')
@@ -40,7 +48,7 @@ export default async function AppelsChargesPage({
       *,
       lot:lots(id, numero, etage),
       copropriete:coproprietes(id, nom)
-    `)
+    `, { count: 'exact' })
     .in('copropriete_id', coproprieteIds.length > 0 ? coproprieteIds : ['none'])
     .order('date_echeance', { ascending: false })
 
@@ -53,10 +61,12 @@ export default async function AppelsChargesPage({
     query = query.eq('paye', false)
   }
 
-  const { data: appels } = await query.limit(100)
+  const { data: appels, count } = await query.range(from, to)
+  const totalCount = count ?? 0
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
   const stats = {
-    total: appels?.length ?? 0,
+    total: totalCount,
     payes: (appels ?? []).filter((a) => a.paye).length,
     enRetard: (appels ?? []).filter(
       (a) => !a.paye && new Date(a.date_echeance) < new Date()
@@ -67,33 +77,37 @@ export default async function AppelsChargesPage({
     ),
   }
 
-  // Récupérer les copropriétés pour le filtre
-  const { data: coprops } = await supabase
-    .from('coproprietes')
-    .select('id, nom')
-    .eq('cabinet_id', profile?.cabinet_id ?? '')
-    .order('nom')
+  // Construit l'URL de pagination en préservant les filtres existants
+  function pageUrl(p: number) {
+    const params = new URLSearchParams()
+    if (searchParams.copropriete) params.set('copropriete', searchParams.copropriete)
+    if (searchParams.statut) params.set('statut', searchParams.statut)
+    if (p > 0) params.set('page', String(p))
+    const qs = params.toString()
+    return `/appels-charges${qs ? `?${qs}` : ''}`
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-coplio-text">Appels de charges</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-coplio-text">Appels de charges</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {stats.total} appel{stats.total > 1 ? 's' : ''} · {stats.enRetard} en retard
+            {totalCount} appel{totalCount > 1 ? 's' : ''} · {stats.enRetard} en retard
+            {totalPages > 1 && ` · page ${page + 1}/${totalPages}`}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           {appels && appels.length > 0 && (
             <ExportAppelsButton appels={appels as AppelWithDetails[]} />
           )}
           <Link
             href="/appels-charges/new"
-            className="flex items-center gap-2 bg-coplio-green text-white px-4 py-2.5 rounded-lg
+            className="flex items-center gap-2 bg-coplio-green text-white px-3 py-2 rounded-lg
                        text-sm font-medium hover:bg-coplio-green/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
-            Nouvel appel
+            <span className="hidden sm:inline">Nouvel appel</span>
           </Link>
         </div>
       </div>
@@ -212,8 +226,16 @@ export default async function AppelsChargesPage({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
-                {['Libellé', 'Copropriété / Lot', 'Montant', 'Échéance', 'Retard', 'Statut', 'Action'].map((h) => (
-                  <th key={h} className="text-left py-2.5 text-xs text-muted-foreground font-medium first:pl-1">{h}</th>
+                {[
+                  { label: 'Libellé' },
+                  { label: 'Copropriété / Lot', mobile: false },
+                  { label: 'Montant' },
+                  { label: 'Échéance', mobile: false },
+                  { label: 'Retard', mobile: false },
+                  { label: 'Statut' },
+                  { label: 'Action' },
+                ].map(({ label, mobile = true }) => (
+                  <th key={label} className={`text-left py-2.5 text-xs text-muted-foreground font-medium first:pl-1${mobile ? '' : ' hidden md:table-cell'}`}>{label}</th>
                 ))}
               </tr>
             </thead>
@@ -229,7 +251,7 @@ export default async function AppelsChargesPage({
                       <p className="font-medium text-coplio-text">{appel.libelle}</p>
                       <p className="text-xs text-muted-foreground">{formatDate(appel.date_appel)}</p>
                     </td>
-                    <td className="py-3">
+                    <td className="py-3 hidden md:table-cell">
                       <p className="text-coplio-text">{(appel.copropriete as { nom?: string })?.nom}</p>
                       <p className="text-xs text-muted-foreground">
                         Lot {appel.lot?.numero}
@@ -242,8 +264,8 @@ export default async function AppelsChargesPage({
                         <p className="text-xs text-muted-foreground">Reste {formatEuro(restant)}</p>
                       )}
                     </td>
-                    <td className="py-3 text-muted-foreground">{formatDate(appel.date_echeance)}</td>
-                    <td className="py-3">
+                    <td className="py-3 text-muted-foreground hidden md:table-cell">{formatDate(appel.date_echeance)}</td>
+                    <td className="py-3 hidden md:table-cell">
                       {isLate ? (
                         <span className="text-xs font-medium px-2 py-0.5 rounded-full badge-urgent">
                           J+{overdue}
@@ -287,6 +309,35 @@ export default async function AppelsChargesPage({
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-2">
+          <p className="text-xs text-muted-foreground">
+            {from + 1}–{Math.min(from + PAGE_SIZE, totalCount)} sur {totalCount}
+          </p>
+          <div className="flex items-center gap-2">
+            {page > 0 ? (
+              <Link href={pageUrl(page - 1)} className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-border hover:bg-coplio-bg transition-colors">
+                <ChevronLeft className="w-4 h-4" />Précédent
+              </Link>
+            ) : (
+              <span className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-border opacity-40 cursor-not-allowed">
+                <ChevronLeft className="w-4 h-4" />Précédent
+              </span>
+            )}
+            {page < totalPages - 1 ? (
+              <Link href={pageUrl(page + 1)} className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-border hover:bg-coplio-bg transition-colors">
+                Suivant<ChevronRight className="w-4 h-4" />
+              </Link>
+            ) : (
+              <span className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-border opacity-40 cursor-not-allowed">
+                Suivant<ChevronRight className="w-4 h-4" />
+              </span>
+            )}
+          </div>
         </div>
       )}
     </div>

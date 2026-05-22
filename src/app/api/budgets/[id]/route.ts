@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
 const ligneSchema = z.object({
   poste: z.string().min(1),
@@ -16,10 +17,10 @@ const updateSchema = z.object({
   lignes: z.array(ligneSchema).optional(),
 })
 
-export async function GET(
+export const GET = withErrorHandler(async (
   _request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -32,12 +33,12 @@ export async function GET(
 
   if (error || !data) return NextResponse.json({ error: 'Budget introuvable' }, { status: 404 })
   return NextResponse.json(data)
-}
+})
 
-export async function PATCH(
+export const PATCH = withErrorHandler(async (
   request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -71,16 +72,16 @@ export async function PATCH(
     .single()
 
   return NextResponse.json(data)
-}
+})
 
-export async function DELETE(
+export const DELETE = withErrorHandler(async (
   _request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   await supabase.from('budgets').delete().eq('id', params.id)
   return NextResponse.json({ ok: true })
-}
+})

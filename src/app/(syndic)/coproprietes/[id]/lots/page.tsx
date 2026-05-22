@@ -57,9 +57,9 @@ export default async function LotsPage({ params }: { params: { id: string } }) {
               <tr className="border-b border-border">
                 <th className="text-left py-2 text-muted-foreground font-medium text-xs">Numéro</th>
                 <th className="text-left py-2 text-muted-foreground font-medium text-xs">Type</th>
-                <th className="text-left py-2 text-muted-foreground font-medium text-xs">Étage</th>
-                <th className="text-right py-2 text-muted-foreground font-medium text-xs">Surface</th>
-                <th className="text-right py-2 text-muted-foreground font-medium text-xs">Tantièmes</th>
+                <th className="text-left py-2 text-muted-foreground font-medium text-xs hidden md:table-cell">Étage</th>
+                <th className="text-right py-2 text-muted-foreground font-medium text-xs hidden md:table-cell">Surface</th>
+                <th className="text-right py-2 text-muted-foreground font-medium text-xs hidden md:table-cell">Tantièmes</th>
                 <th className="text-right py-2 text-muted-foreground font-medium text-xs">Solde</th>
                 <th className="py-2"></th>
               </tr>
@@ -75,9 +75,9 @@ export default async function LotsPage({ params }: { params: { id: string } }) {
                   <td className="py-3 text-muted-foreground capitalize">
                     {LOT_TYPE_LABELS[lot.type as keyof typeof LOT_TYPE_LABELS] ?? lot.type}
                   </td>
-                  <td className="py-3 text-muted-foreground">{lot.etage ?? '—'}</td>
-                  <td className="py-3 text-right text-muted-foreground">{lot.surface ? `${lot.surface} m²` : '—'}</td>
-                  <td className="py-3 text-right">{lot.tantiemes}</td>
+                  <td className="py-3 text-muted-foreground hidden md:table-cell">{lot.etage ?? '—'}</td>
+                  <td className="py-3 text-right text-muted-foreground hidden md:table-cell">{lot.surface ? `${lot.surface} m²` : '—'}</td>
+                  <td className="py-3 text-right hidden md:table-cell">{lot.tantiemes}</td>
                   <td className={`py-3 text-right font-medium ${(lot.solde_compte ?? 0) < 0 ? 'text-red-500' : 'text-coplio-text'}`}>
                     {formatEuro(lot.solde_compte ?? 0)}
                   </td>

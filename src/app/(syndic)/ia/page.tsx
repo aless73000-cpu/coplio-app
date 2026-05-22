@@ -1,7 +1,162 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Sparkles, FileText, Upload, Copy, Download, Loader2, CheckCircle2, FileSearch, MessageCircle, BarChart2, AlertTriangle, TrendingDown, TrendingUp, Send, Bot, User } from 'lucide-react'
+import { Sparkles, FileText, Upload, Copy, Loader2, CheckCircle2, FileSearch, MessageCircle, BarChart2, AlertTriangle, TrendingDown, TrendingUp, Send, Bot, User, FileDown, Pencil, Eye } from 'lucide-react'
+
+// ── Inline Markdown renderer ──────────────────────────────────────────────────
+function renderInline(text: string): React.ReactNode {
+  const regex = /(\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*[^*]+\*)/g
+  const parts: React.ReactNode[] = []
+  let last = 0
+  let match: RegExpExecArray | null
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > last) parts.push(text.slice(last, match.index))
+    const raw = match[0]
+    if (raw.startsWith('***')) parts.push(<strong key={match.index}><em>{raw.slice(3, -3)}</em></strong>)
+    else if (raw.startsWith('**')) parts.push(<strong key={match.index}>{raw.slice(2, -2)}</strong>)
+    else parts.push(<em key={match.index}>{raw.slice(1, -1)}</em>)
+    last = match.index + raw.length
+  }
+  if (last < text.length) parts.push(text.slice(last))
+  return parts
+}
+
+function DocumentRenderer({ text }: { text: string }) {
+  const lines = text.split('\n')
+  const elements: React.ReactNode[] = []
+  let i = 0
+  let listBuf: string[] = []
+  let listType: 'ul' | 'ol' | null = null
+
+  function flushList() {
+    if (!listBuf.length) return
+    const key = `list-${elements.length}`
+    if (listType === 'ul') {
+      elements.push(
+        <ul key={key} className="list-disc ml-5 space-y-1 mb-3">
+          {listBuf.map((item, j) => <li key={j} className="text-sm text-coplio-text leading-relaxed">{renderInline(item)}</li>)}
+        </ul>
+      )
+    } else {
+      elements.push(
+        <ol key={key} className="list-decimal ml-5 space-y-1 mb-3">
+          {listBuf.map((item, j) => <li key={j} className="text-sm text-coplio-text leading-relaxed">{renderInline(item)}</li>)}
+        </ol>
+      )
+    }
+    listBuf = []
+    listType = null
+  }
+
+  for (; i < lines.length; i++) {
+    const line = lines[i]
+    if (line.startsWith('# ')) {
+      flushList()
+      elements.push(<h1 key={i} className="text-xl font-bold text-coplio-text mb-4 mt-2 leading-snug">{renderInline(line.slice(2))}</h1>)
+    } else if (line.startsWith('## ')) {
+      flushList()
+      elements.push(
+        <div key={i} className="mt-6 mb-2">
+          <h2 className="text-sm font-bold text-coplio-green uppercase tracking-wide">{renderInline(line.slice(3))}</h2>
+          <div className="h-px bg-coplio-green/20 mt-1" />
+        </div>
+      )
+    } else if (line.startsWith('### ')) {
+      flushList()
+      elements.push(<h3 key={i} className="text-sm font-semibold text-coplio-text mt-4 mb-1">{renderInline(line.slice(4))}</h3>)
+    } else if (line.startsWith('- ') || line.startsWith('* ')) {
+      if (listType !== 'ul') flushList()
+      listType = 'ul'
+      listBuf.push(line.slice(2))
+    } else if (/^\d+\. /.test(line)) {
+      if (listType !== 'ol') flushList()
+      listType = 'ol'
+      listBuf.push(line.replace(/^\d+\. /, ''))
+    } else if (line.trim() === '---') {
+      flushList()
+      elements.push(<hr key={i} className="my-5 border-border" />)
+    } else if (line.trim() === '') {
+      flushList()
+    } else {
+      flushList()
+      elements.push(<p key={i} className="text-sm text-coplio-text leading-relaxed mb-2">{renderInline(line)}</p>)
+    }
+  }
+  flushList()
+  return <>{elements}</>
+}
+
+// ── PDF export ────────────────────────────────────────────────────────────────
+function stripMd(t: string) {
+  return t.replace(/\*\*\*(.+?)\*\*\*/g, '$1').replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1')
+}
+
+async function downloadPdf(text: string, label: string, copropNom: string) {
+  const { jsPDF } = await import('jspdf')
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+  const GREEN = '#0F6E56', TEXT = '#1C1C1A', MUTED = '#888888'
+  const W = 210, M = 20, CW = W - M * 2
+  const now = new Date()
+
+  // Header
+  doc.setFillColor(GREEN)
+  doc.rect(0, 0, W, 18, 'F')
+  doc.setTextColor('#FFFFFF')
+  doc.setFontSize(10); doc.setFont('helvetica', 'bold')
+  doc.text('COPLIO', M, 8)
+  doc.setFontSize(8); doc.setFont('helvetica', 'normal')
+  doc.text(copropNom, W - M, 8, { align: 'right' })
+  doc.text(now.toLocaleDateString('fr-FR'), W - M, 14, { align: 'right' })
+
+  let y = 28
+
+  for (const line of text.split('\n')) {
+    if (y > 274) { doc.addPage(); y = 20 }
+
+    if (line.startsWith('# ')) {
+      doc.setFontSize(15); doc.setFont('helvetica', 'bold'); doc.setTextColor(TEXT)
+      const wrapped = doc.splitTextToSize(stripMd(line.slice(2)), CW)
+      doc.text(wrapped, M, y); y += wrapped.length * 7 + 5
+    } else if (line.startsWith('## ')) {
+      if (y > 265) { doc.addPage(); y = 20 }
+      doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(GREEN)
+      doc.text(stripMd(line.slice(3)).toUpperCase(), M, y)
+      doc.setDrawColor(GREEN); doc.setLineWidth(0.2)
+      doc.line(M, y + 1.5, W - M, y + 1.5)
+      y += 9
+    } else if (line.startsWith('### ')) {
+      doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(TEXT)
+      doc.text(stripMd(line.slice(4)), M, y); y += 6
+    } else if (line.startsWith('- ') || line.startsWith('* ')) {
+      doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(TEXT)
+      const wrapped = doc.splitTextToSize('• ' + stripMd(line.slice(2)), CW - 5)
+      doc.text(wrapped, M + 3, y); y += wrapped.length * 5 + 1
+    } else if (/^\d+\. /.test(line)) {
+      doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(TEXT)
+      const wrapped = doc.splitTextToSize(stripMd(line), CW - 5)
+      doc.text(wrapped, M + 3, y); y += wrapped.length * 5 + 1
+    } else if (line.trim() === '---') {
+      doc.setDrawColor('#DDDDDD'); doc.setLineWidth(0.2)
+      doc.line(M, y, W - M, y); y += 5
+    } else if (line.trim() === '') {
+      y += 3
+    } else {
+      doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(TEXT)
+      const wrapped = doc.splitTextToSize(stripMd(line), CW)
+      doc.text(wrapped, M, y); y += wrapped.length * 5 + 1
+    }
+  }
+
+  const total = doc.getNumberOfPages()
+  for (let p = 1; p <= total; p++) {
+    doc.setPage(p)
+    doc.setFontSize(7); doc.setTextColor(MUTED); doc.setDrawColor('#DDDDDD')
+    doc.line(M, 286, W - M, 286)
+    doc.text(`Coplio · ${copropNom} · ${now.toLocaleDateString('fr-FR')} · Page ${p}/${total}`, W / 2, 290, { align: 'center' })
+  }
+
+  doc.save(`${label.toLowerCase().replace(/\s+/g, '_')}_${now.toISOString().slice(0, 10)}.pdf`)
+}
 
 const TEMPLATES = [
   { value: 'convocation_ag', label: 'Convocation AG', desc: 'Lettre de convocation à l\'assemblée générale', icon: '📋' },
@@ -9,6 +164,9 @@ const TEMPLATES = [
   { value: 'mise_en_demeure', label: 'Mise en demeure', desc: 'Lettre de mise en demeure pour impayé', icon: '⚠️' },
   { value: 'courrier_travaux', label: 'Info travaux', desc: 'Courrier d\'information pour des travaux', icon: '🔧' },
   { value: 'relance_impaye', label: 'Relance impayé', desc: 'Lettre de relance courtoise', icon: '💌' },
+  { value: 'contrat_prestataire', label: 'Contrat prestataire', desc: 'Contrat de prestation de services', icon: '📄' },
+  { value: 'courrier_resiliation', label: 'Résiliation contrat', desc: 'Courrier de résiliation prestataire', icon: '✂️' },
+  { value: 'notice_annuelle', label: 'Bilan annuel', desc: 'Notice d\'information annuelle copropriétaires', icon: '📊' },
 ]
 
 const TYPE_DOC = [
@@ -50,6 +208,22 @@ const CHAMPS_EXTRA: Record<string, { key: string; label: string; placeholder: st
     { key: 'numero_lot', label: 'N° lot', placeholder: '12' },
     { key: 'montant', label: 'Montant (€)', placeholder: '350' },
   ],
+  contrat_prestataire: [
+    { key: 'prestataire', label: 'Nom du prestataire', placeholder: 'Entreprise Martin SARL' },
+    { key: 'siret', label: 'SIRET', placeholder: '123 456 789 00012' },
+    { key: 'objet', label: 'Objet de la prestation', placeholder: 'Entretien espaces verts' },
+    { key: 'montant', label: 'Montant HT (€)', placeholder: '1 200' },
+    { key: 'duree', label: 'Durée / période', placeholder: '1 an renouvelable' },
+  ],
+  courrier_resiliation: [
+    { key: 'prestataire', label: 'Nom du prestataire', placeholder: 'Entreprise Martin SARL' },
+    { key: 'motif', label: 'Motif', placeholder: 'Non-respect des délais contractuels' },
+    { key: 'preavis', label: 'Préavis', placeholder: '3 mois' },
+    { key: 'date_resiliation', label: 'Date effective', placeholder: '30 septembre 2026' },
+  ],
+  notice_annuelle: [
+    { key: 'annee', label: 'Année', placeholder: '2026' },
+  ],
 }
 
 export default function IAPage() {
@@ -63,6 +237,8 @@ export default function IAPage() {
   const [generating, setGenerating] = useState(false)
   const [result, setResult] = useState('')
   const [copied, setCopied] = useState(false)
+  const [editMode, setEditMode] = useState(false)
+  const [pdfLoading, setPdfLoading] = useState(false)
 
   // Analyse document
   const [file, setFile] = useState<File | null>(null)
@@ -99,7 +275,7 @@ export default function IAPage() {
 
   async function handleGenerate() {
     if (!coproprieteId) return
-    setGenerating(true); setResult('')
+    setGenerating(true); setResult(''); setEditMode(false)
     try {
       const res = await fetch('/api/ia/rediger', {
         method: 'POST',
@@ -174,11 +350,16 @@ export default function IAPage() {
     setCopied(true); setTimeout(() => setCopied(false), 2000)
   }
 
-  function handleDownload(text: string, name: string) {
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a'); a.href = url; a.download = name; a.click()
-    URL.revokeObjectURL(url)
+  async function handleDownloadPdf() {
+    if (!result) return
+    setPdfLoading(true)
+    const copropNom = coproprietes.find(c => c.id === coproprieteId)?.nom ?? 'Copropriété'
+    const label = TEMPLATES.find(t => t.value === template)?.label ?? 'document'
+    try {
+      await downloadPdf(result, label, copropNom)
+    } finally {
+      setPdfLoading(false)
+    }
   }
 
   const currentTpl = TEMPLATES.find(t => t.value === template)
@@ -256,30 +437,60 @@ export default function IAPage() {
           </div>
           <div className="col-span-3">
             <div className="coplio-card h-full flex flex-col min-h-[500px]">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-4">
                 <p className="text-sm font-semibold text-coplio-text">{result ? currentTpl?.label : 'Document généré'}</p>
                 {result && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => setEditMode(m => !m)}
+                      title={editMode ? 'Aperçu' : 'Éditer'}
+                      className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-coplio-text px-2.5 py-1.5 rounded-lg border border-border transition-colors"
+                    >
+                      {editMode ? <Eye className="w-3.5 h-3.5" /> : <Pencil className="w-3.5 h-3.5" />}
+                      {editMode ? 'Aperçu' : 'Éditer'}
+                    </button>
                     <button onClick={handleCopy} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-coplio-text px-2.5 py-1.5 rounded-lg border border-border transition-colors">
                       {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-coplio-green" /> : <Copy className="w-3.5 h-3.5" />}
                       {copied ? 'Copié' : 'Copier'}
                     </button>
-                    <button onClick={() => handleDownload(result, `${template}_${Date.now()}.txt`)}
-                      className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-coplio-text px-2.5 py-1.5 rounded-lg border border-border transition-colors">
-                      <Download className="w-3.5 h-3.5" />Télécharger
+                    <button
+                      onClick={handleDownloadPdf}
+                      disabled={pdfLoading}
+                      className="flex items-center gap-1.5 text-xs bg-coplio-green text-white px-2.5 py-1.5 rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-60"
+                    >
+                      {pdfLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileDown className="w-3.5 h-3.5" />}
+                      PDF
                     </button>
                   </div>
                 )}
               </div>
               {generating ? (
                 <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center"><Loader2 className="w-8 h-8 animate-spin text-coplio-green mx-auto mb-3" /><p className="text-sm text-muted-foreground">L&apos;IA rédige votre document...</p></div>
+                  <div className="text-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-coplio-green mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">L&apos;IA rédige votre document...</p>
+                  </div>
                 </div>
               ) : result ? (
-                <textarea value={result} onChange={e => setResult(e.target.value)} className="flex-1 w-full text-sm text-coplio-text leading-relaxed resize-none focus:outline-none font-mono" />
+                editMode ? (
+                  <textarea
+                    value={result}
+                    onChange={e => setResult(e.target.value)}
+                    className="flex-1 w-full text-sm text-coplio-text leading-relaxed resize-none focus:outline-none font-mono bg-coplio-bg rounded-lg p-3"
+                  />
+                ) : (
+                  <div className="flex-1 overflow-y-auto px-1">
+                    <div className="bg-white border border-border/50 rounded-xl p-6 shadow-sm min-h-full">
+                      <DocumentRenderer text={result} />
+                    </div>
+                  </div>
+                )
               ) : (
                 <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center text-muted-foreground"><Sparkles className="w-12 h-12 mx-auto mb-3 opacity-30" /><p className="text-sm">Sélectionnez un type de document<br />et cliquez sur &quot;Générer&quot;</p></div>
+                  <div className="text-center text-muted-foreground">
+                    <Sparkles className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm">Sélectionnez un type de document<br />et cliquez sur &quot;Générer&quot;</p>
+                  </div>
                 </div>
               )}
             </div>
@@ -329,9 +540,14 @@ export default function IAPage() {
                       {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-coplio-green" /> : <Copy className="w-3.5 h-3.5" />}
                       {copied ? 'Copié' : 'Copier'}
                     </button>
-                    <button onClick={() => handleDownload(analyse, `analyse_${Date.now()}.txt`)}
+                    <button onClick={() => {
+                        const blob = new Blob([analyse], { type: 'text/plain;charset=utf-8' })
+                        const url = URL.createObjectURL(blob)
+                        const a = document.createElement('a'); a.href = url; a.download = `analyse_${Date.now()}.txt`; a.click()
+                        URL.revokeObjectURL(url)
+                      }}
                       className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-coplio-text px-2.5 py-1.5 rounded-lg border border-border transition-colors">
-                      <Download className="w-3.5 h-3.5" />Télécharger
+                      <FileDown className="w-3.5 h-3.5" />Télécharger
                     </button>
                   </div>
                 )}

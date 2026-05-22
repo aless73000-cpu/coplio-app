@@ -2,6 +2,9 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import * as XLSX from 'xlsx'
 import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
+import { withErrorHandler } from '@/lib/api-handler'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { captureException } from '@/lib/monitoring'
 
 const LOT_TYPES = ['appartement', 'maison', 'local_commercial', 'parking', 'cave', 'autre'] as const
 type LotType = typeof LOT_TYPES[number]
@@ -17,7 +20,7 @@ function normalizeLotType(raw: string): LotType {
   return 'autre'
 }
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -29,6 +32,9 @@ export async function POST(request: Request) {
       .eq('id', user.id)
       .single()
     if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+
+    const limit = await rateLimit(`lots-import:${user.id}`, { max: 10, windowMs: 60_000 })
+    if (!limit.success) return rateLimitResponse(limit.resetAt)
 
     const formData = await request.formData()
     const file = formData.get('file') as File | null
@@ -127,7 +133,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ lots_created: lotsCreated, errors })
   } catch (err) {
-    console.error('Import lots error:', err)
+    captureException(err, { context: 'lots-import' })
     return NextResponse.json({ error: "Erreur lors de l'import" }, { status: 500 })
   }
-}
+})

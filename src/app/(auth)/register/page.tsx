@@ -16,16 +16,16 @@ const FEATURES = [
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen bg-coplio-bg flex items-center justify-center p-8">
+    <div className="min-h-screen bg-coplio-bg flex items-center justify-center p-4 sm:p-8">
       <div className="w-full max-w-md">
-        <Link href="/" className="flex items-center gap-2 mb-8 justify-center w-fit mx-auto">
+        <Link href="/" className="flex items-center gap-2 mb-6 sm:mb-8 justify-center w-fit mx-auto">
           <div className="w-9 h-9 bg-coplio-green rounded-xl flex items-center justify-center">
             <Home className="w-5 h-5 text-white" />
           </div>
           <span className="font-bold text-xl text-coplio-green">Coplio</span>
         </Link>
 
-        <div className="bg-white rounded-2xl border border-border shadow-sm p-8">
+        <div className="bg-white rounded-2xl border border-border shadow-sm p-5 sm:p-8">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-coplio-text">
               Commencer gratuitement
@@ -36,7 +36,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Features */}
-          <div className="grid grid-cols-2 gap-2 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-6">
             {FEATURES.map((f) => (
               <div key={f} className="flex items-center gap-2 text-sm text-coplio-text">
                 <Check className="w-4 h-4 text-coplio-green flex-shrink-0" />

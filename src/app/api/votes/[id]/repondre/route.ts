@@ -1,15 +1,16 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
 const schema = z.object({
   option_id: z.string().uuid(),
 })
 
-export async function POST(
+export const POST = withErrorHandler(async (
   request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -59,4 +60,4 @@ export async function POST(
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
-}
+})

@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
 
-export async function GET() {
+export const GET = withErrorHandler(async () => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -19,12 +21,12 @@ export async function GET() {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data ?? [])
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -47,7 +49,7 @@ export async function POST(request: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data)
   } catch (err) {
-    console.error('[API Error]', err)
+    captureException(err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

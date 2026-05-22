@@ -1,17 +1,22 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { withErrorHandler } from '@/lib/api-handler'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
-export async function GET() {
+export const GET = withErrorHandler(async () => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) return NextResponse.json({ error: 'Clé API IA non configurée' }, { status: 503 })
-
   const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
   if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 404 })
+
+  const limit = await rateLimit(`ia-analyse:${user.id}`, { max: 10, windowMs: 60_000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
+
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) return NextResponse.json({ error: 'Clé API IA non configurée' }, { status: 503 })
 
   const cabinetId = profile.cabinet_id
 
@@ -93,4 +98,4 @@ Maximum 5 anomalies, 3 recommandations, 3 points positifs. Sois précis et actio
   }
 
   return NextResponse.json({ scores, analyse })
-}
+})

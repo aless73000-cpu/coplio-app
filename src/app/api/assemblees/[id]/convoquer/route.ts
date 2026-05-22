@@ -2,11 +2,14 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
 import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
+import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
+import { sendSMS, smsConvocationAG } from '@/lib/twilio'
 
-export async function POST(
+export const POST = withErrorHandler(async (
   _request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   // 10 convocations max par IP par heure (chaque envoi = plusieurs emails)
   const ip = getIP(_request)
   const limit = await rateLimit(`convoquer:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
@@ -48,10 +51,10 @@ export async function POST(
       .eq('id', profile.cabinet_id)
       .single()
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const coproprieteId = (ag.copropriete as any)?.id
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const nomCopropriete = (ag.copropriete as any)?.nom ?? 'votre résidence'
+    const copropriete = ag.copropriete as { id: string; nom: string } | null
+    const coproprieteId = copropriete?.id
+    const nomCopropriete = copropriete?.nom ?? 'votre résidence'
+    if (!coproprieteId) return NextResponse.json({ error: 'Copropriété introuvable' }, { status: 400 })
 
     // Récupérer tous les copropriétaires de la résidence
     const { data: lots } = await admin
@@ -63,7 +66,7 @@ export async function POST(
 
     const { data: profiles } = await admin
       .from('profiles')
-      .select('prenom, nom, email, lot_id')
+      .select('prenom, nom, email, telephone, lot_id')
       .in('lot_id', lotIds)
       .eq('role', 'owner_resident')
 
@@ -93,6 +96,22 @@ export async function POST(
 
     const { sent } = await Email.convocationAGBatch(recipients)
 
+    // SMS de convocation (non bloquant)
+    const dateAgFormatted = dateAg.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    for (const p of (profiles ?? [])) {
+      const pTyped = p as typeof p & { telephone?: string | null }
+      if (pTyped.telephone) {
+        sendSMS(
+          pTyped.telephone,
+          smsConvocationAG({
+            prenom: p.prenom ?? '',
+            dateAg: dateAgFormatted,
+            nomCopropriete,
+          })
+        ).catch((err) => captureException(err, { context: 'assemblees-convoquer-sms' }))
+      }
+    }
+
     // Mettre à jour le statut de l'AG
     await admin
       .from('assemblees_generales')
@@ -104,7 +123,7 @@ export async function POST(
 
     return NextResponse.json({ success: true, sent })
   } catch (err) {
-    console.error('Convocation error:', err)
+    captureException(err, { context: 'assemblees-convoquer' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

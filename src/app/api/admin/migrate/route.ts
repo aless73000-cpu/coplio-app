@@ -8,6 +8,7 @@
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { withErrorHandler } from '@/lib/api-handler'
 
 export const runtime = 'nodejs'
 
@@ -112,7 +113,7 @@ function isAuthorized(request: Request): boolean {
   return authHeader === `Bearer ${secret}`
 }
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   }
@@ -150,10 +151,10 @@ export async function POST(request: Request) {
 
   const hasError = results.some((r) => r.status === 'error')
   return NextResponse.json({ success: !hasError, results }, { status: hasError ? 207 : 200 })
-}
+})
 
 // GET pour vérifier l'état (sans token — info publique minimale)
-export async function GET() {
+export const GET = withErrorHandler(async () => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -165,4 +166,4 @@ export async function GET() {
     migrations: MIGRATIONS.map((m) => ({ id: m.id, description: m.description })),
     instructions: hasDb ? null : 'DATABASE_URL manquant — voir /api/admin/migrate (POST) pour les instructions',
   })
-}
+})

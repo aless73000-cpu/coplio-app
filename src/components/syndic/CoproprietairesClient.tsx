@@ -2,16 +2,16 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { User, Mail, Phone, Search, ArrowUpAZ, ArrowDownAZ, Send, Loader2, CheckCircle2, Clock } from 'lucide-react'
+import { User, Mail, Phone, Search, ArrowUpAZ, ArrowDownAZ, Send, Loader2, CheckCircle2, Clock, FileDown } from 'lucide-react'
 
 interface Coproprietaire {
   id: string
   prenom: string
   nom: string
-  email?: string
-  telephone?: string
-  portail_actif?: boolean
-  invitation_envoyee_at?: string
+  email?: string | null
+  telephone?: string | null
+  portail_actif?: boolean | null
+  invitation_envoyee_at?: string | null
 }
 
 export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
@@ -19,6 +19,7 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
   const [sortAsc, setSortAsc] = useState(true)
   const [invitingAll, setInvitingAll] = useState(false)
   const [inviteResult, setInviteResult] = useState<{ sent: number; skipped: number; failed: number } | null>(null)
+  const [exporting, setExporting] = useState(false)
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim()
@@ -41,6 +42,29 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
 
   // Combien de copropriétaires peuvent encore être invités
   const aInviter = data.filter(c => !c.portail_actif && c.email).length
+
+  async function handleExportExcel() {
+    setExporting(true)
+    try {
+      const { utils, writeFile } = await import('xlsx')
+      const rows = filtered.map(c => ({
+        Prénom: c.prenom,
+        Nom: c.nom,
+        Email: c.email ?? '',
+        Téléphone: c.telephone ?? '',
+        'Portail actif': c.portail_actif ? 'Oui' : 'Non',
+        'Invitation envoyée': c.invitation_envoyee_at
+          ? new Date(c.invitation_envoyee_at).toLocaleDateString('fr-FR')
+          : '',
+      }))
+      const ws = utils.json_to_sheet(rows)
+      const wb = utils.book_new()
+      utils.book_append_sheet(wb, ws, 'Copropriétaires')
+      writeFile(wb, `coproprietaires_${new Date().toISOString().slice(0, 10)}.xlsx`)
+    } finally {
+      setExporting(false)
+    }
+  }
 
   async function handleInviterTous() {
     if (!window.confirm(`Envoyer une invitation à ${aInviter} copropriétaire${aInviter > 1 ? 's' : ''} sans portail actif ?`)) return
@@ -78,6 +102,16 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
         >
           {sortAsc ? <ArrowUpAZ className="w-4 h-4" /> : <ArrowDownAZ className="w-4 h-4" />}
           A–Z
+        </button>
+
+        <button
+          onClick={handleExportExcel}
+          disabled={exporting || filtered.length === 0}
+          className="flex items-center gap-2 px-3 py-2 text-sm border border-border bg-white rounded-lg hover:bg-coplio-bg transition-colors text-coplio-text disabled:opacity-50"
+          title="Exporter en Excel"
+        >
+          {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
+          Excel
         </button>
 
         {aInviter > 0 && (

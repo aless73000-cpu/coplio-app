@@ -1,8 +1,11 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
+import { withErrorHandler } from '@/lib/api-handler'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { captureException } from '@/lib/monitoring'
 
-export async function POST(_req: Request, { params }: { params: { id: string } }) {
+export const POST = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -20,6 +23,9 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
     if (!profile?.cabinet_id) {
       return NextResponse.json({ error: 'Cabinet introuvable' }, { status: 403 })
     }
+
+    const limit = await rateLimit(`relancer:${user.id}`, { max: 15, windowMs: 60_000 })
+    if (!limit.success) return rateLimitResponse(limit.resetAt)
 
     const cabinetNom = (profile.cabinets as unknown as { nom: string } | null)?.nom ?? ''
 
@@ -99,11 +105,11 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
           niveau,
         },
         coproprietaire.email
-      ).catch((err) => console.error('[relancer] email error:', err))
+      ).catch(err => captureException(err, { context: 'appels-relancer-email' }))
     }
 
     return NextResponse.json({ success: true, niveau })
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

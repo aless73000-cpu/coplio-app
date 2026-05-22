@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { Email } from '@/lib/email'
 import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
+import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
 
 const schema = z.object({
   email: z.string().email(),
@@ -12,7 +14,7 @@ const schema = z.object({
   nomCabinet: z.string().min(2),
 })
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   // 5 inscriptions max par IP par heure
   const ip = getIP(request)
   const limit = await rateLimit(`register:${ip}`, { max: 5, windowMs: 60 * 60 * 1000 })
@@ -67,10 +69,10 @@ export async function POST(request: Request) {
 
     // 3. Email de bienvenue avec lien de confirmation (non bloquant)
     //    Le CTA de l'email pointe vers confirmUrl pour valider l'adresse email.
-    Email.welcomeSyndic({ prenom, nomCabinet, confirmUrl }, email).catch(console.error)
+    Email.welcomeSyndic({ prenom, nomCabinet, confirmUrl }, email).catch(err => captureException(err, { context: 'register welcome email' }))
 
     return NextResponse.json({ success: true })
   } catch {
     return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 })
   }
-}
+})

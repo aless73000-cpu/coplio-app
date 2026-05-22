@@ -25,18 +25,18 @@ export default function Hero() {
         }} />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 py-20 w-full">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20 w-full">
         <div className="grid lg:grid-cols-2 gap-12 xl:gap-20 items-center">
 
           {/* ── Left column ── */}
           <div className="fade-up">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-white/90 text-sm mb-8 backdrop-blur-sm">
-              <Zap className="w-3.5 h-3.5 text-[#9FE1CB]" />
-              Nouveau · Import CSV &amp; portail copropriétaire
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-white/90 text-xs sm:text-sm mb-8 backdrop-blur-sm max-w-full">
+              <Zap className="w-3.5 h-3.5 text-[#9FE1CB] flex-shrink-0" />
+              <span className="truncate">Nouveau · Import CSV &amp; portail copropriétaire</span>
             </div>
 
-            <h1 className="text-5xl lg:text-[3.6rem] xl:text-6xl font-bold text-white leading-[1.08] mb-6 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-[3.6rem] xl:text-6xl font-bold text-white leading-[1.08] mb-6 tracking-tight">
               La gestion de<br />
               copropriété,{' '}
               <span className="text-[#9FE1CB]">enfin simple</span>

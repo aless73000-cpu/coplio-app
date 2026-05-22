@@ -1,12 +1,15 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
+import { sendSMS, smsSinistreNotification } from '@/lib/twilio'
 
 const VALID_STATUSES = ['signale', 'assurance_declaree', 'urgence', 'expertise', 'travaux', 'cloture']
 
-export async function POST(
+export const POST = withErrorHandler(async (
   request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -59,7 +62,7 @@ export async function POST(
       if (sinistre.lots_concernes?.length) {
         const { data: residents } = await admin
           .from('profiles')
-          .select('id')
+          .select('id, prenom, telephone')
           .in('lot_id', sinistre.lots_concernes)
           .eq('role', 'owner_resident')
 
@@ -83,6 +86,21 @@ export async function POST(
               lu: false,
             }))
           )
+
+          // SMS aux résidents concernés (non bloquant)
+          for (const r of residents as { id: string; prenom: string | null; telephone: string | null }[]) {
+            if (r.telephone) {
+              sendSMS(
+                r.telephone,
+                smsSinistreNotification({
+                  prenom: r.prenom ?? '',
+                  titre: sinistre.titre,
+                  status: STATUS_LABELS[status!] ?? status!,
+                  nomCopropriete: '',
+                })
+              ).catch((err) => captureException(err, { context: 'sinistres-status-sms' }))
+            }
+          }
         }
       }
     } catch { /* non bloquant */ }
@@ -96,4 +114,4 @@ export async function POST(
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { withErrorHandler } from '@/lib/api-handler'
 
 function euro(n: number) {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
@@ -10,10 +11,10 @@ function date(s: string) {
   return new Date(s).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
 }
 
-export async function GET(
+export const GET = withErrorHandler(async (
   _request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -186,4 +187,4 @@ export async function GET(
       'Content-Disposition': `attachment; filename="${filename}"`,
     },
   })
-}
+})

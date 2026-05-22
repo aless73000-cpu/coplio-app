@@ -1,12 +1,13 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withErrorHandler } from '@/lib/api-handler'
 
 const VALID_STATUSES = ['planifiee', 'convocations_envoyees', 'en_cours', 'terminee', 'annulee'] as const
 
-export async function PATCH(
+export const PATCH = withErrorHandler(async (
   request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -48,4 +49,4 @@ export async function PATCH(
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

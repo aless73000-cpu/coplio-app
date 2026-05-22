@@ -2,8 +2,10 @@ import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { createAdminClient } from '@/lib/supabase/server'
 import { PLAN_LIMITS } from '@/lib/stripe'
-import { Email } from '@/lib/email'
+import { Email, sendEmail } from '@/lib/email'
 import type Stripe from 'stripe'
+import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
 
 export const runtime = 'nodejs'
 
@@ -91,7 +93,7 @@ function formatDate(unixTs: number): string {
 
 // ─── Webhook handler ──────────────────────────────────────────
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const body = await request.text()
   const signature = request.headers.get('stripe-signature')
 
@@ -108,7 +110,7 @@ export async function POST(request: Request) {
       process.env.STRIPE_WEBHOOK_SECRET!
     )
   } catch (err) {
-    console.error('Webhook signature error:', err)
+    captureException(err, { context: 'stripe-webhook-signature' })
     return NextResponse.json({ error: 'Signature invalide' }, { status: 400 })
   }
 
@@ -126,6 +128,25 @@ export async function POST(request: Request) {
         const session = event.data.object as Stripe.Checkout.Session
         const cabinetId = session.metadata?.cabinet_id
         const plan = session.metadata?.plan
+        const addon = session.metadata?.addon
+
+        // ── Add-on portail ────────────────────────────────────────
+        if (cabinetId && addon === 'portail') {
+          await supabase
+            .from('cabinets')
+            .update({ addon_portail_actif: true })
+            .eq('id', cabinetId)
+
+          const owner = await getOwnerProfile(supabase, cabinetId)
+          if (owner) {
+            await sendEmail({
+              to: owner.email,
+              subject: 'Add-on Portail activé — Coplio',
+              html: `<p>Bonjour ${owner.prenom},</p><p>L'add-on <strong>Portail copropriétaire brandé</strong> est maintenant actif pour votre cabinet <strong>${owner.nomCabinet}</strong>.</p><p>Vos copropriétaires bénéficieront dès à présent d'un portail personnalisé aux couleurs de votre cabinet.</p><p>L'équipe Coplio</p>`,
+            }).catch(() => null)
+          }
+          break
+        }
 
         if (cabinetId && plan) {
           const limits = PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS] ?? PLAN_LIMITS.starter
@@ -184,7 +205,7 @@ export async function POST(request: Request) {
               },
               owner.email
             ).catch((err) =>
-              console.error('[webhook] checkout-confirm email error:', err)
+              captureException(err, { context: 'stripe-checkout-confirm-email' })
             )
           }
         }
@@ -242,7 +263,7 @@ export async function POST(request: Request) {
                   },
                   owner.email
                 ).catch((err) =>
-                  console.error('[webhook] plan-change email error:', err)
+                  captureException(err, { context: 'stripe-plan-change-email' })
                 )
               }
             }
@@ -256,21 +277,29 @@ export async function POST(request: Request) {
         const sub = event.data.object as Stripe.Subscription
         const cabinetId = sub.metadata?.cabinet_id
 
-        if (cabinetId) {
-          const starterLimits = PLAN_LIMITS['starter']
+        if (!cabinetId) break
+
+        // Add-on portail annulé → désactiver
+        if (sub.metadata?.addon === 'portail') {
           await supabase
             .from('cabinets')
-            .update({
-              plan: 'starter',
-              subscription_status: 'canceled',
-              stripe_subscription_id: null,
-              // Réinitialise les quotas au niveau Starter — empêche un
-              // ancien client Pro/Expert de conserver ses limites élevées
-              max_lots: starterLimits.max_lots,
-              max_gestionnaires: starterLimits.max_gestionnaires,
-            })
+            .update({ addon_portail_actif: false })
             .eq('id', cabinetId)
+          break
         }
+
+        // Abonnement principal annulé → reset plan + quotas
+        const starterLimits = PLAN_LIMITS['starter']
+        await supabase
+          .from('cabinets')
+          .update({
+            plan: 'starter',
+            subscription_status: 'canceled',
+            stripe_subscription_id: null,
+            max_lots: starterLimits.max_lots,
+            max_gestionnaires: starterLimits.max_gestionnaires,
+          })
+          .eq('id', cabinetId)
         break
       }
 
@@ -284,6 +313,19 @@ export async function POST(request: Request) {
           .update({ subscription_status: 'past_due' })
           .eq('stripe_customer_id', customerId)
 
+        // ── Alerte Sentry ──────────────────────────────────────
+        try {
+          const { captureException } = await import('@sentry/nextjs')
+          captureException(new Error('[Stripe] invoice.payment_failed'), {
+            tags: { stripe_customer_id: customerId, event_type: 'invoice.payment_failed' },
+            extra: {
+              invoice_id: invoice.id,
+              amount_due: invoice.amount_due,
+              currency: invoice.currency,
+            },
+          })
+        } catch { /* Sentry facultatif */ }
+
         // ── Email échec de paiement ────────────────────────────
         const owner = await getOwnerByCustomerId(supabase, customerId)
         if (owner) {
@@ -291,16 +333,13 @@ export async function POST(request: Request) {
             {
               prenom: owner.prenom,
               nomCabinet: owner.nomCabinet,
-              montant: formatAmount(
-                invoice.amount_due,
-                invoice.currency
-              ),
+              montant: formatAmount(invoice.amount_due, invoice.currency),
               dateEchec: formatDate(invoice.created),
-              updatePaymentUrl: `${APP_URL}/dashboard/abonnement`,
+              updatePaymentUrl: `${APP_URL}/facturation`,
             },
             owner.email
           ).catch((err) =>
-            console.error('[webhook] payment-failed email error:', err)
+            captureException(err, { context: 'stripe-payment-failed-email' })
           )
         }
         break
@@ -321,7 +360,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true })
   } catch (error) {
-    console.error('Webhook handler error:', error)
+    captureException(error, { context: 'stripe-webhook-handler' })
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
-}
+})

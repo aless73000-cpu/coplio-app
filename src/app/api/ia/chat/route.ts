@@ -2,8 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { rateLimit } from '@/lib/rate-limit'
+import { withErrorHandler } from '@/lib/api-handler'
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -80,4 +81,4 @@ ${coproprieteCtx}`
     const msg = err instanceof Error ? err.message : 'Erreur IA inconnue'
     return NextResponse.json({ error: msg }, { status: 500 })
   }
-}
+})

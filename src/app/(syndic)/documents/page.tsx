@@ -60,8 +60,7 @@ export default async function DocumentsPage({
   ])
 
   // Grouper par catégorie
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const byCategorie = (documents ?? []).reduce<Record<string, any[]>>((acc, doc) => {
+  const byCategorie = (documents ?? []).reduce<Record<string, Document[]>>((acc, doc) => {
     const cat = doc.categorie || 'autre'
     if (!acc[cat]) acc[cat] = []
     acc[cat].push(doc)
@@ -185,7 +184,7 @@ function DocumentRow({ document: doc }: {
       </div>
 
       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-        <DocumentActions documentId={doc.id} typeMime={doc.type_mime} />
+        <DocumentActions documentId={doc.id} typeMime={doc.type_mime ?? undefined} />
       </div>
     </div>
   )

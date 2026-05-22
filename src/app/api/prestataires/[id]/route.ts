@@ -1,6 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
 async function getCabinetId() {
   const supabase = await createClient()
@@ -22,7 +23,7 @@ const schema = z.object({
   actif: z.boolean().optional(),
 })
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export const PATCH = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
   const cabinetId = await getCabinetId()
   if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -42,9 +43,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
-}
+})
 
-export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
+export const DELETE = withErrorHandler(async (_: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
   const cabinetId = await getCabinetId()
   if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -59,4 +60,4 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ success: true })
-}
+})

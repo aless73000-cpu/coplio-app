@@ -188,11 +188,12 @@ export default async function LotPage({ params }: { params: { id: string } }) {
             <p className="text-sm text-muted-foreground">Aucun appel de charges</p>
           </div>
         ) : (
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-border bg-coplio-bg">
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-6 py-3">Libellé</th>
-                <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Échéance</th>
+                <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3 hidden md:table-cell">Échéance</th>
                 <th className="text-right text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Montant</th>
                 <th className="text-right text-xs font-semibold text-muted-foreground uppercase tracking-wide px-6 py-3">Statut</th>
               </tr>
@@ -203,7 +204,7 @@ export default async function LotPage({ params }: { params: { id: string } }) {
                 return (
                   <tr key={appel.id} className="hover:bg-coplio-bg/50 transition-colors">
                     <td className="px-6 py-3 text-sm font-medium text-coplio-text">{appel.libelle}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{formatDate(appel.date_echeance)}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground hidden md:table-cell">{formatDate(appel.date_echeance)}</td>
                     <td className="px-4 py-3 text-right text-sm font-semibold text-coplio-text">{formatEuro(appel.montant)}</td>
                     <td className="px-6 py-3 text-right">
                       {appel.paye ? (
@@ -225,6 +226,7 @@ export default async function LotPage({ params }: { params: { id: string } }) {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

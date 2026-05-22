@@ -3,6 +3,7 @@
 
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withErrorHandler } from '@/lib/api-handler'
 
 async function getContext() {
   const supabase = await createClient()
@@ -20,7 +21,7 @@ async function getContext() {
   return { user, coproprietaireId: copro.id, cabinetId: copro.cabinet_id }
 }
 
-export async function GET() {
+export const GET = withErrorHandler(async () => {
   const ctx = await getContext()
   if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
@@ -33,9 +34,9 @@ export async function GET() {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(convs ?? [])
-}
+})
 
-export async function POST() {
+export const POST = withErrorHandler(async () => {
   const ctx = await getContext()
   if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
@@ -66,4 +67,4 @@ export async function POST() {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(created, { status: 201 })
-}
+})

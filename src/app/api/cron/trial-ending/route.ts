@@ -13,7 +13,8 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { Email } from '@/lib/email'
 import { EMAIL_CONFIG } from '@/lib/email/config'
-
+import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
 export const runtime = 'nodejs'
 export const maxDuration = 60 // secondes — large pour les gros volumes
 
@@ -37,7 +38,7 @@ function isAuthorized(request: Request): boolean {
 
 // ─── Handler ─────────────────────────────────────────────────
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   }
@@ -77,7 +78,7 @@ export async function GET(request: Request) {
       .lte('trial_ends_at', dateEnd)
 
     if (error) {
-      console.error(`[Cron trial-ending] Erreur Supabase (${label}):`, error)
+      captureException(error, { context: 'cron-trial-supabase' }) // [Cron trial-ending] Erreur Supabase (${label}):`, error)
       continue
     }
 
@@ -117,11 +118,11 @@ export async function GET(request: Request) {
           totalSent++
         } else {
           totalFailed++
-          console.error(`[Cron trial-ending] Échec ${label} → ${recipientEmail}:`, result.error?.message)
+          captureException(new Error(`[Cron trial-ending] Échec ${label} → ${recipientEmail}`), { context: "cron-trial-email", error: result.error?.message })
         }
       } catch (err) {
         totalFailed++
-        console.error(`[Cron trial-ending] Erreur cabinet ${cabinet.id}:`, err)
+        captureException(err, { context: "cron-trial-cabinet", cabinet_id: cabinet.id })
       }
     }
 
@@ -137,4 +138,4 @@ export async function GET(request: Request) {
     durationMs,
     details,
   })
-}
+})

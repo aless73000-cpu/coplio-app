@@ -17,6 +17,8 @@
 import { NextResponse } from 'next/server'
 import type { ResendWebhookEvent } from '@/lib/email/types'
 import { Email } from '@/lib/email'
+import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
 
 export const runtime = 'nodejs'
 
@@ -85,7 +87,7 @@ async function handleBounce(event: ResendWebhookEvent) {
         },
       },
       process.env.ADMIN_ALERT_EMAIL ?? 'team@coplio.fr'
-    ).catch(console.error)
+    ).catch(err => captureException(err, { context: 'resend-webhook' }))
   }
 }
 
@@ -106,12 +108,12 @@ async function handleComplaint(event: ResendWebhookEvent) {
       },
     },
     process.env.ADMIN_ALERT_EMAIL ?? 'team@coplio.fr'
-  ).catch(console.error)
+  ).catch(err => captureException(err, { context: 'resend-webhook' }))
 }
 
 // ─── Handler principal ────────────────────────────────────────
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const payload = await request.text()
 
   // 1. Vérifier la signature
@@ -154,10 +156,10 @@ export async function POST(request: Request) {
         break
     }
   } catch (err) {
-    console.error('[Resend Webhook] Erreur handler:', err)
+    captureException(err, { context: 'resend-webhook-handler' })
     // On retourne 200 quand même pour éviter les retries Resend
     // (l'erreur est loggée, pas bloquante)
   }
 
   return NextResponse.json({ received: true })
-}
+})

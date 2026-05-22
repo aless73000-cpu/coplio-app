@@ -41,20 +41,20 @@ export default async function AssembleesPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-coplio-text">Assemblées Générales</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-coplio-text">Assemblées Générales</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {aVenir.length} AG à venir · {passees.length} terminée{passees.length > 1 ? 's' : ''}
           </p>
         </div>
         <Link
           href="/assemblees/new"
-          className="flex items-center gap-2 bg-coplio-green text-white px-4 py-2.5 rounded-lg
-                     text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+          className="flex items-center gap-2 bg-coplio-green text-white px-3 py-2 rounded-lg
+                     text-sm font-medium hover:bg-coplio-green/90 transition-colors flex-shrink-0"
         >
           <Plus className="w-4 h-4" />
-          Planifier une AG
+          <span className="hidden sm:inline">Planifier une AG</span>
         </Link>
       </div>
 
@@ -103,10 +103,9 @@ export default async function AssembleesPage() {
   )
 }
 
-function AgCard({ ag }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ag: any
-}) {
+type AgWithCopropriete = AssembleeGenerale & { copropriete?: { nom: string } | null }
+
+function AgCard({ ag }: { ag: AgWithCopropriete }) {
   const date = new Date(ag.date_ag)
   const isUpcoming = date >= new Date() && ag.status !== 'annulee'
   const daysUntil = getDaysUntil(ag.date_ag)

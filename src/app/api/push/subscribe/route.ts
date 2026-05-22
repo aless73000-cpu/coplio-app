@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withErrorHandler } from '@/lib/api-handler'
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -17,9 +18,9 @@ export async function POST(request: Request) {
     .eq('id', user.id)
 
   return NextResponse.json({ ok: true })
-}
+})
 
-export async function DELETE(request: Request) {
+export const DELETE = withErrorHandler(async (request: Request) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -30,4 +31,4 @@ export async function DELETE(request: Request) {
     .eq('id', user.id)
 
   return NextResponse.json({ ok: true })
-}
+})

@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { stripe } from '@/lib/stripe'
-
-export async function POST() {
+import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
+export const POST = withErrorHandler(async () => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -37,10 +38,10 @@ export async function POST() {
 
     return NextResponse.json({ url: session.url })
   } catch (error) {
-    console.error('Stripe portal error:', error)
+    captureException(error, { context: 'stripe-portal' })
     return NextResponse.json(
       { error: 'Erreur lors de l\'accès au portail Stripe' },
       { status: 500 }
     )
   }
-}
+})

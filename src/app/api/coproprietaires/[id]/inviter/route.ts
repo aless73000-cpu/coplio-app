@@ -1,11 +1,14 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
+import { withErrorHandler } from '@/lib/api-handler'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { captureException } from '@/lib/monitoring'
 
-export async function POST(
-  _request: Request,
+export const POST = withErrorHandler(async (
+  request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -21,6 +24,9 @@ export async function POST(
     if (!syndicProfile?.cabinet_id || syndicProfile.role === 'owner_resident') {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
     }
+
+    const limit = await rateLimit(`inviter:${user.id}`, { max: 15, windowMs: 60_000 })
+    if (!limit.success) return rateLimitResponse(limit.resetAt)
 
     const admin = createAdminClient()
 
@@ -48,9 +54,7 @@ export async function POST(
     } | undefined
 
     const lotId = firstJunction?.lot_id
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const copropriete = firstJunction?.lot?.copropriete as any
-    const nomCopropriete = copropriete?.nom ?? 'votre résidence'
+    const nomCopropriete = firstJunction?.lot?.copropriete?.nom ?? 'votre résidence'
 
     // Récupérer le cabinet
     const { data: cabinet } = await admin
@@ -101,7 +105,7 @@ export async function POST(
     }
 
     if (linkError || !linkData?.properties?.action_link) {
-      console.error('generateLink error:', linkError)
+      captureException(new Error('generateLink error'), { context: 'inviter', error: linkError })
       return NextResponse.json({ error: 'Erreur génération du lien' }, { status: 500 })
     }
 
@@ -128,7 +132,7 @@ export async function POST(
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('Invitation error:', err)
+    captureException(err, { context: 'inviter-coproprietaire' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

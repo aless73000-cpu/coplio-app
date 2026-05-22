@@ -1,11 +1,12 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withErrorHandler } from '@/lib/api-handler'
 
 // Format FEC (Fichier des Écritures Comptables) — norme DGFiP
 // Séparateur : | (pipe), encodage UTF-8, dates YYYYMMDD
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -98,4 +99,4 @@ export async function GET(request: Request) {
       'Content-Disposition': `attachment; filename="${filename}"`,
     },
   })
-}
+})

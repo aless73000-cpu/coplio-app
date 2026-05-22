@@ -1,10 +1,11 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withErrorHandler } from '@/lib/api-handler'
 
-export async function POST(
+export const POST = withErrorHandler(async (
   request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -64,12 +65,12 @@ export async function POST(
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})
 
-export async function DELETE(
+export const DELETE = withErrorHandler(async (
   request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -110,4 +111,4 @@ export async function DELETE(
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

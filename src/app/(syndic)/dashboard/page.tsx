@@ -16,7 +16,11 @@ import Link from 'next/link'
 import { formatEuro, formatDate } from '@/lib/utils'
 import { RecouvrementChartLazy as RecouvrementChart, StatutChartLazy as StatutChart, EvolutionChartLazy as EvolutionChart, TauxGlobalCardLazy as TauxGlobalCard } from '@/components/syndic/DashboardChartsLazy'
 import { OnboardingChecklist } from '@/components/syndic/OnboardingChecklist'
-import { RapportMensuelButton } from '@/components/syndic/RapportMensuelButton'
+import dynamic from 'next/dynamic'
+const RapportMensuelButton = dynamic(
+  () => import('@/components/syndic/RapportMensuelButton').then(m => m.RapportMensuelButton),
+  { ssr: false }
+)
 import { TrialBanner } from '@/components/syndic/TrialBanner'
 import type { Copropriete, Sinistre, AssembleeGenerale } from '@/types'
 
@@ -271,12 +275,12 @@ export default async function DashboardPage() {
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
             Voici un résumé de votre activité au{' '}
-            {new Date().toLocaleDateString('fr-FR', {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
+            <span className="hidden sm:inline">
+              {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </span>
+            <span className="sm:hidden">
+              {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </span>
           </p>
         </div>
         <RapportMensuelButton data={{
@@ -655,8 +659,7 @@ function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }: KpiCa
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function CoproprieteAlertRow({ copropriete }: { copropriete: any }) {
+function CoproprieteAlertRow({ copropriete }: { copropriete: Copropriete }) {
   return (
     <Link
       href={`/coproprietes/${copropriete.id}`}
@@ -688,8 +691,7 @@ function CoproprieteAlertRow({ copropriete }: { copropriete: any }) {
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function SinistreRow({ sinistre }: { sinistre: any }) {
+function SinistreRow({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom: string } | null } }) {
   const statusColors: Record<string, string> = {
     signale: 'badge-attention',
     urgence: 'badge-urgent',
@@ -717,15 +719,14 @@ function SinistreRow({ sinistre }: { sinistre: any }) {
           {sinistre.reference} · {sinistre.copropriete?.nom}
         </p>
       </div>
-      <span className={`ml-3 text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${statusColors[sinistre.status] || 'badge-a-jour'}`}>
-        {statusLabels[sinistre.status] || sinistre.status}
+      <span className={`ml-3 text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${statusColors[sinistre.status ?? 'signale'] || 'badge-a-jour'}`}>
+        {statusLabels[sinistre.status ?? 'signale'] || sinistre.status}
       </span>
     </Link>
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function AgRow({ ag }: { ag: any }) {
+function AgRow({ ag }: { ag: AssembleeGenerale & { copropriete?: { nom: string } | null } }) {
   const date = new Date(ag.date_ag)
   const jours = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
 

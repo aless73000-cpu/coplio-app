@@ -41,7 +41,7 @@ export default function SignaturesPage() {
   const [signataires, setSignataires] = useState<Signataire[]>([{ ...emptySignataire }])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [hasYousign, setHasYousign] = useState(false)
+  const [hasDocuseal, setHasDocuseal] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -54,7 +54,7 @@ export default function SignaturesPage() {
       const [sData, cData, cfgData] = await Promise.all([sRes.json(), cRes.json(), cfgRes.json()])
       setItems(Array.isArray(sData) ? sData : [])
       setCoproprietes(Array.isArray(cData) ? cData : [])
-      setHasYousign(cfgData.yousign_configured === true)
+      setHasDocuseal(cfgData.docuseal_configured === true)
     } finally {
       setLoading(false)
     }
@@ -90,7 +90,7 @@ export default function SignaturesPage() {
           <h1 className="text-2xl font-bold text-coplio-text flex items-center gap-2">
             <PenLine className="w-6 h-6 text-coplio-green" />Signatures électroniques
           </h1>
-          <p className="text-muted-foreground text-sm mt-0.5">PV d&apos;AG, mandats, devis — conformes eIDAS via Yousign</p>
+          <p className="text-muted-foreground text-sm mt-0.5">PV d&apos;AG, mandats, devis — conformes eIDAS via DocuSeal</p>
         </div>
         <button onClick={() => setShowForm(v => !v)}
           className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors">
@@ -116,18 +116,18 @@ export default function SignaturesPage() {
         </div>
       </div>
 
-      {/* Info Yousign — affiché uniquement si non configuré */}
-      {!hasYousign && (
+      {/* Info DocuSeal — affiché uniquement si non configuré */}
+      {!hasDocuseal && (
         <div className="coplio-card bg-blue-50 border-blue-200">
           <div className="flex items-start gap-3">
             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <PenLine className="w-4 h-4 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-blue-800">Intégration Yousign non configurée</p>
+              <p className="text-sm font-semibold text-blue-800">Intégration DocuSeal non configurée</p>
               <p className="text-xs text-blue-600 mt-0.5">
-                Pour activer les signatures électroniques, ajoutez <code className="bg-blue-100 px-1 rounded">YOUSIGN_API_KEY</code> dans vos variables Vercel.
-                Créez un compte sur <strong>yousign.com</strong> pour obtenir votre clé API.
+                Pour activer les signatures électroniques, ajoutez <code className="bg-blue-100 px-1 rounded">DOCUSEAL_API_KEY</code> dans vos variables d&apos;environnement.
+                Créez un compte gratuit sur <strong>docuseal.com</strong> (50 docs/mois gratuits).
               </p>
             </div>
           </div>
@@ -198,7 +198,7 @@ export default function SignaturesPage() {
               <button type="submit" disabled={saving}
                 className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 disabled:opacity-60">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenLine className="w-4 h-4" />}
-                {hasYousign ? 'Envoyer pour signature' : 'Créer (brouillon)'}
+                {hasDocuseal ? 'Envoyer pour signature' : 'Créer (brouillon)'}
               </button>
               <button type="button" onClick={() => setShowForm(false)} className="text-sm text-muted-foreground px-4 py-2 rounded-lg border border-border">Annuler</button>
             </div>

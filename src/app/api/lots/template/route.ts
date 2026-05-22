@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import * as XLSX from 'xlsx'
+import { withErrorHandler } from '@/lib/api-handler'
 
-export async function GET() {
+export const GET = withErrorHandler(async () => {
   const wb = XLSX.utils.book_new()
 
   const lotsData = [
@@ -44,4 +45,4 @@ export async function GET() {
       'Content-Disposition': 'attachment; filename="template_lots_coplio.xlsx"',
     },
   })
-}
+})

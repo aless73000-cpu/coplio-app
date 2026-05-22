@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
 
 // GET — liste les membres de l'équipe du cabinet
-export async function GET() {
+export const GET = withErrorHandler(async () => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -19,10 +21,10 @@ export async function GET() {
     .order('created_at')
 
   return NextResponse.json(membres ?? [])
-}
+})
 
 // POST — inviter un gestionnaire
-export async function POST(request: NextRequest) {
+export const POST = withErrorHandler(async (request: NextRequest) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -88,7 +90,7 @@ export async function POST(request: NextRequest) {
 
   if (inviteError) {
     // User might already exist in auth but not in our cabinet
-    console.error('Invite error:', inviteError)
+    captureException(inviteError, { context: 'equipe-invite' })
     return NextResponse.json({ error: inviteError.message }, { status: 500 })
   }
 
@@ -106,10 +108,10 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json({ success: true, email })
-}
+})
 
 // DELETE — retirer un gestionnaire
-export async function DELETE(request: NextRequest) {
+export const DELETE = withErrorHandler(async (request: NextRequest) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -128,4 +130,4 @@ export async function DELETE(request: NextRequest) {
   await admin.from('profiles').update({ cabinet_id: null, role: 'manager' }).eq('id', memberId).eq('cabinet_id', profile.cabinet_id!)
 
   return NextResponse.json({ success: true })
-}
+})

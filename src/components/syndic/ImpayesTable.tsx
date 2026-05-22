@@ -104,9 +104,9 @@ export function ImpayesTable({ impayes: initial }: Props) {
 
   return (
     <div className="coplio-card">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h2 className="font-semibold text-coplio-text">Détail des impayés</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={handleExportCSV}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-coplio-bg border border-border text-coplio-text rounded-lg
@@ -141,8 +141,15 @@ export function ImpayesTable({ impayes: initial }: Props) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border">
-              {['Copropriété / Lot', 'Libellé', 'Montant dû', 'Retard', 'Relances', 'Actions'].map((h) => (
-                <th key={h} className="text-left py-2 text-xs text-muted-foreground font-medium">{h}</th>
+              {[
+                { label: 'Copropriété / Lot' },
+                { label: 'Libellé', mobile: false },
+                { label: 'Montant dû' },
+                { label: 'Retard' },
+                { label: 'Relances', mobile: false },
+                { label: 'Actions' },
+              ].map(({ label, mobile = true }) => (
+                <th key={label} className={`text-left py-2 text-xs text-muted-foreground font-medium${mobile ? '' : ' hidden md:table-cell'}`}>{label}</th>
               ))}
             </tr>
           </thead>
@@ -157,7 +164,7 @@ export function ImpayesTable({ impayes: initial }: Props) {
                     <p className="font-medium text-coplio-text">{appel.copropriete?.nom}</p>
                     <p className="text-xs text-muted-foreground">Lot {appel.lot?.numero}</p>
                   </td>
-                  <td className="py-3 text-muted-foreground">{appel.libelle}</td>
+                  <td className="py-3 text-muted-foreground hidden md:table-cell">{appel.libelle}</td>
                   <td className="py-3 font-bold text-coplio-red">{formatEuro(restant)}</td>
                   <td className="py-3">
                     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
@@ -168,7 +175,7 @@ export function ImpayesTable({ impayes: initial }: Props) {
                       J+{overdue}
                     </span>
                   </td>
-                  <td className="py-3 text-muted-foreground text-center">
+                  <td className="py-3 text-muted-foreground text-center hidden md:table-cell">
                     <span className="font-medium">{appel.nb_relances}</span>
                     {appel.derniere_relance_at && (
                       <p className="text-xs">{formatDate(appel.derniere_relance_at)}</p>

@@ -4,6 +4,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withErrorHandler } from '@/lib/api-handler'
 
 async function getContext() {
   const supabase = await createClient()
@@ -13,7 +14,7 @@ async function getContext() {
   return profile?.cabinet_id ? { user, cabinet_id: profile.cabinet_id } : null
 }
 
-export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
+export const GET = withErrorHandler(async (_: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
   const ctx = await getContext()
   if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -38,13 +39,13 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(messages ?? [])
-}
+})
 
 const sendSchema = z.object({
   contenu: z.string().min(1).max(5000),
 })
 
-export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export const POST = withErrorHandler(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
   const ctx = await getContext()
   if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -86,4 +87,4 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     .eq('id', id)
 
   return NextResponse.json(message, { status: 201 })
-}
+})

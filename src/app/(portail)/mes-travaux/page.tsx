@@ -4,10 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Wrench, CheckCircle2, Plus, X, AlertTriangle, Clock, Send, HardHat, Shield, Euro } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
-import type { Sinistre } from '@/types'
+import type { Sinistre, SinistreStatus } from '@/types'
 import { SINISTRE_STATUS_LABELS } from '@/types'
 
-const STEP_ORDER: Sinistre['status'][] = [
+const STEP_ORDER: SinistreStatus[] = [
   'signale', 'assurance_declaree', 'expertise', 'travaux', 'cloture',
 ]
 
@@ -98,21 +98,21 @@ export default async function MesTravaux({
 
   const coproprieteId = (profile?.lot as { copropriete_id?: string } | null)?.copropriete_id
 
-  const { data: sinistres } = await supabase
-    .from('sinistres')
-    .select('*, copropriete:coproprietes(nom)')
-    .contains('lots_concernes', [profile?.lot_id ?? ''])
-    .order('created_at', { ascending: false })
-
-  // Travaux du bâtiment planifiés par le syndic
-  const { data: travauxBatiment } = coproprieteId
-    ? await supabase
-        .from('travaux')
-        .select('id, titre, description, statut, priorite, montant_estime, created_at')
-        .eq('copropriete_id', coproprieteId)
-        .neq('statut', 'archive')
-        .order('created_at', { ascending: false })
-    : { data: [] }
+  const [{ data: sinistres }, { data: travauxBatiment }] = await Promise.all([
+    supabase
+      .from('sinistres')
+      .select('*, copropriete:coproprietes(nom)')
+      .contains('lots_concernes', [profile?.lot_id ?? ''])
+      .order('created_at', { ascending: false }),
+    coproprieteId
+      ? supabase
+          .from('travaux')
+          .select('id, titre, description, statut, priorite, montant_estime, created_at')
+          .eq('copropriete_id', coproprieteId)
+          .neq('statut', 'archive')
+          .order('created_at', { ascending: false })
+      : Promise.resolve({ data: [] }),
+  ])
 
   const enCours = (sinistres ?? []).filter((s) => s.status !== 'cloture')
   const clotures = (sinistres ?? []).filter((s) => s.status === 'cloture')
@@ -323,9 +323,8 @@ export default async function MesTravaux({
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function TravauxCard({ sinistre }: { sinistre: any }) {
-  const stepIndex = STEP_ORDER.indexOf(sinistre.status as Sinistre['status'])
+function TravauxCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom: string } | null; etapes?: { status: string; date_etape: string }[] } }) {
+  const stepIndex = STEP_ORDER.indexOf((sinistre.status ?? 'signale') as SinistreStatus)
   const progress = Math.round(((stepIndex + 1) / STEP_ORDER.length) * 100)
   const isClosed = sinistre.status === 'cloture'
   const isUrgent = sinistre.status === 'urgence'
@@ -348,7 +347,7 @@ function TravauxCard({ sinistre }: { sinistre: any }) {
           isUrgent ? 'bg-coplio-red-bg text-coplio-red' :
           'bg-coplio-amber-bg text-coplio-amber'
         }`}>
-          {SINISTRE_STATUS_LABELS[sinistre.status as Sinistre['status']]}
+          {SINISTRE_STATUS_LABELS[(sinistre.status ?? 'signale') as SinistreStatus]}
         </span>
       </div>
 
@@ -390,7 +389,7 @@ function TravauxCard({ sinistre }: { sinistre: any }) {
                 )}
               </div>
               <span className="text-[9px] text-muted-foreground text-center leading-tight">
-                {SINISTRE_STATUS_LABELS[step].split(' ')[0]}
+                {SINISTRE_STATUS_LABELS[step as SinistreStatus].split(' ')[0]}
               </span>
             </div>
           )
