@@ -93,9 +93,18 @@ export async function POST(request: NextRequest) {
         continue
       }
 
-      // Link to lot if lot_numero provided
-      // Note: coproprietaire_id column does not exist on lots table
-      // lot-coproprietaire linking is handled via profiles.lot_id
+      // Lier au lot si lot_numero fourni
+      if (row.lot_numero?.trim()) {
+        const lotId = lotMap.get(row.lot_numero.trim().toLowerCase())
+        if (lotId) {
+          await supabase.from('coproprietaire_lots').insert({
+            coproprietaire_id: newCopro.id,
+            lot_id: lotId,
+          })
+        } else {
+          results.errors.push({ row: rowNum, message: `Lot "${row.lot_numero}" introuvable dans cette copropriété (copropriétaire créé sans lot)` })
+        }
+      }
 
       results.ok++
     }
