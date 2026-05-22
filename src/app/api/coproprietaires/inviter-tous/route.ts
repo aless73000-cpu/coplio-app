@@ -11,6 +11,18 @@ import { captureException } from '@/lib/monitoring'
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
+/** Génère un mot de passe temporaire de 12 caractères sans ambiguïtés (0/O/1/I/l) */
+function generateTempPassword(): string {
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+  const lower = 'abcdefghjkmnpqrstuvwxyz'
+  const digits = '23456789'
+  const all = upper + lower + digits
+  const pick = (set: string) => set[Math.floor(Math.random() * set.length)]
+  const required = [pick(upper), pick(upper), pick(lower), pick(lower), pick(digits), pick(digits)]
+  const extra = Array.from({ length: 6 }, () => pick(all))
+  return [...required, ...extra].sort(() => Math.random() - 0.5).join('')
+}
+
 export async function POST() {
   try {
     const supabase = await createClient()
@@ -32,7 +44,7 @@ export async function POST() {
     // Récupérer tous les copropriétaires sans portail actif, avec email
     const { data: copros } = await admin
       .from('coproprietaires')
-      .select('id, prenom, nom, email, invitation_envoyee_at')
+      .select('id, prenom, nom, email, profile_id, invitation_envoyee_at')
       .eq('cabinet_id', syndicProfile.cabinet_id)
       .eq('portail_actif', false)
       .not('email', 'is', null)
@@ -49,13 +61,15 @@ export async function POST() {
       .single()
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
-    const redirectTo = `${appUrl}/api/auth/callback?next=/accueil`
-
+    const portailUrl = `${appUrl}/portail`
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 
     let sent = 0
     let skipped = 0
     let failed = 0
+
+    // Charger tous les utilisateurs auth une seule fois pour éviter N appels
+    const { data: allUsers } = await admin.auth.admin.listUsers()
 
     for (const copro of copros) {
       // Sauter si déjà invité dans les dernières 24h
@@ -76,59 +90,54 @@ export async function POST() {
         const nomCopropriete = (junctions?.[0] as unknown as Junction | undefined)?.lot?.copropriete?.nom ?? 'votre résidence'
         const lotId = junctions?.[0]?.lot_id ?? null
 
-        // Générer le lien d'invitation
-        let { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
-          type: 'invite',
-          email: copro.email!,
-          options: {
-            data: {
-              role: 'owner_resident',
-              coproprietaire_id: copro.id,
-              cabinet_id: syndicProfile.cabinet_id,
-              lot_id: lotId,
-              prenom: copro.prenom,
-              nom: copro.nom,
-            },
-            redirectTo,
-          },
-        })
+        const tempPassword = generateTempPassword()
+        let authUserId: string | null = copro.profile_id ?? null
 
-        // Fallback magiclink si email déjà enregistré
-        if (linkError?.status === 422) {
-          ;({ data: linkData, error: linkError } = await admin.auth.admin.generateLink({
-            type: 'magiclink',
-            email: copro.email!,
-            options: {
-              redirectTo,
-              data: {
-                role: 'owner_resident',
-                coproprietaire_id: copro.id,
-                cabinet_id: syndicProfile.cabinet_id,
-                lot_id: lotId,
-                prenom: copro.prenom,
-                nom: copro.nom,
-              },
-            },
-          }))
+        if (authUserId) {
+          await admin.auth.admin.updateUserById(authUserId, { password: tempPassword, email_confirm: true })
+        } else {
+          const existing = allUsers?.users?.find(u => u.email === copro.email)
+          if (existing) {
+            authUserId = existing.id
+            await admin.auth.admin.updateUserById(existing.id, { password: tempPassword, email_confirm: true })
+          } else {
+            const { data: newUser, error: createError } = await admin.auth.admin.createUser({
+              email: copro.email!,
+              password: tempPassword,
+              email_confirm: true,
+              user_metadata: { prenom: copro.prenom, nom: copro.nom, role: 'owner_resident' },
+            })
+            if (createError || !newUser?.user) { failed++; continue }
+            authUserId = newUser.user.id
+          }
         }
 
-        if (linkError || !linkData?.properties?.action_link) {
-          failed++
-          continue
-        }
+        // Upsert profil
+        await admin.from('profiles').upsert({
+          id: authUserId,
+          email: copro.email,
+          prenom: copro.prenom,
+          nom: copro.nom,
+          role: 'owner_resident',
+          cabinet_id: syndicProfile.cabinet_id,
+          lot_id: lotId ?? null,
+          onboarding_complete: true,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'id' })
 
         const emailResult = await Email.invitation({
           prenom: copro.prenom,
           nom: copro.nom,
           cabinetNom: cabinet?.nom ?? 'Votre syndic',
           nomCopropriete,
-          magicLink: linkData.properties.action_link,
+          tempPassword,
+          portailUrl,
         }, copro.email!)
 
         if (emailResult.success) {
           await admin
             .from('coproprietaires')
-            .update({ invitation_envoyee_at: new Date().toISOString() })
+            .update({ portail_actif: true, profile_id: authUserId, invitation_envoyee_at: new Date().toISOString() })
             .eq('id', copro.id)
           sent++
         } else {

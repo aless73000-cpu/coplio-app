@@ -31,7 +31,7 @@ export async function emailBienvenueSyndic(props: { prenom: string; nomCabinet: 
 }
 
 export async function emailInvitationCopropriétaire(props: {
-  prenom: string; nom: string; cabinetNom: string; nomCopropriete: string; magicLink: string
+  prenom: string; nom: string; cabinetNom: string; nomCopropriete: string; tempPassword: string; portailUrl: string
 }) {
   return render(React.createElement(Invitation, props))
 }

@@ -129,6 +129,7 @@ export async function POST(
       .from('profiles')
       .upsert({
         id: authUserId,
+        email: copro.email,
         prenom: copro.prenom,
         nom: copro.nom,
         role: 'owner_resident',
