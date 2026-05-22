@@ -42,6 +42,21 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    // Synchroniser profiles.lot_id avec le premier lot assigné
+    // (le portail copropriétaire lit profiles.lot_id directement)
+    const { data: copro } = await admin
+      .from('coproprietaires')
+      .select('profile_id')
+      .eq('id', params.id)
+      .single()
+
+    if (copro?.profile_id) {
+      await admin
+        .from('profiles')
+        .update({ lot_id: parsed.data.lot_ids[0] ?? null })
+        .eq('id', copro.profile_id)
+    }
+
     return NextResponse.json({ ok: true })
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
