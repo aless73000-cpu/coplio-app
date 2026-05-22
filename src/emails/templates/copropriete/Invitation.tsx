@@ -1,4 +1,4 @@
-import { Text, Section, Hr } from '@react-email/components'
+import { Text, Section, Hr, Row, Column } from '@react-email/components'
 import * as React from 'react'
 import { EmailBase, EmailBody } from '@/emails/layouts/EmailBase'
 import { EmailButton } from '@/emails/components/EmailButton'
@@ -13,7 +13,8 @@ export function Invitation({
   nom,
   cabinetNom,
   nomCopropriete,
-  magicLink,
+  tempPassword,
+  portailUrl,
 }: InvitationProps) {
   return (
     <EmailBase
@@ -38,6 +39,63 @@ export function Invitation({
           ]}
         />
 
+        {/* Encadré identifiants */}
+        <Section style={{
+          backgroundColor: '#F0FDF9',
+          border: '1.5px solid #A7F3D0',
+          borderRadius: '12px',
+          padding: '20px 24px',
+          margin: '20px 0 24px',
+        }}>
+          <Text style={{ margin: '0 0 14px', fontSize: '14px', fontWeight: 700, color: brand.textColor }}>
+            🔐 Vos identifiants de connexion
+          </Text>
+
+          <Row style={{ marginBottom: '10px' }}>
+            <Column style={{ width: '120px' }}>
+              <Text style={{ margin: 0, fontSize: '12px', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>
+                Identifiant
+              </Text>
+            </Column>
+            <Column>
+              <Text style={{ margin: 0, fontSize: '14px', color: brand.textColor, fontWeight: 600 }}>
+                Votre adresse email
+              </Text>
+            </Column>
+          </Row>
+
+          <Row>
+            <Column style={{ width: '120px' }}>
+              <Text style={{ margin: 0, fontSize: '12px', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>
+                Mot de passe
+              </Text>
+            </Column>
+            <Column>
+              <Text style={{
+                margin: 0,
+                fontSize: '18px',
+                fontWeight: 800,
+                color: brand.primaryColor,
+                fontFamily: 'monospace',
+                letterSpacing: '0.1em',
+                backgroundColor: '#DCFCE7',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                display: 'inline-block',
+              }}>
+                {tempPassword}
+              </Text>
+            </Column>
+          </Row>
+
+          <Hr style={{ borderColor: '#A7F3D0', margin: '16px 0 12px' }} />
+
+          <Text style={{ margin: 0, fontSize: '13px', color: '#059669', lineHeight: '1.6' }}>
+            ⚠️ <strong>Important :</strong> Ce mot de passe est temporaire.
+            Connectez-vous et modifiez-le dès votre première connexion dans <strong>Compte → Sécurité</strong>.
+          </Text>
+        </Section>
+
         <Text style={{ margin: '0 0 8px', fontSize: '14px', color: brand.textColor, fontWeight: 600 }}>
           Ce que vous pouvez faire depuis votre portail :
         </Text>
@@ -50,15 +108,15 @@ export function Invitation({
         </Text>
 
         <Section style={{ textAlign: 'center' as const, marginBottom: '28px' }}>
-          <EmailButton href={magicLink}>
+          <EmailButton href={portailUrl}>
             Accéder à mon portail →
           </EmailButton>
         </Section>
 
         <Hr style={{ borderColor: brand.borderColor, margin: '0 0 16px' }} />
         <Text style={{ margin: 0, fontSize: '12px', color: brand.mutedColor, textAlign: 'center' as const, lineHeight: '1.6' }}>
-          Ce lien expire dans 24 heures.{'\n'}
-          Si vous n&apos;attendiez pas cet email, ignorez-le.
+          Si vous n&apos;attendiez pas cet email, ignorez-le.{'\n'}
+          Pour toute question, contactez directement {cabinetNom}.
         </Text>
       </EmailBody>
     </EmailBase>

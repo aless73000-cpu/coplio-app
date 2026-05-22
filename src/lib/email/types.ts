@@ -121,7 +121,10 @@ export interface InvitationProps {
   nom: string
   cabinetNom: string
   nomCopropriete: string
-  magicLink: string
+  /** Mot de passe temporaire généré à la création du compte */
+  tempPassword: string
+  /** URL du portail pour se connecter */
+  portailUrl: string
 }
 
 export interface AppelChargesProps {

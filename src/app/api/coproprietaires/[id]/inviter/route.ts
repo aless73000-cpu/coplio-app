@@ -3,6 +3,18 @@ import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
 import { captureException } from '@/lib/monitoring'
 
+/** Génère un mot de passe temporaire de 12 caractères sans ambiguïtés (0/O/1/I/l) */
+function generateTempPassword(): string {
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+  const lower = 'abcdefghjkmnpqrstuvwxyz'
+  const digits = '23456789'
+  const all = upper + lower + digits
+  const pick = (set: string) => set[Math.floor(Math.random() * set.length)]
+  const required = [pick(upper), pick(upper), pick(lower), pick(lower), pick(digits), pick(digits)]
+  const extra = Array.from({ length: 6 }, () => pick(all))
+  return [...required, ...extra].sort(() => Math.random() - 0.5).join('')
+}
+
 export async function POST(
   _request: Request,
   { params }: { params: { id: string } }
@@ -28,7 +40,7 @@ export async function POST(
     // Récupérer le copropriétaire
     const { data: copro } = await admin
       .from('coproprietaires')
-      .select('id, prenom, nom, email, portail_actif')
+      .select('id, prenom, nom, email, profile_id, portail_actif')
       .eq('id', params.id)
       .eq('cabinet_id', syndicProfile.cabinet_id)
       .single()
@@ -59,71 +71,96 @@ export async function POST(
       .single()
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
-    const redirectTo = `${appUrl}/api/auth/callback?next=/accueil`
+    const portailUrl = `${appUrl}/portail`
 
-    // Générer le lien d'invitation via Supabase Admin
-    // Essai 1 : invite (nouvel utilisateur)
-    let { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
-      type: 'invite',
-      email: copro.email,
-      options: {
-        data: {
-          role: 'owner_resident',
-          coproprietaire_id: copro.id,
-          cabinet_id: syndicProfile.cabinet_id,
-          lot_id: lotId ?? null,
-          prenom: copro.prenom,
-          nom: copro.nom,
-        },
-        redirectTo,
-      },
-    })
+    // Générer le mot de passe temporaire
+    const tempPassword = generateTempPassword()
 
-    // Essai 2 : magiclink si l'email est déjà enregistré
-    // On passe les mêmes métadonnées pour que le callback puisse identifier l'invitation
-    if (linkError?.code === 'email_exists' || linkError?.status === 422) {
-      ;({ data: linkData, error: linkError } = await admin.auth.admin.generateLink({
-        type: 'magiclink',
-        email: copro.email,
-        options: {
-          redirectTo,
-          data: {
-            role: 'owner_resident',
-            coproprietaire_id: copro.id,
-            cabinet_id: syndicProfile.cabinet_id,
-            lot_id: lotId ?? null,
+    // Créer ou mettre à jour l'utilisateur Supabase Auth
+    let authUserId: string | null = copro.profile_id ?? null
+
+    if (authUserId) {
+      // Utilisateur existant → mettre à jour le mot de passe
+      const { error: updateError } = await admin.auth.admin.updateUserById(authUserId, {
+        password: tempPassword,
+        email_confirm: true,
+      })
+      if (updateError) {
+        captureException(updateError, { context: 'inviter-updateUser' })
+        return NextResponse.json({ error: 'Erreur mise à jour utilisateur' }, { status: 500 })
+      }
+    } else {
+      // Chercher si un compte existe déjà avec cet email
+      const { data: existingUsers } = await admin.auth.admin.listUsers()
+      const existing = existingUsers?.users?.find(u => u.email === copro.email)
+
+      if (existing) {
+        authUserId = existing.id
+        const { error: updateError } = await admin.auth.admin.updateUserById(existing.id, {
+          password: tempPassword,
+          email_confirm: true,
+        })
+        if (updateError) {
+          captureException(updateError, { context: 'inviter-updateExistingUser' })
+          return NextResponse.json({ error: 'Erreur mise à jour utilisateur' }, { status: 500 })
+        }
+      } else {
+        // Créer un nouvel utilisateur
+        const { data: newUser, error: createError } = await admin.auth.admin.createUser({
+          email: copro.email,
+          password: tempPassword,
+          email_confirm: true,
+          user_metadata: {
             prenom: copro.prenom,
             nom: copro.nom,
+            role: 'owner_resident',
           },
-        },
-      }))
+        })
+        if (createError || !newUser?.user) {
+          captureException(createError ?? new Error('createUser returned no user'), { context: 'inviter-createUser' })
+          return NextResponse.json({ error: 'Erreur création utilisateur' }, { status: 500 })
+        }
+        authUserId = newUser.user.id
+      }
     }
 
-    if (linkError || !linkData?.properties?.action_link) {
-      captureException(linkError ?? new Error('generateLink returned no action_link'), { context: 'inviter-generateLink' })
-      return NextResponse.json({ error: 'Erreur génération du lien' }, { status: 500 })
-    }
+    // Créer ou mettre à jour le profil
+    await admin
+      .from('profiles')
+      .upsert({
+        id: authUserId,
+        prenom: copro.prenom,
+        nom: copro.nom,
+        role: 'owner_resident',
+        cabinet_id: syndicProfile.cabinet_id,
+        lot_id: lotId ?? null,
+        onboarding_complete: true,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' })
 
-    const magicLink = linkData.properties.action_link
+    // Mettre à jour le copropriétaire
+    await admin
+      .from('coproprietaires')
+      .update({
+        portail_actif: true,
+        profile_id: authUserId,
+        invitation_envoyee_at: new Date().toISOString(),
+      })
+      .eq('id', copro.id)
 
-    // Envoyer via le nouveau service email
+    // Envoyer l'email avec les identifiants
     const emailResult = await Email.invitation({
       prenom: copro.prenom,
       nom: copro.nom,
       cabinetNom: cabinet?.nom ?? 'Votre syndic',
       nomCopropriete,
-      magicLink,
+      tempPassword,
+      portailUrl,
     }, copro.email)
 
     if (!emailResult.success) {
       return NextResponse.json({ error: 'Erreur envoi email' }, { status: 500 })
     }
-
-    // Marquer l'invitation comme envoyée
-    await admin
-      .from('coproprietaires')
-      .update({ invitation_envoyee_at: new Date().toISOString() })
-      .eq('id', copro.id)
 
     return NextResponse.json({ success: true })
   } catch (err) {
