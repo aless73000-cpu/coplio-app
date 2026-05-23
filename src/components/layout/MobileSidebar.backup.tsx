@@ -7,7 +7,8 @@ import { cn } from '@/lib/utils'
 import {
   Menu, X, Home, LayoutDashboard, Building2, Users, FileText,
   AlertTriangle, CalendarDays, CreditCard, Settings, LogOut,
-  Receipt, MessageSquare, Sparkles, Calendar, Bell,
+  Receipt, MessageSquare, Sparkles, Wrench, BookOpen, Calendar,
+  UsersRound, Bell, FileUp,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -18,22 +19,30 @@ const NAV_ITEMS = [
   { label: 'Tableau de bord',   href: '/dashboard',       icon: LayoutDashboard },
   { label: 'Copropriétés',      href: '/coproprietes',    icon: Building2 },
   { label: 'Copropriétaires',   href: '/coproprietaires', icon: Users },
-  { label: 'Appels de charges', href: '/appels-charges',  icon: Receipt },
-  { label: 'Messages',          href: '/messages',        icon: MessageSquare },
+  { label: 'Assemblées',        href: '/assemblees',      icon: CalendarDays },
   { label: 'Sinistres',         href: '/sinistres',       icon: AlertTriangle },
+  { label: 'Messages',          href: '/messages',        icon: MessageSquare },
   { label: 'Documents',         href: '/documents',       icon: FileText },
+  { label: 'Assistant IA',      href: '/ia',              icon: Sparkles },
 ]
 
-const SECONDAIRE_ITEMS = [
-  { label: 'Assemblées',   href: '/assemblees', icon: CalendarDays },
-  { label: 'Impayés',      href: '/impayes',    icon: Bell },
-  { label: 'Agenda',       href: '/agenda',     icon: Calendar },
-  { label: 'Assistant IA', href: '/ia',         icon: Sparkles },
+const FINANCES_ITEMS = [
+  { label: 'Appels de charges', href: '/appels-charges',  icon: Receipt },
+  { label: 'Impayés',           href: '/impayes',         icon: CreditCard },
+]
+
+const OUTILS_ITEMS = [
+  { label: 'Agenda',             href: '/agenda',          icon: Calendar },
+  { label: 'Prestataires',       href: '/prestataires',    icon: Wrench },
+  { label: "Carnet d'entretien", href: '/carnet-entretien', icon: BookOpen },
+  { label: 'Relances auto',      href: '/relances-config', icon: Bell },
+  { label: 'Importer',           href: '/importer',        icon: FileUp },
 ]
 
 const BOTTOM_ITEMS = [
+  { label: 'Équipe',      href: '/equipe',     icon: UsersRound },
   { label: 'Paramètres',  href: '/parametres', icon: Settings },
-  { label: 'Facturation', href: '/facturation', icon: CreditCard },
+  { label: 'Facturation', href: '/facturation',icon: CreditCard },
 ]
 
 interface MobileSidebarProps {
@@ -50,6 +59,7 @@ export function MobileSidebar({ profile, cabinet, unreadMessages = 0, urgentSini
 
   useEffect(() => { setOpen(false) }, [pathname])
 
+  // Ouverture via le bouton "Plus" de la MobileBottomNav
   useEffect(() => {
     const handler = () => setOpen(true)
     document.addEventListener('open-mobile-sidebar', handler)
@@ -140,9 +150,19 @@ export function MobileSidebar({ profile, cabinet, unreadMessages = 0, urgentSini
           ))}
 
           <div className="pt-3 pb-1">
-            <p className="px-3 text-xs font-semibold text-white/30 uppercase tracking-wider">Autres</p>
+            <p className="px-3 text-xs font-semibold text-white/30 uppercase tracking-wider">Finances</p>
           </div>
-          {SECONDAIRE_ITEMS.map((item) => (
+          {FINANCES_ITEMS.map((item) => (
+            <Link key={item.href} href={item.href} className={cn('sidebar-link', isActive(item.href) && 'active')}>
+              <item.icon className="w-4 h-4 flex-shrink-0" />
+              {item.label}
+            </Link>
+          ))}
+
+          <div className="pt-3 pb-1">
+            <p className="px-3 text-xs font-semibold text-white/30 uppercase tracking-wider">Outils</p>
+          </div>
+          {OUTILS_ITEMS.map((item) => (
             <Link key={item.href} href={item.href} className={cn('sidebar-link', isActive(item.href) && 'active')}>
               <item.icon className="w-4 h-4 flex-shrink-0" />
               {item.label}
