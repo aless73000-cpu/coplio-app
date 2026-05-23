@@ -205,14 +205,14 @@ export default async function MesAssemblees() {
             return (
               <div key={ag.id} className="coplio-card border-coplio-green/20">
                 {/* Header AG */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-coplio-green-light rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Calendar className="w-6 h-6 text-coplio-green" />
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-coplio-green-light rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-coplio-green" />
                     </div>
-                    <div>
-                      <h3 className="font-bold text-coplio-text text-lg">{ag.titre}</h3>
-                      <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-coplio-text text-base sm:text-lg leading-snug">{ag.titre}</h3>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-xs sm:text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5" />
                           {new Date(ag.date_ag).toLocaleDateString('fr-FR', {
@@ -240,7 +240,7 @@ export default async function MesAssemblees() {
                       )}
                     </div>
                   </div>
-                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full flex-shrink-0 ${statusInfo.color}`}>
+                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full self-start sm:flex-shrink-0 ${statusInfo.color}`}>
                     {statusInfo.label}
                   </span>
                 </div>
@@ -299,20 +299,20 @@ export default async function MesAssemblees() {
             const pvEntry = pvUrls[ag.id]
             return (
               <div key={ag.id} className="coplio-card">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${pvEntry ? 'bg-coplio-green-light' : 'bg-coplio-bg'}`}>
                       <FileText className={`w-5 h-5 ${pvEntry ? 'text-coplio-green' : 'text-muted-foreground'}`} />
                     </div>
-                    <div>
-                      <p className="font-semibold text-coplio-text">{ag.titre}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-coplio-text truncate">{ag.titre}</p>
                       <p className="text-xs text-muted-foreground">
                         {new Date(ag.date_ag).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                         {agResolutions.length > 0 && ` · ${agResolutions.length} résolution${agResolutions.length > 1 ? 's' : ''}`}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
                     <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusInfo.color}`}>
                       {statusInfo.label}
                     </span>
@@ -353,80 +353,79 @@ function ResolutionCard({
 
   return (
     <div className={`rounded-xl border p-4 ${monVote ? 'border-coplio-green/30 bg-coplio-green-light/20' : 'border-border bg-coplio-bg'}`}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold text-muted-foreground bg-white border border-border rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
-              {index}
-            </span>
-            <h4 className="font-semibold text-coplio-text text-sm">{resolution.titre}</h4>
-          </div>
+      {/* Title + description — full width */}
+      <div className="flex items-start gap-2 mb-3">
+        <span className="text-xs font-bold text-muted-foreground bg-white border border-border rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 mt-0.5">
+          {index}
+        </span>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-semibold text-coplio-text text-sm leading-snug">{resolution.titre}</h4>
           {resolution.description && (
-            <p className="text-xs text-muted-foreground ml-7 mb-2">{resolution.description}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 mb-2">{resolution.description}</p>
           )}
-          <span className="ml-7 text-[10px] text-muted-foreground bg-white border border-border px-2 py-0.5 rounded-full">
+          <span className="text-[10px] text-muted-foreground bg-white border border-border px-2 py-0.5 rounded-full">
             {VOTE_TYPE_LABELS[resolution.type_vote]}
           </span>
         </div>
-
-        {/* Mon vote ou boutons */}
-        {monVote ? (
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full ${
-              monVote.valeur === 'pour' ? 'bg-coplio-green text-white' :
-              monVote.valeur === 'contre' ? 'bg-coplio-red text-white' :
-              'bg-gray-200 text-gray-600'
-            }`}>
-              {monVote.valeur === 'pour' && <ThumbsUp className="w-3 h-3" />}
-              {monVote.valeur === 'contre' && <ThumbsDown className="w-3 h-3" />}
-              {monVote.valeur === 'abstention' && <Minus className="w-3 h-3" />}
-              {monVote.valeur === 'pour' ? 'Pour' : monVote.valeur === 'contre' ? 'Contre' : 'Abstention'}
-            </span>
-            {peutVoter && (
-              <form action={voterAction}>
-                <input type="hidden" name="resolution_id" value={resolution.id} />
-                <input type="hidden" name="valeur" value={monVote.valeur === 'pour' ? 'contre' : 'pour'} />
-                <button type="submit" className="text-[10px] text-muted-foreground hover:text-coplio-text underline">
-                  Modifier
-                </button>
-              </form>
-            )}
-          </div>
-        ) : peutVoter ? (
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            {(['pour', 'abstention', 'contre'] as VoteValue[]).map((val) => (
-              <form key={val} action={voterAction}>
-                <input type="hidden" name="resolution_id" value={resolution.id} />
-                <input type="hidden" name="valeur" value={val} />
-                <button
-                  type="submit"
-                  title={val === 'pour' ? 'Pour' : val === 'contre' ? 'Contre' : 'Abstention'}
-                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                    val === 'pour'
-                      ? 'border-coplio-green text-coplio-green hover:bg-coplio-green hover:text-white'
-                      : val === 'contre'
-                      ? 'border-coplio-red text-coplio-red hover:bg-coplio-red hover:text-white'
-                      : 'border-gray-300 text-gray-500 hover:bg-gray-200'
-                  }`}
-                >
-                  {val === 'pour' && <ThumbsUp className="w-3 h-3" />}
-                  {val === 'contre' && <ThumbsDown className="w-3 h-3" />}
-                  {val === 'abstention' && <Minus className="w-3 h-3" />}
-                  {val === 'pour' ? 'Pour' : val === 'contre' ? 'Contre' : 'Abs.'}
-                </button>
-              </form>
-            ))}
-          </div>
-        ) : (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
-            <Lock className="w-3 h-3" /> Vote non ouvert
-          </div>
-        )}
       </div>
+
+      {/* Vote row — below title on all screens */}
+      {monVote ? (
+        <div className="flex items-center gap-2 pt-2 border-t border-border/50">
+          <span className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full ${
+            monVote.valeur === 'pour' ? 'bg-coplio-green text-white' :
+            monVote.valeur === 'contre' ? 'bg-coplio-red text-white' :
+            'bg-gray-200 text-gray-600'
+          }`}>
+            {monVote.valeur === 'pour' && <ThumbsUp className="w-3 h-3" />}
+            {monVote.valeur === 'contre' && <ThumbsDown className="w-3 h-3" />}
+            {monVote.valeur === 'abstention' && <Minus className="w-3 h-3" />}
+            {monVote.valeur === 'pour' ? 'Pour' : monVote.valeur === 'contre' ? 'Contre' : 'Abstention'}
+          </span>
+          {peutVoter && (
+            <form action={voterAction}>
+              <input type="hidden" name="resolution_id" value={resolution.id} />
+              <input type="hidden" name="valeur" value={monVote.valeur === 'pour' ? 'contre' : 'pour'} />
+              <button type="submit" className="text-[10px] text-muted-foreground hover:text-coplio-text underline">
+                Modifier
+              </button>
+            </form>
+          )}
+        </div>
+      ) : peutVoter ? (
+        <div className="flex items-center gap-2 pt-2 border-t border-border/50">
+          {(['pour', 'abstention', 'contre'] as VoteValue[]).map((val) => (
+            <form key={val} action={voterAction} className="flex-1 sm:flex-none">
+              <input type="hidden" name="resolution_id" value={resolution.id} />
+              <input type="hidden" name="valeur" value={val} />
+              <button
+                type="submit"
+                title={val === 'pour' ? 'Pour' : val === 'contre' ? 'Contre' : 'Abstention'}
+                className={`w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
+                  val === 'pour'
+                    ? 'border-coplio-green text-coplio-green hover:bg-coplio-green hover:text-white'
+                    : val === 'contre'
+                    ? 'border-coplio-red text-coplio-red hover:bg-coplio-red hover:text-white'
+                    : 'border-gray-300 text-gray-500 hover:bg-gray-200'
+                }`}
+              >
+                {val === 'pour' && <ThumbsUp className="w-3.5 h-3.5" />}
+                {val === 'contre' && <ThumbsDown className="w-3.5 h-3.5" />}
+                {val === 'abstention' && <Minus className="w-3.5 h-3.5" />}
+                <span>{val === 'pour' ? 'Pour' : val === 'contre' ? 'Contre' : 'Abstention'}</span>
+              </button>
+            </form>
+          ))}
+        </div>
+      ) : (
+        <div className="flex items-center gap-1 text-xs text-muted-foreground pt-2 border-t border-border/50">
+          <Lock className="w-3 h-3" /> Vote non ouvert
+        </div>
+      )}
 
       {/* Résultats si votes existants */}
       {total > 0 && (
-        <div className="mt-3 ml-7">
+        <div className="mt-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
             <CheckCircle2 className="w-3 h-3 text-coplio-green" />
             <span>{resolution.voix_pour} pour</span>

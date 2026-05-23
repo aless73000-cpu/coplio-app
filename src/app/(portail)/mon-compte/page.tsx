@@ -204,7 +204,7 @@ export default async function MonComptePage({
           </div>
           <div className="p-5">
             {/* Info grid */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="bg-coplio-bg rounded-xl p-4">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Numéro de lot</p>
                 <p className="font-bold text-coplio-text text-lg">Lot {lot.numero}</p>

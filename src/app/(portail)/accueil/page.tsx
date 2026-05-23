@@ -330,7 +330,7 @@ export default async function AccueilPage() {
       {/* Fonds de travaux */}
       {fondsTravaux && (
         <div className="bg-white rounded-2xl border border-coplio-blue-bg p-5 shadow-sm">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-coplio-blue-bg rounded-xl flex items-center justify-center flex-shrink-0">
                 <Landmark className="w-5 h-5 text-coplio-blue" />
@@ -341,11 +341,11 @@ export default async function AccueilPage() {
               </div>
             </div>
             {fondsTravaux.objectif_5ans && fondsTravaux.objectif_5ans > 0 && (
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground mb-2">
+              <div className="sm:text-right">
+                <p className="text-xs text-muted-foreground mb-1.5">
                   Objectif : {formatEuro(fondsTravaux.objectif_5ans)}
                 </p>
-                <div className="w-32 h-1.5 bg-coplio-blue-bg rounded-full overflow-hidden">
+                <div className="w-full sm:w-32 h-1.5 bg-coplio-blue-bg rounded-full overflow-hidden">
                   <div
                     className="h-full bg-coplio-blue rounded-full transition-all"
                     style={{ width: `${Math.min(100, Math.round(((fondsTravaux.solde_actuel ?? 0) / fondsTravaux.objectif_5ans) * 100))}%` }}

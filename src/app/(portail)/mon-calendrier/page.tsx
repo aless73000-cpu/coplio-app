@@ -148,7 +148,7 @@ export default async function MonCalendrier() {
 
       {/* Résumé rapide */}
       {upcoming.length > 0 && (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
             {
               label: 'Prochaine AG',
@@ -253,7 +253,7 @@ function EventRow({ event, isToday }: { event: CalEvent; isToday: boolean }) {
   const Icon = typeConfig.icon
 
   return (
-    <div className={`flex items-center gap-4 p-3 rounded-xl border transition-colors ${
+    <div className={`flex items-center gap-2 sm:gap-4 p-3 rounded-xl border transition-colors ${
       event.isPast
         ? 'opacity-50 bg-white border-transparent'
         : isToday

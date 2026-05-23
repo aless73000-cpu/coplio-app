@@ -183,7 +183,7 @@ export default async function MesChargesPage() {
                   const isLate = !appel.paye && new Date(appel.date_echeance) < new Date()
                   const restant = appel.montant - (appel.montant_paye ?? 0)
                   return (
-                    <div key={appel.id} className="flex items-center gap-4 px-5 py-4 hover:bg-coplio-bg/50 transition-colors">
+                    <div key={appel.id} className="flex items-center gap-3 px-4 py-3.5 hover:bg-coplio-bg/50 transition-colors">
                       {/* Status dot */}
                       <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
                         appel.paye ? 'bg-coplio-green' :
@@ -193,7 +193,7 @@ export default async function MesChargesPage() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-coplio-text">{appel.libelle}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          Envoyé le {formatDate(appel.date_appel)} · Échéance {formatDate(appel.date_echeance)}
+                          Éch. {formatDate(appel.date_echeance)}
                         </p>
                         {!appel.paye && (appel.montant_paye ?? 0) > 0 && (
                           <p className="text-xs text-coplio-amber mt-0.5">
