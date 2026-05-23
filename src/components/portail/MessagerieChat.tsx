@@ -116,7 +116,7 @@ export function MessagerieChat({ userId, conversationId: initialConvId, onConver
   return (
     <div className="flex-1 coplio-card p-0 overflow-hidden flex flex-col min-h-0">
       {/* Header */}
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-border">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
         <div className="w-9 h-9 bg-coplio-green-light rounded-xl flex items-center justify-center">
           <MessageCircle className="w-5 h-5 text-coplio-green" />
         </div>
@@ -131,7 +131,7 @@ export function MessagerieChat({ userId, conversationId: initialConvId, onConver
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {loading ? (
           <div className="flex justify-center pt-8">
             <Loader2 className="w-5 h-5 animate-spin text-coplio-green" />
@@ -152,7 +152,7 @@ export function MessagerieChat({ userId, conversationId: initialConvId, onConver
             const isOptimistic = msg.id.startsWith('opt-')
             return (
               <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[60%] rounded-2xl px-4 py-3 transition-opacity ${
+                <div className={`max-w-[80%] sm:max-w-[65%] rounded-2xl px-4 py-3 transition-opacity ${
                   isMine
                     ? 'bg-coplio-green text-white rounded-br-sm'
                     : 'bg-coplio-bg border border-border text-coplio-text rounded-bl-sm'
@@ -175,8 +175,8 @@ export function MessagerieChat({ userId, conversationId: initialConvId, onConver
       </div>
 
       {/* Input */}
-      <div className="px-6 py-4 border-t border-border bg-white">
-        <form onSubmit={handleSend} className="flex gap-3">
+      <div className="px-4 py-3 border-t border-border bg-white">
+        <form onSubmit={handleSend} className="flex gap-2">
           <input
             type="text"
             value={input}
@@ -190,12 +190,12 @@ export function MessagerieChat({ userId, conversationId: initialConvId, onConver
           <button
             type="submit"
             disabled={sending || !input.trim()}
-            className="px-5 py-3 bg-coplio-green text-white rounded-xl font-medium text-sm
+            className="px-4 py-3 bg-coplio-green text-white rounded-xl font-medium text-sm
                        hover:bg-coplio-green/90 transition-colors flex items-center gap-2 flex-shrink-0
                        disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            Envoyer
+            <span className="hidden sm:inline">Envoyer</span>
           </button>
         </form>
       </div>

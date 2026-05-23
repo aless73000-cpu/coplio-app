@@ -8,8 +8,8 @@ export default async function MesMessages() {
   if (!user) redirect('/portail')
 
   return (
-    <div className="max-w-6xl mx-auto flex flex-col" style={{ height: 'calc(100vh - 8rem)' }}>
-      <div className="mb-4 flex-shrink-0">
+    <div className="max-w-6xl mx-auto flex flex-col h-full">
+      <div className="mb-3 flex-shrink-0">
         <h1 className="text-2xl font-bold text-coplio-text">Messagerie</h1>
         <p className="text-muted-foreground text-sm mt-0.5">Échangez avec votre syndic</p>
       </div>

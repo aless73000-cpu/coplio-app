@@ -49,53 +49,75 @@ export function MessageriePortailWrapper({ userId }: Props) {
   }
 
   return (
-    <div className={`flex-1 flex gap-4 min-h-0 overflow-hidden ${showSidebar ? '' : 'flex-col'}`}>
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden gap-3">
+      {/* Mobile: onglets horizontaux scrollables */}
       {showSidebar && (
-        <div className="w-72 flex-shrink-0 coplio-card p-0 overflow-hidden flex flex-col">
-          <div className="px-4 py-3 border-b border-border">
-            <p className="text-sm font-semibold text-coplio-text">
-              Conversations ({conversations.length})
-            </p>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            {conversations.map((conv) => {
-              const isActive = conv.id === selectedId
-              return (
-                <button
-                  key={conv.id}
-                  onClick={() => setSelectedId(conv.id)}
-                  className={`w-full text-left px-4 py-3 border-b border-border last:border-0 transition-colors ${
-                    isActive ? 'bg-coplio-green-light' : 'hover:bg-coplio-bg'
-                  }`}
-                >
-                  <div className="flex items-start gap-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                      isActive ? 'bg-coplio-green' : 'bg-coplio-bg'
-                    }`}>
-                      <MessageCircle className={`w-4 h-4 ${isActive ? 'text-white' : 'text-muted-foreground'}`} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className={`text-sm font-medium truncate ${isActive ? 'text-coplio-green' : 'text-coplio-text'}`}>
-                        {conv.sujet || 'Message au syndic'}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        {formatDateTime(conv.derniere_activite)}
-                      </p>
-                    </div>
-                  </div>
-                </button>
-              )
-            })}
-          </div>
+        <div className="flex-shrink-0 md:hidden flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+          {conversations.map((conv) => (
+            <button
+              key={conv.id}
+              onClick={() => setSelectedId(conv.id)}
+              className={`flex-shrink-0 px-3 py-2 rounded-xl text-sm font-medium transition-colors border ${
+                conv.id === selectedId
+                  ? 'bg-coplio-green text-white border-coplio-green'
+                  : 'bg-white border-border text-coplio-text'
+              }`}
+            >
+              {conv.sujet || 'Message au syndic'}
+            </button>
+          ))}
         </div>
       )}
 
-      <div className="flex-1 flex flex-col min-h-0 min-w-0">
-        <MessagerieChat
-          userId={userId}
-          conversationId={selectedId}
-          onConversationCreated={handleConversationCreated}
-        />
+      {/* Desktop: layout avec sidebar à gauche */}
+      <div className={`flex-1 min-h-0 flex gap-4 overflow-hidden ${showSidebar ? 'md:flex-row' : ''}`}>
+        {showSidebar && (
+          <div className="hidden md:flex w-64 flex-shrink-0 coplio-card p-0 overflow-hidden flex-col">
+            <div className="px-4 py-3 border-b border-border">
+              <p className="text-sm font-semibold text-coplio-text">
+                Conversations ({conversations.length})
+              </p>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {conversations.map((conv) => {
+                const isActive = conv.id === selectedId
+                return (
+                  <button
+                    key={conv.id}
+                    onClick={() => setSelectedId(conv.id)}
+                    className={`w-full text-left px-4 py-3 border-b border-border last:border-0 transition-colors ${
+                      isActive ? 'bg-coplio-green-light' : 'hover:bg-coplio-bg'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                        isActive ? 'bg-coplio-green' : 'bg-coplio-bg'
+                      }`}>
+                        <MessageCircle className={`w-4 h-4 ${isActive ? 'text-white' : 'text-muted-foreground'}`} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className={`text-sm font-medium truncate ${isActive ? 'text-coplio-green' : 'text-coplio-text'}`}>
+                          {conv.sujet || 'Message au syndic'}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {formatDateTime(conv.derniere_activite)}
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        <div className="flex-1 flex flex-col min-h-0 min-w-0">
+          <MessagerieChat
+            userId={userId}
+            conversationId={selectedId}
+            onConversationCreated={handleConversationCreated}
+          />
+        </div>
       </div>
     </div>
   )
