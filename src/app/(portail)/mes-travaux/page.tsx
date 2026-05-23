@@ -2,7 +2,10 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Wrench, CheckCircle2, Plus, X, AlertTriangle, Clock, Send, HardHat, Shield, Euro } from 'lucide-react'
+import {
+  Wrench, CheckCircle2, Plus, X, AlertTriangle, Clock, Send,
+  HardHat, Shield, Euro, ChevronRight,
+} from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
 import type { Sinistre, SinistreStatus } from '@/types'
 import { SINISTRE_STATUS_LABELS } from '@/types'
@@ -40,6 +43,13 @@ const TRAVAUX_STATUT_COLORS: Record<string, string> = {
   realisation: 'bg-coplio-green-light text-coplio-green',
   reception: 'bg-coplio-green-light text-coplio-green',
   archive: 'bg-gray-100 text-gray-400',
+}
+
+const TRAVAUX_PRIORITE_COLORS: Record<string, { dot: string; label: string }> = {
+  urgente: { dot: 'bg-coplio-red', label: 'Urgente' },
+  haute: { dot: 'bg-coplio-amber', label: 'Haute' },
+  normale: { dot: 'bg-blue-400', label: 'Normale' },
+  basse: { dot: 'bg-gray-300', label: 'Basse' },
 }
 
 async function signalerProbleme(formData: FormData) {
@@ -84,8 +94,12 @@ async function signalerProbleme(formData: FormData) {
 export default async function MesTravaux({
   searchParams,
 }: {
-  searchParams: { nouveau?: string }
+  searchParams: Promise<{ tab?: string; nouveau?: string }>
 }) {
+  const params = await searchParams
+  const activeTab = params.tab === 'batiment' ? 'batiment' : 'demandes'
+  const showForm = params.nouveau === '1'
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/portail')
@@ -116,17 +130,16 @@ export default async function MesTravaux({
 
   const enCours = (sinistres ?? []).filter((s) => s.status !== 'cloture')
   const clotures = (sinistres ?? []).filter((s) => s.status === 'cloture')
-  const showForm = searchParams?.nouveau === '1'
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      {/* En-tête */}
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">Travaux & sinistres</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
-            {enCours.length} dossier{enCours.length > 1 ? 's' : ''} en cours
-            {clotures.length > 0 && ` · ${clotures.length} clôturé${clotures.length > 1 ? 's' : ''}`}
+            {enCours.length} demande{enCours.length > 1 ? 's' : ''} en cours
+            {(travauxBatiment?.length ?? 0) > 0 && ` · ${travauxBatiment?.length} chantier${(travauxBatiment?.length ?? 0) > 1 ? 's' : ''} en bâtiment`}
           </p>
         </div>
         <a
@@ -138,208 +151,271 @@ export default async function MesTravaux({
         </a>
       </div>
 
-      {/* Formulaire de signalement */}
-      {showForm && (
-        <div className="coplio-card border-coplio-green/30 bg-coplio-green-light/30">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-coplio-green rounded-xl flex items-center justify-center">
-                <Wrench className="w-5 h-5 text-white" />
+      {/* Tabs */}
+      <div className="flex items-center gap-1 bg-white border border-border rounded-xl p-1 w-fit">
+        <a
+          href="/mes-travaux"
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'demandes'
+              ? 'bg-coplio-green text-white shadow-sm'
+              : 'text-muted-foreground hover:text-coplio-text hover:bg-coplio-bg'
+          }`}
+        >
+          <Wrench className="w-3.5 h-3.5" />
+          Mes demandes
+          {enCours.length > 0 && (
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${
+              activeTab === 'demandes' ? 'bg-white/20 text-white' : 'bg-coplio-amber-bg text-coplio-amber'
+            }`}>
+              {enCours.length}
+            </span>
+          )}
+        </a>
+        <a
+          href="/mes-travaux?tab=batiment"
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'batiment'
+              ? 'bg-coplio-green text-white shadow-sm'
+              : 'text-muted-foreground hover:text-coplio-text hover:bg-coplio-bg'
+          }`}
+        >
+          <HardHat className="w-3.5 h-3.5" />
+          Travaux du bâtiment
+          {(travauxBatiment?.length ?? 0) > 0 && (
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${
+              activeTab === 'batiment' ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-600'
+            }`}>
+              {travauxBatiment?.length}
+            </span>
+          )}
+        </a>
+      </div>
+
+      {/* ── Tab: Mes demandes ─────────────────────────────────── */}
+      {activeTab === 'demandes' && (
+        <div className="space-y-6">
+          {/* Formulaire de signalement */}
+          {showForm && (
+            <div className="coplio-card border-coplio-green/30 bg-coplio-green-light/20">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-coplio-green rounded-xl flex items-center justify-center">
+                    <Wrench className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="font-semibold text-coplio-text">Signaler un problème</h2>
+                    <p className="text-xs text-muted-foreground">Votre syndic sera notifié immédiatement</p>
+                  </div>
+                </div>
+                <a href="/mes-travaux" className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/80 transition-colors">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </a>
               </div>
-              <div>
-                <h2 className="font-semibold text-coplio-text">Signaler un problème</h2>
-                <p className="text-xs text-muted-foreground">Votre syndic sera notifié immédiatement</p>
+
+              <form action={signalerProbleme} method="POST">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-coplio-text mb-1.5">
+                      Type de problème <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      name="type"
+                      required
+                      className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
+                    >
+                      <option value="">Sélectionnez...</option>
+                      {TYPE_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-coplio-text mb-1.5">
+                      Titre court <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="titre"
+                      required
+                      placeholder="Ex : Fuite sous l'évier de la cuisine"
+                      className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-coplio-text mb-1.5">
+                    Description détaillée <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="description"
+                    required
+                    rows={4}
+                    placeholder="Décrivez le problème : depuis quand, localisation précise, impact sur votre logement..."
+                    className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent resize-none"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 mb-6 p-3 bg-coplio-red-bg rounded-xl border border-coplio-red/20">
+                  <input
+                    type="checkbox"
+                    id="urgence"
+                    name="urgence"
+                    className="w-4 h-4 accent-coplio-red"
+                  />
+                  <label htmlFor="urgence" className="flex items-center gap-2 text-sm text-coplio-text cursor-pointer">
+                    <AlertTriangle className="w-4 h-4 text-coplio-red" />
+                    <span>
+                      <strong className="text-coplio-red">Urgence</strong> — Ce problème nécessite une intervention immédiate
+                    </span>
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="submit"
+                    className="flex items-center gap-2 bg-coplio-green text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+                  >
+                    <Send className="w-4 h-4" />
+                    Envoyer au syndic
+                  </button>
+                  <a href="/mes-travaux" className="text-sm text-muted-foreground hover:text-coplio-text transition-colors">
+                    Annuler
+                  </a>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {(!sinistres || sinistres.length === 0) && !showForm && (
+            <div className="coplio-card text-center py-16">
+              <div className="w-14 h-14 bg-coplio-green-light rounded-full flex items-center justify-center mx-auto mb-3">
+                <Wrench className="w-7 h-7 text-coplio-green" />
               </div>
-            </div>
-            <a href="/mes-travaux" className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white transition-colors">
-              <X className="w-4 h-4 text-muted-foreground" />
-            </a>
-          </div>
-
-          <form action={signalerProbleme} method="POST">
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-coplio-text mb-1.5">
-                  Type de problème <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="type"
-                  required
-                  className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
-                >
-                  <option value="">Sélectionnez...</option>
-                  {TYPE_OPTIONS.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-coplio-text mb-1.5">
-                  Titre court <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="titre"
-                  required
-                  placeholder="Ex : Fuite sous l'évier de la cuisine"
-                  className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-coplio-text mb-1.5">
-                Description détaillée <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                name="description"
-                required
-                rows={4}
-                placeholder="Décrivez le problème : depuis quand, localisation précise, impact sur votre logement..."
-                className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent resize-none"
-              />
-            </div>
-
-            <div className="flex items-center gap-3 mb-6 p-3 bg-coplio-red-bg rounded-xl border border-coplio-red/20">
-              <input
-                type="checkbox"
-                id="urgence"
-                name="urgence"
-                className="w-4 h-4 accent-coplio-red"
-              />
-              <label htmlFor="urgence" className="flex items-center gap-2 text-sm text-coplio-text cursor-pointer">
-                <AlertTriangle className="w-4 h-4 text-coplio-red" />
-                <span>
-                  <strong className="text-coplio-red">Urgence</strong> — Ce problème nécessite une intervention immédiate
-                </span>
-              </label>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                type="submit"
-                className="flex items-center gap-2 bg-coplio-green text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+              <p className="font-medium text-coplio-text">Aucune demande en cours</p>
+              <p className="text-sm text-muted-foreground mt-1">Vous n&apos;avez pas de dossier vous concernant.</p>
+              <a
+                href="/mes-travaux?nouveau=1"
+                className="inline-flex items-center gap-2 mt-4 text-sm font-medium text-coplio-green hover:underline"
               >
-                <Send className="w-4 h-4" />
-                Envoyer au syndic
-              </button>
-              <a href="/mes-travaux" className="text-sm text-muted-foreground hover:text-coplio-text transition-colors">
-                Annuler
+                <Plus className="w-4 h-4" /> Signaler un premier problème
               </a>
             </div>
-          </form>
-        </div>
-      )}
+          )}
 
-      {/* Travaux du bâtiment */}
-      {(travauxBatiment ?? []).length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <HardHat className="w-4 h-4 text-blue-600" />
-            <h2 className="font-semibold text-coplio-text text-sm uppercase tracking-wide">Travaux du bâtiment</h2>
-            <span className="text-xs text-muted-foreground">({(travauxBatiment?.length ?? 0)} chantier{(travauxBatiment?.length ?? 0) > 1 ? 's' : ''})</span>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {(travauxBatiment ?? []).map((t) => (
-              <div key={t.id} className="coplio-card">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1 min-w-0 pr-3">
-                    <h3 className="font-semibold text-coplio-text text-sm">{t.titre}</h3>
-                    {t.description && (
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{t.description}</p>
-                    )}
-                  </div>
-                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full flex-shrink-0 ${
-                    TRAVAUX_STATUT_COLORS[t.statut] ?? 'bg-gray-100 text-gray-600'
-                  }`}>
-                    {TRAVAUX_STATUT_LABELS[t.statut] ?? t.statut}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between pt-2 border-t border-border mt-2">
-                  {t.montant_estime ? (
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Euro className="w-3 h-3" />
-                      Budget estimé : <strong className="text-coplio-text">{formatEuro(t.montant_estime)}</strong>
-                    </span>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">Budget non défini</span>
-                  )}
-                  <span className="text-xs text-muted-foreground">{formatDate(t.created_at)}</span>
-                </div>
+          {/* En cours */}
+          {enCours.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Clock className="w-4 h-4 text-coplio-amber" />
+                <h2 className="font-semibold text-coplio-text text-sm uppercase tracking-wide">En cours</h2>
+                <span className="text-xs text-muted-foreground">({enCours.length})</span>
               </div>
-            ))}
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {enCours.map((sinistre) => (
+                  <SinistreCard key={sinistre.id} sinistre={sinistre} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Clôturés */}
+          {clotures.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <CheckCircle2 className="w-4 h-4 text-coplio-green" />
+                <h2 className="font-semibold text-muted-foreground text-sm uppercase tracking-wide">Clôturés</h2>
+                <span className="text-xs text-muted-foreground">({clotures.length})</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {clotures.map((sinistre) => (
+                  <SinistreCard key={sinistre.id} sinistre={sinistre} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Liste vide */}
-      {(!sinistres || sinistres.length === 0) && !showForm && (
-        <div className="coplio-card text-center py-16">
-          <div className="w-14 h-14 bg-coplio-green-light rounded-full flex items-center justify-center mx-auto mb-3">
-            <Wrench className="w-7 h-7 text-coplio-green" />
-          </div>
-          <p className="font-medium text-coplio-text">Aucun sinistre en cours</p>
-          <p className="text-sm text-muted-foreground mt-1">Vous n&apos;avez pas de dossier vous concernant.</p>
-          <a
-            href="/mes-travaux?nouveau=1"
-            className="inline-flex items-center gap-2 mt-4 text-sm font-medium text-coplio-green hover:underline"
-          >
-            <Plus className="w-4 h-4" /> Signaler un premier problème
-          </a>
-        </div>
-      )}
-
-      {/* Dossiers en cours */}
-      {enCours.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Clock className="w-4 h-4 text-coplio-amber" />
-            <h2 className="font-semibold text-coplio-text text-sm uppercase tracking-wide">Mes sinistres en cours</h2>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {enCours.map((sinistre) => (
-              <TravauxCard key={sinistre.id} sinistre={sinistre} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Dossiers clôturés */}
-      {clotures.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <CheckCircle2 className="w-4 h-4 text-coplio-green" />
-            <h2 className="font-semibold text-muted-foreground text-sm uppercase tracking-wide">Clôturés</h2>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {clotures.map((sinistre) => (
-              <TravauxCard key={sinistre.id} sinistre={sinistre} />
-            ))}
-          </div>
+      {/* ── Tab: Travaux du bâtiment ──────────────────────────── */}
+      {activeTab === 'batiment' && (
+        <div className="space-y-4">
+          {(!travauxBatiment || travauxBatiment.length === 0) ? (
+            <div className="coplio-card text-center py-16">
+              <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                <HardHat className="w-7 h-7 text-blue-500" />
+              </div>
+              <p className="font-medium text-coplio-text">Aucun chantier en cours</p>
+              <p className="text-sm text-muted-foreground mt-1">Votre syndic n&apos;a pas planifié de travaux pour le moment.</p>
+            </div>
+          ) : (
+            travauxBatiment.map((t) => {
+              const priorite = TRAVAUX_PRIORITE_COLORS[t.priorite ?? 'normale'] ?? TRAVAUX_PRIORITE_COLORS.normale
+              return (
+                <div key={t.id} className="coplio-card hover:shadow-sm transition-shadow">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <HardHat className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-semibold text-coplio-text">{t.titre}</h3>
+                          <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                            <span className={`w-1.5 h-1.5 rounded-full ${priorite.dot}`} />
+                            {priorite.label}
+                          </span>
+                        </div>
+                        {t.description && (
+                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{t.description}</p>
+                        )}
+                        <div className="flex items-center gap-4 mt-2 flex-wrap">
+                          {t.montant_estime && (
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Euro className="w-3 h-3" />
+                              Budget : <strong className="text-coplio-text ml-0.5">{formatEuro(t.montant_estime)}</strong>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                      <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                        TRAVAUX_STATUT_COLORS[t.statut] ?? 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {TRAVAUX_STATUT_LABELS[t.statut] ?? t.statut}
+                      </span>
+                      <span className="text-xs text-muted-foreground">{formatDate(t.created_at)}</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })
+          )}
         </div>
       )}
     </div>
   )
 }
 
-function TravauxCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom: string } | null; etapes?: { status: string; date_etape: string }[] } }) {
+/* ── Carte sinistre ─────────────────────────────────────────── */
+function SinistreCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom: string } | null } }) {
   const stepIndex = STEP_ORDER.indexOf((sinistre.status ?? 'signale') as SinistreStatus)
   const progress = Math.round(((stepIndex + 1) / STEP_ORDER.length) * 100)
   const isClosed = sinistre.status === 'cloture'
   const isUrgent = sinistre.status === 'urgence'
-
   const hasAssurance = sinistre.compagnie_assurance || sinistre.numero_declaration_assurance
-  const indemnise = sinistre.montant_indemnisation ?? 0
-  const estime = sinistre.montant_travaux_estime ?? 0
 
   return (
     <div className={`coplio-card ${isUrgent ? 'border-coplio-red/30' : ''}`}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1 min-w-0 pr-3">
-          <h3 className="font-semibold text-coplio-text">{sinistre.titre}</h3>
+          <h3 className="font-semibold text-coplio-text leading-snug">{sinistre.titre}</h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {sinistre.reference} · {sinistre.copropriete?.nom}
+            {sinistre.reference}
+            {sinistre.copropriete?.nom && ` · ${sinistre.copropriete.nom}`}
           </p>
         </div>
         <span className={`text-xs font-medium px-2.5 py-1 rounded-full flex-shrink-0 ${
@@ -352,39 +428,38 @@ function TravauxCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom:
       </div>
 
       {/* Progression */}
-      <div className="mb-4">
-        <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-          <span>Avancement</span>
-          <span className={isClosed ? 'text-coplio-green font-medium' : ''}>{progress}%</span>
+      {!isClosed && (
+        <div className="mb-4">
+          <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+            <span>Avancement</span>
+            <span>{progress}%</span>
+          </div>
+          <div className="h-1.5 bg-coplio-bg rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${isUrgent ? 'bg-coplio-red' : 'bg-coplio-green-medium'}`}
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
-        <div className="h-2 bg-coplio-bg rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all ${
-              isUrgent ? 'bg-coplio-red' : isClosed ? 'bg-coplio-green' : 'bg-coplio-green-medium'
-            }`}
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
+      )}
 
       {/* Étapes */}
-      <div className="flex items-start gap-1">
+      <div className="flex items-start gap-1 mb-3">
         {STEP_ORDER.map((step, i) => {
           const done = stepIndex >= i
-          const isCurrent = stepIndex === i
           return (
-            <div key={step} className="flex-1 flex flex-col items-center gap-1.5">
+            <div key={step} className="flex-1 flex flex-col items-center gap-1">
               <div className="relative w-full flex items-center">
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center z-10 flex-shrink-0 mx-auto ${
-                  done ? (isUrgent ? 'bg-coplio-red border-coplio-red' : 'bg-coplio-green border-coplio-green') :
-                  isCurrent ? 'border-coplio-green bg-white' :
-                  'bg-white border-border'
+                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center z-10 mx-auto flex-shrink-0 ${
+                  done
+                    ? isUrgent ? 'bg-coplio-red border-coplio-red' : 'bg-coplio-green border-coplio-green'
+                    : 'bg-white border-border'
                 }`}>
-                  {done && <CheckCircle2 className="w-3 h-3 text-white" />}
+                  {done && <CheckCircle2 className="w-2.5 h-2.5 text-white" />}
                 </div>
                 {i < STEP_ORDER.length - 1 && (
-                  <div className={`absolute left-1/2 w-full h-0.5 top-2.5 ${
-                    done && stepIndex > i ? (isUrgent ? 'bg-coplio-red' : 'bg-coplio-green') : 'bg-border'
+                  <div className={`absolute left-1/2 w-full h-0.5 top-2 ${
+                    done && stepIndex > i ? (isUrgent ? 'bg-coplio-red/50' : 'bg-coplio-green/50') : 'bg-border'
                   }`} />
                 )}
               </div>
@@ -396,14 +471,14 @@ function TravauxCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom:
         })}
       </div>
 
-      {/* Détails assurance */}
+      {/* Assurance */}
       {hasAssurance && (
-        <div className="mt-4 pt-3 border-t border-border">
-          <div className="flex items-center gap-1.5 mb-2">
+        <div className="pt-3 border-t border-border">
+          <div className="flex items-center gap-1.5 mb-1.5">
             <Shield className="w-3.5 h-3.5 text-blue-500" />
             <span className="text-xs font-semibold text-coplio-text">Assurance</span>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             {sinistre.compagnie_assurance && (
               <p className="text-xs text-muted-foreground">
                 Compagnie : <span className="text-coplio-text font-medium">{sinistre.compagnie_assurance}</span>
@@ -411,31 +486,24 @@ function TravauxCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom:
             )}
             {sinistre.numero_declaration_assurance && (
               <p className="text-xs text-muted-foreground">
-                N° déclaration : <span className="text-coplio-text font-medium">{sinistre.numero_declaration_assurance}</span>
+                N° : <span className="text-coplio-text font-medium">{sinistre.numero_declaration_assurance}</span>
               </p>
             )}
-            {estime > 0 && (
-              <p className="text-xs text-muted-foreground">
-                Montant estimé : <span className="text-coplio-text font-medium">{formatEuro(estime)}</span>
-              </p>
-            )}
-            {indemnise > 0 && (
-              <p className="text-xs text-muted-foreground">
-                Indemnisation : <span className="text-coplio-green font-semibold">{formatEuro(indemnise)}</span>
+            {(sinistre.montant_indemnisation ?? 0) > 0 && (
+              <p className="text-xs text-coplio-green font-semibold">
+                Indemnisation : {formatEuro(sinistre.montant_indemnisation!)}
               </p>
             )}
           </div>
         </div>
       )}
 
-      {sinistre.date_sinistre && (
-        <div className={`mt-3 pt-3 border-t border-border ${hasAssurance ? '' : 'mt-4'}`}>
-          <p className="text-xs text-muted-foreground">
-            Déclaré le {formatDate(sinistre.date_sinistre)}
-            {sinistre.date_cloture && ` · Clôturé le ${formatDate(sinistre.date_cloture)}`}
-          </p>
-        </div>
-      )}
+      <div className={`${hasAssurance ? 'mt-2' : 'mt-3 pt-3 border-t border-border'}`}>
+        <p className="text-xs text-muted-foreground">
+          Déclaré le {sinistre.date_sinistre ? formatDate(sinistre.date_sinistre) : '—'}
+          {isClosed && sinistre.date_cloture && ` · Clôturé le ${formatDate(sinistre.date_cloture)}`}
+        </p>
+      </div>
     </div>
   )
 }
