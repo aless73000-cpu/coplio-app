@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { CalendarDays, Plus, Users, Check, Clock, Video, MapPin } from 'lucide-react'
+import { CalendarDays, Plus, Clock, Video, MapPin, Vote } from 'lucide-react'
 import { formatDateTime, getDaysUntil } from '@/lib/utils'
 import type { AssembleeGenerale } from '@/types'
 
@@ -41,21 +41,31 @@ export default async function AssembleesPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-coplio-text">Assemblées Générales</h1>
+          <h1 className="text-2xl font-bold text-coplio-text">Assemblées Générales</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {aVenir.length} AG à venir · {passees.length} terminée{passees.length > 1 ? 's' : ''}
           </p>
         </div>
-        <Link
-          href="/assemblees/new"
-          className="flex items-center gap-2 bg-coplio-green text-white px-3 py-2 rounded-lg
-                     text-sm font-medium hover:bg-coplio-green/90 transition-colors flex-shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">Planifier une AG</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/votes"
+            className="flex items-center gap-2 border border-border text-coplio-text px-4 py-2.5 rounded-lg
+                       text-sm font-medium hover:border-coplio-green/50 hover:text-coplio-green transition-colors"
+          >
+            <Vote className="w-4 h-4" />
+            Votes en ligne
+          </Link>
+          <Link
+            href="/assemblees/new"
+            className="flex items-center gap-2 bg-coplio-green text-white px-4 py-2.5 rounded-lg
+                       text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Planifier une AG
+          </Link>
+        </div>
       </div>
 
       {/* AG à venir */}
@@ -64,7 +74,7 @@ export default async function AssembleesPage() {
           <h2 className="font-semibold text-coplio-text mb-3">À venir</h2>
           <div className="space-y-3">
             {aVenir.map((ag) => (
-              <AgCard key={ag.id} ag={ag} />
+              <AgCard key={ag.id} ag={ag as AgWithJoins} />
             ))}
           </div>
         </div>
@@ -76,7 +86,7 @@ export default async function AssembleesPage() {
           <h2 className="font-semibold text-coplio-text mb-3">Historique</h2>
           <div className="space-y-3">
             {passees.slice(0, 10).map((ag) => (
-              <AgCard key={ag.id} ag={ag} />
+              <AgCard key={ag.id} ag={ag as AgWithJoins} />
             ))}
           </div>
         </div>
@@ -103,9 +113,9 @@ export default async function AssembleesPage() {
   )
 }
 
-type AgWithCopropriete = AssembleeGenerale & { copropriete?: { nom: string } | null }
+type AgWithJoins = { id: string; titre: string; date_ag: string; status: string | null; lieu?: string | null; heure?: string | null; est_visio?: boolean | null; copropriete?: { nom: string } | null; resolutions?: { count: number }[] | null }
 
-function AgCard({ ag }: { ag: AgWithCopropriete }) {
+function AgCard({ ag }: { ag: AgWithJoins }) {
   const date = new Date(ag.date_ag)
   const isUpcoming = date >= new Date() && ag.status !== 'annulee'
   const daysUntil = getDaysUntil(ag.date_ag)

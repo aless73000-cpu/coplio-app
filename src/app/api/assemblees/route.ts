@@ -2,6 +2,7 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { withErrorHandler } from '@/lib/api-handler'
+import { logAction } from '@/lib/audit'
 
 const schema = z.object({
   copropriete_id: z.string().uuid(),
@@ -32,6 +33,16 @@ export const POST = withErrorHandler(async (request: Request) => {
     }).select().single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    await logAction(admin, {
+      cabinet_id: profile.cabinet_id,
+      user_id: user.id,
+      action: 'create',
+      entite: 'assemblee',
+      entite_id: data.id,
+      entite_nom: parsed.data.titre,
+    })
+
     return NextResponse.json(data)
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })

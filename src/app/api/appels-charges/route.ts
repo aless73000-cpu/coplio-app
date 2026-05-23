@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { Email } from '@/lib/email'
 import { withErrorHandler } from '@/lib/api-handler'
 import { captureException } from '@/lib/monitoring'
+import { logAction } from '@/lib/audit'
 
 // Augmentation du timeout Vercel pour l'envoi d'emails en batch (100 lots = ~20s)
 export const maxDuration = 60
@@ -50,6 +51,17 @@ export const POST = withErrorHandler(async (request: Request) => {
 
     // Envoyer des emails aux copropriétaires concernés (non bloquant)
     sendNotificationsCharges(admin, parsed.data.appels).catch(err => captureException(err, { context: 'appels-charges-notify' }))
+
+    // Récupérer le cabinet_id via le profil (non bloquant)
+    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
+    if (profile?.cabinet_id) {
+      await logAction(admin, {
+        cabinet_id: profile.cabinet_id, user_id: user.id,
+        action: 'create', entite: 'appel_charges',
+        entite_nom: parsed.data.appels[0]?.libelle,
+        metadata: { count: data?.length ?? 0 },
+      })
+    }
 
     return NextResponse.json({ data, count: data?.length ?? 0 })
   } catch (err) {

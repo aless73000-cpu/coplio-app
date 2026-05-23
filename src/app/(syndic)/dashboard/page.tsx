@@ -16,13 +16,10 @@ import Link from 'next/link'
 import { formatEuro, formatDate } from '@/lib/utils'
 import { RecouvrementChartLazy as RecouvrementChart, StatutChartLazy as StatutChart, EvolutionChartLazy as EvolutionChart, TauxGlobalCardLazy as TauxGlobalCard } from '@/components/syndic/DashboardChartsLazy'
 import { OnboardingChecklist } from '@/components/syndic/OnboardingChecklist'
-import dynamic from 'next/dynamic'
-const RapportMensuelButton = dynamic(
-  () => import('@/components/syndic/RapportMensuelButton').then(m => m.RapportMensuelButton),
-  { ssr: false }
-)
+import { RapportMensuelButton } from '@/components/syndic/RapportMensuelButton'
 import { TrialBanner } from '@/components/syndic/TrialBanner'
-import type { Copropriete, Sinistre, AssembleeGenerale } from '@/types'
+import { KpiCard, PerformanceSection, CoproprieteAlertRow, SinistreRow, AgRow } from '@/components/dashboard/DashboardComponents'
+import type { Copropriete } from '@/types'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -119,9 +116,7 @@ export default async function DashboardPage() {
 
   // Onboarding checklist
   const nbLots = (coproprietes ?? []).reduce((s: number, c) => s + (c.nb_lots ?? 0), 0)
-  const { count: nbCoproprietaires } = coproprieteIds.length > 0
-    ? await supabase.from('coproprietaires').select('id', { count: 'exact', head: true }).in('copropriete_id', coproprieteIds)
-    : { count: 0 }
+  const nbCoproprietaires = nbCoproprietairesTotal
   const onboardingSteps = [
     {
       id: 'copropriete',
@@ -268,28 +263,30 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Salutation */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">
             Bonjour, {profile.prenom} 👋
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
             Voici un résumé de votre activité au{' '}
-            <span className="hidden sm:inline">
-              {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-            </span>
-            <span className="sm:hidden">
-              {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-            </span>
+            {new Date().toLocaleDateString('fr-FR', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })}
           </p>
         </div>
-        <RapportMensuelButton data={{
-          coproprietes: (coproprietes ?? []) as Copropriete[],
-          totalEmis,
-          totalRecouvre,
-          tauxGlobal,
-          cabinetNom: (profile.cabinet as { nom?: string } | null)?.nom ?? 'Mon cabinet',
-        }} />
+        <div className="hidden md:block">
+          <RapportMensuelButton data={{
+            coproprietes: (coproprietes ?? []) as Copropriete[],
+            totalEmis,
+            totalRecouvre,
+            tauxGlobal,
+            cabinetNom: (profile.cabinet as { nom?: string } | null)?.nom ?? 'Mon cabinet',
+          }} />
+        </div>
       </div>
 
       {/* Trial banner */}
@@ -323,7 +320,7 @@ export default async function DashboardPage() {
               Créer une copropriété
             </Link>
             <Link
-              href="/coproprietaires/import"
+              href="/importer"
               className="inline-flex items-center gap-2 bg-coplio-bg text-coplio-text px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-border transition-colors"
             >
               Importer depuis un fichier
@@ -576,179 +573,5 @@ export default async function DashboardPage() {
         </div>
       </div>
     </div>
-  )
-}
-
-// ─── Performance cabinet ──────────────────────────────────────
-function PerformanceSection({ tauxGlobal, nbCoproprietes, nbLots }: { tauxGlobal: number; nbCoproprietes: number; nbLots: number }) {
-  const lotsParCopro = nbCoproprietes > 0 ? Math.round(nbLots / nbCoproprietes) : 0
-  const tauxColor = tauxGlobal >= 90 ? 'text-coplio-green' : tauxGlobal >= 70 ? 'text-coplio-amber' : 'text-coplio-red'
-  const tauxBg = tauxGlobal >= 90 ? 'bg-coplio-green' : tauxGlobal >= 70 ? 'bg-coplio-amber' : 'bg-coplio-red'
-
-  return (
-    <div className="coplio-card">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-semibold text-coplio-text flex items-center gap-2">
-          <BarChart2 className="w-4 h-4 text-coplio-green" />Performance du cabinet
-        </h2>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="p-4 bg-coplio-bg rounded-xl">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Taux de recouvrement</p>
-          <p className={`text-3xl font-bold mb-2 ${tauxColor}`}>{tauxGlobal}%</p>
-          <div className="h-2 bg-white rounded-full overflow-hidden">
-            <div className={`h-full rounded-full transition-all ${tauxBg}`} style={{ width: `${Math.min(100, tauxGlobal)}%` }} />
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            {tauxGlobal >= 90 ? 'Excellent — charges bien recouvrées' : tauxGlobal >= 70 ? 'Correct — des relances restent à faire' : 'À améliorer — des impayés importants en cours'}
-          </p>
-        </div>
-        <div className="p-4 bg-coplio-bg rounded-xl">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Lots par copropriété</p>
-          <p className="text-3xl font-bold text-coplio-text mb-2">{lotsParCopro}</p>
-          <div className="h-2 bg-white rounded-full overflow-hidden">
-            <div className="h-full bg-coplio-green rounded-full" style={{ width: `${Math.min(100, lotsParCopro * 2)}%` }} />
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            {nbLots} lot{nbLots > 1 ? 's' : ''} réparti{nbLots > 1 ? 's' : ''} sur {nbCoproprietes} copropriété{nbCoproprietes > 1 ? 's' : ''}
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── Composants internes ──────────────────────────────────────
-
-interface KpiCardProps {
-  title: string
-  value: string | number
-  icon: React.ElementType
-  href: string
-  color: 'green' | 'blue' | 'amber' | 'red'
-  isAmount?: boolean
-  sub?: string
-}
-
-function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }: KpiCardProps) {
-  const colors = {
-    green: 'bg-coplio-green-light text-coplio-green',
-    blue: 'bg-coplio-blue-bg text-coplio-blue',
-    amber: 'bg-coplio-amber-bg text-coplio-amber',
-    red: 'bg-coplio-red-bg text-coplio-red',
-  }
-
-  return (
-    <Link href={href} className="coplio-card hover:shadow-md transition-shadow group">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{title}</p>
-          <p className={`text-2xl font-bold mt-1 ${isAmount && typeof value === 'string' && value.includes('-') ? 'text-coplio-red' : 'text-coplio-text'}`}>
-            {value}
-          </p>
-          {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
-        </div>
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors[color]}`}>
-          <Icon className="w-5 h-5" />
-        </div>
-      </div>
-      <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground group-hover:text-coplio-green transition-colors">
-        Voir le détail <ArrowRight className="w-3 h-3" />
-      </div>
-    </Link>
-  )
-}
-
-function CoproprieteAlertRow({ copropriete }: { copropriete: Copropriete }) {
-  return (
-    <Link
-      href={`/coproprietes/${copropriete.id}`}
-      className="flex items-center justify-between p-3 rounded-lg hover:bg-coplio-bg transition-colors group"
-    >
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 bg-coplio-green-light rounded-lg flex items-center justify-center">
-          <Building2 className="w-4 h-4 text-coplio-green" />
-        </div>
-        <div>
-          <p className="text-sm font-medium text-coplio-text">{copropriete.nom}</p>
-          <p className="text-xs text-muted-foreground">
-            {copropriete.nb_lots} lots · {copropriete.ville}
-          </p>
-        </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className={
-          copropriete.statut === 'urgent' ? 'badge-urgent' :
-          copropriete.statut === 'attention' ? 'badge-attention' :
-          'badge-a-jour'
-        }>
-          {copropriete.statut === 'urgent' ? 'Urgent' :
-           copropriete.statut === 'attention' ? 'Attention' : 'À jour'}
-        </span>
-        <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-coplio-green transition-colors" />
-      </div>
-    </Link>
-  )
-}
-
-function SinistreRow({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom: string } | null } }) {
-  const statusColors: Record<string, string> = {
-    signale: 'badge-attention',
-    urgence: 'badge-urgent',
-    assurance_declaree: 'bg-blue-50 text-blue-700',
-    expertise: 'bg-purple-50 text-purple-700',
-    travaux: 'bg-orange-50 text-orange-700',
-  }
-
-  const statusLabels: Record<string, string> = {
-    signale: 'Signalé',
-    urgence: 'Urgence',
-    assurance_declaree: 'Assurance',
-    expertise: 'Expertise',
-    travaux: 'Travaux',
-  }
-
-  return (
-    <Link
-      href={`/sinistres/${sinistre.id}`}
-      className="flex items-center justify-between p-3 rounded-lg hover:bg-coplio-bg transition-colors group"
-    >
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-coplio-text truncate">{sinistre.titre}</p>
-        <p className="text-xs text-muted-foreground">
-          {sinistre.reference} · {sinistre.copropriete?.nom}
-        </p>
-      </div>
-      <span className={`ml-3 text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${statusColors[sinistre.status ?? 'signale'] || 'badge-a-jour'}`}>
-        {statusLabels[sinistre.status ?? 'signale'] || sinistre.status}
-      </span>
-    </Link>
-  )
-}
-
-function AgRow({ ag }: { ag: AssembleeGenerale & { copropriete?: { nom: string } | null } }) {
-  const date = new Date(ag.date_ag)
-  const jours = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-
-  return (
-    <Link href={`/assemblees/${ag.id}`} className="block group">
-      <div className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-coplio-bg transition-colors">
-        <div className="w-10 h-10 bg-coplio-green-light rounded-xl flex flex-col items-center justify-center flex-shrink-0">
-          <span className="text-coplio-green font-bold text-sm leading-none">
-            {date.getDate()}
-          </span>
-          <span className="text-coplio-green/70 text-[10px] uppercase">
-            {date.toLocaleDateString('fr-FR', { month: 'short' })}
-          </span>
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-coplio-text truncate">{ag.titre}</p>
-          <p className="text-xs text-muted-foreground">{ag.copropriete?.nom}</p>
-        </div>
-        <span className={`text-xs font-medium flex-shrink-0 ${jours <= 7 ? 'text-coplio-red' : 'text-muted-foreground'}`}>
-          J-{jours}
-        </span>
-      </div>
-    </Link>
   )
 }

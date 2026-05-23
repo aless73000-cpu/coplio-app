@@ -2549,6 +2549,46 @@ export type Database = {
           },
         ]
       }
+      audit_logs: {
+        Row: {
+          id: string
+          cabinet_id: string
+          user_id: string | null
+          action: string
+          entite: string
+          entite_id: string | null
+          entite_nom: string | null
+          metadata: Record<string, unknown> | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          cabinet_id: string
+          user_id?: string | null
+          action: string
+          entite: string
+          entite_id?: string | null
+          entite_nom?: string | null
+          metadata?: Record<string, unknown> | null
+          created_at?: string
+        }
+        Update: {
+          action?: string
+          entite?: string
+          entite_id?: string | null
+          entite_nom?: string | null
+          metadata?: Record<string, unknown> | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_cabinet_id_fkey"
+            columns: ["cabinet_id"]
+            isOneToOne: false
+            referencedRelation: "cabinets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

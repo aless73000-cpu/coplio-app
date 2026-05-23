@@ -331,7 +331,7 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
             <div className="grid grid-cols-2 gap-2 mb-6">
               {[
                 { emoji: '👥', label: 'Inviter des copropriétaires', href: '/coproprietaires/new' },
-                { emoji: '📄', label: 'Importer des données', href: '/coproprietaires/import' },
+                { emoji: '📄', label: 'Importer des données', href: '/importer' },
               ].map(({ emoji, label, href }) => (
                 <a
                   key={href}

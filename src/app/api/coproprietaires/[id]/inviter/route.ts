@@ -2,6 +2,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
 import { captureException } from '@/lib/monitoring'
+import { logAction } from '@/lib/audit'
 
 /** Génère un mot de passe temporaire de 12 caractères sans ambiguïtés (0/O/1/I/l) */
 function generateTempPassword(): string {
@@ -90,9 +91,13 @@ export async function POST(
         return NextResponse.json({ error: 'Erreur mise à jour utilisateur' }, { status: 500 })
       }
     } else {
-      // Chercher si un compte existe déjà avec cet email
-      const { data: existingUsers } = await admin.auth.admin.listUsers()
-      const existing = existingUsers?.users?.find(u => u.email === copro.email)
+      // Chercher si un compte existe déjà avec cet email via la table profiles (plus efficace que listUsers)
+      const { data: existingProfile } = await admin
+        .from('profiles')
+        .select('id')
+        .eq('email', copro.email)
+        .maybeSingle()
+      const existing = existingProfile ? { id: existingProfile.id } : null
 
       if (existing) {
         authUserId = existing.id
@@ -162,6 +167,15 @@ export async function POST(
     if (!emailResult.success) {
       return NextResponse.json({ error: 'Erreur envoi email' }, { status: 500 })
     }
+
+    await logAction(admin, {
+      cabinet_id: syndicProfile.cabinet_id!,
+      user_id: user.id,
+      action: 'invite',
+      entite: 'coproprietaire',
+      entite_id: copro.id,
+      entite_nom: `${copro.prenom} ${copro.nom}`,
+    })
 
     return NextResponse.json({ success: true })
   } catch (err) {

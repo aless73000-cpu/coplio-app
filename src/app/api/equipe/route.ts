@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { withErrorHandler } from '@/lib/api-handler'
 import { captureException } from '@/lib/monitoring'
+import { logAction } from '@/lib/audit'
 
 // GET — liste les membres de l'équipe du cabinet
 export const GET = withErrorHandler(async () => {
@@ -89,7 +90,6 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   )
 
   if (inviteError) {
-    // User might already exist in auth but not in our cabinet
     captureException(inviteError, { context: 'equipe-invite' })
     return NextResponse.json({ error: inviteError.message }, { status: 500 })
   }
@@ -106,6 +106,14 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       onboarding_complete: true,
     }, { onConflict: 'id' })
   }
+
+  await logAction(admin, {
+    cabinet_id: profile.cabinet_id!,
+    user_id: user.id,
+    action: 'invite',
+    entite: 'membre_equipe',
+    entite_nom: email.toLowerCase(),
+  })
 
   return NextResponse.json({ success: true, email })
 })
@@ -127,7 +135,24 @@ export const DELETE = withErrorHandler(async (request: NextRequest) => {
   }
 
   const admin = createAdminClient()
+
+  // Récupérer le nom du membre avant de le retirer
+  const { data: membre } = await admin
+    .from('profiles')
+    .select('email, prenom, nom')
+    .eq('id', memberId)
+    .eq('cabinet_id', profile.cabinet_id!)
+    .single()
+
   await admin.from('profiles').update({ cabinet_id: null, role: 'manager' }).eq('id', memberId).eq('cabinet_id', profile.cabinet_id!)
+
+  await logAction(admin, {
+    cabinet_id: profile.cabinet_id!,
+    user_id: user.id,
+    action: 'delete',
+    entite: 'membre_equipe',
+    entite_nom: membre ? `${membre.prenom ?? ''} ${membre.nom ?? ''}`.trim() || membre.email : memberId,
+  })
 
   return NextResponse.json({ success: true })
 })

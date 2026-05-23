@@ -31,34 +31,42 @@ export function RapportMensuelButton({ data }: { data: RapportData }) {
       const { jsPDF } = await import('jspdf')
       const doc = new jsPDF({ unit: 'mm', format: 'a4' })
 
-      const GREEN = '#0F6E56'
-      const TEXT = '#1C1C1A'
-      const MUTED = '#888888'
+      const TEXT   = '#1C1C1A'
+      const MUTED  = '#888888'
+      const GRAY   = '#F8F8F6'
+      const RULE   = '#E0E0DC'
+      const GREEN  = '#0F6E56'
       const PAGE_W = 210
       const MARGIN = 20
       const CONTENT_W = PAGE_W - MARGIN * 2
 
       const now = new Date()
       const monthName = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+      const today = now.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 
-      // ── Header ────────────────────────────────────────────────
-      doc.setFillColor(GREEN)
-      doc.rect(0, 0, PAGE_W, 22, 'F')
-      doc.setTextColor('#FFFFFF')
-      doc.setFontSize(13)
+      // ── Header neutre (cabinet branding) ──────────────────────
+      const H = 24
+      doc.setFillColor(GRAY)
+      doc.rect(0, 0, PAGE_W, H, 'F')
+      doc.setDrawColor(RULE)
+      doc.setLineWidth(0.4)
+      doc.line(0, H, PAGE_W, H)
+      doc.setFontSize(11)
       doc.setFont('helvetica', 'bold')
-      doc.text('COPLIO — Rapport de gestion', MARGIN, 10)
-      doc.setFontSize(9)
+      doc.setTextColor(TEXT)
+      doc.text(data.cabinetNom || 'Rapport de gestion', MARGIN, 14)
+      doc.setFontSize(8)
       doc.setFont('helvetica', 'normal')
-      doc.text(data.cabinetNom, PAGE_W - MARGIN, 10, { align: 'right' })
-      doc.text(`Généré le ${now.toLocaleDateString('fr-FR')}`, PAGE_W - MARGIN, 16, { align: 'right' })
+      doc.setTextColor(MUTED)
+      doc.text(`Généré le ${today}`, PAGE_W - MARGIN, 14, { align: 'right' })
+      doc.setTextColor(TEXT)
 
-      let y = 32
+      let y = 34
 
       // ── Titre ─────────────────────────────────────────────────
-      doc.setTextColor(TEXT)
       doc.setFontSize(16)
       doc.setFont('helvetica', 'bold')
+      doc.setTextColor(TEXT)
       doc.text(
         `Rapport ${period === 'mois' ? 'mensuel' : 'trimestriel'} — ${monthName}`,
         MARGIN, y
@@ -166,16 +174,15 @@ export function RapportMensuelButton({ data }: { data: RapportData }) {
         doc.setDrawColor('#E5E5E5')
         doc.line(MARGIN, 286, PAGE_W - MARGIN, 286)
         doc.text(
-          `Rapport Coplio · ${data.cabinetNom} · ${now.toLocaleDateString('fr-FR')} · Page ${i}/${pageCount}`,
+          `${data.cabinetNom} · ${today} · Page ${i}/${pageCount}`,
           PAGE_W / 2, 290, { align: 'center' }
         )
       }
 
-      const filename = `rapport_coplio_${now.toISOString().slice(0, 7)}.pdf`
+      const filename = `rapport_${now.toISOString().slice(0, 7)}.pdf`
       doc.save(filename)
     } catch (err) {
       console.error(err)
-      alert('Erreur lors de la génération du rapport')
     } finally {
       setLoading(false)
     }

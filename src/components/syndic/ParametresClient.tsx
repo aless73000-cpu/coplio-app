@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { User, Building2, Bell, Loader2, CheckCircle2, Users, ChevronRight, Upload, BellRing, FileUp, Database } from 'lucide-react'
+import { User, Building2, Bell, Loader2, CheckCircle2, Users, ChevronRight, Upload, BellRing, FileUp, Database, History, RefreshCw, ChevronLeft, ShieldCheck, ShieldOff, KeyRound } from 'lucide-react'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
+import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
 import type { Profile, Cabinet } from '@/types'
 
 type Props = {
@@ -50,12 +52,19 @@ export function ParametresClient({ profile }: Props) {
         body: JSON.stringify(profileData),
       })
       const data = await res.json()
-      if (!res.ok) { setProfileError(data.error ?? 'Erreur'); setProfileStatus('error'); return }
+      if (!res.ok) {
+        setProfileError(data.error ?? 'Erreur')
+        setProfileStatus('error')
+        toast.error(data.error ?? 'Erreur lors de la sauvegarde')
+        return
+      }
       setProfileStatus('success')
+      toast.success('Profil enregistré')
       setTimeout(() => setProfileStatus('idle'), 3000)
     } catch {
       setProfileError('Erreur réseau')
       setProfileStatus('error')
+      toast.error('Erreur réseau')
     }
   }
 
@@ -67,8 +76,13 @@ export function ParametresClient({ profile }: Props) {
     const res = await fetch('/api/cabinet/logo', { method: 'POST', body: fd })
     const data = await res.json()
     setLogoUploading(false)
-    if (!res.ok) { setLogoError(data.error ?? 'Erreur upload'); return }
+    if (!res.ok) {
+      setLogoError(data.error ?? 'Erreur upload')
+      toast.error(data.error ?? 'Erreur upload du logo')
+      return
+    }
     setLogoUrl(data.logo_url)
+    toast.success('Logo mis à jour')
   }
 
   async function saveCabinet() {
@@ -81,12 +95,19 @@ export function ParametresClient({ profile }: Props) {
         body: JSON.stringify(cabinetData),
       })
       const data = await res.json()
-      if (!res.ok) { setCabinetError(data.error ?? 'Erreur'); setCabinetStatus('error'); return }
+      if (!res.ok) {
+        setCabinetError(data.error ?? 'Erreur')
+        setCabinetStatus('error')
+        toast.error(data.error ?? 'Erreur lors de la sauvegarde')
+        return
+      }
       setCabinetStatus('success')
+      toast.success('Cabinet enregistré')
       setTimeout(() => setCabinetStatus('idle'), 3000)
     } catch {
       setCabinetError('Erreur réseau')
       setCabinetStatus('error')
+      toast.error('Erreur réseau')
     }
   }
 
@@ -223,8 +244,8 @@ export function ParametresClient({ profile }: Props) {
               <FileUp className="w-4 h-4 text-blue-600" />
             </div>
             <div>
-              <h2 className="font-semibold text-coplio-text text-sm">Import CSV</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Lots & copropriétaires</p>
+              <h2 className="font-semibold text-coplio-text text-sm">Import Excel</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Lots & copropriétaires en un fichier</p>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
@@ -267,7 +288,438 @@ export function ParametresClient({ profile }: Props) {
           )}
         </div>
       </section>
+
+      {/* Sécurité — 2FA */}
+      <TwoFactorSection />
+
+      {/* Historique des actions */}
+      <HistoriqueSection />
     </div>
+  )
+}
+
+// ─── Two-Factor Authentication Section ───────────────────────
+
+type MfaStep = 'idle' | 'enrolling' | 'verifying' | 'disabling'
+
+function TwoFactorSection() {
+  const [step, setStep]         = useState<MfaStep>('idle')
+  const [enabled, setEnabled]   = useState<boolean | null>(null)  // null = loading
+  const [factorId, setFactorId] = useState('')
+  const [qrUri, setQrUri]       = useState('')       // otpauth:// URI for manual entry
+  const [qrSecret, setQrSecret] = useState('')       // base32 secret
+  const [code, setCode]         = useState('')
+  const [loading, setLoading]   = useState(false)
+  const [error, setError]       = useState('')
+  const codeInputRef            = useRef<HTMLInputElement>(null)
+
+  // Check current 2FA status on mount
+  useEffect(() => {
+    async function checkMfa() {
+      const supabase = createClient()
+      const { data } = await supabase.auth.mfa.listFactors()
+      const verified = data?.totp?.find(f => f.status === 'verified')
+      if (verified) {
+        setFactorId(verified.id)
+        setEnabled(true)
+      } else {
+        setEnabled(false)
+      }
+    }
+    checkMfa()
+  }, [])
+
+  async function startEnroll() {
+    setLoading(true)
+    setError('')
+    try {
+      const supabase = createClient()
+      const { data, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp', issuer: 'Coplio' })
+      if (enrollErr || !data) {
+        setError(enrollErr?.message ?? 'Erreur lors de l\'activation.')
+        return
+      }
+      setFactorId(data.id)
+      setQrUri(data.totp.uri)
+      setQrSecret(data.totp.secret)
+      setStep('verifying')
+      setTimeout(() => codeInputRef.current?.focus(), 150)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function verifyEnroll() {
+    if (code.length !== 6) { setError('Le code doit comporter 6 chiffres.'); return }
+    setLoading(true)
+    setError('')
+    try {
+      const supabase = createClient()
+      const { data: challengeData, error: cErr } = await supabase.auth.mfa.challenge({ factorId })
+      if (cErr || !challengeData) { setError('Impossible de générer le défi.'); return }
+      const { error: vErr } = await supabase.auth.mfa.verify({
+        factorId, challengeId: challengeData.id, code,
+      })
+      if (vErr) {
+        setError('Code incorrect. Vérifiez votre application.')
+        setCode('')
+        codeInputRef.current?.focus()
+        return
+      }
+      setEnabled(true)
+      setStep('idle')
+      setCode('')
+      setQrUri('')
+      setQrSecret('')
+      toast.success('Authentification à deux facteurs activée !')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function disable2FA() {
+    setLoading(true)
+    setError('')
+    try {
+      const supabase = createClient()
+      const { error: uErr } = await supabase.auth.mfa.unenroll({ factorId })
+      if (uErr) { setError(uErr.message); return }
+      setEnabled(false)
+      setFactorId('')
+      setStep('idle')
+      toast.success('Authentification à deux facteurs désactivée.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function cancelEnroll() {
+    // If we enrolled but didn't verify, clean up (unenroll the unverified factor)
+    if (factorId) {
+      createClient().auth.mfa.unenroll({ factorId }).catch(() => {})
+    }
+    setStep('idle')
+    setCode('')
+    setError('')
+    setQrUri('')
+    setQrSecret('')
+    setFactorId('')
+  }
+
+  return (
+    <section className="coplio-card">
+      <div className="flex items-center gap-3 mb-5">
+        <div className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center">
+          <ShieldCheck className="w-4 h-4 text-purple-600" />
+        </div>
+        <div>
+          <h2 className="font-semibold text-coplio-text">Sécurité — Double authentification</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">Protégez votre compte avec un code TOTP</p>
+        </div>
+      </div>
+
+      {enabled === null ? (
+        <div className="flex justify-center py-4">
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : step === 'idle' ? (
+        <>
+          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-4 ${enabled ? 'bg-coplio-green-light text-coplio-green' : 'bg-coplio-bg text-muted-foreground'}`}>
+            {enabled
+              ? <><CheckCircle2 className="w-4 h-4 flex-shrink-0" /> 2FA activée — votre compte est protégé</>
+              : <><ShieldOff className="w-4 h-4 flex-shrink-0" /> 2FA désactivée</>
+            }
+          </div>
+
+          {error && <p className="mb-3 text-sm text-coplio-red">{error}</p>}
+
+          {enabled ? (
+            <button
+              onClick={() => setStep('disabling')}
+              className="flex items-center gap-2 text-sm font-medium text-coplio-red border border-coplio-red/30 px-4 py-2 rounded-lg hover:bg-red-50 transition-colors"
+            >
+              <ShieldOff className="w-4 h-4" /> Désactiver la 2FA
+            </button>
+          ) : (
+            <button
+              onClick={() => { setStep('enrolling'); startEnroll() }}
+              disabled={loading}
+              className="flex items-center gap-2 text-sm font-medium text-purple-600 border border-purple-200 px-4 py-2 rounded-lg hover:bg-purple-50 transition-colors disabled:opacity-60"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+              Activer la 2FA
+            </button>
+          )}
+        </>
+      ) : step === 'enrolling' ? (
+        <div className="flex justify-center py-4">
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : step === 'verifying' ? (
+        <div className="space-y-4">
+          <p className="text-sm text-coplio-text">
+            Scannez le QR code dans votre application d&apos;authentification (Google Authenticator, Authy, etc.), puis entrez le code à 6 chiffres affiché.
+          </p>
+
+          {/* QR code via Google Charts API */}
+          {qrUri && (
+            <div className="flex flex-col items-center gap-3 py-2">
+              <div className="p-3 bg-white border-2 border-border rounded-xl inline-block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(qrUri)}`}
+                  alt="QR code 2FA"
+                  width={160}
+                  height={160}
+                  className="rounded"
+                />
+              </div>
+              {qrSecret && (
+                <div className="flex items-center gap-2 bg-coplio-bg border border-border rounded-lg px-3 py-2 w-full">
+                  <KeyRound className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                  <p className="text-xs font-mono text-muted-foreground flex-1 break-all select-all">{qrSecret}</p>
+                  <button
+                    type="button"
+                    onClick={() => { navigator.clipboard.writeText(qrSecret); toast.success('Clé copiée') }}
+                    className="text-xs text-coplio-green hover:underline flex-shrink-0"
+                  >
+                    Copier
+                  </button>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground text-center">
+                Vous pouvez aussi saisir la clé manuellement si vous ne pouvez pas scanner.
+              </p>
+            </div>
+          )}
+
+          {error && <p className="text-sm text-coplio-red">{error}</p>}
+
+          <div>
+            <label className="block text-sm font-medium text-coplio-text mb-1.5">
+              Code de vérification
+            </label>
+            <input
+              ref={codeInputRef}
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              value={code}
+              onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              placeholder="000000"
+              className="w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
+                         focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
+                         tracking-[0.4em] font-mono text-center text-lg"
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={verifyEnroll}
+              disabled={loading || code.length !== 6}
+              className="flex-1 flex items-center justify-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-60"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+              Confirmer
+            </button>
+            <button
+              onClick={cancelEnroll}
+              disabled={loading}
+              className="text-sm text-muted-foreground border border-border px-4 py-2 rounded-lg hover:text-coplio-text transition-colors"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      ) : step === 'disabling' ? (
+        <div className="space-y-4">
+          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-700 font-medium">Désactiver la double authentification ?</p>
+            <p className="text-xs text-red-600 mt-1">Votre compte sera moins sécurisé. Vous pourrez la réactiver à tout moment.</p>
+          </div>
+          {error && <p className="text-sm text-coplio-red">{error}</p>}
+          <div className="flex gap-2">
+            <button
+              onClick={disable2FA}
+              disabled={loading}
+              className="flex items-center gap-2 text-sm font-medium text-white bg-coplio-red px-4 py-2 rounded-lg hover:bg-coplio-red/90 transition-colors disabled:opacity-60"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldOff className="w-4 h-4" />}
+              Oui, désactiver
+            </button>
+            <button
+              onClick={() => { setStep('idle'); setError('') }}
+              disabled={loading}
+              className="text-sm text-muted-foreground border border-border px-4 py-2 rounded-lg hover:text-coplio-text transition-colors"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </section>
+  )
+}
+
+// ─── Historique Section ───────────────────────────────────────
+
+interface AuditLog {
+  id: string
+  action: string
+  entite: string
+  entite_id: string | null
+  entite_nom: string | null
+  metadata: Record<string, unknown> | null
+  created_at: string
+  user: { prenom: string; nom: string } | null
+}
+
+const ACTION_LABELS: Record<string, string> = {
+  create: 'Création', update: 'Modification', delete: 'Suppression',
+  send: 'Envoi', pay: 'Paiement', invite: 'Invitation',
+  login: 'Connexion', status_change: 'Statut modifié', upload: 'Fichier ajouté', export: 'Export',
+}
+
+const ENTITE_LABELS: Record<string, string> = {
+  copropriete: 'Copropriété', lot: 'Lot', coproprietaire: 'Copropriétaire',
+  appel_charges: 'Appel de charges', paiement: 'Paiement', sinistre: 'Sinistre',
+  assemblee: 'Assemblée', document: 'Document', message: 'Message',
+  membre_equipe: 'Équipe', vote: 'Vote', budget: 'Budget',
+}
+
+const ACTION_COLORS: Record<string, string> = {
+  create: 'bg-coplio-green-light text-coplio-green',
+  update: 'bg-blue-50 text-blue-600',
+  delete: 'bg-red-50 text-red-600',
+  send:   'bg-purple-50 text-purple-600',
+  pay:    'bg-coplio-green-light text-coplio-green',
+  invite: 'bg-amber-50 text-amber-600',
+  status_change: 'bg-blue-50 text-blue-600',
+  upload: 'bg-coplio-bg text-muted-foreground',
+  export: 'bg-coplio-bg text-muted-foreground',
+}
+
+function HistoriqueSection() {
+  const [logs,    setLogs]    = useState<AuditLog[]>([])
+  const [total,   setTotal]   = useState(0)
+  const [loading, setLoading] = useState(false)
+  const [page,    setPage]    = useState(0)
+  const [open,    setOpen]    = useState(false)
+  const LIMIT = 20
+
+  const load = useCallback(async (p = 0) => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/audit-logs?limit=${LIMIT}&offset=${p * LIMIT}`)
+      const data = await res.json()
+      setLogs(data.logs ?? [])
+      setTotal(data.total ?? 0)
+      setPage(p)
+    } catch {
+      toast.error('Impossible de charger l\'historique')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (open) load(0)
+  }, [open, load])
+
+  return (
+    <section className="coplio-card">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-coplio-bg rounded-xl flex items-center justify-center">
+            <History className="w-4 h-4 text-muted-foreground" />
+          </div>
+          <div className="text-left">
+            <h2 className="font-semibold text-coplio-text">Historique des actions</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Audit trail de votre cabinet</p>
+          </div>
+        </div>
+        <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${open ? 'rotate-90' : ''}`} />
+      </button>
+
+      {open && (
+        <div className="mt-5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs text-muted-foreground">{total} action{total > 1 ? 's' : ''} au total</p>
+            <button
+              onClick={() => load(page)}
+              disabled={loading}
+              className="flex items-center gap-1 text-xs text-coplio-green hover:underline disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+              Actualiser
+            </button>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : logs.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">Aucune action enregistrée</p>
+          ) : (
+            <>
+              <div className="space-y-2">
+                {logs.map((log) => (
+                  <div key={log.id} className="flex items-start gap-3 py-2 border-b border-border last:border-0">
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5 ${ACTION_COLORS[log.action] ?? 'bg-coplio-bg text-muted-foreground'}`}>
+                      {ACTION_LABELS[log.action] ?? log.action}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-coplio-text">
+                        <span className="font-medium">{ENTITE_LABELS[log.entite] ?? log.entite}</span>
+                        {log.entite_nom && <span className="text-muted-foreground"> — {log.entite_nom}</span>}
+                      </p>
+                      {log.user && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          par {log.user.prenom} {log.user.nom}
+                        </p>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground flex-shrink-0">
+                      {new Date(log.created_at).toLocaleDateString('fr-FR', {
+                        day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {total > LIMIT && (
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
+                  <button
+                    onClick={() => load(page - 1)}
+                    disabled={page === 0 || loading}
+                    className="flex items-center gap-1 text-sm text-muted-foreground hover:text-coplio-text disabled:opacity-40 transition-colors"
+                  >
+                    <ChevronLeft className="w-4 h-4" /> Précédent
+                  </button>
+                  <span className="text-xs text-muted-foreground">
+                    {page * LIMIT + 1}–{Math.min((page + 1) * LIMIT, total)} / {total}
+                  </span>
+                  <button
+                    onClick={() => load(page + 1)}
+                    disabled={(page + 1) * LIMIT >= total || loading}
+                    className="flex items-center gap-1 text-sm text-muted-foreground hover:text-coplio-text disabled:opacity-40 transition-colors"
+                  >
+                    Suivant <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </section>
   )
 }
 

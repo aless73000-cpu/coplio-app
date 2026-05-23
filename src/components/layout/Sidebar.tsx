@@ -11,7 +11,6 @@ import {
   AlertTriangle,
   CalendarDays,
   CreditCard,
-  AlertCircle,
   Settings,
   LogOut,
   Home,
@@ -23,7 +22,7 @@ import {
   Sparkles,
   BookOpen,
   Bell,
-  Vote,
+  FileUp,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -43,13 +42,16 @@ const NAV_ITEMS = [
   { label: 'Copropriétés',      href: '/coproprietes',   icon: Building2 },
   { label: 'Copropriétaires',   href: '/coproprietaires',icon: Users },
   { label: 'Assemblées',        href: '/assemblees',     icon: CalendarDays },
-  { label: 'Votes',             href: '/votes',          icon: Vote },
-  { label: 'Appels de charges', href: '/appels-charges', icon: Receipt },
-  { label: 'Impayés',           href: '/impayes',        icon: AlertCircle },
   { label: 'Sinistres',         href: '/sinistres',      icon: AlertTriangle },
   { label: 'Messages',          href: '/messages',       icon: MessageSquare },
   { label: 'Documents',         href: '/documents',      icon: FileText },
   { label: 'Assistant IA',      href: '/ia',             icon: Sparkles },
+]
+
+// Finances — regroupées pour ne pas noyer le nav principal
+const FINANCES_ITEMS = [
+  { label: 'Appels de charges', href: '/appels-charges', icon: Receipt },
+  { label: 'Impayés',           href: '/impayes',        icon: CreditCard },
 ]
 
 // Outils — accès secondaire, visible mais moins mis en avant
@@ -58,6 +60,7 @@ const OUTILS_ITEMS = [
   { label: 'Prestataires',      href: '/prestataires',    icon: Wrench },
   { label: "Carnet d'entretien",href: '/carnet-entretien', icon: BookOpen },
   { label: 'Relances auto',     href: '/relances-config', icon: Bell },
+  { label: 'Importer',          href: '/importer',        icon: FileUp },
 ]
 
 const BOTTOM_ITEMS = [
@@ -173,6 +176,21 @@ export function Sidebar({ profile, cabinet, unreadMessages: initialUnread = 0, u
                 {urgentSinistres > 9 ? '9+' : urgentSinistres}
               </span>
             )}
+          </Link>
+        ))}
+
+        {/* Séparateur Finances */}
+        <div className="pt-3 pb-1">
+          <p className="px-3 text-xs font-semibold text-white/30 uppercase tracking-wider">Finances</p>
+        </div>
+        {FINANCES_ITEMS.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn('sidebar-link', isActive(item.href) && 'active')}
+          >
+            <item.icon className="w-4 h-4 flex-shrink-0" />
+            {item.label}
           </Link>
         ))}
 

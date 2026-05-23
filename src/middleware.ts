@@ -125,6 +125,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
+  // 2FA : vérifier que le niveau d'assurance est suffisant
+  const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+  if (aalData?.nextLevel === 'aal2' && aalData?.currentLevel === 'aal1') {
+    const redirectUrl = new URL('/login', request.url)
+    redirectUrl.searchParams.set('mfa_required', '1')
+    return NextResponse.redirect(redirectUrl)
+  }
+
   return supabaseResponse
 }
 

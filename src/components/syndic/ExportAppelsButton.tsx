@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Download, FileText, ChevronDown } from 'lucide-react'
+import { Download, FileText, ChevronDown, BookOpen, Loader2 } from 'lucide-react'
 import { exportCSV, exportPDF } from '@/lib/export'
 import { formatEuro, formatDate, getOverdueDays } from '@/lib/utils'
+import { toast } from 'sonner'
 
 interface Appel {
   id: string
@@ -23,6 +24,29 @@ interface ExportAppelsButtonProps {
 
 export function ExportAppelsButton({ appels }: ExportAppelsButtonProps) {
   const [open, setOpen] = useState(false)
+  const [fecLoading, setFecLoading] = useState(false)
+
+  async function handleFEC() {
+    setOpen(false)
+    setFecLoading(true)
+    try {
+      const annee = new Date().getFullYear()
+      const res = await fetch(`/api/exports/fec?annee=${annee}`)
+      if (!res.ok) throw new Error('Erreur export FEC')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `FEC_${annee}.txt`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success('Export FEC téléchargé')
+    } catch {
+      toast.error('Erreur lors de l\'export FEC')
+    } finally {
+      setFecLoading(false)
+    }
+  }
 
   function handleCSV() {
     setOpen(false)
@@ -81,22 +105,46 @@ export function ExportAppelsButton({ appels }: ExportAppelsButtonProps) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-border rounded-xl shadow-lg z-10 overflow-hidden">
-          <button
-            onClick={handleCSV}
-            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-coplio-bg transition-colors text-left"
-          >
-            <Download className="w-3.5 h-3.5 text-muted-foreground" />
-            Export CSV
-          </button>
-          <button
-            onClick={handlePDF}
-            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-coplio-bg transition-colors text-left"
-          >
-            <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-            Export PDF
-          </button>
-        </div>
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 top-full mt-1 w-52 bg-white border border-border rounded-xl shadow-lg z-20 overflow-hidden">
+            <p className="px-3 pt-2 pb-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Exporter</p>
+            <button
+              onClick={handleCSV}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-coplio-bg transition-colors text-left"
+            >
+              <Download className="w-3.5 h-3.5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-coplio-text">CSV</p>
+                <p className="text-[11px] text-muted-foreground">Tableau Excel / Sheets</p>
+              </div>
+            </button>
+            <button
+              onClick={handlePDF}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-coplio-bg transition-colors text-left"
+            >
+              <FileText className="w-3.5 h-3.5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-coplio-text">PDF</p>
+                <p className="text-[11px] text-muted-foreground">Document imprimable</p>
+              </div>
+            </button>
+            <div className="border-t border-border" />
+            <button
+              onClick={handleFEC}
+              disabled={fecLoading}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-coplio-bg transition-colors text-left disabled:opacity-60"
+            >
+              {fecLoading
+                ? <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
+                : <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />}
+              <div>
+                <p className="font-medium text-coplio-text">FEC</p>
+                <p className="text-[11px] text-muted-foreground">Comptabilité DGFiP</p>
+              </div>
+            </button>
+          </div>
+        </>
       )}
     </div>
   )

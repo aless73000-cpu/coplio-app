@@ -74,9 +74,10 @@ export default function VotesPage() {
     setVotes(Array.isArray(votesData) ? votesData : [])
     const copros = Array.isArray(coprosData) ? coprosData : (coprosData?.data ?? [])
     setCoproprietes(copros)
-    if (copros.length > 0 && !coproprieteId) setCoproprieteId(copros[0].id)
+    // Forme fonctionnelle pour ne pas dépendre de coproprieteId dans les deps
+    setCoproprieteId(prev => prev || copros[0]?.id || '')
     setLoading(false)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => { load() }, [load])
 

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { withErrorHandler } from '@/lib/api-handler'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { captureException } from '@/lib/monitoring'
+import { logAction } from '@/lib/audit'
 
 export const POST = withErrorHandler(async (request: Request) => {
   try {
@@ -106,6 +107,16 @@ export const POST = withErrorHandler(async (request: Request) => {
         }
       } catch { /* non bloquant */ }
     }
+
+    await logAction(admin, {
+      cabinet_id: profile.cabinet_id,
+      user_id: user.id,
+      action: 'upload',
+      entite: 'document',
+      entite_id: doc.id,
+      entite_nom: nom,
+      metadata: { categorie, taille_bytes: file.size },
+    })
 
     return NextResponse.json(doc)
   } catch (err) {

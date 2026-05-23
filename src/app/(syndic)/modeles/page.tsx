@@ -1,11 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import {
   FileText, Download, Loader2, ChevronRight, Mail,
   FileStack, Scale, AlertTriangle, CalendarDays,
 } from 'lucide-react'
 import { DocTabs } from '@/components/syndic/DocTabs'
+
+// ─── Types ────────────────────────────────────────────────────
+
+interface CabinetInfo {
+  nom: string
+  adresse?: string
+  logo_url?: string | null
+}
 
 // ─── Template definitions ─────────────────────────────────────
 
@@ -87,119 +96,148 @@ const TEMPLATES = [
 
 type TemplateId = typeof TEMPLATES[number]['id']
 
+// ─── Logo loader ──────────────────────────────────────────────
+// Converts an image URL to base64 via a canvas element (browser only)
+
+async function urlToBase64(url: string): Promise<{ data: string; mime: string } | null> {
+  try {
+    const res = await fetch(url)
+    if (!res.ok) return null
+    const blob = await res.blob()
+    const mime = blob.type || 'image/png'
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const result = reader.result as string
+        // result is "data:image/png;base64,XXXX" — extract just the base64 part
+        const base64 = result.split(',')[1] ?? ''
+        resolve({ data: base64, mime })
+      }
+      reader.onerror = () => resolve(null)
+      reader.readAsDataURL(blob)
+    })
+  } catch {
+    return null
+  }
+}
+
 // ─── PDF generation ───────────────────────────────────────────
 
-async function generatePDF(templateId: TemplateId, values: Record<string, string>) {
+async function generatePDF(
+  templateId: TemplateId,
+  values: Record<string, string>,
+  logo: { data: string; mime: string } | null,
+) {
   const { jsPDF } = await import('jspdf')
   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
 
-  const GREEN = '#0F6E56'
-  const TEXT = '#1C1C1A'
-  const MUTED = '#888'
-  const PAGE_W = 210
-  const MARGIN = 20
+  const DARK  = '#1C1C1A'
+  const MUTED = '#888888'
+  const ACCENT = '#0F6E56'
+  const PAGE_W  = 210
+  const MARGIN  = 20
   const CONTENT_W = PAGE_W - MARGIN * 2
   const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 
+  // ── Neutral header ────────────────────────────────────────────
+  // Height adapts: 22 mm without logo, 30 mm with logo
   function addHeader() {
-    const H = 26
+    const LOGO_H = 18   // logo height in mm (max)
+    const LOGO_W = 40   // logo max width in mm
+    const hasLogo = !!logo
 
-    // ── Bande verte principale ──────────────────────────────────
-    doc.setFillColor(GREEN)
+    const H = hasLogo ? 30 : 22
+
+    // Light background for header area
+    doc.setFillColor('#F8F8F6')
     doc.rect(0, 0, PAGE_W, H, 'F')
 
-    // Lisière inférieure plus sombre — donne de la profondeur
-    doc.setFillColor('#0a5244')
-    doc.rect(0, H - 2, PAGE_W, 2, 'F')
+    // Bottom rule
+    doc.setDrawColor('#D8D8D4')
+    doc.setLineWidth(0.4)
+    doc.line(0, H, PAGE_W, H)
 
-    // ── Logo mark : carré blanc arrondi + icône maison ─────────
-    const lx = MARGIN, ly = 6, ls = 14
-    doc.setFillColor('#FFFFFF')
-    doc.roundedRect(lx, ly, ls, ls, 3, 3, 'F')
-
-    // Icône maison (style Lucide Home) tracée en vert
-    doc.setDrawColor(GREEN)
-    doc.setLineWidth(0.75)
-    const cx = lx + ls / 2          // 27 — axe de symétrie
-
-    // Toit : pente gauche + pente droite
-    const roofTop  = ly + 2          // y=8
-    const roofBase = ly + 6.5        // y=12.5
-    doc.line(lx + 2.5, roofBase, cx, roofTop)           // pente gauche
-    doc.line(cx, roofTop, lx + ls - 2.5, roofBase)      // pente droite
-
-    // Corps de la maison (trois côtés — ouvert en haut)
-    const bodyL = lx + 3.5           // x=23.5
-    const bodyR = lx + ls - 3.5      // x=30.5
-    const bodyB = ly + ls - 2        // y=18
-    doc.line(bodyL, roofBase, bodyL, bodyB)              // mur gauche
-    doc.line(bodyR, roofBase, bodyR, bodyB)              // mur droit
-    doc.line(bodyL, bodyB, bodyR, bodyB)                 // sol
-
-    // Porte (centrée, ouverte en bas)
-    const dW = 3, dH = 3.5
-    const dX = cx - dW / 2           // x=25.5
-    const dY = bodyB - dH            // y=14.5
-    doc.line(dX, dY, dX, bodyB)                         // jambage gauche
-    doc.line(dX + dW, dY, dX + dW, bodyB)               // jambage droit
-    doc.line(dX, dY, dX + dW, dY)                       // linteau
-
-    // ── Wordmark "Coplio" ───────────────────────────────────────
-    doc.setTextColor('#FFFFFF')
-    doc.setFontSize(15)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Coplio', lx + ls + 5, ly + 9.8)
-
-    // ── Nom du cabinet — aligné à droite, ton atténué ──────────
-    if (values.cabinetNom) {
-      doc.setFontSize(9)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor('#C5E8E1')
-      doc.text(values.cabinetNom, PAGE_W - MARGIN, ly + 9, { align: 'right' })
+    if (hasLogo) {
+      // Draw logo on the left, vertically centered
+      const ly = (H - LOGO_H) / 2
+      try {
+        doc.addImage(logo.data, logo.mime.replace('image/', '').toUpperCase(), MARGIN, ly, LOGO_W, LOGO_H, undefined, 'FAST')
+      } catch {
+        // If image fails, fall back to text
+        doc.setFontSize(11)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(DARK)
+        doc.text(values.cabinetNom || '', MARGIN, H / 2 + 2)
+      }
+      // Cabinet name on the right side, vertically centered
+      if (values.cabinetNom) {
+        doc.setFontSize(9)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(MUTED)
+        doc.text(values.cabinetNom, PAGE_W - MARGIN, H / 2 + 1.5, { align: 'right' })
+      }
+    } else {
+      // No logo: just the cabinet name, bold, left-aligned
+      if (values.cabinetNom) {
+        doc.setFontSize(11)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(DARK)
+        doc.text(values.cabinetNom, MARGIN, H / 2 + 2)
+      }
+      // Optional: cabinet address in small text on the right
+      if (values.cabinetAdresse) {
+        doc.setFontSize(8)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(MUTED)
+        doc.text(values.cabinetAdresse, PAGE_W - MARGIN, H / 2 + 2, { align: 'right' })
+      }
     }
 
-    doc.setTextColor(TEXT)
+    doc.setTextColor(DARK)
+    return H  // return header height so callers can offset y
   }
 
   function addFooter(pageNum: number) {
     const FY = 285
-    doc.setDrawColor('#DEDEDE')
+    doc.setDrawColor('#E0E0DC')
     doc.setLineWidth(0.3)
     doc.line(MARGIN, FY, PAGE_W - MARGIN, FY)
     doc.setFontSize(7.5)
-    doc.setTextColor('#AAAAAA')
-    doc.text(`Coplio · ${today}`, MARGIN, FY + 5)
+    doc.setTextColor(MUTED)
+    doc.text(today, MARGIN, FY + 5)
     doc.text(`Page ${pageNum}`, PAGE_W - MARGIN, FY + 5, { align: 'right' })
-    doc.setTextColor(TEXT)
+    doc.setTextColor(DARK)
   }
 
+  // ── Templates ─────────────────────────────────────────────────
+
   if (templateId === 'convocation-ag') {
-    addHeader()
-    let y = 38
+    const headerH = addHeader()
+    let y = headerH + 12
 
     // Expéditeur
     doc.setFontSize(10)
     doc.setFont('helvetica', 'bold')
-    doc.setTextColor(TEXT)
+    doc.setTextColor(DARK)
     doc.text(values.cabinetNom || 'Cabinet syndic', MARGIN, y)
     y += 5
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(9)
     doc.setTextColor(MUTED)
     if (values.cabinetAdresse) doc.text(values.cabinetAdresse, MARGIN, y)
-    y += 6
-    doc.text(`Paris, le ${today}`, MARGIN, y)
+    y += 5
+    doc.text(`Le ${today}`, MARGIN, y)
     y += 15
 
     // Objet
     doc.setFontSize(13)
     doc.setFont('helvetica', 'bold')
-    doc.setTextColor(GREEN)
+    doc.setTextColor(ACCENT)
     doc.text(`CONVOCATION À L'ASSEMBLÉE GÉNÉRALE ${(values.typeAg || 'ORDINAIRE').toUpperCase()}`, MARGIN, y)
     y += 7
     doc.setFontSize(10)
-    doc.setTextColor(TEXT)
-    doc.text(`${values.coproprieteNom || 'Copropriété'}`, MARGIN, y)
+    doc.setTextColor(DARK)
+    doc.text(values.coproprieteNom || 'Copropriété', MARGIN, y)
     y += 12
 
     // Corps
@@ -210,29 +248,29 @@ async function generatePDF(templateId: TemplateId, values: Record<string, string
     doc.text(introLines, MARGIN, y)
     y += introLines.length * 5 + 2
 
-    // Date / heure / lieu
-    doc.setFillColor('#F7F6F2')
+    // Date / heure / lieu — encadré
+    doc.setFillColor('#F2F2EF')
     doc.roundedRect(MARGIN, y, CONTENT_W, 22, 3, 3, 'F')
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(11)
-    doc.setTextColor(GREEN)
+    doc.setTextColor(ACCENT)
     const dateStr = values.dateAg ? new Date(values.dateAg).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '—'
     doc.text(`${dateStr} à ${values.heureAg || '—'}`, MARGIN + 6, y + 9)
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
-    doc.setTextColor(TEXT)
+    doc.setTextColor(DARK)
     doc.text(`Lieu : ${values.lieuAg || '—'}`, MARGIN + 6, y + 16)
     y += 30
 
     // Ordre du jour
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(11)
-    doc.setTextColor(GREEN)
+    doc.setTextColor(ACCENT)
     doc.text('ORDRE DU JOUR', MARGIN, y)
     y += 6
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
-    doc.setTextColor(TEXT)
+    doc.setTextColor(DARK)
     const points = (values.ordreJour || '').split('\n').filter(Boolean)
     points.forEach((point, i) => {
       doc.text(`${i + 1}. ${point}`, MARGIN + 5, y)
@@ -240,35 +278,40 @@ async function generatePDF(templateId: TemplateId, values: Record<string, string
     })
     y += 8
 
-    // Signature
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
-    doc.setTextColor(TEXT)
     doc.text('Veuillez agréer, Madame, Monsieur, l\'expression de nos salutations distinguées.', MARGIN, y)
     y += 10
-    doc.text(`Le Syndic — ${values.cabinetNom || ''}`, MARGIN, y)
+    doc.setFont('helvetica', 'bold')
+    doc.text(`Le Syndic`, MARGIN, y)
+    if (values.cabinetNom) {
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(MUTED)
+      doc.text(values.cabinetNom, MARGIN + doc.getTextWidth('Le Syndic') + 4, y)
+    }
 
     addFooter(1)
 
   } else if (templateId === 'relance-impaye') {
-    addHeader()
-    let y = 38
+    const headerH = addHeader()
+    let y = headerH + 12
 
     // Expéditeur
     doc.setFontSize(10)
     doc.setFont('helvetica', 'bold')
+    doc.setTextColor(DARK)
     doc.text(values.cabinetNom || 'Cabinet syndic', MARGIN, y)
     y += 5
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(9)
     doc.setTextColor(MUTED)
     if (values.cabinetAdresse) doc.text(values.cabinetAdresse, MARGIN, y)
-    y += 6
-    doc.text(`Paris, le ${today}`, MARGIN, y)
+    y += 5
+    doc.text(`Le ${today}`, MARGIN, y)
     y += 12
 
-    // Destinataire
-    doc.setTextColor(TEXT)
+    // Destinataire (aligné à droite)
+    doc.setTextColor(DARK)
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
     if (values.destinataireNom) doc.text(values.destinataireNom, PAGE_W - MARGIN - 80, y)
@@ -283,18 +326,19 @@ async function generatePDF(templateId: TemplateId, values: Record<string, string
     // Objet / ref
     const niveauRelance = values.referenceRelance || '1ère relance'
     doc.setFont('helvetica', 'bold')
+    doc.setTextColor(DARK)
     doc.text(`Objet : ${niveauRelance} — Charges impayées — Lot ${values.lotNumero || ''}`, MARGIN, y)
     y += 4
-    doc.setDrawColor(GREEN)
+    doc.setDrawColor(ACCENT)
     doc.setLineWidth(0.5)
-    doc.line(MARGIN, y, MARGIN + 100, y)
+    doc.line(MARGIN, y, MARGIN + 110, y)
     y += 10
 
     // Corps
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
-    doc.setTextColor(TEXT)
-    const corps = `Madame, Monsieur,\n\nNous avons le regret de constater que votre compte au titre de la copropriété ${values.coproprieteNom || ''} présente un solde débiteur.\n\nNous vous rappelons que la somme de ${parseFloat(values.montant || '0').toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} était due au ${values.dateEcheance ? new Date(values.dateEcheance).toLocaleDateString('fr-FR') : '—'}.\n\nNous vous prions de bien vouloir régulariser cette situation dans les meilleurs délais en effectuant un virement au compte de la copropriété.\n\nA défaut de règlement sous 15 jours, nous nous verrons dans l'obligation d'engager les démarches contentieuses nécessaires au recouvrement de cette créance.`
+    doc.setTextColor(DARK)
+    const corps = `Madame, Monsieur,\n\nNous avons le regret de constater que votre compte au titre de la copropriété ${values.coproprieteNom || ''} présente un solde débiteur.\n\nNous vous rappelons que la somme de ${parseFloat(values.montant || '0').toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} était due au ${values.dateEcheance ? new Date(values.dateEcheance).toLocaleDateString('fr-FR') : '—'}.\n\nNous vous prions de bien vouloir régulariser cette situation dans les meilleurs délais en effectuant un virement au compte de la copropriété.\n\nÀ défaut de règlement sous 15 jours, nous nous verrons dans l'obligation d'engager les démarches contentieuses nécessaires au recouvrement de cette créance.`
 
     const lines = doc.splitTextToSize(corps, CONTENT_W)
     doc.text(lines, MARGIN, y)
@@ -311,35 +355,42 @@ async function generatePDF(templateId: TemplateId, values: Record<string, string
 
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
-    doc.setTextColor(TEXT)
+    doc.setTextColor(DARK)
     doc.text('Veuillez agréer, Madame, Monsieur, l\'expression de nos salutations distinguées.', MARGIN, y)
     y += 10
-    doc.text(`Le Syndic — ${values.cabinetNom || ''}`, MARGIN, y)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Le Syndic', MARGIN, y)
+    if (values.cabinetNom) {
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(MUTED)
+      doc.text(values.cabinetNom, MARGIN + doc.getTextWidth('Le Syndic') + 4, y)
+    }
 
     addFooter(1)
 
   } else if (templateId === 'courrier-syndic') {
-    addHeader()
-    let y = 38
+    const headerH = addHeader()
+    let y = headerH + 12
 
     doc.setFontSize(10)
     doc.setFont('helvetica', 'bold')
+    doc.setTextColor(DARK)
     doc.text(values.cabinetNom || 'Cabinet syndic', MARGIN, y)
     y += 5
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(9)
     doc.setTextColor(MUTED)
     if (values.cabinetAdresse) doc.text(values.cabinetAdresse, MARGIN, y)
-    y += 6
-    doc.text(`Paris, le ${today}`, MARGIN, y)
+    y += 5
+    doc.text(`Le ${today}`, MARGIN, y)
     y += 12
 
-    doc.setTextColor(TEXT)
+    doc.setTextColor(DARK)
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(10)
     doc.text(`Objet : ${values.objet || ''}`, MARGIN, y)
     y += 4
-    doc.setDrawColor(GREEN)
+    doc.setDrawColor(ACCENT)
     doc.setLineWidth(0.5)
     doc.line(MARGIN, y, MARGIN + 120, y)
     y += 10
@@ -350,24 +401,27 @@ async function generatePDF(templateId: TemplateId, values: Record<string, string
     doc.text(bodyLines, MARGIN, y)
     y += bodyLines.length * 5 + 15
 
+    doc.setTextColor(DARK)
+    doc.setFont('helvetica', 'bold')
     doc.text(values.signataireNom || '', MARGIN, y)
     y += 5
+    doc.setFont('helvetica', 'normal')
     doc.setTextColor(MUTED)
     doc.text(values.signataireTitre || '', MARGIN, y)
 
     addFooter(1)
 
   } else if (templateId === 'pv-ag') {
-    addHeader()
-    let y = 38
+    const headerH = addHeader()
+    let y = headerH + 12
 
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
-    doc.setTextColor(GREEN)
+    doc.setTextColor(ACCENT)
     doc.text('PROCÈS-VERBAL D\'ASSEMBLÉE GÉNÉRALE', PAGE_W / 2, y, { align: 'center' })
     y += 7
     doc.setFontSize(11)
-    doc.setTextColor(TEXT)
+    doc.setTextColor(DARK)
     doc.text(values.coproprieteNom || '', PAGE_W / 2, y, { align: 'center' })
     y += 4
     doc.setFontSize(9)
@@ -377,11 +431,11 @@ async function generatePDF(templateId: TemplateId, values: Record<string, string
     y += 12
 
     // Quorum
-    doc.setFillColor('#F7F6F2')
+    doc.setFillColor('#F2F2EF')
     doc.roundedRect(MARGIN, y, CONTENT_W, 28, 3, 3, 'F')
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(10)
-    doc.setTextColor(TEXT)
+    doc.setTextColor(DARK)
     doc.text('QUORUM', MARGIN + 6, y + 7)
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(9)
@@ -394,23 +448,25 @@ async function generatePDF(templateId: TemplateId, values: Record<string, string
 
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
-    doc.setTextColor(TEXT)
+    doc.setTextColor(DARK)
     doc.text('L\'assemblée générale a délibéré sur les points suivants :', MARGIN, y)
     y += 10
 
     doc.setTextColor(MUTED)
     doc.setFontSize(9)
-    doc.text('[ Ajouter les résolutions et résultats de votes dans Coplio > Assemblées ]', MARGIN, y)
+    doc.text('[ Ajouter les résolutions et résultats de votes dans l\'espace Assemblées ]', MARGIN, y)
     y += 20
 
     // Signature area
-    doc.setDrawColor('#E5E5E5')
+    doc.setDrawColor('#D0D0CC')
+    doc.setLineWidth(0.4)
     doc.rect(MARGIN, y, 70, 25)
     doc.rect(PAGE_W - MARGIN - 70, y, 70, 25)
     doc.setFontSize(8)
     doc.setTextColor(MUTED)
     doc.text('Président de séance', MARGIN + 5, y + 5)
     doc.text('Secrétaire de séance', PAGE_W - MARGIN - 65, y + 5)
+    doc.setTextColor(DARK)
     doc.text(values.president || '', MARGIN + 5, y + 20)
     doc.text(values.secretaire || '', PAGE_W - MARGIN - 65, y + 20)
 
@@ -480,17 +536,37 @@ function Field({ field, value, onChange }: {
 
 // ─── Template card ────────────────────────────────────────────
 
-function TemplateCard({ template }: { template: typeof TEMPLATES[number] }) {
+function TemplateCard({
+  template,
+  cabinetInfo,
+  logoData,
+}: {
+  template: typeof TEMPLATES[number]
+  cabinetInfo: CabinetInfo | null
+  logoData: { data: string; mime: string } | null
+}) {
   const [expanded, setExpanded] = useState(false)
   const [values, setValues] = useState<Record<string, string>>({})
   const [generating, setGenerating] = useState(false)
+  const initializedRef = useRef(false)
+
+  // Pre-fill cabinet fields once cabinetInfo is loaded
+  useEffect(() => {
+    if (!cabinetInfo || initializedRef.current) return
+    initializedRef.current = true
+    setValues((prev) => ({
+      ...prev,
+      cabinetNom: prev.cabinetNom || cabinetInfo.nom || '',
+      cabinetAdresse: prev.cabinetAdresse || cabinetInfo.adresse || '',
+    }))
+  }, [cabinetInfo])
 
   const Icon = template.icon
 
   async function handleGenerate() {
     setGenerating(true)
     try {
-      await generatePDF(template.id, values)
+      await generatePDF(template.id, values, logoData)
     } catch (err) {
       import('@/lib/monitoring').then(({ captureException }) => captureException(err))
       alert('Erreur lors de la génération du PDF')
@@ -558,6 +634,48 @@ function TemplateCard({ template }: { template: typeof TEMPLATES[number] }) {
 // ─── Page ─────────────────────────────────────────────────────
 
 export default function ModelesPage() {
+  const [cabinetInfo, setCabinetInfo] = useState<CabinetInfo | null>(null)
+  const [logoData, setLogoData] = useState<{ data: string; mime: string } | null>(null)
+
+  useEffect(() => {
+    async function loadCabinet() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('cabinet_id')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile?.cabinet_id) return
+
+      const { data: cabinet } = await supabase
+        .from('cabinets')
+        .select('nom, adresse, logo_url')
+        .eq('id', profile.cabinet_id)
+        .single()
+
+      if (!cabinet) return
+
+      const info: CabinetInfo = {
+        nom: cabinet.nom ?? '',
+        adresse: cabinet.adresse ?? '',
+        logo_url: cabinet.logo_url ?? null,
+      }
+      setCabinetInfo(info)
+
+      // Load logo as base64 if available
+      if (cabinet.logo_url) {
+        const b64 = await urlToBase64(cabinet.logo_url)
+        if (b64) setLogoData(b64)
+      }
+    }
+
+    loadCabinet()
+  }, [])
+
   return (
     <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
       <div>
@@ -570,17 +688,34 @@ export default function ModelesPage() {
       <DocTabs />
 
       {/* Info banner */}
-      <div className="flex items-center gap-3 p-4 bg-coplio-green-light border border-coplio-green/20 rounded-xl">
-        <FileStack className="w-5 h-5 text-coplio-green flex-shrink-0" />
-        <p className="text-sm text-coplio-text">
-          <strong>4 modèles disponibles.</strong> Remplissez le formulaire et téléchargez un PDF prêt à envoyer.
-          Les convocations AG et PV sont également accessibles directement depuis la page de chaque assemblée.
-        </p>
+      <div className="flex items-start gap-3 p-4 bg-coplio-green-light border border-coplio-green/20 rounded-xl">
+        <FileStack className="w-5 h-5 text-coplio-green flex-shrink-0 mt-0.5" />
+        <div className="text-sm text-coplio-text">
+          <p>
+            <strong>4 modèles disponibles.</strong> Remplissez le formulaire et téléchargez un PDF prêt à envoyer.
+          </p>
+          {cabinetInfo?.logo_url ? (
+            <p className="text-xs text-coplio-green mt-1">
+              ✓ Votre logo sera automatiquement ajouté aux documents générés.
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground mt-1">
+              Ajoutez votre logo dans{' '}
+              <a href="/parametres" className="underline hover:text-coplio-green">Paramètres</a>
+              {' '}pour qu&apos;il apparaisse automatiquement sur vos documents.
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="space-y-4">
         {TEMPLATES.map((template) => (
-          <TemplateCard key={template.id} template={template} />
+          <TemplateCard
+            key={template.id}
+            template={template}
+            cabinetInfo={cabinetInfo}
+            logoData={logoData}
+          />
         ))}
       </div>
 

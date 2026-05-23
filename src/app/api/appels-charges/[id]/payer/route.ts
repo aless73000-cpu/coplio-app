@@ -1,6 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { withErrorHandler } from '@/lib/api-handler'
+import { logAction } from '@/lib/audit'
 
 export const PATCH = withErrorHandler(async (_req: Request, { params }: { params: { id: string } }) => {
   try {
@@ -17,10 +18,10 @@ export const PATCH = withErrorHandler(async (_req: Request, { params }: { params
 
     const admin = createAdminClient()
 
-    // Vérifier que l'appel appartient au cabinet via la copropriété
+    // Vérifier que l'appel appartient au cabinet via la copropriété (join + sécurité)
     const { data: appel } = await admin
       .from('appels_charges')
-      .select('montant, copropriete:coproprietes(cabinet_id)')
+      .select('id, montant, libelle, copropriete:coproprietes(cabinet_id)')
       .eq('id', params.id)
       .single()
 
@@ -30,11 +31,22 @@ export const PATCH = withErrorHandler(async (_req: Request, { params }: { params
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
     }
 
-    const { error } = await admin.from('appels_charges')
+    const { error } = await admin
+      .from('appels_charges')
       .update({ paye: true, montant_paye: appel.montant, date_paiement: new Date().toISOString() })
       .eq('id', params.id)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    await logAction(admin, {
+      cabinet_id: profile.cabinet_id,
+      user_id: user.id,
+      action: 'pay',
+      entite: 'appel_charges',
+      entite_id: appel.id,
+      entite_nom: appel.libelle,
+    })
+
     return NextResponse.json({ success: true })
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
