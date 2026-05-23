@@ -62,7 +62,7 @@ export default async function MesChargesPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-5 py-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">Mes charges</h1>
           <p className="text-muted-foreground text-sm mt-0.5">

@@ -368,28 +368,33 @@ export default async function AccueilPage() {
           </div>
           <div className="divide-y divide-border">
             {recentFeed.map((item) => (
-              <div key={item.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-coplio-bg/50 transition-colors">
-                <div className="w-8 h-8 bg-coplio-bg rounded-xl flex items-center justify-center flex-shrink-0">
-                  {item.icon}
+              item.href ? (
+                <Link key={item.id} href={item.href} className="flex items-center gap-3 px-4 py-3 hover:bg-coplio-bg/50 transition-colors">
+                  <div className="w-8 h-8 bg-coplio-bg rounded-lg flex items-center justify-center flex-shrink-0">
+                    {item.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-coplio-text truncate">{item.text}</p>
+                    {item.sub && (
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{item.sub}</p>
+                    )}
+                  </div>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{timeAgo(item.date)}</span>
+                </Link>
+              ) : (
+                <div key={item.id} className="flex items-center gap-3 px-4 py-3">
+                  <div className="w-8 h-8 bg-coplio-bg rounded-lg flex items-center justify-center flex-shrink-0">
+                    {item.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-coplio-text truncate">{item.text}</p>
+                    {item.sub && (
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{item.sub}</p>
+                    )}
+                  </div>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{timeAgo(item.date)}</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-coplio-text truncate">{item.text}</p>
-                  {item.sub && (
-                    <p className="text-xs text-muted-foreground mt-0.5 truncate">{item.sub}</p>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">{timeAgo(item.date)}</span>
-                  {item.href && (
-                    <Link
-                      href={item.href}
-                      className="text-xs font-medium text-coplio-green hover:text-coplio-green/70 transition-colors"
-                    >
-                      {item.cta ?? '→'}
-                    </Link>
-                  )}
-                </div>
-              </div>
+              )
             ))}
           </div>
         </div>

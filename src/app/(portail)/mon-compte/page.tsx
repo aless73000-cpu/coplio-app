@@ -115,7 +115,7 @@ export default async function MonComptePage({
       {/* ─── Section: Mes informations ─── */}
       <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
         {/* Section header */}
-        <div className="px-5 py-4 border-b border-border flex items-center gap-3">
+        <div className="px-4 py-3.5 border-b border-border flex items-center gap-3">
           <div className="w-10 h-10 bg-coplio-green rounded-xl flex items-center justify-center flex-shrink-0">
             <span className="text-white text-sm font-bold">{initials || <User className="w-5 h-5" />}</span>
           </div>
@@ -129,7 +129,7 @@ export default async function MonComptePage({
           </span>
         </div>
 
-        <form action={updateProfile} className="p-5 space-y-4">
+        <form action={updateProfile} className="p-4 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
@@ -198,7 +198,7 @@ export default async function MonComptePage({
       {/* ─── Section: Mon logement ─── */}
       {lot && (
         <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-border flex items-center gap-2">
+          <div className="px-4 py-3.5 border-b border-border flex items-center gap-2">
             <Home className="w-4 h-4 text-muted-foreground" />
             <h2 className="font-semibold text-coplio-text">Mon logement</h2>
           </div>
@@ -267,11 +267,11 @@ export default async function MonComptePage({
       {/* ─── Section: Mon syndic ─── */}
       {lot?.copropriete?.cabinet && (
         <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-border flex items-center gap-2">
+          <div className="px-4 py-3.5 border-b border-border flex items-center gap-2">
             <Building2 className="w-4 h-4 text-muted-foreground" />
             <h2 className="font-semibold text-coplio-text">Mon syndic</h2>
           </div>
-          <div className="p-5 space-y-4">
+          <div className="p-4 space-y-4">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-coplio-green-light rounded-xl flex items-center justify-center flex-shrink-0">
                 <Building2 className="w-6 h-6 text-coplio-green" />
@@ -328,7 +328,7 @@ export default async function MonComptePage({
 
       {/* ─── Section: Sécurité ─── */}
       <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-border flex items-center gap-2">
+        <div className="px-4 py-3.5 border-b border-border flex items-center gap-2">
           <Shield className="w-4 h-4 text-muted-foreground" />
           <h2 className="font-semibold text-coplio-text">Sécurité</h2>
         </div>

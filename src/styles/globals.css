@@ -10,9 +10,9 @@
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
-  /* Hauteur nav + safe area pour le padding du contenu */
+  /* Hauteur nav (64px) + 8px buffer + safe area iPhone */
   .pb-nav {
-    padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(4rem + 0.5rem + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -101,7 +101,7 @@
 
   /* Card standard Coplio */
   .coplio-card {
-    @apply bg-white rounded-xl border border-border shadow-sm p-6;
+    @apply bg-white rounded-xl border border-border shadow-sm p-4 md:p-5;
   }
 
   /* ── Landing page animations ─────────────────────────────────────── */

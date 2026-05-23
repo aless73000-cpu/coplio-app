@@ -100,7 +100,7 @@ export const viewport: Viewport = {
   themeColor: '#0F6E56',
   width: 'device-width',
   initialScale: 1,
-  // maximumScale supprimé — violation WCAG 2.1 SC 1.4.4 (empêchait le zoom sur iOS)
+  viewportFit: 'cover', // active env(safe-area-inset-*) sur iPhone avec encoche/Dynamic Island
 }
 
 export default function RootLayout({
