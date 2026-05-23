@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { User, Building2, Bell, Loader2, CheckCircle2, Users, ChevronRight, Upload, BellRing, FileUp, Database, History, RefreshCw, ChevronLeft, ShieldCheck, ShieldOff, KeyRound } from 'lucide-react'
+import { User, Building2, Bell, Loader2, CheckCircle2, Users, ChevronRight, Upload, BellRing, FileUp, Database, History, RefreshCw, ChevronLeft, ShieldCheck, ShieldOff, KeyRound, Wrench, BookOpen } from 'lucide-react'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
@@ -246,6 +246,32 @@ export function ParametresClient({ profile }: Props) {
             <div>
               <h2 className="font-semibold text-coplio-text text-sm">Import Excel</h2>
               <p className="text-xs text-muted-foreground mt-0.5">Lots & copropriétaires en un fichier</p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
+        </Link>
+
+        <Link href="/prestataires" className="coplio-card flex items-center justify-between hover:border-coplio-green/40 transition-colors group">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-orange-50 rounded-xl flex items-center justify-center">
+              <Wrench className="w-4 h-4 text-orange-600" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-coplio-text text-sm">Prestataires</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Gérer vos intervenants</p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
+        </Link>
+
+        <Link href="/carnet-entretien" className="coplio-card flex items-center justify-between hover:border-coplio-green/40 transition-colors group">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-green-50 rounded-xl flex items-center justify-center">
+              <BookOpen className="w-4 h-4 text-green-600" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-coplio-text text-sm">Carnet d&apos;entretien</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Suivi des interventions</p>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
