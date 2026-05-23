@@ -1,14 +1,15 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import {
   Wrench, CheckCircle2, Plus, X, AlertTriangle, Clock, Send,
-  HardHat, Shield, Euro, ChevronRight,
+  HardHat, Shield, Euro, Vote,
 } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
 import type { Sinistre, SinistreStatus } from '@/types'
 import { SINISTRE_STATUS_LABELS } from '@/types'
+import { MesVotesClient } from '@/components/portail/MesVotesClient'
 
 const STEP_ORDER: SinistreStatus[] = [
   'signale', 'assurance_declaree', 'expertise', 'travaux', 'cloture',
@@ -67,26 +68,54 @@ async function signalerProbleme(formData: FormData) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('lot_id, cabinet_id, lot:lots(copropriete_id)')
+    .select('lot_id, prenom, nom, cabinet_id, lot:lots(copropriete_id)')
     .eq('id', user.id)
     .single()
 
-  if (!profile?.lot_id) return
+  if (!profile?.lot_id || !profile.cabinet_id) return
 
   const coproprieteId = (profile.lot as { copropriete_id?: string } | null)?.copropriete_id
   const now = new Date()
   const reference = `SIN-${now.getFullYear()}-${Math.floor(Math.random() * 90000) + 10000}`
+  const titreComplet = `[${TYPE_OPTIONS.find(t => t.value === type)?.label ?? type}] ${titre}`
 
-  await supabase.from('sinistres').insert({
-    titre: `[${TYPE_OPTIONS.find(t => t.value === type)?.label ?? type}] ${titre}`,
+  const { data: sinistre } = await supabase.from('sinistres').insert({
+    titre: titreComplet,
     description,
     status: urgence ? 'urgence' : 'signale',
     reference,
     copropriete_id: coproprieteId!,
-    cabinet_id: profile.cabinet_id!,
+    cabinet_id: profile.cabinet_id,
     lots_concernes: [profile.lot_id],
     date_sinistre: now.toISOString().split('T')[0],
-  })
+  }).select('id').single()
+
+  // Notifier les membres du syndic
+  if (sinistre?.id) {
+    const admin = createAdminClient()
+    const { data: syndics } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('cabinet_id', profile.cabinet_id)
+      .neq('role', 'owner_resident')
+
+    if (syndics && syndics.length > 0) {
+      await admin.from('notifications').insert(
+        syndics.map((s: { id: string }) => ({
+          user_id: s.id,
+          cabinet_id: profile.cabinet_id,
+          type: urgence ? 'urgent' : 'info',
+          titre: urgence
+            ? `⚠️ Urgence signalée par ${profile.prenom} ${profile.nom}`
+            : `Nouveau signalement : ${titreComplet}`,
+          message: description,
+          lien: `/sinistres/${sinistre.id}`,
+          sinistre_id: sinistre.id,
+          lu: false,
+        }))
+      )
+    }
+  }
 
   redirect('/mes-travaux')
 }
@@ -97,7 +126,7 @@ export default async function MesTravaux({
   searchParams: Promise<{ tab?: string; nouveau?: string }>
 }) {
   const params = await searchParams
-  const activeTab = params.tab === 'batiment' ? 'batiment' : 'demandes'
+  const activeTab = params.tab === 'batiment' ? 'batiment' : params.tab === 'votes' ? 'votes' : 'demandes'
   const showForm = params.nouveau === '1'
 
   const supabase = await createClient()
@@ -112,7 +141,14 @@ export default async function MesTravaux({
 
   const coproprieteId = (profile?.lot as { copropriete_id?: string } | null)?.copropriete_id
 
-  const [{ data: sinistres }, { data: travauxBatiment }] = await Promise.all([
+  const admin = createAdminClient()
+
+  const [
+    { data: sinistres },
+    { data: travauxBatiment },
+    { data: votes },
+    { data: copro },
+  ] = await Promise.all([
     supabase
       .from('sinistres')
       .select('*, copropriete:coproprietes(nom)')
@@ -126,10 +162,24 @@ export default async function MesTravaux({
           .neq('statut', 'archive')
           .order('created_at', { ascending: false })
       : Promise.resolve({ data: [] }),
+    coproprieteId
+      ? admin
+          .from('votes')
+          .select('*, options:vote_options(*), reponses:vote_reponses(id, option_id, coproprietaire_id)')
+          .eq('copropriete_id', coproprieteId)
+          .eq('statut', 'ouvert')
+          .order('date_fin', { ascending: true })
+      : Promise.resolve({ data: [] }),
+    admin
+      .from('coproprietaires')
+      .select('id')
+      .eq('profile_id', user.id)
+      .maybeSingle(),
   ])
 
   const enCours = (sinistres ?? []).filter((s) => s.status !== 'cloture')
   const clotures = (sinistres ?? []).filter((s) => s.status === 'cloture')
+  const votesOuverts = votes ?? []
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -139,7 +189,8 @@ export default async function MesTravaux({
           <h1 className="text-2xl font-bold text-coplio-text">Travaux & sinistres</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
             {enCours.length} demande{enCours.length > 1 ? 's' : ''} en cours
-            {(travauxBatiment?.length ?? 0) > 0 && ` · ${travauxBatiment?.length} chantier${(travauxBatiment?.length ?? 0) > 1 ? 's' : ''} en bâtiment`}
+            {(travauxBatiment?.length ?? 0) > 0 && ` · ${travauxBatiment?.length} chantier${(travauxBatiment?.length ?? 0) > 1 ? 's' : ''}`}
+            {votesOuverts.length > 0 && ` · ${votesOuverts.length} vote${votesOuverts.length > 1 ? 's' : ''} ouvert${votesOuverts.length > 1 ? 's' : ''}`}
           </p>
         </div>
         <a
@@ -152,10 +203,10 @@ export default async function MesTravaux({
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 bg-white border border-border rounded-xl p-1 w-full sm:w-fit">
+      <div className="flex items-center gap-1 bg-white border border-border rounded-xl p-1 w-full sm:w-fit overflow-x-auto no-scrollbar">
         <a
           href="/mes-travaux"
-          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
             activeTab === 'demandes'
               ? 'bg-coplio-green text-white shadow-sm'
               : 'text-muted-foreground hover:text-coplio-text hover:bg-coplio-bg'
@@ -173,19 +224,37 @@ export default async function MesTravaux({
         </a>
         <a
           href="/mes-travaux?tab=batiment"
-          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
             activeTab === 'batiment'
               ? 'bg-coplio-green text-white shadow-sm'
               : 'text-muted-foreground hover:text-coplio-text hover:bg-coplio-bg'
           }`}
         >
           <HardHat className="w-3.5 h-3.5" />
-          Travaux du bâtiment
+          Bâtiment
           {(travauxBatiment?.length ?? 0) > 0 && (
             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${
               activeTab === 'batiment' ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-600'
             }`}>
               {travauxBatiment?.length}
+            </span>
+          )}
+        </a>
+        <a
+          href="/mes-travaux?tab=votes"
+          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+            activeTab === 'votes'
+              ? 'bg-coplio-green text-white shadow-sm'
+              : 'text-muted-foreground hover:text-coplio-text hover:bg-coplio-bg'
+          }`}
+        >
+          <Vote className="w-3.5 h-3.5" />
+          Votes
+          {votesOuverts.length > 0 && (
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${
+              activeTab === 'votes' ? 'bg-white/20 text-white' : 'bg-purple-50 text-purple-600'
+            }`}>
+              {votesOuverts.length}
             </span>
           )}
         </a>
@@ -197,7 +266,7 @@ export default async function MesTravaux({
           {/* Formulaire de signalement */}
           {showForm && (
             <div className="coplio-card border-coplio-green/30 bg-coplio-green-light/20">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-coplio-green rounded-xl flex items-center justify-center">
                     <Wrench className="w-5 h-5 text-white" />
@@ -257,7 +326,7 @@ export default async function MesTravaux({
                   />
                 </div>
 
-                <div className="flex items-center gap-3 mb-6 p-3 bg-coplio-red-bg rounded-xl border border-coplio-red/20">
+                <div className="flex items-center gap-3 mb-5 p-3 bg-coplio-red-bg rounded-xl border border-coplio-red/20">
                   <input
                     type="checkbox"
                     id="urgence"
@@ -371,14 +440,12 @@ export default async function MesTravaux({
                         {t.description && (
                           <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{t.description}</p>
                         )}
-                        <div className="flex items-center gap-4 mt-2 flex-wrap">
-                          {t.montant_estime && (
-                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Euro className="w-3 h-3" />
-                              Budget : <strong className="text-coplio-text ml-0.5">{formatEuro(t.montant_estime)}</strong>
-                            </span>
-                          )}
-                        </div>
+                        {t.montant_estime && (
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground mt-2">
+                            <Euro className="w-3 h-3" />
+                            Budget : <strong className="text-coplio-text ml-0.5">{formatEuro(t.montant_estime)}</strong>
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2 flex-shrink-0">
@@ -395,6 +462,14 @@ export default async function MesTravaux({
             })
           )}
         </div>
+      )}
+
+      {/* ── Tab: Votes ────────────────────────────────────────── */}
+      {activeTab === 'votes' && (
+        <MesVotesClient
+          userId={copro?.id ?? user.id}
+          votes={(votesOuverts) as Parameters<typeof MesVotesClient>[0]['votes']}
+        />
       )}
     </div>
   )
