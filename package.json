@@ -37,6 +37,7 @@
     "@radix-ui/react-tooltip": "^1.1.2",
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^1.0.3",
+    "@sentry/nextjs": "^10.53.1",
     "@stripe/stripe-js": "^4.3.0",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
@@ -74,6 +75,7 @@
     "typescript": "^5.5.4",
     "vaul": "^0.9.1",
     "web-push": "^3.6.7",
+    "xlsx": "^0.18.5",
     "zod": "^3.23.8",
     "zustand": "^4.5.4"
   },
