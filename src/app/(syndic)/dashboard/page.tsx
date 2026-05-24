@@ -1,24 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import {
-  Building2,
-  Home,
-  AlertTriangle,
-  CreditCard,
-  TrendingUp,
-  CalendarDays,
-  ArrowRight,
-  BarChart2,
-  Receipt,
-  Users,
-} from 'lucide-react'
-import Link from 'next/link'
-import { formatEuro, formatDate } from '@/lib/utils'
-import { RecouvrementChartLazy as RecouvrementChart, StatutChartLazy as StatutChart, EvolutionChartLazy as EvolutionChart, TauxGlobalCardLazy as TauxGlobalCard } from '@/components/syndic/DashboardChartsLazy'
-import { OnboardingChecklist } from '@/components/syndic/OnboardingChecklist'
-import { RapportMensuelButton } from '@/components/syndic/RapportMensuelButton'
-import { TrialBanner } from '@/components/syndic/TrialBanner'
-import { KpiCard, PerformanceSection, CoproprieteAlertRow, SinistreRow, AgRow } from '@/components/dashboard/DashboardComponents'
+import { DashboardCanvas } from '@/components/dashboard/DashboardCanvas'
+import type { DashboardData } from '@/components/dashboard/DashboardCanvas'
 import type { Copropriete } from '@/types'
 
 export default async function DashboardPage() {
@@ -35,6 +18,7 @@ export default async function DashboardPage() {
   if (!profile?.cabinet_id) redirect('/onboarding')
 
   const cabinetId = profile.cabinet_id
+  const cabinet = profile.cabinet as { nom?: string; trial_ends_at?: string | null; plan?: string | null } | null
 
   // Charger copropriétés d'abord (nécessaire pour les impayés)
   const { data: coproprietes } = await supabase
@@ -45,11 +29,9 @@ export default async function DashboardPage() {
 
   const coproprieteIds = (coproprietes ?? []).map((c) => c.id)
 
-  // Alertes intelligentes — AG sans tenue depuis >12 mois
   const oneYearAgo = new Date()
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
 
-  // Charger le reste en parallèle
   const [
     { data: sinistres },
     { data: agProchaines },
@@ -93,7 +75,6 @@ export default async function DashboardPage() {
           .eq('cabinet_id', cabinetId)
           .eq('portail_actif', true)
       : Promise.resolve({ count: 0 }),
-    // AG tenues (clôturées) dans les 12 derniers mois — pour alertes
     coproprieteIds.length > 0
       ? supabase
           .from('assemblees_generales')
@@ -102,7 +83,6 @@ export default async function DashboardPage() {
           .eq('status', 'terminee')
           .gte('date_ag', oneYearAgo.toISOString())
       : Promise.resolve({ data: [] }),
-    // Lots occupés (avec coproprietaire_id non null)
     coproprieteIds.length > 0
       ? supabase
           .from('lots')
@@ -112,11 +92,30 @@ export default async function DashboardPage() {
       : Promise.resolve({ count: 0 }),
   ])
 
-  const allAppels = (impayes ?? []) as { copropriete_id: string; montant: number; montant_paye: number; paye: boolean; date_echeance?: string }[]
+  const allAppels = (impayes ?? []) as {
+    copropriete_id: string
+    montant: number
+    montant_paye: number
+    paye: boolean
+    date_echeance?: string
+  }[]
 
-  // Onboarding checklist
+  // ─── KPIs ──────────────────────────────────────────────────
   const nbLots = (coproprietes ?? []).reduce((s: number, c) => s + (c.nb_lots ?? 0), 0)
-  const nbCoproprietaires = nbCoproprietairesTotal
+
+  const kpis = {
+    nb_coproprietes: coproprietes?.length ?? 0,
+    nb_lots: nbLots,
+    nb_sinistres_ouverts: sinistres?.length ?? 0,
+    montant_total_impayes: allAppels
+      .filter((a) => !a.paye)
+      .reduce((s, a) => s + (a.montant - a.montant_paye), 0),
+    nb_ag_a_preparer: agProchaines?.length ?? 0,
+    nb_coproprietaires: nbCoproprietairesTotal ?? 0,
+    nb_portail_actif: nbPortailActif ?? 0,
+  }
+
+  // ─── Onboarding ────────────────────────────────────────────
   const onboardingSteps = [
     {
       id: 'copropriete',
@@ -137,7 +136,7 @@ export default async function DashboardPage() {
       label: 'Inviter les copropriétaires',
       description: 'Donnez-leur accès au portail en ligne',
       href: '/coproprietaires',
-      done: (nbCoproprietaires ?? 0) > 0,
+      done: (nbCoproprietairesTotal ?? 0) > 0,
     },
     {
       id: 'appel',
@@ -148,27 +147,10 @@ export default async function DashboardPage() {
     },
   ]
 
-  const kpis = {
-    nb_coproprietes: coproprietes?.length ?? 0,
-    nb_lots: (coproprietes ?? []).reduce((s: number, c) => s + (c.nb_lots ?? 0), 0),
-    nb_sinistres_ouverts: sinistres?.length ?? 0,
-    montant_total_impayes: allAppels
-      .filter((a) => !a.paye)
-      .reduce((s, a) => s + (a.montant - a.montant_paye), 0),
-    nb_ag_a_preparer: agProchaines?.length ?? 0,
-    nb_coproprietaires: nbCoproprietairesTotal ?? 0,
-    nb_portail_actif: nbPortailActif ?? 0,
-  }
-
-  const coproprietesCritiques = (coproprietes ?? [])
-    .filter((c) => c.statut !== 'a_jour')
-    .slice(0, 5)
-
   // ─── Alertes intelligentes ─────────────────────────────────
   type SmartAlert = { id: string; severity: 'warning' | 'info'; message: string; href: string; cta: string }
   const smartAlerts: SmartAlert[] = []
 
-  // Copropriétés sans AG depuis 12 mois
   const agRecentesCoproIds = new Set((agRecentes ?? []).map((a: { copropriete_id: string }) => a.copropriete_id))
   const coprosSansAg = (coproprietes ?? []).filter((c) => !agRecentesCoproIds.has(c.id))
   if (coprosSansAg.length > 0) {
@@ -181,7 +163,6 @@ export default async function DashboardPage() {
     })
   }
 
-  // Lots sans copropriétaire affecté
   const lotsVacants = kpis.nb_lots - (nbLotsOccupes ?? 0)
   if (lotsVacants > 0 && kpis.nb_lots > 0) {
     smartAlerts.push({
@@ -193,7 +174,6 @@ export default async function DashboardPage() {
     })
   }
 
-  // Peu de copropriétaires sur le portail
   const totalCopros = nbCoproprietairesTotal ?? 0
   const nbPortail = nbPortailActif ?? 0
   if (totalCopros > 0 && nbPortail / totalCopros < 0.5) {
@@ -207,8 +187,6 @@ export default async function DashboardPage() {
   }
 
   // ─── Données graphiques ────────────────────────────────────
-
-  // Taux de recouvrement par copropriété (top 6)
   const tauxData = (coproprietes ?? [])
     .slice(0, 6)
     .map((c) => {
@@ -223,19 +201,16 @@ export default async function DashboardPage() {
       }
     })
 
-  // Répartition statuts
   const statutData = {
     aJour:    (coproprietes ?? []).filter((c) => c.statut === 'a_jour').length,
     attention:(coproprietes ?? []).filter((c) => c.statut === 'attention').length,
     urgent:   (coproprietes ?? []).filter((c) => c.statut === 'urgent').length,
   }
 
-  // Taux global de recouvrement
-  const totalEmis = allAppels.reduce((s, a) => s + a.montant, 0)
+  const totalEmis     = allAppels.reduce((s, a) => s + a.montant, 0)
   const totalRecouvre = allAppels.reduce((s, a) => s + a.montant_paye, 0)
-  const tauxGlobal = totalEmis > 0 ? Math.round((totalRecouvre / totalEmis) * 100) : 100
+  const tauxGlobal    = totalEmis > 0 ? Math.round((totalRecouvre / totalEmis) * 100) : 100
 
-  // Évolution mensuelle sur 6 mois
   const evolutionData = (() => {
     const months: { mois: string; emis: number; recouvre: number }[] = []
     for (let i = 5; i >= 0; i--) {
@@ -244,13 +219,11 @@ export default async function DashboardPage() {
       const year = d.getFullYear()
       const month = d.getMonth()
       const label = d.toLocaleDateString('fr-FR', { month: 'short' })
-
       const appelsOfMonth = allAppels.filter((a) => {
         if (!a.date_echeance) return false
         const ad = new Date(a.date_echeance)
         return ad.getFullYear() === year && ad.getMonth() === month
       })
-
       months.push({
         mois: label,
         emis: appelsOfMonth.reduce((s, a) => s + a.montant, 0),
@@ -260,318 +233,31 @@ export default async function DashboardPage() {
     return months
   })()
 
-  return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Salutation */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-coplio-text">
-            Bonjour, {profile.prenom} 👋
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Voici un résumé de votre activité au{' '}
-            {new Date().toLocaleDateString('fr-FR', {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
-          </p>
-        </div>
-        <div className="hidden md:block">
-          <RapportMensuelButton data={{
-            coproprietes: (coproprietes ?? []) as Copropriete[],
-            totalEmis,
-            totalRecouvre,
-            tauxGlobal,
-            cabinetNom: (profile.cabinet as { nom?: string } | null)?.nom ?? 'Mon cabinet',
-          }} />
-        </div>
-      </div>
+  const coproprietesCritiques = (coproprietes ?? [])
+    .filter((c) => c.statut !== 'a_jour')
+    .slice(0, 5)
 
-      {/* Trial banner */}
-      <TrialBanner
-        trialEndsAt={(profile.cabinet as { trial_ends_at?: string | null } | null)?.trial_ends_at ?? null}
-        plan={(profile.cabinet as { plan?: string | null } | null)?.plan ?? null}
-      />
+  // ─── Passer tout au canvas client ─────────────────────────
+  const dashboardData: DashboardData = {
+    userId:     user.id,
+    prenom:     profile.prenom ?? 'vous',
+    cabinetNom: cabinet?.nom ?? 'Mon cabinet',
+    trialEndsAt: cabinet?.trial_ends_at ?? null,
+    plan:        cabinet?.plan ?? null,
+    onboardingSteps,
+    kpis,
+    tauxGlobal,
+    totalEmis,
+    totalRecouvre,
+    smartAlerts,
+    evolutionData,
+    tauxData,
+    statutData,
+    coproprietesCritiques: coproprietesCritiques as Copropriete[],
+    sinistres:   sinistres ?? null,
+    agProchaines: agProchaines ?? null,
+    hasAppels:   allAppels.length > 0,
+  }
 
-      {/* Onboarding checklist */}
-      <OnboardingChecklist steps={onboardingSteps} />
-
-      {/* Empty state — aucune copropriété */}
-      {kpis.nb_coproprietes === 0 && (
-        <div className="coplio-card text-center py-16 border-dashed">
-          <div className="w-16 h-16 bg-coplio-green-light rounded-2xl flex items-center justify-center mx-auto mb-5">
-            <Building2 className="w-8 h-8 text-coplio-green" />
-          </div>
-          <h2 className="text-xl font-bold text-coplio-text mb-2">
-            Ajoutez votre première copropriété
-          </h2>
-          <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-8 leading-relaxed">
-            Votre tableau de bord s&apos;animera une fois votre première copropriété créée.
-            Cela prend moins de 2 minutes.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/coproprietes/new"
-              className="inline-flex items-center gap-2 bg-coplio-green text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-coplio-green/90 transition-colors"
-            >
-              <Building2 className="w-4 h-4" />
-              Créer une copropriété
-            </Link>
-            <Link
-              href="/importer"
-              className="inline-flex items-center gap-2 bg-coplio-bg text-coplio-text px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-border transition-colors"
-            >
-              Importer depuis un fichier
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* KPIs — ligne 1 */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard
-          title="Copropriétés"
-          value={kpis.nb_coproprietes}
-          icon={Building2}
-          href="/coproprietes"
-          color="green"
-        />
-        <KpiCard
-          title="Lots gérés"
-          value={kpis.nb_lots}
-          icon={Home}
-          href="/coproprietes"
-          color="blue"
-        />
-        <KpiCard
-          title="Sinistres ouverts"
-          value={kpis.nb_sinistres_ouverts}
-          icon={AlertTriangle}
-          href="/sinistres"
-          color={kpis.nb_sinistres_ouverts > 0 ? 'amber' : 'green'}
-        />
-        <KpiCard
-          title="Impayés totaux"
-          value={formatEuro(kpis.montant_total_impayes)}
-          icon={CreditCard}
-          href="/impayes"
-          color={kpis.montant_total_impayes > 0 ? 'red' : 'green'}
-          isAmount
-        />
-      </div>
-
-      {/* KPIs — ligne 2 */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard
-          title="Copropriétaires"
-          value={kpis.nb_coproprietaires}
-          icon={Users}
-          href="/coproprietaires"
-          color="blue"
-        />
-        <KpiCard
-          title="Portail actif"
-          value={kpis.nb_portail_actif}
-          icon={TrendingUp}
-          href="/coproprietaires"
-          color={kpis.nb_portail_actif > 0 ? 'green' : 'amber'}
-          sub={kpis.nb_coproprietaires > 0
-            ? `${Math.round((kpis.nb_portail_actif / kpis.nb_coproprietaires) * 100)}% avec accès`
-            : undefined}
-        />
-        <KpiCard
-          title="AG à venir"
-          value={kpis.nb_ag_a_preparer}
-          icon={CalendarDays}
-          href="/assemblees"
-          color={kpis.nb_ag_a_preparer > 0 ? 'amber' : 'green'}
-        />
-        <KpiCard
-          title="Taux recouvrement"
-          value={`${tauxGlobal}%`}
-          icon={BarChart2}
-          href="/appels-charges"
-          color={tauxGlobal >= 90 ? 'green' : tauxGlobal >= 70 ? 'amber' : 'red'}
-        />
-      </div>
-
-      {/* Alertes intelligentes */}
-      {smartAlerts.length > 0 && (
-        <div className="space-y-2">
-          {smartAlerts.map((alert) => (
-            <div
-              key={alert.id}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm ${
-                alert.severity === 'warning'
-                  ? 'bg-amber-50 border-amber-200 text-amber-800'
-                  : 'bg-blue-50 border-blue-200 text-blue-800'
-              }`}
-            >
-              <AlertTriangle className={`w-4 h-4 flex-shrink-0 ${
-                alert.severity === 'warning' ? 'text-amber-500' : 'text-blue-500'
-              }`} />
-              <p className="flex-1">{alert.message}</p>
-              <Link
-                href={alert.href}
-                className={`text-xs font-medium px-3 py-1 rounded-lg flex-shrink-0 ${
-                  alert.severity === 'warning'
-                    ? 'bg-amber-200 hover:bg-amber-300 text-amber-900'
-                    : 'bg-blue-200 hover:bg-blue-300 text-blue-900'
-                } transition-colors`}
-              >
-                {alert.cta}
-              </Link>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Graphiques — uniquement si données disponibles */}
-      {allAppels.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2">
-            <EvolutionChart data={evolutionData} />
-          </div>
-          <TauxGlobalCard
-            taux={tauxGlobal}
-            montantRecouvre={totalRecouvre}
-            montantTotal={totalEmis}
-          />
-        </div>
-      )}
-
-      {(tauxData.length > 0 || statutData.aJour + statutData.attention + statutData.urgent > 0) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <RecouvrementChart data={tauxData} />
-          <StatutChart {...statutData} />
-        </div>
-      )}
-
-      {/* Performance cabinet */}
-      <PerformanceSection tauxGlobal={tauxGlobal} nbCoproprietes={kpis.nb_coproprietes} nbLots={kpis.nb_lots} />
-
-      {/* Contenu principal — 2 colonnes */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Colonne gauche (2/3) */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Copropriétés avec alertes */}
-          <div className="coplio-card">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-coplio-text">Alertes copropriétés</h2>
-              <Link
-                href="/coproprietes"
-                className="text-xs text-coplio-green hover:underline flex items-center gap-1"
-              >
-                Voir tout <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-
-            {coproprietesCritiques.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="w-12 h-12 bg-coplio-green-light rounded-full flex items-center justify-center mx-auto mb-3">
-                  <TrendingUp className="w-6 h-6 text-coplio-green" />
-                </div>
-                <p className="text-sm font-medium text-coplio-text">Tout est à jour !</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Aucune copropriété ne nécessite votre attention
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {coproprietesCritiques.map((c) => (
-                  <CoproprieteAlertRow key={c.id} copropriete={c} />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Sinistres récents */}
-          <div className="coplio-card">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-coplio-text">Sinistres en cours</h2>
-              <Link
-                href="/sinistres"
-                className="text-xs text-coplio-green hover:underline flex items-center gap-1"
-              >
-                Voir tout <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-
-            {(!sinistres || sinistres.length === 0) ? (
-              <p className="text-sm text-muted-foreground text-center py-6">
-                Aucun sinistre en cours
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {sinistres.map((s) => (
-                  <SinistreRow key={s.id} sinistre={s} />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Colonne droite (1/3) */}
-        <div className="space-y-6">
-          {/* AG à venir */}
-          <div className="coplio-card">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-coplio-text">AG à venir</h2>
-              <Link href="/assemblees" className="text-xs text-coplio-green hover:underline">
-                Gérer
-              </Link>
-            </div>
-
-            {(!agProchaines || agProchaines.length === 0) ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                Aucune AG planifiée
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {agProchaines.map((ag) => (
-                  <AgRow key={ag.id} ag={ag} />
-                ))}
-              </div>
-            )}
-
-            <Link
-              href="/assemblees/new"
-              className="mt-4 block text-center text-sm text-coplio-green font-medium
-                         border border-coplio-green/30 rounded-lg py-2 hover:bg-coplio-green-light transition-colors"
-            >
-              + Planifier une AG
-            </Link>
-          </div>
-
-          {/* Raccourcis rapides */}
-          <div className="coplio-card">
-            <h2 className="font-semibold text-coplio-text mb-3">Actions rapides</h2>
-            <div className="space-y-2">
-              {[
-                { href: '/coproprietes/new', label: 'Ajouter une copropriété', icon: Building2 },
-                { href: '/appels-charges/new', label: 'Créer un appel de charges', icon: Receipt },
-                { href: '/sinistres/new', label: 'Déclarer un sinistre', icon: AlertTriangle },
-                { href: '/assemblees/new', label: 'Planifier une AG', icon: CalendarDays },
-                { href: '/impayes', label: 'Gérer les impayés', icon: CreditCard },
-              ].map(({ href, label, icon: Icon }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-coplio-bg transition-colors text-sm"
-                >
-                  <div className="w-7 h-7 bg-coplio-green-light rounded-md flex items-center justify-center">
-                    <Icon className="w-3.5 h-3.5 text-coplio-green" />
-                  </div>
-                  <span className="text-coplio-text">{label}</span>
-                  <ArrowRight className="w-3 h-3 text-muted-foreground ml-auto" />
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+  return <DashboardCanvas data={dashboardData} />
 }
