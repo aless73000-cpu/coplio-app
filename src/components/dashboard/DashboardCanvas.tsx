@@ -358,18 +358,18 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
           margin: 'auto',
           padding: 0,
           width: 'min(82vw, 1000px)',
-          maxHeight: '90vh',
+          height: '90vh',
           border: 'none',
           borderRadius: 20,
           boxShadow: '0 24px 80px rgba(0,0,0,0.28)',
           overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
           background: '#f8fafc',
+          /* PAS de display:flex ici — le navigateur gère show/hide via display:none */
         }}
       >
         <style>{`
           dialog::backdrop { background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); }
+          dialog[open] { display: flex; flex-direction: column; }
         `}</style>
 
         {/* Barre du haut */}
