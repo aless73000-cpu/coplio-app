@@ -130,6 +130,8 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
   const [editOrder, setEditOrder] = useState<string[]>([])
   const [editKpiOrder, setEditKpiOrder] = useState<string[]>([])
   const [editVisible, setEditVisible] = useState<Record<string, boolean>>({})
+  const [draggedKpi, setDraggedKpi] = useState<string | null>(null)
+  const [dragOverKpi, setDragOverKpi] = useState<string | null>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   // Ouvre/ferme le <dialog> natif en sync avec editMode
@@ -481,7 +483,7 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
                       </span>
                     </div>
 
-                    {/* Grille 4 colonnes des KPIs — draggables individuellement */}
+                    {/* Grille 4 colonnes des KPIs — drag HTML5 natif (stable sur grille) */}
                     <div
                       onPointerDown={(e) => e.stopPropagation()}
                       style={{
@@ -494,23 +496,52 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
                       <p style={{ fontSize: 11, color: '#94a3b8', margin: '0 0 10px', textAlign: 'center' }}>
                         Glissez les cartes pour les réorganiser
                       </p>
-                      <Reorder.Group
-                        axis="x"
-                        values={editKpiOrder}
-                        onReorder={setEditKpiOrder}
-                        as="div"
-                        style={{ display: 'flex', flexWrap: 'wrap', gap: 10, listStyle: 'none', margin: 0, padding: 0 }}
-                      >
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
                         {editKpiOrder.map((kpiId) => {
                           const kpiVisible = editVisible[kpiId] ?? true
+                          const isDragging = draggedKpi === kpiId
+                          const isOver = dragOverKpi === kpiId && draggedKpi !== kpiId
                           return (
-                            <Reorder.Item
+                            <div
                               key={kpiId}
-                              value={kpiId}
-                              as="div"
-                              style={{ width: 'calc(25% - 8px)', position: 'relative', cursor: 'grab', listStyle: 'none' }}
-                              whileDrag={{ scale: 1.06, zIndex: 50, boxShadow: '0 8px 24px rgba(0,0,0,0.15)', borderRadius: 12 }}
-                              transition={{ duration: 0.15 }}
+                              draggable
+                              onDragStart={(e) => {
+                                e.stopPropagation()
+                                setDraggedKpi(kpiId)
+                                e.dataTransfer.effectAllowed = 'move'
+                              }}
+                              onDragEnter={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                if (draggedKpi && draggedKpi !== kpiId) {
+                                  setDragOverKpi(kpiId)
+                                  // Swap immédiat pour feedback visuel instantané
+                                  setEditKpiOrder((prev) => {
+                                    const arr = [...prev]
+                                    const from = arr.indexOf(draggedKpi)
+                                    const to = arr.indexOf(kpiId)
+                                    if (from === -1 || to === -1) return prev
+                                    arr.splice(from, 1)
+                                    arr.splice(to, 0, draggedKpi)
+                                    return arr
+                                  })
+                                }
+                              }}
+                              onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
+                              onDragEnd={(e) => {
+                                e.stopPropagation()
+                                setDraggedKpi(null)
+                                setDragOverKpi(null)
+                              }}
+                              style={{
+                                position: 'relative',
+                                cursor: 'grab',
+                                opacity: isDragging ? 0.4 : 1,
+                                transition: 'opacity 0.15s, transform 0.15s',
+                                transform: isOver ? 'scale(1.04)' : 'scale(1)',
+                                outline: isOver ? '2px solid #374151' : 'none',
+                                borderRadius: 12,
+                              }}
                             >
                               {/* Aperçu KPI */}
                               <div style={{
@@ -544,10 +575,10 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
                                   : <EyeOff style={{ width: 12, height: 12, color: '#dc2626' }} />
                                 }
                               </button>
-                            </Reorder.Item>
+                            </div>
                           )
                         })}
-                      </Reorder.Group>
+                      </div>
                     </div>
                   </Reorder.Item>
                 )
