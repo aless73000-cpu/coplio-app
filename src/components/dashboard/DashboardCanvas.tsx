@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Building2,
   Home,
@@ -112,6 +113,9 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
   const [editMode, setEditMode] = useState(false)
   const [editOrder, setEditOrder] = useState<string[]>([])
   const [editVisible, setEditVisible] = useState<Record<string, boolean>>({})
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => { setMounted(true) }, [])
 
   const DEFAULT_ORDER = [
     'kpis_1', 'kpis_2', 'alertes_intelligentes', 'graphiques_finances',
@@ -339,26 +343,28 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
         })}
       </div>
 
-      {/* ── Modal de personnalisation ── */}
-      <AnimatePresence>
-        {editMode && (
+      {/* ── Modal de personnalisation (portal → hors de tout overflow) ── */}
+      {mounted && editMode && createPortal(
+        <AnimatePresence>
           <motion.div
-            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center"
+            key="dashboard-edit-modal"
+            className="fixed inset-0 flex items-end sm:items-center justify-center"
+            style={{ zIndex: 9999 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.18 }}
           >
             {/* Backdrop flouté */}
-            <motion.div
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
               onClick={cancelEdit}
             />
 
-            {/* Fenêtre de personnalisation */}
+            {/* Fenêtre */}
             <motion.div
-              className="relative z-10 w-full sm:max-w-md bg-white sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col"
-              style={{ maxHeight: '88vh' }}
+              className="relative w-full sm:max-w-md bg-white sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col"
+              style={{ maxHeight: '88vh', zIndex: 1 }}
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
@@ -422,20 +428,13 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
                           }`}
                           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
                         >
-                          {/* Grip */}
                           <GripHorizontal className="w-4 h-4 text-slate-300 flex-shrink-0" />
-
-                          {/* Icône du widget */}
                           <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${visible ? 'bg-slate-100' : 'bg-slate-50'}`}>
                             <Icon className="w-4 h-4 text-slate-500" />
                           </div>
-
-                          {/* Nom */}
                           <span className="flex-1 text-sm font-semibold text-[#374151] min-w-0 truncate">
                             {WIDGET_LABELS[id]}
                           </span>
-
-                          {/* Toggle visibilité */}
                           <button
                             onPointerDown={(e) => e.stopPropagation()}
                             onClick={(e) => { e.stopPropagation(); toggleVisibility(id) }}
@@ -446,10 +445,7 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
                             }`}
                             title={visible ? 'Masquer ce bloc' : 'Afficher ce bloc'}
                           >
-                            {visible
-                              ? <Eye className="w-4 h-4" />
-                              : <EyeOff className="w-4 h-4" />
-                            }
+                            {visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                           </button>
                         </div>
                       </Reorder.Item>
@@ -459,7 +455,7 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
               </div>
 
               {/* Pied de page */}
-              <div className="p-4 border-t border-slate-100 flex-shrink-0 pb-safe">
+              <div className="p-4 border-t border-slate-100 flex-shrink-0">
                 <button
                   onClick={saveEdit}
                   className="w-full bg-[#374151] text-white text-sm font-bold py-3.5 rounded-2xl hover:bg-[#4B5563] transition-colors"
@@ -470,8 +466,9 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
               </div>
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   )
 }
