@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import {
   Home, FileText, CreditCard, Building2,
   MessageCircle, User, LogOut, Bell,
-  CalendarDays, Wrench, Vote, ChevronRight,
+  CalendarDays, Wrench, Vote, ChevronRight, Crown,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
@@ -19,6 +19,7 @@ interface PortailSidebarProps {
   coproprieteNom: string | null
   unreadMessages?: number
   unreadNotifications?: number
+  isConseil?: boolean
 }
 
 const NAV_ITEMS = [
@@ -33,7 +34,7 @@ const NAV_ITEMS = [
 
 export function PortailSidebar({
   prenom, nom, email, lotNumero, coproprieteNom,
-  unreadMessages = 0, unreadNotifications = 0,
+  unreadMessages = 0, unreadNotifications = 0, isConseil = false,
 }: PortailSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
@@ -141,6 +142,27 @@ export function PortailSidebar({
       <div className="px-4 mt-2 mb-2 flex-shrink-0">
         <div className="border-t border-white/10" />
       </div>
+
+      {/* Espace conseil — visible seulement si membre */}
+      {isConseil && (
+        <div className="px-3 mb-2 flex-shrink-0">
+          <Link
+            href="/espace-conseil"
+            className={cn(
+              'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group',
+              isActive(['/espace-conseil'])
+                ? 'bg-amber-400/20 text-amber-300'
+                : 'text-amber-400/70 hover:bg-amber-400/10 hover:text-amber-300'
+            )}
+          >
+            <Crown className={cn(
+              'w-4 h-4 flex-shrink-0',
+              isActive(['/espace-conseil']) ? 'text-amber-300' : 'text-amber-400/50 group-hover:text-amber-300'
+            )} />
+            <span className="text-sm font-semibold">Espace conseil</span>
+          </Link>
+        </div>
+      )}
 
       {/* Compte + déconnexion */}
       <div className="px-3 pb-5 flex-shrink-0 space-y-0.5">

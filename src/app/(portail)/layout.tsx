@@ -28,7 +28,7 @@ export default async function PortailLayout({
   ] = await Promise.all([
     supabase
       .from('profiles')
-      .select('*, lot:lots(numero, copropriete:coproprietes(nom))')
+      .select('*, lot:lots(id, numero, copropriete:coproprietes(id, nom))')
       .eq('id', user.id)
       .single(),
     supabase
@@ -47,7 +47,20 @@ export default async function PortailLayout({
   if (!profile) redirect('/portail')
   if (profile.role !== 'owner_resident') redirect('/dashboard')
 
-  const lot = profile.lot as { numero: string; copropriete: { nom: string } } | null
+  const lot = profile.lot as { id: string; numero: string; copropriete: { id: string; nom: string } } | null
+
+  // Vérifier si cet utilisateur est membre du conseil syndical
+  const coproprieteId = lot?.copropriete?.id
+  const { data: conseilEntry } = coproprieteId && profile.email
+    ? await supabase
+        .from('conseil_syndical')
+        .select('id, role')
+        .eq('copropriete_id', coproprieteId)
+        .eq('email', profile.email)
+        .maybeSingle()
+    : { data: null }
+
+  const isConseil = !!conseilEntry
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#f1f5f9' }}>
@@ -60,6 +73,7 @@ export default async function PortailLayout({
         coproprieteNom={lot?.copropriete?.nom ?? null}
         unreadMessages={unreadMessages ?? 0}
         unreadNotifications={unreadNotifications ?? 0}
+        isConseil={isConseil}
       />
       <NotificationHandler userId={user.id} />
       <main className="flex-1 overflow-y-auto px-4 pt-5 pb-nav md:px-8 md:pt-8 md:pb-8 bg-slate-50">
