@@ -128,6 +128,7 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
   const { widgets, saveWidgets, hydrated } = useDashboardPrefs(data.userId)
   const [editMode, setEditMode] = useState(false)
   const [editOrder, setEditOrder] = useState<string[]>([])
+  const [editKpiOrder, setEditKpiOrder] = useState<string[]>([])
   const [editVisible, setEditVisible] = useState<Record<string, boolean>>({})
   const dialogRef = useRef<HTMLDialogElement>(null)
 
@@ -170,14 +171,18 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
     // Regrouper les 8 KPIs en un seul bloc 'kpi_group' à la position du premier KPI
     let kpiInserted = false
     const groupedOrder: string[] = []
+    const kpiOrderFound: string[] = []
     for (const id of order) {
       if (KPI_IDS.has(id)) {
+        kpiOrderFound.push(id)
         if (!kpiInserted) { groupedOrder.push('kpi_group'); kpiInserted = true }
       } else {
         groupedOrder.push(id)
       }
     }
     if (!kpiInserted) groupedOrder.unshift('kpi_group')
+    // Ordre KPI = celui sauvegardé (ou DEFAULT_ORDER si aucun)
+    setEditKpiOrder(kpiOrderFound.length > 0 ? kpiOrderFound : DEFAULT_ORDER.filter((id) => KPI_IDS.has(id)))
     setEditOrder(groupedOrder)
     setEditVisible(vis)
     setEditMode(true)
@@ -186,9 +191,8 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
   function cancelEdit() { setEditMode(false) }
 
   function saveEdit() {
-    // Ré-expandre 'kpi_group' en IDs KPI individuels (dans l'ordre DEFAULT_ORDER)
-    const kpiIds = DEFAULT_ORDER.filter((id) => KPI_IDS.has(id))
-    const expandedOrder = editOrder.flatMap((id) => id === 'kpi_group' ? kpiIds : [id])
+    // Ré-expandre 'kpi_group' en IDs KPI individuels (dans l'ordre personnalisé)
+    const expandedOrder = editOrder.flatMap((id) => id === 'kpi_group' ? editKpiOrder : [id])
     const newPrefs: WidgetPref[] = expandedOrder.map((id) => ({ id, visible: editVisible[id] ?? true }))
     saveWidgets(newPrefs)
     setEditMode(false)
@@ -477,24 +481,38 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
                       </span>
                     </div>
 
-                    {/* Grille 4 colonnes des KPIs avec œil individuel */}
-                    <div style={{
-                      border: '1px solid #e2e8f0', borderTop: 'none',
-                      borderRadius: '0 0 14px 14px',
-                      background: '#f8fafc', overflow: 'hidden',
-                      padding: 14,
-                    }}>
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(4, 1fr)',
-                        gap: 10,
-                      }}>
-                        {kpiIds.map((kpiId) => {
+                    {/* Grille 4 colonnes des KPIs — draggables individuellement */}
+                    <div
+                      onPointerDown={(e) => e.stopPropagation()}
+                      style={{
+                        border: '1px solid #e2e8f0', borderTop: 'none',
+                        borderRadius: '0 0 14px 14px',
+                        background: '#f8fafc', overflow: 'hidden',
+                        padding: 14,
+                      }}
+                    >
+                      <p style={{ fontSize: 11, color: '#94a3b8', margin: '0 0 10px', textAlign: 'center' }}>
+                        Glissez les cartes pour les réorganiser
+                      </p>
+                      <Reorder.Group
+                        axis="x"
+                        values={editKpiOrder}
+                        onReorder={setEditKpiOrder}
+                        as="div"
+                        style={{ display: 'flex', flexWrap: 'wrap', gap: 10, listStyle: 'none', margin: 0, padding: 0 }}
+                      >
+                        {editKpiOrder.map((kpiId) => {
                           const kpiVisible = editVisible[kpiId] ?? true
-                          const KpiIcon = WIDGET_ICONS[kpiId] ?? BarChart2
                           return (
-                            <div key={kpiId} style={{ position: 'relative' }}>
-                              {/* Aperçu mini du KPI */}
+                            <Reorder.Item
+                              key={kpiId}
+                              value={kpiId}
+                              as="div"
+                              style={{ width: 'calc(25% - 8px)', position: 'relative', cursor: 'grab', listStyle: 'none' }}
+                              whileDrag={{ scale: 1.06, zIndex: 50, boxShadow: '0 8px 24px rgba(0,0,0,0.15)', borderRadius: 12 }}
+                              transition={{ duration: 0.15 }}
+                            >
+                              {/* Aperçu KPI */}
                               <div style={{
                                 pointerEvents: 'none', userSelect: 'none',
                                 opacity: kpiVisible ? 1 : 0.3,
@@ -506,7 +524,7 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
                               }}>
                                 {getWidgetContent(kpiId)}
                               </div>
-                              {/* Bouton œil positionné en absolu sur la carte */}
+                              {/* Bouton œil */}
                               <button
                                 onPointerDown={(e) => e.stopPropagation()}
                                 onClick={(e) => { e.stopPropagation(); toggleVisibility(kpiId) }}
@@ -514,8 +532,7 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
                                 style={{
                                   position: 'absolute', top: 6, right: 6,
                                   width: 24, height: 24,
-                                  borderRadius: 8,
-                                  border: 'none',
+                                  borderRadius: 8, border: 'none',
                                   background: kpiVisible ? 'rgba(241,245,249,0.9)' : 'rgba(254,226,226,0.9)',
                                   backdropFilter: 'blur(4px)',
                                   cursor: 'pointer',
@@ -527,10 +544,10 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
                                   : <EyeOff style={{ width: 12, height: 12, color: '#dc2626' }} />
                                 }
                               </button>
-                            </div>
+                            </Reorder.Item>
                           )
                         })}
-                      </div>
+                      </Reorder.Group>
                     </div>
                   </Reorder.Item>
                 )
