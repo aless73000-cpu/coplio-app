@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import {
   Home, FileText, CreditCard, Building2,
   MessageCircle, User, LogOut, Bell,
-  CalendarDays, Wrench, Vote,
+  CalendarDays, Wrench, Vote, ChevronRight,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
@@ -75,15 +75,22 @@ export function PortailSidebar({
         </Link>
       </div>
 
-      {/* Logement */}
+      {/* Logement — cliquable */}
       <div className="px-3 pb-4 flex-shrink-0">
-        <div className="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5">
-          <p className="text-[9px] text-white/40 uppercase tracking-widest font-semibold mb-0.5">Mon logement</p>
-          <p className="text-sm font-semibold text-white/90 truncate">{coproprieteNom ?? '—'}</p>
-          {lotNumero && (
-            <p className="text-xs text-white/50 mt-0.5">Lot {lotNumero}</p>
-          )}
-        </div>
+        <Link
+          href="/mon-logement"
+          className="group flex items-center gap-2.5 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 rounded-xl px-3 py-2.5 transition-all"
+        >
+          <Home className="w-3.5 h-3.5 text-white/40 group-hover:text-white/70 flex-shrink-0 transition-colors" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[9px] text-white/40 uppercase tracking-widest font-semibold mb-0.5">Mon logement</p>
+            <p className="text-sm font-semibold text-white/90 truncate">{coproprieteNom ?? '—'}</p>
+            {lotNumero && (
+              <p className="text-xs text-white/50 mt-0.5">Lot {lotNumero}</p>
+            )}
+          </div>
+          <ChevronRight className="w-3.5 h-3.5 text-white/20 group-hover:text-white/50 flex-shrink-0 transition-colors" />
+        </Link>
       </div>
 
       {/* Séparateur */}
