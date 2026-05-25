@@ -167,8 +167,8 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
     return (
       <form onSubmit={onMfaSubmit} className="space-y-5">
         <div className="flex flex-col items-center gap-3 py-2">
-          <div className="w-14 h-14 bg-[#0A3D2B]-light rounded-2xl flex items-center justify-center shadow-apple-sm">
-            <ShieldCheck className="w-7 h-7 text-[#0A3D2B]" />
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center shadow-apple-sm">
+            <ShieldCheck className="w-7 h-7 text-[#111827]" />
           </div>
           <div className="text-center">
             <h2 className="font-semibold text-[#1D1D1F] text-base" style={{ letterSpacing: '-0.015em' }}>
@@ -181,8 +181,8 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
         </div>
 
         {mfaError && (
-          <div className="p-3.5 bg-coplio-red-bg border border-coplio-red/20 rounded-xl">
-            <p className="text-coplio-red text-sm">{mfaError}</p>
+          <div className="p-3.5 bg-red-50 border border-red-200/20 rounded-xl">
+            <p className="text-red-500 text-sm">{mfaError}</p>
           </div>
         )}
 
@@ -200,7 +200,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             onChange={e => setMfaCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
             placeholder="000 000"
             className="w-full px-4 py-3.5 text-xl bg-white border border-[#E8E8ED] rounded-xl
-                       focus:outline-none focus:ring-2 focus:ring-[#0A3D2B]/25 focus:border-[#0A3D2B]
+                       focus:outline-none focus:ring-2 focus:ring-[#111827]/25 focus:border-[#111827]
                        placeholder:text-[#C7C7CC] transition-all text-center tracking-[0.5em] font-mono
                        shadow-apple-sm"
           />
@@ -209,8 +209,8 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
         <button
           type="submit"
           disabled={mfaLoading || mfaCode.length !== 6}
-          className="w-full bg-[#0A3D2B] text-white font-semibold py-3.5 px-4 rounded-xl
-                     hover:bg-[#0d5240] transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+          className="w-full bg-[#111827] text-white font-semibold py-3.5 px-4 rounded-xl
+                     hover:bg-[#1F2937] transition-colors disabled:opacity-50 disabled:cursor-not-allowed
                      flex items-center justify-center gap-2 text-sm shadow-apple-sm
                      shadow-coplio-green/20"
           style={{ letterSpacing: '-0.01em' }}
@@ -240,8 +240,8 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {serverError && (
-        <div className="p-3.5 bg-coplio-red-bg border border-coplio-red/20 rounded-xl">
-          <p className="text-coplio-red text-sm">{serverError}</p>
+        <div className="p-3.5 bg-red-50 border border-red-200/20 rounded-xl">
+          <p className="text-red-500 text-sm">{serverError}</p>
         </div>
       )}
 
@@ -255,11 +255,11 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
           {...register('email')}
           placeholder="vous@cabinet.fr"
           className="w-full px-4 py-3 text-sm bg-white border border-[#E8E8ED] rounded-xl
-                     focus:outline-none focus:ring-2 focus:ring-[#0A3D2B]/25 focus:border-[#0A3D2B]
+                     focus:outline-none focus:ring-2 focus:ring-[#111827]/25 focus:border-[#111827]
                      placeholder:text-[#C7C7CC] transition-all shadow-apple-sm"
         />
         {errors.email && (
-          <p className="mt-1.5 text-xs text-coplio-red">{errors.email.message}</p>
+          <p className="mt-1.5 text-xs text-red-500">{errors.email.message}</p>
         )}
       </div>
 
@@ -271,7 +271,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
           </label>
           <a
             href="/forgot-password"
-            className="text-xs text-[#0A3D2B] hover:underline font-medium"
+            className="text-xs text-[#111827] hover:underline font-medium"
           >
             Mot de passe oublié ?
           </a>
@@ -282,7 +282,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             {...register('password')}
             placeholder="••••••••"
             className="w-full px-4 py-3 pr-11 text-sm bg-white border border-[#E8E8ED] rounded-xl
-                       focus:outline-none focus:ring-2 focus:ring-[#0A3D2B]/25 focus:border-[#0A3D2B]
+                       focus:outline-none focus:ring-2 focus:ring-[#111827]/25 focus:border-[#111827]
                        placeholder:text-[#C7C7CC] transition-all shadow-apple-sm"
           />
           <button
@@ -294,7 +294,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
           </button>
         </div>
         {errors.password && (
-          <p className="mt-1.5 text-xs text-coplio-red">{errors.password.message}</p>
+          <p className="mt-1.5 text-xs text-red-500">{errors.password.message}</p>
         )}
       </div>
 
@@ -304,7 +304,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
           type="checkbox"
           checked={persist}
           onChange={e => setPersist(e.target.checked)}
-          className="w-4 h-4 rounded border-[#E8E8ED] accent-coplio-green cursor-pointer"
+          className="w-4 h-4 rounded border-[#E8E8ED] accent-[#111827] cursor-pointer"
         />
         <span className="text-sm text-[#6E6E73]">Rester connecté</span>
       </label>
@@ -313,8 +313,8 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-[#0A3D2B] text-white font-semibold py-3.5 px-4 rounded-xl
-                   hover:bg-[#0d5240] transition-all disabled:opacity-50 disabled:cursor-not-allowed
+        className="w-full bg-[#111827] text-white font-semibold py-3.5 px-4 rounded-xl
+                   hover:bg-[#1F2937] transition-all disabled:opacity-50 disabled:cursor-not-allowed
                    flex items-center justify-center gap-2 text-sm shadow-apple-sm
                    shadow-coplio-green/20 hover:-translate-y-px hover:shadow-apple-md"
         style={{ letterSpacing: '-0.01em' }}
