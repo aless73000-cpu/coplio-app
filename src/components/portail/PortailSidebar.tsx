@@ -32,9 +32,9 @@ const NAV_GROUPS = [
   {
     href: '/mes-charges',
     label: 'Ma vie',
-    sub: 'Charges · Documents · Agenda',
+    sub: 'Charges · Documents · Contacts',
     icon: Briefcase,
-    matches: ['/mes-charges', '/mes-documents', '/mon-calendrier'],
+    matches: ['/mes-charges', '/mes-documents', '/mon-calendrier', '/mes-contacts'],
   },
   {
     href: '/mes-travaux',

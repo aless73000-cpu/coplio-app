@@ -11,7 +11,7 @@ interface PortailBottomNavProps {
 
 const NAV_ITEMS = [
   { href: '/accueil',     label: 'Accueil',   icon: Home,          matches: ['/accueil'] },
-  { href: '/mes-charges', label: 'Ma vie',    icon: Briefcase,     matches: ['/mes-charges', '/mes-documents', '/mon-calendrier'] },
+  { href: '/mes-charges', label: 'Ma vie',    icon: Briefcase,     matches: ['/mes-charges', '/mes-documents', '/mon-calendrier', '/mes-contacts'] },
   { href: '/mes-travaux', label: 'Copro',     icon: Building2,     matches: ['/mes-travaux', '/mes-assemblees', '/mes-votes', '/mes-signatures'] },
   { href: '/mes-messages',label: 'Messages',  icon: MessageCircle, matches: ['/mes-messages'] },
   { href: '/mon-compte',  label: 'Compte',    icon: User,          matches: ['/mon-compte'] },

@@ -117,6 +117,35 @@ async function signalerProbleme(formData: FormData) {
     }
   }
 
+  const photos = formData.getAll('photos') as File[]
+  const validPhotos = photos.filter(f => f.size > 0)
+  if (sinistre?.id && validPhotos.length > 0) {
+    const adminForPhotos = createAdminClient()
+    for (const photo of validPhotos.slice(0, 5)) {
+      const ext = photo.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+      const path = `sinistres/${sinistre.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const bytes = await photo.arrayBuffer()
+      const { error: uploadError } = await adminForPhotos.storage
+        .from('documents')
+        .upload(path, bytes, { contentType: photo.type, upsert: false })
+      if (!uploadError) {
+        await adminForPhotos.from('documents').insert({
+          cabinet_id: profile.cabinet_id,
+          copropriete_id: coproprieteId,
+          sinistre_id: sinistre.id,
+          nom: photo.name,
+          type_mime: photo.type,
+          taille_bytes: photo.size,
+          storage_path: path,
+          storage_bucket: 'documents',
+          categorie: 'sinistre',
+          visible_coproprietaires: true,
+          upload_par: user.id,
+        })
+      }
+    }
+  }
+
   redirect('/mes-travaux')
 }
 
@@ -281,7 +310,7 @@ export default async function MesTravaux({
                 </a>
               </div>
 
-              <form action={signalerProbleme} method="POST">
+              <form action={signalerProbleme} method="POST" encType="multipart/form-data">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-sm font-medium text-coplio-text mb-1.5">
@@ -323,6 +352,19 @@ export default async function MesTravaux({
                     rows={4}
                     placeholder="Décrivez le problème : depuis quand, localisation précise, impact sur votre logement..."
                     className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent resize-none"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-coplio-text mb-1.5">
+                    Photos <span className="text-xs text-muted-foreground font-normal">(facultatif · max 5 photos · JPG, PNG, HEIC)</span>
+                  </label>
+                  <input
+                    type="file"
+                    name="photos"
+                    multiple
+                    accept="image/*,.heic,.heif"
+                    className="w-full text-sm text-muted-foreground file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-coplio-green-light file:text-coplio-green hover:file:bg-coplio-green/20 transition-colors cursor-pointer"
                   />
                 </div>
 

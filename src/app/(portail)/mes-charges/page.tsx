@@ -13,7 +13,7 @@ export default async function MesChargesPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('lot_id, prenom, nom, lot:lots(numero, etage, copropriete:coproprietes(id, nom, iban, banque))')
+    .select('lot_id, prenom, nom, lot:lots(numero, etage, solde_compte, tantiemes, copropriete:coproprietes(id, nom, iban, banque))')
     .eq('id', user.id)
     .single()
 
@@ -37,7 +37,13 @@ export default async function MesChargesPage() {
     .order('date_echeance', { ascending: false })
     .limit(60)
 
-  const lot = profile.lot as { numero: string; etage?: string; copropriete: { id: string; nom: string; iban?: string; banque?: string } } | null
+  const lot = profile.lot as {
+    numero: string
+    etage?: string
+    solde_compte?: number
+    tantiemes?: number
+    copropriete: { id: string; nom: string; iban?: string; banque?: string }
+  } | null
 
   const appelsList = appels ?? []
   const total_du = appelsList.reduce(
@@ -48,6 +54,13 @@ export default async function MesChargesPage() {
     (a, b) => new Date(a.date_echeance).getTime() - new Date(b.date_echeance).getTime()
   )[0]
 
+  const currentYear = new Date().getFullYear()
+
+  const appelsCetteAnnee = appelsList.filter(a => new Date(a.date_echeance).getFullYear() === currentYear)
+  const totalAppele = appelsCetteAnnee.reduce((s, a) => s + a.montant, 0)
+  const totalPaye = appelsCetteAnnee.reduce((s, a) => s + (a.montant_paye ?? 0), 0)
+  const soldeCompte = lot?.solde_compte ?? 0
+
   // Group by year
   const byYear = appelsList.reduce<Record<number, typeof appelsList>>((acc, a) => {
     const year = new Date(a.date_echeance).getFullYear()
@@ -56,8 +69,6 @@ export default async function MesChargesPage() {
     return acc
   }, {})
   const years = Object.keys(byYear).map(Number).sort((a, b) => b - a)
-
-  const currentYear = new Date().getFullYear()
 
   return (
     <div className="max-w-3xl mx-auto space-y-5 py-4">
@@ -155,6 +166,39 @@ export default async function MesChargesPage() {
           </div>
         </div>
       )}
+
+      {/* Relevé de compte */}
+      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="px-5 py-4 border-b border-border">
+          <h2 className="font-semibold text-coplio-text">Situation de compte</h2>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border">
+          <div className="px-4 py-4">
+            <p className="text-xs text-muted-foreground mb-1">Solde actuel</p>
+            <p className={`text-lg font-bold ${soldeCompte >= 0 ? 'text-coplio-green' : 'text-coplio-red'}`}>
+              {formatEuro(soldeCompte)}
+            </p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">{soldeCompte >= 0 ? 'Créditeur' : 'Débiteur'}</p>
+          </div>
+          <div className="px-4 py-4">
+            <p className="text-xs text-muted-foreground mb-1">Appelé {currentYear}</p>
+            <p className="text-base font-bold text-coplio-text">{formatEuro(totalAppele)}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">{appelsCetteAnnee.length} appel{appelsCetteAnnee.length > 1 ? 's' : ''}</p>
+          </div>
+          <div className="px-4 py-4">
+            <p className="text-xs text-muted-foreground mb-1">Payé {currentYear}</p>
+            <p className="text-base font-bold text-coplio-green">{formatEuro(totalPaye)}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {Math.round(totalAppele > 0 ? (totalPaye / totalAppele) * 100 : 100)}% réglé
+            </p>
+          </div>
+          <div className="px-4 py-4">
+            <p className="text-xs text-muted-foreground mb-1">Tantièmes</p>
+            <p className="text-base font-bold text-coplio-text">{lot?.tantiemes ?? '—'}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">Quote-part</p>
+          </div>
+        </div>
+      </div>
 
       {/* Historique */}
       <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
