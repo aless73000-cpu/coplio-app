@@ -132,6 +132,8 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
   const [editVisible, setEditVisible] = useState<Record<string, boolean>>({})
   const [draggedKpi, setDraggedKpi] = useState<string | null>(null)
   const [dragOverKpi, setDragOverKpi] = useState<string | null>(null)
+  const kpiDragSource = useRef<string | null>(null)
+  const kpiLastTarget = useRef<string | null>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   // Ouvre/ferme le <dialog> natif en sync avec editMode
@@ -507,29 +509,35 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
                               draggable
                               onDragStart={(e) => {
                                 e.stopPropagation()
+                                kpiDragSource.current = kpiId
+                                kpiLastTarget.current = null
                                 setDraggedKpi(kpiId)
                                 e.dataTransfer.effectAllowed = 'move'
                               }}
                               onDragEnter={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
-                                if (draggedKpi && draggedKpi !== kpiId) {
-                                  setDragOverKpi(kpiId)
-                                  // Swap immédiat pour feedback visuel instantané
-                                  setEditKpiOrder((prev) => {
-                                    const arr = [...prev]
-                                    const from = arr.indexOf(draggedKpi)
-                                    const to = arr.indexOf(kpiId)
-                                    if (from === -1 || to === -1) return prev
-                                    arr.splice(from, 1)
-                                    arr.splice(to, 0, draggedKpi)
-                                    return arr
-                                  })
-                                }
+                                const src = kpiDragSource.current
+                                if (!src || src === kpiId) return
+                                // Évite les déclenchements multiples sur le même target
+                                if (kpiLastTarget.current === kpiId) return
+                                kpiLastTarget.current = kpiId
+                                setDragOverKpi(kpiId)
+                                setEditKpiOrder((prev) => {
+                                  const arr = [...prev]
+                                  const from = arr.indexOf(src)
+                                  const to = arr.indexOf(kpiId)
+                                  if (from === -1 || to === -1) return prev
+                                  arr.splice(from, 1)
+                                  arr.splice(to, 0, src)
+                                  return arr
+                                })
                               }}
                               onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
                               onDragEnd={(e) => {
                                 e.stopPropagation()
+                                kpiDragSource.current = null
+                                kpiLastTarget.current = null
                                 setDraggedKpi(null)
                                 setDragOverKpi(null)
                               }}
