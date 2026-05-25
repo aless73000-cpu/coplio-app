@@ -85,25 +85,40 @@ export interface DashboardData {
 // ─── Widget metadata ──────────────────────────────────────────
 
 const WIDGET_LABELS: Record<string, string> = {
-  kpis_1:               'KPIs principaux',
-  kpis_2:               'KPIs secondaires',
+  kpi_coproprietes:    'Copropriétés',
+  kpi_lots:            'Lots gérés',
+  kpi_sinistres:       'Sinistres',
+  kpi_impayes:         'Impayés',
+  kpi_coproprietaires: 'Copropriétaires',
+  kpi_portail:         'Portail actif',
+  kpi_ag:              'AG à venir',
+  kpi_recouvrement:    'Recouvrement',
   alertes_intelligentes:'Alertes intelligentes',
-  graphiques_finances:  'Graphiques financiers',
-  graphiques_copros:    'Graphiques copropriétés',
-  performance:          'Performance cabinet',
-  alertes_coproprietes: 'Alertes copropriétés',
-  sinistres:            'Sinistres en cours',
-  ag:                   'AG à venir',
-  actions_rapides:      'Actions rapides',
+  graphiques_finances: 'Graphiques financiers',
+  graphiques_copros:   'Graphiques copropriétés',
+  performance:         'Performance cabinet',
+  alertes_coproprietes:'Alertes copropriétés',
+  sinistres:           'Sinistres en cours',
+  ag:                  'AG à venir',
+  actions_rapides:     'Actions rapides',
 }
 
 const WIDGET_ICONS: Record<string, React.ElementType> = {
-  kpis_1: BarChart2, kpis_2: Users,
+  kpi_coproprietes: Building2, kpi_lots: Home,
+  kpi_sinistres: AlertTriangle, kpi_impayes: CreditCard,
+  kpi_coproprietaires: Users, kpi_portail: TrendingUp,
+  kpi_ag: CalendarDays, kpi_recouvrement: BarChart2,
   alertes_intelligentes: AlertTriangle, graphiques_finances: TrendingUp,
   graphiques_copros: PieChart, performance: BarChart2,
   alertes_coproprietes: Building2, sinistres: AlertTriangle,
   ag: CalendarDays, actions_rapides: Zap,
 }
+
+// KPIs individuels → regroupement automatique en grille dans le rendu normal
+const KPI_IDS = new Set([
+  'kpi_coproprietes','kpi_lots','kpi_sinistres','kpi_impayes',
+  'kpi_coproprietaires','kpi_portail','kpi_ag','kpi_recouvrement',
+])
 
 // ─── DashboardCanvas ──────────────────────────────────────────
 
@@ -132,7 +147,9 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
   }, [autoEdit, hydrated])
 
   const DEFAULT_ORDER = [
-    'kpis_1', 'kpis_2', 'alertes_intelligentes', 'graphiques_finances',
+    'kpi_coproprietes', 'kpi_lots', 'kpi_sinistres', 'kpi_impayes',
+    'kpi_coproprietaires', 'kpi_portail', 'kpi_ag', 'kpi_recouvrement',
+    'alertes_intelligentes', 'graphiques_finances',
     'graphiques_copros', 'performance', 'alertes_coproprietes',
     'sinistres', 'ag', 'actions_rapides',
   ]
@@ -170,26 +187,25 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
 
   function getWidgetContent(id: string) {
     switch (id) {
-      case 'kpis_1':
-        return (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <KpiCard title="Copropriétés"   value={data.kpis.nb_coproprietes}            icon={Building2}     href="/coproprietes"    color="green" />
-            <KpiCard title="Lots gérés"     value={data.kpis.nb_lots}                    icon={Home}          href="/coproprietes"    color="blue" />
-            <KpiCard title="Sinistres"       value={data.kpis.nb_sinistres_ouverts}       icon={AlertTriangle} href="/sinistres"       color={data.kpis.nb_sinistres_ouverts > 0 ? 'amber' : 'green'} />
-            <KpiCard title="Impayés totaux"  value={formatEuro(data.kpis.montant_total_impayes)} icon={CreditCard} href="/impayes" color={data.kpis.montant_total_impayes > 0 ? 'red' : 'green'} isAmount />
-          </div>
-        )
-      case 'kpis_2':
-        return (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <KpiCard title="Copropriétaires" value={data.kpis.nb_coproprietaires} icon={Users}        href="/coproprietaires" color="blue" />
-            <KpiCard title="Portail actif"   value={data.kpis.nb_portail_actif}   icon={TrendingUp}   href="/coproprietaires"
-              color={data.kpis.nb_portail_actif > 0 ? 'green' : 'amber'}
-              sub={data.kpis.nb_coproprietaires > 0 ? `${Math.round((data.kpis.nb_portail_actif / data.kpis.nb_coproprietaires) * 100)}% avec accès` : undefined} />
-            <KpiCard title="AG à venir"     value={data.kpis.nb_ag_a_preparer}  icon={CalendarDays} href="/assemblees"      color={data.kpis.nb_ag_a_preparer > 0 ? 'amber' : 'green'} />
-            <KpiCard title="Recouvrement"   value={`${data.tauxGlobal}%`}       icon={BarChart2}    href="/appels-charges"  color={data.tauxGlobal >= 90 ? 'green' : data.tauxGlobal >= 70 ? 'amber' : 'red'} />
-          </div>
-        )
+      // ── KPIs individuels ────────────────────────────────────
+      case 'kpi_coproprietes':
+        return <KpiCard title="Copropriétés" value={data.kpis.nb_coproprietes} icon={Building2} href="/coproprietes" color="green" />
+      case 'kpi_lots':
+        return <KpiCard title="Lots gérés" value={data.kpis.nb_lots} icon={Home} href="/coproprietes" color="blue" />
+      case 'kpi_sinistres':
+        return <KpiCard title="Sinistres" value={data.kpis.nb_sinistres_ouverts} icon={AlertTriangle} href="/sinistres" color={data.kpis.nb_sinistres_ouverts > 0 ? 'amber' : 'green'} />
+      case 'kpi_impayes':
+        return <KpiCard title="Impayés totaux" value={formatEuro(data.kpis.montant_total_impayes)} icon={CreditCard} href="/impayes" color={data.kpis.montant_total_impayes > 0 ? 'red' : 'green'} isAmount />
+      case 'kpi_coproprietaires':
+        return <KpiCard title="Copropriétaires" value={data.kpis.nb_coproprietaires} icon={Users} href="/coproprietaires" color="blue" />
+      case 'kpi_portail':
+        return <KpiCard title="Portail actif" value={data.kpis.nb_portail_actif} icon={TrendingUp} href="/coproprietaires"
+          color={data.kpis.nb_portail_actif > 0 ? 'green' : 'amber'}
+          sub={data.kpis.nb_coproprietaires > 0 ? `${Math.round((data.kpis.nb_portail_actif / data.kpis.nb_coproprietaires) * 100)}% avec accès` : undefined} />
+      case 'kpi_ag':
+        return <KpiCard title="AG à venir" value={data.kpis.nb_ag_a_preparer} icon={CalendarDays} href="/assemblees" color={data.kpis.nb_ag_a_preparer > 0 ? 'amber' : 'green'} />
+      case 'kpi_recouvrement':
+        return <KpiCard title="Recouvrement" value={`${data.tauxGlobal}%`} icon={BarChart2} href="/appels-charges" color={data.tauxGlobal >= 90 ? 'green' : data.tauxGlobal >= 70 ? 'amber' : 'red'} />
       case 'alertes_intelligentes':
         if (data.smartAlerts.length === 0) return null
         return (
@@ -342,12 +358,41 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
           </div>
         )}
 
-        {orderedIds.map((id) => {
-          if (!isVisible(id)) return null
-          const content = getWidgetContent(id)
-          if (!content) return null
-          return <div key={id}>{content}</div>
-        })}
+        {/* Rendu avec regroupement automatique des KPIs consécutifs en grille */}
+        {(() => {
+          const visible = orderedIds.filter((id) => isVisible(id))
+          const rows: React.ReactNode[] = []
+          let i = 0
+          while (i < visible.length) {
+            const id = visible[i]
+            if (KPI_IDS.has(id)) {
+              // Collecter tous les KPIs consécutifs
+              const group: string[] = []
+              while (i < visible.length && KPI_IDS.has(visible[i])) {
+                group.push(visible[i])
+                i++
+              }
+              rows.push(
+                <div key={group.join('-')} className={`grid gap-4 ${
+                  group.length === 1 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' :
+                  group.length === 2 ? 'grid-cols-2' :
+                  group.length === 3 ? 'grid-cols-2 lg:grid-cols-3' :
+                  'grid-cols-2 lg:grid-cols-4'
+                }`}>
+                  {group.map((kpiId) => {
+                    const c = getWidgetContent(kpiId)
+                    return c ? <div key={kpiId}>{c}</div> : null
+                  })}
+                </div>
+              )
+            } else {
+              const content = getWidgetContent(id)
+              if (content) rows.push(<div key={id}>{content}</div>)
+              i++
+            }
+          }
+          return rows
+        })()}
       </div>
 
       {/* ── Modal <dialog> natif — grand écran, vrais widgets glissables ── */}
