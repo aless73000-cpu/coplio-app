@@ -4,7 +4,11 @@ import { DashboardCanvas } from '@/components/dashboard/DashboardCanvas'
 import type { DashboardData } from '@/components/dashboard/DashboardCanvas'
 import type { Copropriete } from '@/types'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { edit?: string }
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -259,5 +263,5 @@ export default async function DashboardPage() {
     hasAppels:   allAppels.length > 0,
   }
 
-  return <DashboardCanvas data={dashboardData} />
+  return <DashboardCanvas data={dashboardData} autoEdit={searchParams.edit === 'true'} />
 }

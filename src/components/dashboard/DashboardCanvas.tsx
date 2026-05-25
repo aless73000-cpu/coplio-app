@@ -107,7 +107,7 @@ const WIDGET_ICONS: Record<string, React.ElementType> = {
 
 // ─── DashboardCanvas ──────────────────────────────────────────
 
-export function DashboardCanvas({ data }: { data: DashboardData }) {
+export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoEdit?: boolean }) {
   const { widgets, saveWidgets, hydrated } = useDashboardPrefs(data.userId)
   const [editMode, setEditMode] = useState(false)
   const [editOrder, setEditOrder] = useState<string[]>([])
@@ -124,6 +124,12 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
       if (dlg.open) dlg.close()
     }
   }, [editMode])
+
+  // Auto-ouverture si venu depuis Paramètres
+  useEffect(() => {
+    if (autoEdit && hydrated) enterEdit()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoEdit, hydrated])
 
   const DEFAULT_ORDER = [
     'kpis_1', 'kpis_2', 'alertes_intelligentes', 'graphiques_finances',
@@ -300,13 +306,6 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={enterEdit}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium text-slate-500 hover:text-[#374151] hover:bg-slate-100 border border-slate-200 transition-colors"
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-              <span className="hidden sm:inline">Modifier</span>
-            </button>
             <div className="hidden md:block">
               <RapportMensuelButton data={{
                 coproprietes: data.coproprietesCritiques as Copropriete[],
@@ -351,96 +350,121 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
         })}
       </div>
 
-      {/* ── Modal natif <dialog> — top layer navigateur, zéro conflit CSS ── */}
+      {/* ── Modal <dialog> natif — grand écran, vrais widgets glissables ── */}
       <dialog
         ref={dialogRef}
         onClose={cancelEdit}
-        onClick={(e) => { if (e.target === dialogRef.current) cancelEdit() }}
         style={{
-          position: 'fixed',
-          bottom: 0, left: 0, right: 0,
-          top: 'auto',
-          margin: 0,
+          margin: 'auto',
           padding: 0,
-          width: '100%',
-          maxWidth: 480,
-          maxHeight: '88vh',
+          width: 'min(82vw, 1000px)',
+          maxHeight: '90vh',
           border: 'none',
-          borderRadius: '24px 24px 0 0',
-          boxShadow: '0 -8px 40px rgba(0,0,0,0.22)',
+          borderRadius: 20,
+          boxShadow: '0 24px 80px rgba(0,0,0,0.28)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
+          background: '#f8fafc',
         }}
       >
         <style>{`
-          dialog::backdrop {
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-          }
+          dialog::backdrop { background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); }
         `}</style>
 
-        {/* Poignée */}
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px', background: '#fff' }}>
-          <div style={{ width: 40, height: 4, borderRadius: 2, background: '#e2e8f0' }} />
-        </div>
-
-        {/* En-tête */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px 12px', borderBottom: '1px solid #f1f5f9', background: '#fff' }}>
-          <button onClick={cancelEdit} style={{ fontSize: 14, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+        {/* Barre du haut */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '16px 20px', background: '#fff',
+          borderBottom: '1px solid #e2e8f0', flexShrink: 0,
+        }}>
+          <button onClick={cancelEdit} style={{ fontSize: 14, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 10px', borderRadius: 10 }}>
             Annuler
           </button>
           <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: '#374151', margin: 0 }}>Personnaliser</p>
-            <p style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0 0' }}>Glissez pour réorganiser</p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: '#374151', margin: 0, letterSpacing: '-0.3px' }}>
+              Personnaliser le tableau de bord
+            </p>
+            <p style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0 0' }}>
+              Maintenez un bloc et glissez-le pour le déplacer
+            </p>
           </div>
-          <button onClick={saveEdit} style={{ fontSize: 14, fontWeight: 700, color: '#374151', background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+          <button onClick={saveEdit} style={{
+            fontSize: 14, fontWeight: 700, color: '#fff',
+            background: '#374151', border: 'none', cursor: 'pointer',
+            padding: '7px 16px', borderRadius: 10,
+          }}>
             Enregistrer
           </button>
         </div>
 
-        {/* Liste des blocs */}
-        <div style={{ overflowY: 'auto', flex: 1, padding: 16, background: '#f8fafc' }}>
-          <Reorder.Group axis="y" values={editOrder} onReorder={setEditOrder} as="div" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {/* Corps — vrais widgets glissables */}
+        <div style={{ overflowY: 'auto', flex: 1, padding: '16px 20px' }}>
+          <Reorder.Group axis="y" values={editOrder} onReorder={setEditOrder} as="div" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {editOrder.map((id) => {
               const visible = editVisible[id] ?? true
               const Icon = WIDGET_ICONS[id] ?? BarChart2
+              const content = getWidgetContent(id)
               return (
-                <Reorder.Item key={id} value={id} style={{ listStyle: 'none' }}
-                  whileDrag={{ scale: 1.03, boxShadow: '0 12px 32px rgba(0,0,0,0.14)', zIndex: 50, borderRadius: 18 }}>
-                  <div style={{
-                    background: '#fff', border: `1px solid ${visible ? '#e2e8f0' : '#f1f5f9'}`,
-                    borderRadius: 18, padding: '12px 16px', display: 'flex', alignItems: 'center',
-                    gap: 12, cursor: 'grab', userSelect: 'none', opacity: visible ? 1 : 0.45,
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
-                  }}>
-                    <GripHorizontal style={{ width: 16, height: 16, color: '#cbd5e1', flexShrink: 0 }} />
-                    <div style={{ width: 36, height: 36, borderRadius: 12, background: visible ? '#f1f5f9' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <Icon style={{ width: 16, height: 16, color: '#64748b' }} />
+                <Reorder.Item
+                  key={id} value={id} style={{ listStyle: 'none', cursor: 'grab' }}
+                  whileDrag={{ scale: 1.01, boxShadow: '0 16px 48px rgba(0,0,0,0.18)', zIndex: 50, borderRadius: 16 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <div style={{ opacity: visible ? 1 : 0.35, transition: 'opacity 0.2s' }}>
+                    {/* Barre de drag au-dessus du widget */}
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '7px 14px 7px 10px',
+                      background: '#fff',
+                      borderRadius: '14px 14px 0 0',
+                      border: '1px solid #e2e8f0', borderBottom: 'none',
+                      userSelect: 'none',
+                    }}>
+                      <GripHorizontal style={{ width: 16, height: 16, color: '#cbd5e1', flexShrink: 0 }} />
+                      <div style={{ width: 24, height: 24, borderRadius: 8, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Icon style={{ width: 13, height: 13, color: '#64748b' }} />
+                      </div>
+                      <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: '#64748b' }}>
+                        {WIDGET_LABELS[id]}
+                      </span>
+                      <button
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => { e.stopPropagation(); toggleVisibility(id) }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 5,
+                          padding: '4px 10px', borderRadius: 8, border: 'none',
+                          background: visible ? '#f1f5f9' : '#fee2e2',
+                          cursor: 'pointer', fontSize: 11, fontWeight: 600,
+                          color: visible ? '#64748b' : '#dc2626',
+                        }}>
+                        {visible
+                          ? <><Eye style={{ width: 13, height: 13 }} /> Visible</>
+                          : <><EyeOff style={{ width: 13, height: 13 }} /> Masqué</>
+                        }
+                      </button>
                     </div>
-                    <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {WIDGET_LABELS[id]}
-                    </span>
-                    <button
-                      onPointerDown={(e) => e.stopPropagation()}
-                      onClick={(e) => { e.stopPropagation(); toggleVisibility(id) }}
-                      style={{ padding: 8, borderRadius: 12, background: visible ? '#f1f5f9' : '#f8fafc', border: 'none', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                      {visible
-                        ? <Eye style={{ width: 16, height: 16, color: '#64748b' }} />
-                        : <EyeOff style={{ width: 16, height: 16, color: '#cbd5e1' }} />}
-                    </button>
+
+                    {/* Contenu réel du widget — pointer-events-none pour éviter les clics accidentels */}
+                    <div style={{
+                      pointerEvents: 'none', userSelect: 'none',
+                      border: '1px solid #e2e8f0', borderTop: 'none',
+                      borderRadius: '0 0 14px 14px',
+                      background: '#fff', overflow: 'hidden',
+                      padding: content ? 0 : '20px 16px',
+                    }}>
+                      {content
+                        ? <div style={{ padding: 14 }}>{content}</div>
+                        : <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', margin: 0 }}>
+                            Aucune donnée pour l&apos;instant
+                          </p>
+                      }
+                    </div>
                   </div>
                 </Reorder.Item>
               )
             })}
           </Reorder.Group>
-        </div>
-
-        {/* Pied de page */}
-        <div style={{ padding: 16, borderTop: '1px solid #f1f5f9', background: '#fff' }}>
-          <button onClick={saveEdit} style={{ width: '100%', background: '#374151', color: '#fff', fontSize: 14, fontWeight: 700, padding: 14, borderRadius: 18, border: 'none', cursor: 'pointer' }}>
-            Enregistrer les modifications
-          </button>
         </div>
       </dialog>
     </>
