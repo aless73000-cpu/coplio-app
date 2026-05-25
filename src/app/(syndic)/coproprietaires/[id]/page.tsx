@@ -9,6 +9,7 @@ import {
 import { formatEuro, formatDate } from '@/lib/utils'
 import { InviterPortailButton } from '@/components/syndic/InviterPortailButton'
 import { DeleteCoproprietaireButton } from '@/components/syndic/DeleteCoproprietaireButton'
+import { ConseilSyndicalSection } from '@/components/syndic/ConseilSyndicalSection'
 
 export default async function CopropriétairePage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
@@ -34,7 +35,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
 
   const lotIds = (junctionData ?? []).map((j: { lot_id: string }) => j.lot_id)
 
-  // Données lots + appels de charges en parallèle
+  // Données lots + appels de charges + conseil syndical en parallèle
   const [lotsData, appelsData] = await Promise.all([
     lotIds.length > 0
       ? admin
@@ -57,6 +58,33 @@ export default async function CopropriétairePage({ params }: { params: { id: st
   ])
 
   const lots = (lotsData ?? []).map((lot) => ({ lot }))
+
+  // Copropriétés uniques liées à ce copropriétaire
+  const coproprietes = Array.from(
+    new Map(
+      (lotsData ?? [])
+        .map((l) => (l as { copropriete?: { id: string; nom: string } | null }).copropriete)
+        .filter(Boolean)
+        .map((c) => [c!.id, c!] as [string, { id: string; nom: string }])
+    ).values()
+  )
+
+  // Appartenance(s) au conseil syndical existantes (par email, sans join)
+  const conseilData = coproprietes.length > 0 && copropriétaire.email
+    ? await admin
+        .from('conseil_syndical')
+        .select('id, copropriete_id, role')
+        .in('copropriete_id', coproprietes.map(c => c.id))
+        .eq('email', copropriétaire.email)
+        .then(r => r.data ?? [])
+    : []
+
+  const memberships = (conseilData as { id: string; copropriete_id: string; role: string | null }[]).map(m => ({
+    id: m.id,
+    copropriete_id: m.copropriete_id,
+    copropriete_nom: coproprietes.find(c => c.id === m.copropriete_id)?.nom ?? '',
+    role: m.role ?? 'membre',
+  }))
 
   // ─── Calculs financiers ───────────────────────────────────
   type Appel = {
@@ -294,6 +322,17 @@ export default async function CopropriétairePage({ params }: { params: { id: st
           </div>
         )}
       </div>
+
+      {/* ── Conseil syndical ──────────────────────────────────── */}
+      <ConseilSyndicalSection
+        coproprietaireId={copropriétaire.id}
+        prenom={copropriétaire.prenom}
+        nom={copropriétaire.nom}
+        email={copropriétaire.email ?? null}
+        telephone={copropriétaire.telephone ?? null}
+        coproprietes={coproprietes}
+        memberships={memberships}
+      />
 
       {/* ── Portail copropriétaire ─────────────────────────────── */}
       <div className="coplio-card">

@@ -6,10 +6,18 @@ import {
   AlertTriangle, CheckCircle2,
   Landmark, UserX, Calendar,
   Bell, CreditCard, ArrowRight,
-  CalendarDays, Vote, ChevronRight,
+  CalendarDays, Vote, ChevronRight, Crown,
 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { AppelCharges, Document, Sinistre, Notification } from '@/types'
+
+const CONSEIL_ROLE_LABELS: Record<string, string> = {
+  president: 'Président du conseil syndical',
+  vice_president: 'Vice-président du conseil syndical',
+  tresorier: 'Trésorier du conseil syndical',
+  secretaire: 'Secrétaire du conseil syndical',
+  membre: 'Membre du conseil syndical',
+}
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -99,6 +107,7 @@ export default async function AccueilPage() {
     { data: notifications },
     { data: fondsTravaux },
     { data: prochainAG },
+    { data: conseilEntry },
   ] = await Promise.all([
     lotId
       ? supabase.from('appels_charges').select('*').eq('lot_id', lotId).eq('paye', false)
@@ -122,6 +131,14 @@ export default async function AccueilPage() {
           .eq('copropriete_id', coproprieteId)
           .gte('date_ag', new Date().toISOString())
           .order('date_ag', { ascending: true }).limit(1).maybeSingle()
+      : Promise.resolve({ data: null }),
+    // Vérifier si cet utilisateur est membre du conseil syndical
+    coproprieteId && profile?.email
+      ? supabase.from('conseil_syndical')
+          .select('id, role')
+          .eq('copropriete_id', coproprieteId)
+          .eq('email', profile.email)
+          .maybeSingle()
       : Promise.resolve({ data: null }),
   ])
 
@@ -201,6 +218,25 @@ export default async function AccueilPage() {
           </p>
         )}
       </div>
+
+      {/* ── Badge Conseil syndical ── */}
+      {conseilEntry && (
+        <div className="flex items-center gap-3 px-4 py-3 rounded-2xl border"
+          style={{ background: '#fefce8', borderColor: '#fde68a' }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: '#fef3c7' }}>
+            <Crown className="w-4 h-4 text-amber-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-amber-900">
+              {CONSEIL_ROLE_LABELS[(conseilEntry as { id: string; role: string }).role] ?? 'Membre du conseil syndical'}
+            </p>
+            <p className="text-xs text-amber-700/70 mt-0.5">
+              Vous avez accès aux documents et informations de toute la copropriété
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── Bandeau statut charges ── */}
       <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border"
