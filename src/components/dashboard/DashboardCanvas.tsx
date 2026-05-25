@@ -358,41 +358,26 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
           </div>
         )}
 
-        {/* Rendu avec regroupement automatique des KPIs consécutifs en grille */}
+        {/* Bloc KPIs — toujours groupés en grille 4 colonnes */}
         {(() => {
-          const visible = orderedIds.filter((id) => isVisible(id))
-          const rows: React.ReactNode[] = []
-          let i = 0
-          while (i < visible.length) {
-            const id = visible[i]
-            if (KPI_IDS.has(id)) {
-              // Collecter tous les KPIs consécutifs
-              const group: string[] = []
-              while (i < visible.length && KPI_IDS.has(visible[i])) {
-                group.push(visible[i])
-                i++
-              }
-              rows.push(
-                <div key={group.join('-')} className={`grid gap-4 ${
-                  group.length === 1 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' :
-                  group.length === 2 ? 'grid-cols-2' :
-                  group.length === 3 ? 'grid-cols-2 lg:grid-cols-3' :
-                  'grid-cols-2 lg:grid-cols-4'
-                }`}>
-                  {group.map((kpiId) => {
-                    const c = getWidgetContent(kpiId)
-                    return c ? <div key={kpiId}>{c}</div> : null
-                  })}
-                </div>
-              )
-            } else {
-              const content = getWidgetContent(id)
-              if (content) rows.push(<div key={id}>{content}</div>)
-              i++
-            }
-          }
-          return rows
+          const visibleKpis = orderedIds.filter((id) => KPI_IDS.has(id) && isVisible(id))
+          if (visibleKpis.length === 0) return null
+          return (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {visibleKpis.map((id) => (
+                <div key={id}>{getWidgetContent(id)}</div>
+              ))}
+            </div>
+          )
         })()}
+
+        {/* Autres blocs dans l'ordre personnalisé */}
+        {orderedIds.filter((id) => !KPI_IDS.has(id)).map((id) => {
+          if (!isVisible(id)) return null
+          const content = getWidgetContent(id)
+          if (!content) return null
+          return <div key={id}>{content}</div>
+        })}
       </div>
 
       {/* ── Modal <dialog> natif — grand écran, vrais widgets glissables ── */}
