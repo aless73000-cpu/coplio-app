@@ -21,8 +21,9 @@ import {
   PieChart,
   GripHorizontal,
   SlidersHorizontal,
+  X,
 } from 'lucide-react'
-import { Reorder, useDragControls, motion } from 'framer-motion'
+import { Reorder, motion, AnimatePresence } from 'framer-motion'
 import { formatEuro } from '@/lib/utils'
 import {
   RecouvrementChartLazy as RecouvrementChart,
@@ -81,7 +82,7 @@ export interface DashboardData {
   hasAppels: boolean
 }
 
-// ─── Widget labels ────────────────────────────────────────────
+// ─── Widget metadata ──────────────────────────────────────────
 
 const WIDGET_LABELS: Record<string, string> = {
   kpis_1:               'KPIs principaux',
@@ -172,12 +173,8 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
           </div>
         )
       case 'alertes_intelligentes':
-        if (!editMode && data.smartAlerts.length === 0) return null
-        return data.smartAlerts.length === 0 ? (
-          <div className="coplio-card">
-            <p className="text-sm text-slate-400 text-center py-4">Aucune alerte intelligente pour le moment</p>
-          </div>
-        ) : (
+        if (data.smartAlerts.length === 0) return null
+        return (
           <div className="space-y-2">
             {data.smartAlerts.map((alert) => (
               <div key={alert.id} className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm ${alert.severity === 'warning' ? 'bg-amber-50 border border-amber-100' : 'bg-blue-50 border border-blue-100'}`}>
@@ -191,10 +188,8 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
           </div>
         )
       case 'graphiques_finances':
-        if (!editMode && !data.hasAppels) return null
-        return !data.hasAppels ? (
-          <div className="coplio-card"><p className="text-sm text-slate-400 text-center py-4">Aucun appel de charges pour le moment</p></div>
-        ) : (
+        if (!data.hasAppels) return null
+        return (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2"><EvolutionChart data={data.evolutionData} /></div>
             <TauxGlobalCard taux={data.tauxGlobal} montantRecouvre={data.totalRecouvre} montantTotal={data.totalEmis} />
@@ -202,10 +197,8 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
         )
       case 'graphiques_copros': {
         const hasData = data.tauxData.length > 0 || (data.statutData.aJour + data.statutData.attention + data.statutData.urgent) > 0
-        if (!editMode && !hasData) return null
-        return !hasData ? (
-          <div className="coplio-card"><p className="text-sm text-slate-400 text-center py-4">Aucune donnée de copropriété pour le moment</p></div>
-        ) : (
+        if (!hasData) return null
+        return (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <RecouvrementChart data={data.tauxData} />
             <StatutChart {...data.statutData} />
@@ -215,51 +208,39 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
       case 'performance':
         return <PerformanceSection tauxGlobal={data.tauxGlobal} nbCoproprietes={data.kpis.nb_coproprietes} nbLots={data.kpis.nb_lots} />
       case 'alertes_coproprietes':
-        if (!editMode && data.coproprietesCritiques.length === 0) return null
+        if (data.coproprietesCritiques.length === 0) return null
         return (
           <div className="coplio-card">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold text-[#374151]">Alertes copropriétés</h2>
               <Link href="/coproprietes" className="text-xs text-slate-400 hover:text-[#374151] transition-colors flex items-center gap-1">Voir tout <ArrowRight className="w-3 h-3" /></Link>
             </div>
-            {data.coproprietesCritiques.length === 0 ? (
-              <p className="text-sm text-slate-400 text-center py-4">Aucune alerte en cours</p>
-            ) : (
-              <div className="space-y-0.5">
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {data.coproprietesCritiques.map((c) => <CoproprieteAlertRow key={c.id} copropriete={c as any} />)}
-              </div>
-            )}
+            <div className="space-y-0.5">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {data.coproprietesCritiques.map((c) => <CoproprieteAlertRow key={c.id} copropriete={c as any} />)}
+            </div>
           </div>
         )
       case 'sinistres':
-        if (!editMode && (!data.sinistres || data.sinistres.length === 0)) return null
+        if (!data.sinistres || data.sinistres.length === 0) return null
         return (
           <div className="coplio-card">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold text-[#374151]">Sinistres en cours</h2>
               <Link href="/sinistres" className="text-xs text-slate-400 hover:text-[#374151] transition-colors flex items-center gap-1">Voir tout <ArrowRight className="w-3 h-3" /></Link>
             </div>
-            {(!data.sinistres || data.sinistres.length === 0) ? (
-              <p className="text-sm text-slate-400 text-center py-4">Aucun sinistre en cours</p>
-            ) : (
-              <div className="space-y-0.5">{data.sinistres.map((s) => <SinistreRow key={s.id} sinistre={s} />)}</div>
-            )}
+            <div className="space-y-0.5">{data.sinistres.map((s) => <SinistreRow key={s.id} sinistre={s} />)}</div>
           </div>
         )
       case 'ag':
-        if (!editMode && (!data.agProchaines || data.agProchaines.length === 0)) return null
+        if (!data.agProchaines || data.agProchaines.length === 0) return null
         return (
           <div className="coplio-card">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold text-[#374151]">AG à venir</h2>
               <Link href="/assemblees/new" className="text-xs text-slate-400 hover:text-[#374151] transition-colors">+ Planifier</Link>
             </div>
-            {(!data.agProchaines || data.agProchaines.length === 0) ? (
-              <p className="text-sm text-slate-400 text-center py-4">Aucune AG planifiée</p>
-            ) : (
-              <div className="space-y-0.5">{data.agProchaines.map((ag) => <AgRow key={ag.id} ag={ag} />)}</div>
-            )}
+            <div className="space-y-0.5">{data.agProchaines.map((ag) => <AgRow key={ag.id} ag={ag} />)}</div>
           </div>
         )
       case 'actions_rapides':
@@ -291,196 +272,211 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
     }
   }
 
-  // ─── Mode édition iOS ─────────────────────────────────────────
+  // ─── Rendu principal ──────────────────────────────────────────
 
-  if (editMode) {
-    return (
-      <div className="space-y-4">
-
-        {/* Barre sticky en haut */}
-        <div className="sticky top-0 z-40 bg-white rounded-2xl border border-slate-100 px-5 py-3.5 flex items-center justify-between"
-          style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}
-        >
+  return (
+    <>
+      {/* ── Dashboard normal (toujours visible) ── */}
+      <div className="space-y-5 animate-fade-in">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-[#374151]" style={{ letterSpacing: '-0.01em' }}>
-              Personnaliser
+            <h1 className="text-xl font-bold text-[#374151]" style={{ letterSpacing: '-0.02em' }}>
+              Bonjour, {data.prenom} 👋
+            </h1>
+            <p className="text-slate-400 text-sm mt-0.5">
+              {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
             </p>
-            <p className="text-xs text-slate-400">Maintenez ≡ pour déplacer un bloc</p>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={cancelEdit}
-              className="px-3.5 py-2 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-100 transition-colors"
+            <button
+              onClick={enterEdit}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium text-slate-500 hover:text-[#374151] hover:bg-slate-100 border border-slate-200 transition-colors"
             >
-              Annuler
+              <SlidersHorizontal className="w-4 h-4" />
+              <span className="hidden sm:inline">Modifier</span>
             </button>
-            <button onClick={saveEdit}
-              className="px-4 py-2 rounded-xl text-sm font-semibold bg-[#374151] text-white hover:bg-[#4B5563] transition-colors"
-            >
-              Terminé
-            </button>
+            <div className="hidden md:block">
+              <RapportMensuelButton data={{
+                coproprietes: data.coproprietesCritiques as Copropriete[],
+                totalEmis: data.totalEmis, totalRecouvre: data.totalRecouvre,
+                tauxGlobal: data.tauxGlobal, cabinetNom: data.cabinetNom,
+              }} />
+            </div>
           </div>
         </div>
 
-        {/* Dashboard draggable */}
-        <Reorder.Group axis="y" values={editOrder} onReorder={setEditOrder} as="div" className="space-y-4">
-          {editOrder.map((id) => {
-            const content = getWidgetContent(id)
-            const visible = editVisible[id] ?? true
-            const Icon = WIDGET_ICONS[id] ?? BarChart2
+        <TrialBanner trialEndsAt={data.trialEndsAt} plan={data.plan} />
+        <OnboardingChecklist steps={data.onboardingSteps} />
 
-            return (
-              <DragItem key={id} id={id}>
-                <div className={`transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-40'}`}>
+        {data.kpis.nb_coproprietes === 0 && (
+          <div className="bg-white rounded-2xl border border-dashed border-slate-200 text-center py-16 px-6"
+            style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+            <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Building2 className="w-7 h-7 text-[#374151]" />
+            </div>
+            <h2 className="text-lg font-bold text-[#374151] mb-2" style={{ letterSpacing: '-0.02em' }}>
+              Ajoutez votre première copropriété
+            </h2>
+            <p className="text-slate-400 text-sm max-w-xs mx-auto mb-8 leading-relaxed">
+              Votre tableau de bord s&apos;animera une fois votre première copropriété créée.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/coproprietes/new" className="inline-flex items-center gap-2 bg-[#374151] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#4B5563] transition-colors">
+                <Building2 className="w-4 h-4" /> Créer une copropriété
+              </Link>
+              <Link href="/importer" className="inline-flex items-center gap-2 bg-slate-50 text-[#374151] px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-100 border border-slate-200 transition-colors">
+                Importer depuis un fichier
+              </Link>
+            </div>
+          </div>
+        )}
 
-                  {/* Handle bar */}
-                  <DragHandle id={id} label={WIDGET_LABELS[id]} icon={Icon} visible={visible} onToggle={() => toggleVisibility(id)} />
-
-                  {/* Contenu réel du widget */}
-                  <div className={`pointer-events-none select-none ${!visible ? 'grayscale' : ''}`}>
-                    {content ?? (
-                      <div className="coplio-card">
-                        <p className="text-sm text-slate-400 text-center py-3">Aucune donnée</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </DragItem>
-            )
-          })}
-        </Reorder.Group>
-
+        {orderedIds.map((id) => {
+          if (!isVisible(id)) return null
+          const content = getWidgetContent(id)
+          if (!content) return null
+          return <div key={id}>{content}</div>
+        })}
       </div>
-    )
-  }
 
-  // ─── Mode normal ──────────────────────────────────────────────
-
-  return (
-    <div className="space-y-5 animate-fade-in">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-[#374151]" style={{ letterSpacing: '-0.02em' }}>
-            Bonjour, {data.prenom} 👋
-          </h1>
-          <p className="text-slate-400 text-sm mt-0.5">
-            {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={enterEdit}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium text-slate-500 hover:text-[#374151] hover:bg-slate-100 border border-slate-200 transition-colors"
+      {/* ── Modal de personnalisation ── */}
+      <AnimatePresence>
+        {editMode && (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
           >
-            <SlidersHorizontal className="w-4 h-4" />
-            <span className="hidden sm:inline">Personnaliser</span>
-          </button>
-          <div className="hidden md:block">
-            <RapportMensuelButton data={{
-              coproprietes: data.coproprietesCritiques as Copropriete[],
-              totalEmis: data.totalEmis, totalRecouvre: data.totalRecouvre,
-              tauxGlobal: data.tauxGlobal, cabinetNom: data.cabinetNom,
-            }} />
-          </div>
-        </div>
-      </div>
+            {/* Backdrop flouté */}
+            <motion.div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={cancelEdit}
+            />
 
-      <TrialBanner trialEndsAt={data.trialEndsAt} plan={data.plan} />
-      <OnboardingChecklist steps={data.onboardingSteps} />
+            {/* Fenêtre de personnalisation */}
+            <motion.div
+              className="relative z-10 w-full sm:max-w-md bg-white sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col"
+              style={{ maxHeight: '88vh' }}
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 32, stiffness: 320, mass: 0.9 }}
+            >
+              {/* Poignée mobile */}
+              <div className="flex justify-center pt-3 pb-0 sm:hidden flex-shrink-0">
+                <div className="w-10 h-1 rounded-full bg-slate-200" />
+              </div>
 
-      {data.kpis.nb_coproprietes === 0 && (
-        <div className="bg-white rounded-2xl border border-dashed border-slate-200 text-center py-16 px-6"
-          style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
-          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Building2 className="w-7 h-7 text-[#374151]" />
-          </div>
-          <h2 className="text-lg font-bold text-[#374151] mb-2" style={{ letterSpacing: '-0.02em' }}>
-            Ajoutez votre première copropriété
-          </h2>
-          <p className="text-slate-400 text-sm max-w-xs mx-auto mb-8 leading-relaxed">
-            Votre tableau de bord s&apos;animera une fois votre première copropriété créée.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/coproprietes/new" className="inline-flex items-center gap-2 bg-[#374151] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#4B5563] transition-colors">
-              <Building2 className="w-4 h-4" /> Créer une copropriété
-            </Link>
-            <Link href="/importer" className="inline-flex items-center gap-2 bg-slate-50 text-[#374151] px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-100 border border-slate-200 transition-colors">
-              Importer depuis un fichier
-            </Link>
-          </div>
-        </div>
-      )}
+              {/* En-tête */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0">
+                <button
+                  onClick={cancelEdit}
+                  className="text-sm text-slate-400 hover:text-slate-600 transition-colors px-1 py-1"
+                >
+                  Annuler
+                </button>
+                <div className="text-center">
+                  <p className="text-sm font-bold text-[#374151]" style={{ letterSpacing: '-0.01em' }}>
+                    Personnaliser
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Glissez pour réorganiser</p>
+                </div>
+                <button
+                  onClick={saveEdit}
+                  className="text-sm font-bold text-[#374151] hover:text-[#4B5563] transition-colors px-1 py-1"
+                >
+                  Enregistrer
+                </button>
+              </div>
 
-      {orderedIds.map((id) => {
-        if (!isVisible(id)) return null
-        const content = getWidgetContent(id)
-        if (!content) return null
-        return <div key={id}>{content}</div>
-      })}
-    </div>
+              {/* Liste des blocs draggables */}
+              <div className="overflow-y-auto flex-1 p-4">
+                <Reorder.Group
+                  axis="y"
+                  values={editOrder}
+                  onReorder={setEditOrder}
+                  as="div"
+                  className="space-y-2"
+                >
+                  {editOrder.map((id) => {
+                    const visible = editVisible[id] ?? true
+                    const Icon = WIDGET_ICONS[id] ?? BarChart2
+                    return (
+                      <Reorder.Item
+                        key={id}
+                        value={id}
+                        style={{ listStyle: 'none' }}
+                        whileDrag={{
+                          scale: 1.03,
+                          boxShadow: '0 12px 32px rgba(0,0,0,0.14)',
+                          zIndex: 50,
+                          borderRadius: 18,
+                        }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        <div
+                          className={`bg-white border rounded-2xl px-4 py-3.5 flex items-center gap-3 select-none cursor-grab active:cursor-grabbing transition-opacity ${
+                            visible ? 'border-slate-200 opacity-100' : 'border-slate-100 opacity-45'
+                          }`}
+                          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
+                        >
+                          {/* Grip */}
+                          <GripHorizontal className="w-4 h-4 text-slate-300 flex-shrink-0" />
+
+                          {/* Icône du widget */}
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${visible ? 'bg-slate-100' : 'bg-slate-50'}`}>
+                            <Icon className="w-4 h-4 text-slate-500" />
+                          </div>
+
+                          {/* Nom */}
+                          <span className="flex-1 text-sm font-semibold text-[#374151] min-w-0 truncate">
+                            {WIDGET_LABELS[id]}
+                          </span>
+
+                          {/* Toggle visibilité */}
+                          <button
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onClick={(e) => { e.stopPropagation(); toggleVisibility(id) }}
+                            className={`p-2 rounded-xl flex-shrink-0 transition-all ${
+                              visible
+                                ? 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                : 'bg-slate-50 text-slate-300 hover:bg-slate-100'
+                            }`}
+                            title={visible ? 'Masquer ce bloc' : 'Afficher ce bloc'}
+                          >
+                            {visible
+                              ? <Eye className="w-4 h-4" />
+                              : <EyeOff className="w-4 h-4" />
+                            }
+                          </button>
+                        </div>
+                      </Reorder.Item>
+                    )
+                  })}
+                </Reorder.Group>
+              </div>
+
+              {/* Pied de page */}
+              <div className="p-4 border-t border-slate-100 flex-shrink-0 pb-safe">
+                <button
+                  onClick={saveEdit}
+                  className="w-full bg-[#374151] text-white text-sm font-bold py-3.5 rounded-2xl hover:bg-[#4B5563] transition-colors"
+                  style={{ letterSpacing: '-0.01em' }}
+                >
+                  Enregistrer les modifications
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   )
 }
 
-// ─── Reorder.Item wrapper ─────────────────────────────────────
-
-function DragItem({ id, children }: { id: string; children: React.ReactNode }) {
-  return (
-    <Reorder.Item
-      value={id}
-      whileDrag={{ scale: 1.015, boxShadow: '0 12px 40px rgba(0,0,0,0.14)', zIndex: 50, borderRadius: 16 }}
-      transition={{ duration: 0.18 }}
-      style={{ position: 'relative', listStyle: 'none' }}
-    >
-      {children}
-    </Reorder.Item>
-  )
-}
-
-// ─── Poignée de drag ──────────────────────────────────────────
-
-function DragHandle({
-  id, label, icon: Icon, visible, onToggle,
-}: {
-  id: string; label: string; icon: React.ElementType; visible: boolean; onToggle: () => void
-}) {
-  const controls = useDragControls()
-
-  return (
-    <div
-      className="flex items-center gap-3 px-4 py-2.5 mb-1.5 bg-white rounded-xl border border-slate-200 select-none"
-      style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
-    >
-      {/* Grip — zone de drag */}
-      <div
-        onPointerDown={(e) => {
-          // Transmet l'événement au Reorder.Item parent
-          const item = (e.currentTarget as HTMLElement).closest('[data-framer-name], [style]')
-          if (item) {
-            const event = new PointerEvent('pointerdown', e.nativeEvent)
-            item.dispatchEvent(event)
-          }
-          controls.start(e)
-        }}
-        className="cursor-grab active:cursor-grabbing p-1.5 -ml-1 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600 touch-none"
-      >
-        <GripHorizontal className="w-4 h-4" />
-      </div>
-
-      {/* Icône + label */}
-      <Icon className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-      <span className="text-xs font-semibold text-slate-500 flex-1">{label}</span>
-
-      {/* Toggle visibilité */}
-      <button
-        onClick={onToggle}
-        className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${visible ? 'text-slate-400 hover:text-slate-600 hover:bg-slate-100' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-100'}`}
-        title={visible ? 'Masquer ce bloc' : 'Afficher ce bloc'}
-      >
-        {visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-      </button>
-    </div>
-  )
-}
-
-// ─── DashboardPrefsEditor (Paramètres) ───────────────────────
+// ─── DashboardPrefsEditor (page Paramètres) ───────────────────
 
 export function DashboardPrefsEditor({ userId }: { userId: string }) {
   const { widgets, saveWidgets, hydrated } = useDashboardPrefs(userId)
@@ -515,12 +511,20 @@ export function DashboardPrefsEditor({ userId }: { userId: string }) {
   const getLabel = (id: string) => ALL_WIDGETS.find((w) => w.id === id)?.label ?? id
   const getDesc  = (id: string) => ALL_WIDGETS.find((w) => w.id === id)?.description ?? ''
 
+  const ICONS: Record<string, React.ElementType> = {
+    kpis_1: BarChart2, kpis_2: Users,
+    alertes_intelligentes: AlertTriangle, graphiques_finances: TrendingUp,
+    graphiques_copros: PieChart, performance: BarChart2,
+    alertes_coproprietes: Building2, sinistres: AlertTriangle,
+    ag: CalendarDays, actions_rapides: Zap,
+  }
+
   return (
     <div className="space-y-5">
       <p className="text-xs text-slate-400">Maintenez ≡ pour réorganiser · cliquez sur l&apos;œil pour masquer</p>
       <Reorder.Group axis="y" values={editOrder} onReorder={(v) => { setEditOrder(v); setSaved(false) }} as="div" className="space-y-2">
         {editOrder.map((id) => {
-          const Icon = WIDGET_ICONS[id] ?? BarChart2
+          const Icon = ICONS[id] ?? BarChart2
           const visible = editVisible[id] ?? true
           return (
             <Reorder.Item
