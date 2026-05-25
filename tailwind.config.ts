@@ -112,6 +112,11 @@ const config: Config = {
       },
     },
   },
+  safelist: [
+    'grid-cols-2', 'grid-cols-3', 'grid-cols-4',
+    'md:grid-cols-2', 'md:grid-cols-3', 'md:grid-cols-4',
+    'lg:grid-cols-2', 'lg:grid-cols-3', 'lg:grid-cols-4',
+  ],
   plugins: [
     require('tailwindcss-animate'),
     require('@tailwindcss/typography'),

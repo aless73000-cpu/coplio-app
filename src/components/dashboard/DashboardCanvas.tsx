@@ -358,14 +358,14 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
           </div>
         )}
 
-        {/* Bloc KPIs — toujours groupés en grille 4 colonnes */}
+        {/* Bloc KPIs — 4 colonnes côte à côte, toujours groupés */}
         {(() => {
           const visibleKpis = orderedIds.filter((id) => KPI_IDS.has(id) && isVisible(id))
           if (visibleKpis.length === 0) return null
           return (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {visibleKpis.map((id) => (
-                <div key={id}>{getWidgetContent(id)}</div>
+                <div key={id} className="min-w-0">{getWidgetContent(id)}</div>
               ))}
             </div>
           )
