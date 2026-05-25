@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useCallback, useEffect } from 'react'
-import { createPortal } from 'react-dom'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import {
   Building2,
   Home,
@@ -113,9 +112,18 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
   const [editMode, setEditMode] = useState(false)
   const [editOrder, setEditOrder] = useState<string[]>([])
   const [editVisible, setEditVisible] = useState<Record<string, boolean>>({})
-  const [mounted, setMounted] = useState(false)
+  const dialogRef = useRef<HTMLDialogElement>(null)
 
-  useEffect(() => { setMounted(true) }, [])
+  // Ouvre/ferme le <dialog> natif en sync avec editMode
+  useEffect(() => {
+    const dlg = dialogRef.current
+    if (!dlg) return
+    if (editMode) {
+      if (!dlg.open) dlg.showModal()
+    } else {
+      if (dlg.open) dlg.close()
+    }
+  }, [editMode])
 
   const DEFAULT_ORDER = [
     'kpis_1', 'kpis_2', 'alertes_intelligentes', 'graphiques_finances',
@@ -343,135 +351,98 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
         })}
       </div>
 
-      {/* ── Modal de personnalisation ── */}
-      {mounted && createPortal(
-        <>
-          {/* Overlay backdrop */}
-          <div
-            onClick={cancelEdit}
-            style={{
-              position: 'fixed', inset: 0, zIndex: 9998,
-              background: 'rgba(0,0,0,0.5)',
-              backdropFilter: 'blur(4px)',
-              display: editMode ? 'block' : 'none',
-            }}
-          />
+      {/* ── Modal natif <dialog> — top layer navigateur, zéro conflit CSS ── */}
+      <dialog
+        ref={dialogRef}
+        onClose={cancelEdit}
+        onClick={(e) => { if (e.target === dialogRef.current) cancelEdit() }}
+        style={{
+          position: 'fixed',
+          bottom: 0, left: 0, right: 0,
+          top: 'auto',
+          margin: 0,
+          padding: 0,
+          width: '100%',
+          maxWidth: 480,
+          maxHeight: '88vh',
+          border: 'none',
+          borderRadius: '24px 24px 0 0',
+          boxShadow: '0 -8px 40px rgba(0,0,0,0.22)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <style>{`
+          dialog::backdrop {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+          }
+        `}</style>
 
-          {/* Fenêtre */}
-          <div
-            style={{
-              position: 'fixed',
-              bottom: 0, left: 0, right: 0,
-              zIndex: 9999,
-              display: 'flex',
-              justifyContent: 'center',
-              transition: 'transform 0.35s cubic-bezier(0.32,0.72,0,1)',
-              transform: editMode ? 'translateY(0)' : 'translateY(110%)',
-              pointerEvents: editMode ? 'auto' : 'none',
-            }}
-          >
-            <div
-              style={{
-                width: '100%',
-                maxWidth: 480,
-                maxHeight: '88vh',
-                background: '#fff',
-                borderRadius: '24px 24px 0 0',
-                boxShadow: '0 -8px 40px rgba(0,0,0,0.18)',
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden',
-              }}
-            >
-              {/* Poignée */}
-              <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-                <div style={{ width: 40, height: 4, borderRadius: 2, background: '#e2e8f0' }} />
-              </div>
+        {/* Poignée */}
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px', background: '#fff' }}>
+          <div style={{ width: 40, height: 4, borderRadius: 2, background: '#e2e8f0' }} />
+        </div>
 
-              {/* En-tête */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px 12px', borderBottom: '1px solid #f1f5f9' }}>
-                <button
-                  onClick={cancelEdit}
-                  style={{ fontSize: 14, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
-                >
-                  Annuler
-                </button>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: '#374151', margin: 0 }}>Personnaliser</p>
-                  <p style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0 0' }}>Glissez pour réorganiser</p>
-                </div>
-                <button
-                  onClick={saveEdit}
-                  style={{ fontSize: 14, fontWeight: 700, color: '#374151', background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
-                >
-                  Enregistrer
-                </button>
-              </div>
-
-              {/* Liste des blocs */}
-              <div style={{ overflowY: 'auto', flex: 1, padding: 16 }}>
-                <Reorder.Group axis="y" values={editOrder} onReorder={setEditOrder} as="div" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {editOrder.map((id) => {
-                    const visible = editVisible[id] ?? true
-                    const Icon = WIDGET_ICONS[id] ?? BarChart2
-                    return (
-                      <Reorder.Item
-                        key={id}
-                        value={id}
-                        style={{ listStyle: 'none' }}
-                        whileDrag={{ scale: 1.03, boxShadow: '0 12px 32px rgba(0,0,0,0.14)', zIndex: 50, borderRadius: 18 }}
-                      >
-                        <div style={{
-                          background: '#fff',
-                          border: `1px solid ${visible ? '#e2e8f0' : '#f1f5f9'}`,
-                          borderRadius: 18,
-                          padding: '12px 16px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 12,
-                          cursor: 'grab',
-                          userSelect: 'none',
-                          opacity: visible ? 1 : 0.45,
-                          boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
-                        }}>
-                          <GripHorizontal style={{ width: 16, height: 16, color: '#cbd5e1', flexShrink: 0 }} />
-                          <div style={{ width: 36, height: 36, borderRadius: 12, background: visible ? '#f1f5f9' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <Icon style={{ width: 16, height: 16, color: '#64748b' }} />
-                          </div>
-                          <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {WIDGET_LABELS[id]}
-                          </span>
-                          <button
-                            onPointerDown={(e) => e.stopPropagation()}
-                            onClick={(e) => { e.stopPropagation(); toggleVisibility(id) }}
-                            style={{ padding: 8, borderRadius: 12, background: visible ? '#f1f5f9' : '#f8fafc', border: 'none', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                          >
-                            {visible
-                              ? <Eye style={{ width: 16, height: 16, color: '#64748b' }} />
-                              : <EyeOff style={{ width: 16, height: 16, color: '#cbd5e1' }} />
-                            }
-                          </button>
-                        </div>
-                      </Reorder.Item>
-                    )
-                  })}
-                </Reorder.Group>
-              </div>
-
-              {/* Pied de page */}
-              <div style={{ padding: 16, borderTop: '1px solid #f1f5f9' }}>
-                <button
-                  onClick={saveEdit}
-                  style={{ width: '100%', background: '#374151', color: '#fff', fontSize: 14, fontWeight: 700, padding: '14px', borderRadius: 18, border: 'none', cursor: 'pointer' }}
-                >
-                  Enregistrer les modifications
-                </button>
-              </div>
-            </div>
+        {/* En-tête */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px 12px', borderBottom: '1px solid #f1f5f9', background: '#fff' }}>
+          <button onClick={cancelEdit} style={{ fontSize: 14, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+            Annuler
+          </button>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: 14, fontWeight: 700, color: '#374151', margin: 0 }}>Personnaliser</p>
+            <p style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0 0' }}>Glissez pour réorganiser</p>
           </div>
-        </>,
-        document.body
-      )}
+          <button onClick={saveEdit} style={{ fontSize: 14, fontWeight: 700, color: '#374151', background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+            Enregistrer
+          </button>
+        </div>
+
+        {/* Liste des blocs */}
+        <div style={{ overflowY: 'auto', flex: 1, padding: 16, background: '#f8fafc' }}>
+          <Reorder.Group axis="y" values={editOrder} onReorder={setEditOrder} as="div" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {editOrder.map((id) => {
+              const visible = editVisible[id] ?? true
+              const Icon = WIDGET_ICONS[id] ?? BarChart2
+              return (
+                <Reorder.Item key={id} value={id} style={{ listStyle: 'none' }}
+                  whileDrag={{ scale: 1.03, boxShadow: '0 12px 32px rgba(0,0,0,0.14)', zIndex: 50, borderRadius: 18 }}>
+                  <div style={{
+                    background: '#fff', border: `1px solid ${visible ? '#e2e8f0' : '#f1f5f9'}`,
+                    borderRadius: 18, padding: '12px 16px', display: 'flex', alignItems: 'center',
+                    gap: 12, cursor: 'grab', userSelect: 'none', opacity: visible ? 1 : 0.45,
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                  }}>
+                    <GripHorizontal style={{ width: 16, height: 16, color: '#cbd5e1', flexShrink: 0 }} />
+                    <div style={{ width: 36, height: 36, borderRadius: 12, background: visible ? '#f1f5f9' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Icon style={{ width: 16, height: 16, color: '#64748b' }} />
+                    </div>
+                    <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {WIDGET_LABELS[id]}
+                    </span>
+                    <button
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => { e.stopPropagation(); toggleVisibility(id) }}
+                      style={{ padding: 8, borderRadius: 12, background: visible ? '#f1f5f9' : '#f8fafc', border: 'none', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                      {visible
+                        ? <Eye style={{ width: 16, height: 16, color: '#64748b' }} />
+                        : <EyeOff style={{ width: 16, height: 16, color: '#cbd5e1' }} />}
+                    </button>
+                  </div>
+                </Reorder.Item>
+              )
+            })}
+          </Reorder.Group>
+        </div>
+
+        {/* Pied de page */}
+        <div style={{ padding: 16, borderTop: '1px solid #f1f5f9', background: '#fff' }}>
+          <button onClick={saveEdit} style={{ width: '100%', background: '#374151', color: '#fff', fontSize: 14, fontWeight: 700, padding: 14, borderRadius: 18, border: 'none', cursor: 'pointer' }}>
+            Enregistrer les modifications
+          </button>
+        </div>
+      </dialog>
     </>
   )
 }
