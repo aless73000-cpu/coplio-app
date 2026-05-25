@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Building2,
   Home,
@@ -13,12 +13,17 @@ import {
   BarChart2,
   Receipt,
   Users,
-  GripVertical,
   Eye,
   EyeOff,
   CheckCircle2,
   Loader2,
+  Zap,
+  PieChart,
+  GripVertical,
+  SlidersHorizontal,
+  X,
 } from 'lucide-react'
+import { Reorder, useDragControls, motion, AnimatePresence } from 'framer-motion'
 import { formatEuro } from '@/lib/utils'
 import {
   RecouvrementChartLazy as RecouvrementChart,
@@ -90,10 +95,30 @@ export interface DashboardData {
   hasAppels: boolean
 }
 
+// ─── Widget metadata ──────────────────────────────────────────
+
+const WIDGET_META: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
+  kpis_1:               { icon: BarChart2,      color: 'text-slate-600',   bg: 'bg-slate-100' },
+  kpis_2:               { icon: Users,          color: 'text-blue-600',    bg: 'bg-blue-50' },
+  alertes_intelligentes:{ icon: AlertTriangle,  color: 'text-amber-600',   bg: 'bg-amber-50' },
+  graphiques_finances:  { icon: TrendingUp,     color: 'text-purple-600',  bg: 'bg-purple-50' },
+  graphiques_copros:    { icon: PieChart,       color: 'text-indigo-600',  bg: 'bg-indigo-50' },
+  performance:          { icon: BarChart2,      color: 'text-slate-500',   bg: 'bg-slate-50' },
+  alertes_coproprietes: { icon: Building2,      color: 'text-red-600',     bg: 'bg-red-50' },
+  sinistres:            { icon: AlertTriangle,  color: 'text-orange-600',  bg: 'bg-orange-50' },
+  ag:                   { icon: CalendarDays,   color: 'text-teal-600',    bg: 'bg-teal-50' },
+  actions_rapides:      { icon: Zap,            color: 'text-[#374151]',   bg: 'bg-slate-100' },
+}
+
 // ─── DashboardCanvas ──────────────────────────────────────────
 
 export function DashboardCanvas({ data }: { data: DashboardData }) {
-  const { widgets, hydrated } = useDashboardPrefs(data.userId)
+  const { widgets, saveWidgets, hydrated } = useDashboardPrefs(data.userId)
+  const [editMode, setEditMode] = useState(false)
+
+  // Edit mode state
+  const [editOrder, setEditOrder] = useState<string[]>([])
+  const [editVisible, setEditVisible] = useState<Record<string, boolean>>({})
 
   const DEFAULT_ORDER = [
     'kpis_1', 'kpis_2', 'alertes_intelligentes', 'graphiques_finances',
@@ -107,6 +132,44 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
     if (!hydrated) return true
     const w = widgets.find((w) => w.id === id)
     return w ? w.visible : true
+  }
+
+  function enterEdit() {
+    const order = hydrated ? widgets.map((w) => w.id) : DEFAULT_ORDER
+    const visible = Object.fromEntries(
+      order.map((id) => [id, hydrated ? (widgets.find((w) => w.id === id)?.visible ?? true) : true])
+    )
+    setEditOrder(order.filter((id) => visible[id]))
+    setEditVisible(visible)
+    setEditMode(true)
+  }
+
+  function cancelEdit() {
+    setEditMode(false)
+  }
+
+  function saveEdit() {
+    // Visible widgets in drag order, then hidden widgets at the end
+    const hiddenIds = ALL_WIDGETS.map((w) => w.id).filter((id) => !editVisible[id])
+    const newPrefs: WidgetPref[] = [
+      ...editOrder.map((id) => ({ id, visible: true })),
+      ...hiddenIds.map((id) => ({ id, visible: false })),
+    ]
+    saveWidgets(newPrefs)
+    setEditMode(false)
+    toast.success('Tableau de bord enregistré ✓')
+  }
+
+  function toggleVisibility(id: string) {
+    const nowVisible = !editVisible[id]
+    setEditVisible((prev) => ({ ...prev, [id]: nowVisible }))
+    if (nowVisible) {
+      // Re-add to ordered list at the end
+      setEditOrder((prev) => [...prev, id])
+    } else {
+      // Remove from ordered list
+      setEditOrder((prev) => prev.filter((x) => x !== id))
+    }
   }
 
   function renderWidget(id: string) {
@@ -290,6 +353,110 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
     }
   }
 
+  // ─── Edit mode ────────────────────────────────────────────────
+  if (editMode) {
+    const hiddenIds = ALL_WIDGETS.map((w) => w.id).filter((id) => !editVisible[id])
+    const getLabel = (id: string) => ALL_WIDGETS.find((w) => w.id === id)?.label ?? id
+    const getDesc  = (id: string) => ALL_WIDGETS.find((w) => w.id === id)?.description ?? ''
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 8 }}
+        transition={{ duration: 0.2 }}
+        className="space-y-6"
+      >
+        {/* Header barre édition */}
+        <div className="bg-white rounded-2xl border border-slate-100 px-5 py-4 flex items-center justify-between"
+          style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04)' }}
+        >
+          <div>
+            <h2 className="font-semibold text-[#374151] text-sm" style={{ letterSpacing: '-0.01em' }}>
+              Personnaliser le tableau de bord
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">Maintenez et glissez pour réorganiser</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={cancelEdit}
+              className="px-3.5 py-2 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-100 transition-colors"
+            >
+              Annuler
+            </button>
+            <button
+              onClick={saveEdit}
+              className="px-4 py-2 rounded-xl text-sm font-semibold bg-[#374151] text-white hover:bg-[#4B5563] transition-colors"
+            >
+              Terminé
+            </button>
+          </div>
+        </div>
+
+        {/* Zone drag & drop — blocs visibles */}
+        <div>
+          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3 px-1">
+            Affichés · {editOrder.length} bloc{editOrder.length > 1 ? 's' : ''}
+          </p>
+          <Reorder.Group
+            axis="y"
+            values={editOrder}
+            onReorder={setEditOrder}
+            className="space-y-2"
+          >
+            {editOrder.map((id) => (
+              <DraggableWidgetCard
+                key={id}
+                id={id}
+                label={getLabel(id)}
+                description={getDesc(id)}
+                onHide={() => toggleVisibility(id)}
+              />
+            ))}
+          </Reorder.Group>
+        </div>
+
+        {/* Blocs masqués */}
+        {hiddenIds.length > 0 && (
+          <div>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3 px-1">
+              Masqués
+            </p>
+            <div className="space-y-2">
+              {hiddenIds.map((id) => {
+                const meta = WIDGET_META[id]
+                const Icon = meta?.icon ?? BarChart2
+                return (
+                  <div
+                    key={id}
+                    className="bg-white rounded-2xl border border-slate-100 px-4 py-3.5 flex items-center gap-3 opacity-50"
+                    style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}
+                  >
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${meta?.bg ?? 'bg-slate-100'}`}>
+                      <Icon className={`w-4 h-4 ${meta?.color ?? 'text-slate-600'}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-[#374151]">{getLabel(id)}</p>
+                      <p className="text-xs text-slate-400 truncate">{getDesc(id)}</p>
+                    </div>
+                    <button
+                      onClick={() => toggleVisibility(id)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors flex-shrink-0"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      Afficher
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </motion.div>
+    )
+  }
+
+  // ─── Mode normal ──────────────────────────────────────────────
   return (
     <div className="space-y-5 animate-fade-in">
       {/* En-tête */}
@@ -304,14 +471,23 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
             })}
           </p>
         </div>
-        <div className="hidden md:block">
-          <RapportMensuelButton data={{
-            coproprietes: data.coproprietesCritiques as Copropriete[],
-            totalEmis: data.totalEmis,
-            totalRecouvre: data.totalRecouvre,
-            tauxGlobal: data.tauxGlobal,
-            cabinetNom: data.cabinetNom,
-          }} />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={enterEdit}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium text-slate-500 hover:text-[#374151] hover:bg-slate-100 border border-slate-200 transition-colors"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span className="hidden sm:inline">Personnaliser</span>
+          </button>
+          <div className="hidden md:block">
+            <RapportMensuelButton data={{
+              coproprietes: data.coproprietesCritiques as Copropriete[],
+              totalEmis: data.totalEmis,
+              totalRecouvre: data.totalRecouvre,
+              tauxGlobal: data.tauxGlobal,
+              cabinetNom: data.cabinetNom,
+            }} />
+          </div>
         </div>
       </div>
 
@@ -349,131 +525,167 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
   )
 }
 
-// ─── DashboardPrefsEditor (used in Paramètres) ────────────────
+// ─── Carte draggable (mode édition) ──────────────────────────
 
-const WIDGET_COLORS: Record<string, string> = {
-  kpis_1:               'bg-slate-100',
-  kpis_2:               'bg-blue-50',
-  alertes_intelligentes:'bg-amber-50',
-  graphiques_finances:  'bg-purple-50',
-  graphiques_copros:    'bg-indigo-50',
-  performance:          'bg-gray-50',
-  alertes_coproprietes: 'bg-red-50',
-  sinistres:            'bg-orange-50',
-  ag:                   'bg-teal-50',
-  actions_rapides:      'bg-slate-100',
+function DraggableWidgetCard({
+  id,
+  label,
+  description,
+  onHide,
+}: {
+  id: string
+  label: string
+  description: string
+  onHide: () => void
+}) {
+  const controls = useDragControls()
+  const meta = WIDGET_META[id]
+  const Icon = meta?.icon ?? BarChart2
+
+  return (
+    <Reorder.Item
+      value={id}
+      dragListener={false}
+      dragControls={controls}
+      whileDrag={{
+        scale: 1.02,
+        boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+        zIndex: 50,
+      }}
+      transition={{ duration: 0.15 }}
+      className="bg-white rounded-2xl border border-slate-100 flex items-center gap-3 px-4 py-3.5 select-none relative"
+      style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04)', cursor: 'default' }}
+    >
+      {/* Icône */}
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${meta?.bg ?? 'bg-slate-100'}`}>
+        <Icon className={`w-4 h-4 ${meta?.color ?? 'text-slate-600'}`} />
+      </div>
+
+      {/* Texte */}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-[#374151]">{label}</p>
+        <p className="text-xs text-slate-400 truncate">{description}</p>
+      </div>
+
+      {/* Masquer */}
+      <button
+        onClick={onHide}
+        className="p-2 rounded-lg hover:bg-slate-100 transition-colors flex-shrink-0 text-slate-400 hover:text-slate-600"
+        title="Masquer ce bloc"
+      >
+        <EyeOff className="w-4 h-4" />
+      </button>
+
+      {/* Poignée drag — zone active */}
+      <div
+        onPointerDown={(e) => controls.start(e)}
+        className="p-2 rounded-lg hover:bg-slate-100 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500"
+        title="Déplacer"
+      >
+        <GripVertical className="w-4 h-4" />
+      </div>
+    </Reorder.Item>
+  )
 }
+
+// ─── DashboardPrefsEditor (compatibilité Paramètres) ─────────
 
 export function DashboardPrefsEditor({ userId }: { userId: string }) {
   const { widgets, saveWidgets, hydrated } = useDashboardPrefs(userId)
-  const [local, setLocal] = useState<WidgetPref[]>([])
+  const [editOrder, setEditOrder] = useState<string[]>([])
+  const [editVisible, setEditVisible] = useState<Record<string, boolean>>({})
   const [saved, setSaved] = useState(false)
-  const dragIdx = useRef<number | null>(null)
-  const dragOverIdx = useRef<number | null>(null)
+  const [initialized, setInitialized] = useState(false)
 
-  useEffect(() => {
-    if (hydrated) setLocal(widgets)
-  }, [hydrated]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const getLabel = (id: string) => ALL_WIDGETS.find((w) => w.id === id)?.label ?? id
-  const getDesc  = (id: string) => ALL_WIDGETS.find((w) => w.id === id)?.description ?? ''
-
-  function toggle(id: string) {
-    setLocal((prev) => prev.map((w) => (w.id === id ? { ...w, visible: !w.visible } : w)))
-    setSaved(false)
+  if (hydrated && !initialized) {
+    setEditOrder(widgets.filter((w) => w.visible).map((w) => w.id))
+    setEditVisible(Object.fromEntries(widgets.map((w) => [w.id, w.visible])))
+    setInitialized(true)
   }
 
-  function onDragStart(i: number) { dragIdx.current = i }
-  function onDragOver(e: React.DragEvent, i: number) { e.preventDefault(); dragOverIdx.current = i }
-  function onDrop() {
-    const from = dragIdx.current
-    const to   = dragOverIdx.current
-    if (from === null || to === null || from === to) return
-    const arr = [...local]
-    const [item] = arr.splice(from, 1)
-    arr.splice(to, 0, item)
-    setLocal(arr)
+  function toggleVisibility(id: string) {
+    const nowVisible = !editVisible[id]
+    setEditVisible((prev) => ({ ...prev, [id]: nowVisible }))
+    if (nowVisible) {
+      setEditOrder((prev) => [...prev, id])
+    } else {
+      setEditOrder((prev) => prev.filter((x) => x !== id))
+    }
     setSaved(false)
-    dragIdx.current = null
-    dragOverIdx.current = null
   }
 
   function handleSave() {
-    saveWidgets(local)
+    const hiddenIds = ALL_WIDGETS.map((w) => w.id).filter((id) => !editVisible[id])
+    const newPrefs: WidgetPref[] = [
+      ...editOrder.map((id) => ({ id, visible: true })),
+      ...hiddenIds.map((id) => ({ id, visible: false })),
+    ]
+    saveWidgets(newPrefs)
     setSaved(true)
     toast.success('Tableau de bord enregistré')
     setTimeout(() => setSaved(false), 3000)
   }
 
-  if (!hydrated || local.length === 0) {
+  if (!hydrated || !initialized) {
     return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
   }
 
-  const visibleCount = local.filter((w) => w.visible).length
+  const hiddenIds = ALL_WIDGETS.map((w) => w.id).filter((id) => !editVisible[id])
+  const getLabel = (id: string) => ALL_WIDGETS.find((w) => w.id === id)?.label ?? id
+  const getDesc  = (id: string) => ALL_WIDGETS.find((w) => w.id === id)?.description ?? ''
 
   return (
     <div className="space-y-5">
-      {/* Mini aperçu */}
       <div>
-        <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">
-          Aperçu — {visibleCount} bloc{visibleCount > 1 ? 's' : ''} visible{visibleCount > 1 ? 's' : ''}
+        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3">
+          Affichés · {editOrder.length} bloc{editOrder.length > 1 ? 's' : ''}
         </p>
-        <div className="border border-border rounded-xl p-3 bg-coplio-bg space-y-1.5">
-          {local.map((w) => (
-            <div
-              key={w.id}
-              className={`h-7 rounded-md flex items-center px-2.5 text-[11px] font-medium transition-opacity ${
-                WIDGET_COLORS[w.id] ?? 'bg-white'
-              } ${w.visible ? 'opacity-100' : 'opacity-25 line-through'}`}
-            >
-              {getLabel(w.id)}
-            </div>
+        <Reorder.Group axis="y" values={editOrder} onReorder={(v) => { setEditOrder(v); setSaved(false) }} className="space-y-2">
+          {editOrder.map((id) => (
+            <DraggableWidgetCard
+              key={id}
+              id={id}
+              label={getLabel(id)}
+              description={getDesc(id)}
+              onHide={() => toggleVisibility(id)}
+            />
           ))}
-        </div>
+        </Reorder.Group>
       </div>
 
-      {/* Liste drag & drop */}
-      <div>
-        <p className="text-xs text-muted-foreground mb-2">
-          Glissez <GripVertical className="w-3 h-3 inline" /> pour réorganiser · cliquez sur l&apos;œil pour masquer/afficher
-        </p>
-        <div className="space-y-2">
-          {local.map((w, idx) => (
-            <div
-              key={w.id}
-              draggable
-              onDragStart={() => onDragStart(idx)}
-              onDragOver={(e) => onDragOver(e, idx)}
-              onDrop={onDrop}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border bg-white select-none cursor-grab active:cursor-grabbing transition-all ${
-                w.visible ? 'border-border shadow-sm' : 'border-border/40 opacity-50'
-              }`}
-            >
-              <GripVertical className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              <div className={`w-2.5 h-2.5 rounded-sm flex-shrink-0 ${WIDGET_COLORS[w.id] ?? 'bg-gray-200'}`} />
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm font-medium ${w.visible ? 'text-coplio-text' : 'text-muted-foreground'}`}>
-                  {getLabel(w.id)}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">{getDesc(w.id)}</p>
-              </div>
-              <button
-                onClick={() => toggle(w.id)}
-                className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${
-                  w.visible ? 'text-[#374151] hover:bg-slate-100' : 'text-muted-foreground hover:bg-coplio-bg'
-                }`}
-                title={w.visible ? 'Masquer ce bloc' : 'Afficher ce bloc'}
-              >
-                {w.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-              </button>
-            </div>
-          ))}
+      {hiddenIds.length > 0 && (
+        <div>
+          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3">Masqués</p>
+          <div className="space-y-2">
+            {hiddenIds.map((id) => {
+              const meta = WIDGET_META[id]
+              const Icon = meta?.icon ?? BarChart2
+              return (
+                <div key={id} className="bg-white rounded-2xl border border-slate-100 px-4 py-3.5 flex items-center gap-3 opacity-50">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${meta?.bg ?? 'bg-slate-100'}`}>
+                    <Icon className={`w-4 h-4 ${meta?.color ?? 'text-slate-600'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-[#374151]">{getLabel(id)}</p>
+                    <p className="text-xs text-slate-400 truncate">{getDesc(id)}</p>
+                  </div>
+                  <button
+                    onClick={() => toggleVisibility(id)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors flex-shrink-0"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    Afficher
+                  </button>
+                </div>
+              )
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       <button
         onClick={handleSave}
-        className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors"
+        className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-[#4B5563] transition-colors"
       >
         {saved && <CheckCircle2 className="w-4 h-4" />}
         {saved ? 'Enregistré !' : 'Enregistrer les modifications'}
