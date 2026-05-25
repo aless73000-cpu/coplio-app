@@ -3,9 +3,10 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
   FileText, Wrench, MessageCircle,
-  AlertTriangle, CheckCircle2, ChevronRight,
+  AlertTriangle, CheckCircle2,
   Landmark, UserX, Calendar,
   Bell, CreditCard, ArrowRight,
+  CalendarDays, Vote, ChevronRight,
 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { AppelCharges, Document, Sinistre, Notification } from '@/types'
@@ -15,10 +16,19 @@ function timeAgo(dateStr: string): string {
   const days = Math.floor(diff / 86400000)
   if (days === 0) return "Aujourd'hui"
   if (days === 1) return 'Hier'
-  if (days < 7) return `Il y a ${days} jours`
+  if (days < 7) return `Il y a ${days} j`
   if (days < 30) return `Il y a ${Math.floor(days / 7)} sem.`
   return formatDate(dateStr)
 }
+
+const SHORTCUTS = [
+  { href: '/mes-charges',    label: 'Mes charges',   icon: CreditCard,   color: '#e0f2fe', iconColor: '#0284c7' },
+  { href: '/mes-documents',  label: 'Documents',     icon: FileText,     color: '#f0fdf4', iconColor: '#16a34a' },
+  { href: '/mes-assemblees', label: 'Assemblées',    icon: CalendarDays, color: '#fef3c7', iconColor: '#d97706' },
+  { href: '/mes-travaux',    label: 'Travaux',       icon: Wrench,       color: '#fce7f3', iconColor: '#be185d' },
+  { href: '/mes-votes',      label: 'Votes',         icon: Vote,         color: '#ede9fe', iconColor: '#7c3aed' },
+  { href: '/mes-messages',   label: 'Messages',      icon: MessageCircle,color: '#f1f5f9', iconColor: '#475569' },
+]
 
 export default async function AccueilPage() {
   const supabase = await createClient()
@@ -38,27 +48,26 @@ export default async function AccueilPage() {
   } | null
 
   const coproprieteId = lot?.copropriete?.id
-  const prenom = profile?.prenom ?? 'Bienvenue'
+  const prenom = profile?.prenom ?? 'vous'
 
+  // ── Cas sans lot ───────────────────────────────────────────────
   if (!lotId) {
     return (
-      <div className="max-w-3xl mx-auto space-y-6 py-4">
+      <div className="max-w-2xl mx-auto space-y-6 py-4">
         <div>
-          <h1 className="text-2xl font-bold text-coplio-text">Bonjour, {prenom} 👋</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">Espace copropriétaire</p>
+          <h1 className="text-2xl font-bold text-slate-900">Bonjour, {prenom} 👋</h1>
+          <p className="text-slate-500 text-sm mt-0.5">Espace copropriétaire</p>
         </div>
-        <div className="bg-white rounded-2xl border border-border p-10 text-center shadow-sm">
-          <div className="w-16 h-16 bg-coplio-amber-bg rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <UserX className="w-8 h-8 text-coplio-amber" />
+        <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center shadow-sm">
+          <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <UserX className="w-8 h-8 text-amber-600" />
           </div>
-          <h2 className="text-lg font-semibold text-coplio-text mb-2">Aucun lot associé</h2>
-          <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">Aucun lot associé</h2>
+          <p className="text-sm text-slate-500 max-w-sm mx-auto mb-6">
             Votre compte n&apos;est pas encore lié à un logement. Contactez votre syndic pour finaliser la configuration.
           </p>
-          <Link
-            href="/mes-messages"
-            className="inline-flex items-center gap-2 bg-[#374151] text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-[#374151]/90 transition-colors"
-          >
+          <Link href="/mes-messages"
+            className="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 transition-colors">
             <MessageCircle className="w-4 h-4" />
             Contacter le syndic
           </Link>
@@ -67,7 +76,7 @@ export default async function AccueilPage() {
     )
   }
 
-  // Build document query with RGPD filter
+  // ── Requêtes ───────────────────────────────────────────────────
   const documentsQuery = supabase
     .from('documents')
     .select('*')
@@ -120,138 +129,72 @@ export default async function AccueilPage() {
     (s: number, a) => s + (a.montant - (a.montant_paye ?? 0)), 0
   )
   const prochainAppel = (appels ?? [])[0]
-  const hasOverdue = (appels ?? []).some(
-    (a) => new Date(a.date_echeance) < new Date()
-  )
+  const hasOverdue = (appels ?? []).some((a) => new Date(a.date_echeance) < new Date())
 
-  // Hero banner state
-  type HeroBanner = {
-    bg: string
-    border: string
-    icon: React.ReactNode
-    text: React.ReactNode
-  }
-
-  let heroBanner: HeroBanner
+  // ── Statut charges ─────────────────────────────────────────────
+  type StatusBanner = { bg: string; border: string; accent: string; icon: React.ReactNode; title: string; subtitle: string }
+  let statusBanner: StatusBanner
 
   if (montantDu > 0 && hasOverdue) {
-    heroBanner = {
-      bg: 'bg-coplio-red-bg',
-      border: 'border-coplio-red/20',
-      icon: <AlertTriangle className="w-5 h-5 text-coplio-red flex-shrink-0" />,
-      text: (
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-coplio-red">
-            Appel de charges en retard — {formatEuro(montantDu)}
-          </p>
-          <p className="text-xs text-coplio-red/70 mt-0.5">
-            Échéance dépassée. Contactez votre syndic si vous avez déjà effectué le paiement.
-          </p>
-        </div>
-      ),
+    statusBanner = {
+      bg: '#fff1f2', border: '#fecdd3', accent: '#e11d48',
+      icon: <AlertTriangle className="w-5 h-5 text-rose-600 flex-shrink-0" />,
+      title: `${formatEuro(montantDu)} en retard`,
+      subtitle: 'Échéance dépassée — contactez votre syndic si vous avez payé',
     }
   } else if (montantDu > 0) {
-    heroBanner = {
-      bg: 'bg-coplio-amber-bg',
-      border: 'border-coplio-amber/20',
-      icon: <AlertTriangle className="w-5 h-5 text-coplio-amber flex-shrink-0" />,
-      text: (
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-coplio-amber">
-            {formatEuro(montantDu)} à régler
-            {prochainAppel && ` · Échéance le ${formatDate(prochainAppel.date_echeance)}`}
-          </p>
-          <p className="text-xs text-coplio-amber/70 mt-0.5">
-            Effectuez un virement aux coordonnées de votre syndic.
-          </p>
-        </div>
-      ),
+    statusBanner = {
+      bg: '#fffbeb', border: '#fde68a', accent: '#d97706',
+      icon: <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />,
+      title: `${formatEuro(montantDu)} à régler`,
+      subtitle: prochainAppel
+        ? `Échéance le ${formatDate(prochainAppel.date_echeance)}`
+        : 'Consultez votre espace charges',
     }
   } else {
-    heroBanner = {
-      bg: 'bg-slate-100',
-      border: 'border-[#374151]/20',
-      icon: <CheckCircle2 className="w-5 h-5 text-[#374151] flex-shrink-0" />,
-      text: (
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-[#374151]">
-            Votre compte est à jour ✓
-          </p>
-          <p className="text-xs text-[#374151]/70 mt-0.5">
-            {prochainAG
-              ? `Prochaine AG : ${new Date(prochainAG.date_ag).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}`
-              : 'Aucun paiement en attente'
-            }
-          </p>
-        </div>
-      ),
+    statusBanner = {
+      bg: '#f0fdf4', border: '#bbf7d0', accent: '#16a34a',
+      icon: <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />,
+      title: 'Compte à jour',
+      subtitle: prochainAG
+        ? `Prochaine AG : ${new Date(prochainAG.date_ag).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}`
+        : 'Aucun paiement en attente',
     }
   }
 
-  // Build unified activity feed
-  type FeedItem = {
-    id: string
-    icon: React.ReactNode
-    text: string
-    sub?: string
-    date: string
-    href?: string
-    cta?: string
-  }
-
+  // ── Activité récente ───────────────────────────────────────────
+  type FeedItem = { id: string; icon: React.ReactNode; text: string; sub?: string; date: string; href?: string }
   const feedItems: FeedItem[] = []
 
-  // Documents
   ;(documents ?? []).forEach((doc: Document) => {
     if (!doc.created_at) return
-    feedItems.push({
-      id: `doc-${doc.id}`,
-      icon: <FileText className="w-4 h-4 text-coplio-blue" />,
-      text: doc.nom,
-      sub: 'Document disponible',
-      date: doc.created_at,
-      href: '/mes-documents',
-      cta: 'Voir',
-    })
+    feedItems.push({ id: `doc-${doc.id}`, icon: <FileText className="w-3.5 h-3.5 text-blue-500" />, text: doc.nom, sub: 'Nouveau document', date: doc.created_at, href: '/mes-documents' })
   })
-
-  // Sinistres
   ;(sinistres ?? []).forEach((s: { id: string; titre: string; status: string | null; reference: string | null; created_at: string | null }) => {
     if (!s.created_at) return
-    feedItems.push({
-      id: `sin-${s.id}`,
-      icon: <Wrench className="w-4 h-4 text-coplio-amber" />,
-      text: s.titre,
-      sub: `Dossier ${s.reference ?? ''} · ${s.status ?? ''}`,
-      date: s.created_at,
-      href: '/mes-travaux',
-    })
+    feedItems.push({ id: `sin-${s.id}`, icon: <Wrench className="w-3.5 h-3.5 text-amber-500" />, text: s.titre, sub: `Dossier ${s.reference ?? ''} · ${s.status ?? ''}`, date: s.created_at, href: '/mes-travaux' })
   })
-
-  // Notifications
   ;(notifications ?? []).slice(0, 5).forEach((n) => {
     if (!n.created_at) return
     feedItems.push({
       id: `notif-${n.id}`,
-      icon: <Bell className={`w-4 h-4 ${n.type === 'urgent' ? 'text-coplio-red' : n.type === 'alerte' ? 'text-coplio-amber' : 'text-[#374151]'}`} />,
-      text: n.titre,
-      sub: n.message ?? undefined,
-      date: n.created_at,
-      href: n.lien ?? undefined,
+      icon: <Bell className={`w-3.5 h-3.5 ${n.type === 'urgent' ? 'text-rose-500' : n.type === 'alerte' ? 'text-amber-500' : 'text-slate-400'}`} />,
+      text: n.titre, sub: n.message ?? undefined, date: n.created_at, href: n.lien ?? undefined,
     })
   })
-
-  // Sort by date descending, take top 8
   feedItems.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-  const recentFeed = feedItems.slice(0, 8)
+  const recentFeed = feedItems.slice(0, 6)
 
   return (
-    <div className="max-w-3xl mx-auto space-y-5 py-2">
-      {/* Header */}
+    <div className="max-w-2xl mx-auto space-y-5 py-2">
+
+      {/* ── En-tête ── */}
       <div>
-        <h1 className="text-2xl font-bold text-coplio-text">Bonjour, {prenom} 👋</h1>
+        <h1 className="text-2xl font-bold text-slate-900" style={{ letterSpacing: '-0.03em' }}>
+          Bonjour, {prenom} 👋
+        </h1>
         {lot?.copropriete && (
-          <p className="text-muted-foreground text-sm mt-0.5">
+          <p className="text-slate-400 text-sm mt-0.5">
             {lot.copropriete.nom}
             {lot.numero && ` · Lot ${lot.numero}`}
             {lot.copropriete.ville && ` · ${lot.copropriete.ville}`}
@@ -259,99 +202,64 @@ export default async function AccueilPage() {
         )}
       </div>
 
-      {/* Hero Banner */}
-      <div className={`flex items-start gap-3 p-4 rounded-2xl border ${heroBanner.bg} ${heroBanner.border}`}>
-        {heroBanner.icon}
-        {heroBanner.text}
+      {/* ── Bandeau statut charges ── */}
+      <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border"
+        style={{ background: statusBanner.bg, borderColor: statusBanner.border }}>
+        {statusBanner.icon}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-slate-900">{statusBanner.title}</p>
+          <p className="text-xs text-slate-500 mt-0.5">{statusBanner.subtitle}</p>
+        </div>
         {montantDu > 0 && (
-          <Link
-            href="/mes-charges"
-            className="flex-shrink-0 text-xs font-medium text-coplio-text bg-white/80 hover:bg-white px-3 py-1.5 rounded-lg border border-border transition-colors flex items-center gap-1"
-          >
+          <Link href="/mes-charges"
+            className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold bg-white px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors shadow-sm">
             Voir <ArrowRight className="w-3 h-3" />
           </Link>
         )}
       </div>
 
-      {/* Two info cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Charges card */}
-        <Link href="/mes-charges" className="bg-white rounded-2xl border border-border p-5 shadow-sm hover:shadow-md hover:border-[#374151]/30 transition-all group">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center">
-                <CreditCard className="w-4 h-4 text-[#374151]" />
+      {/* ── Raccourcis (6 tuiles) ── */}
+      <div>
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Accès rapide</p>
+        <div className="grid grid-cols-3 gap-3">
+          {SHORTCUTS.map(({ href, label, icon: Icon, color, iconColor }) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all group text-center shadow-sm"
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                style={{ background: color }}>
+                <Icon className="w-5 h-5" style={{ color: iconColor }} />
               </div>
-              <span className="text-sm font-medium text-muted-foreground">Mes charges</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#374151] transition-colors" />
-          </div>
-          <p className={`text-3xl font-bold ${montantDu > 0 ? 'text-coplio-red' : 'text-[#374151]'}`}>
-            {montantDu > 0 ? formatEuro(montantDu) : '✓ À jour'}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            {montantDu > 0 ? 'Montant à régler' : 'Aucun impayé'}
-          </p>
-        </Link>
-
-        {/* Next event card */}
-        <Link
-          href={prochainAG ? '/mes-assemblees' : '/mon-calendrier'}
-          className="bg-white rounded-2xl border border-border p-5 shadow-sm hover:shadow-md hover:border-[#374151]/30 transition-all group"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
-                <Calendar className="w-4 h-4 text-coplio-blue" />
-              </div>
-              <span className="text-sm font-medium text-muted-foreground">
-                {prochainAG ? 'Prochaine AG' : 'Calendrier'}
-              </span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#374151] transition-colors" />
-          </div>
-          {prochainAG ? (
-            <>
-              <p className="text-base font-bold text-coplio-text line-clamp-1">{prochainAG.titre}</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {new Date(prochainAG.date_ag).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                {prochainAG.lieu && ` · ${prochainAG.lieu}`}
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="text-base font-semibold text-muted-foreground">Aucun événement prévu</p>
-              <p className="text-xs text-muted-foreground mt-1">Consultez votre agenda</p>
-            </>
-          )}
-        </Link>
+              <span className="text-xs font-semibold text-slate-700 leading-tight">{label}</span>
+            </Link>
+          ))}
+        </div>
       </div>
 
-      {/* Fonds de travaux */}
+      {/* ── Fonds de travaux ── */}
       {fondsTravaux && (
-        <div className="bg-white rounded-2xl border border-coplio-blue-bg p-5 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="bg-white rounded-2xl border border-slate-200 px-5 py-4 shadow-sm">
+          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-coplio-blue-bg rounded-xl flex items-center justify-center flex-shrink-0">
-                <Landmark className="w-5 h-5 text-coplio-blue" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: '#e0f2fe' }}>
+                <Landmark className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Fonds de travaux ALUR</p>
-                <p className="font-bold text-xl text-coplio-blue">{formatEuro(fondsTravaux.solde_actuel ?? 0)}</p>
+                <p className="text-xs text-slate-400 font-medium">Fonds de travaux ALUR</p>
+                <p className="text-xl font-bold text-blue-600">{formatEuro(fondsTravaux.solde_actuel ?? 0)}</p>
               </div>
             </div>
             {fondsTravaux.objectif_5ans && fondsTravaux.objectif_5ans > 0 && (
-              <div className="sm:text-right">
-                <p className="text-xs text-muted-foreground mb-1.5">
-                  Objectif : {formatEuro(fondsTravaux.objectif_5ans)}
-                </p>
-                <div className="w-full sm:w-32 h-1.5 bg-coplio-blue-bg rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-coplio-blue rounded-full transition-all"
-                    style={{ width: `${Math.min(100, Math.round(((fondsTravaux.solde_actuel ?? 0) / fondsTravaux.objectif_5ans) * 100))}%` }}
-                  />
+              <div className="text-right flex-shrink-0">
+                <p className="text-xs text-slate-400 mb-1.5">Objectif : {formatEuro(fondsTravaux.objectif_5ans)}</p>
+                <div className="w-28 h-1.5 bg-blue-50 rounded-full overflow-hidden">
+                  <div className="h-full bg-blue-500 rounded-full transition-all"
+                    style={{ width: `${Math.min(100, Math.round(((fondsTravaux.solde_actuel ?? 0) / fondsTravaux.objectif_5ans) * 100))}%` }} />
                 </div>
-                <p className="text-xs text-coplio-blue font-medium mt-1">
+                <p className="text-xs text-blue-600 font-semibold mt-1">
                   {Math.min(100, Math.round(((fondsTravaux.solde_actuel ?? 0) / fondsTravaux.objectif_5ans) * 100))}%
                 </p>
               </div>
@@ -360,54 +268,66 @@ export default async function AccueilPage() {
         </div>
       )}
 
-      {/* Activity feed */}
-      {recentFeed.length > 0 && (
-        <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-border">
-            <h2 className="font-semibold text-coplio-text text-sm">Activité récente</h2>
+      {/* ── Prochaine AG ── */}
+      {prochainAG && (
+        <Link href="/mes-assemblees"
+          className="flex items-center gap-4 bg-white rounded-2xl border border-slate-200 px-5 py-4 shadow-sm hover:border-slate-300 hover:shadow-md transition-all group">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: '#fef3c7' }}>
+            <Calendar className="w-5 h-5 text-amber-600" />
           </div>
-          <div className="divide-y divide-border">
-            {recentFeed.map((item) => (
-              item.href ? (
-                <Link key={item.id} href={item.href} className="flex items-center gap-3 px-4 py-3 hover:bg-coplio-bg/50 transition-colors">
-                  <div className="w-8 h-8 bg-coplio-bg rounded-lg flex items-center justify-center flex-shrink-0">
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-slate-400 font-medium">Prochaine assemblée générale</p>
+            <p className="text-sm font-bold text-slate-900 mt-0.5 truncate">{prochainAG.titre}</p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {new Date(prochainAG.date_ag).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+              {prochainAG.lieu && ` · ${prochainAG.lieu}`}
+            </p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors flex-shrink-0" />
+        </Link>
+      )}
+
+      {/* ── Activité récente ── */}
+      {recentFeed.length > 0 && (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100">
+            <h2 className="text-sm font-semibold text-slate-900">Activité récente</h2>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {recentFeed.map((item) => {
+              const inner = (
+                <>
+                  <div className="w-7 h-7 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     {item.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-coplio-text truncate">{item.text}</p>
-                    {item.sub && (
-                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{item.sub}</p>
-                    )}
+                    <p className="text-sm font-medium text-slate-800 truncate">{item.text}</p>
+                    {item.sub && <p className="text-xs text-slate-400 mt-0.5 truncate">{item.sub}</p>}
                   </div>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{timeAgo(item.date)}</span>
+                  <span className="text-xs text-slate-400 whitespace-nowrap flex-shrink-0">{timeAgo(item.date)}</span>
+                </>
+              )
+              return item.href ? (
+                <Link key={item.id} href={item.href} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 transition-colors">
+                  {inner}
                 </Link>
               ) : (
-                <div key={item.id} className="flex items-center gap-3 px-4 py-3">
-                  <div className="w-8 h-8 bg-coplio-bg rounded-lg flex items-center justify-center flex-shrink-0">
-                    {item.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-coplio-text truncate">{item.text}</p>
-                    {item.sub && (
-                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{item.sub}</p>
-                    )}
-                  </div>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{timeAgo(item.date)}</span>
-                </div>
+                <div key={item.id} className="flex items-center gap-3 px-5 py-3">{inner}</div>
               )
-            ))}
+            })}
           </div>
         </div>
       )}
 
-      {/* Empty state */}
+      {/* ── État vide ── */}
       {recentFeed.length === 0 && (
-        <div className="bg-white rounded-2xl border border-border p-10 text-center shadow-sm">
-          <div className="w-12 h-12 bg-coplio-bg rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <Bell className="w-6 h-6 text-muted-foreground" />
+        <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center shadow-sm">
+          <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Bell className="w-5 h-5 text-slate-400" />
           </div>
-          <p className="text-sm font-medium text-coplio-text">Aucune activité récente</p>
-          <p className="text-xs text-muted-foreground mt-1">Les documents et notifications de votre syndic apparaîtront ici.</p>
+          <p className="text-sm font-semibold text-slate-700">Aucune activité récente</p>
+          <p className="text-xs text-slate-400 mt-1">Documents et notifications de votre syndic apparaîtront ici.</p>
         </div>
       )}
     </div>

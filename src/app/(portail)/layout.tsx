@@ -50,7 +50,7 @@ export default async function PortailLayout({
   const lot = profile.lot as { numero: string; copropriete: { nom: string } } | null
 
   return (
-    <div className="flex h-screen bg-coplio-bg overflow-hidden">
+    <div className="flex h-screen overflow-hidden" style={{ background: '#f1f5f9' }}>
       <SessionGuard loginPath="/portail" />
       <PortailSidebar
         prenom={profile.prenom}
@@ -62,7 +62,7 @@ export default async function PortailLayout({
         unreadNotifications={unreadNotifications ?? 0}
       />
       <NotificationHandler userId={user.id} />
-      <main className="flex-1 overflow-y-auto px-4 pt-5 pb-nav md:px-8 md:pt-8 md:pb-8">
+      <main className="flex-1 overflow-y-auto px-4 pt-5 pb-nav md:px-8 md:pt-8 md:pb-8 bg-slate-50">
         {children}
       </main>
       <PortailBottomNav unreadMessages={unreadMessages ?? 0} />
