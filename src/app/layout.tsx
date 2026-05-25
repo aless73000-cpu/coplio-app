@@ -97,7 +97,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#111827',
+  themeColor: '#374151',
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover', // active env(safe-area-inset-*) sur iPhone avec encoche/Dynamic Island

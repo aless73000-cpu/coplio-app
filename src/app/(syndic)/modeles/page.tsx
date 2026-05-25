@@ -79,7 +79,7 @@ const TEMPLATES = [
     id: 'courrier-syndic',
     icon: Mail,
     color: 'bg-slate-100',
-    iconColor: 'text-[#111827]',
+    iconColor: 'text-[#374151]',
     title: 'Courrier syndic',
     description: 'Courrier officiel du syndic aux copropriétaires (travaux, informations…)',
     fields: [
@@ -133,7 +133,7 @@ async function generatePDF(
 
   const DARK  = '#1C1C1A'
   const MUTED = '#888888'
-  const ACCENT = '#111827'
+  const ACCENT = '#374151'
   const PAGE_W  = 210
   const MARGIN  = 20
   const CONTENT_W = PAGE_W - MARGIN * 2
@@ -493,7 +493,7 @@ function Field({ field, value, onChange }: {
   onChange: (v: string) => void
 }) {
   const cls = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-    focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
+    focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent
     placeholder:text-gray-400`
 
   if (field.type === 'textarea') {
@@ -587,7 +587,7 @@ function TemplateCard({
         </div>
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1.5 text-sm font-medium text-[#111827] hover:underline flex-shrink-0"
+          className="flex items-center gap-1.5 text-sm font-medium text-[#374151] hover:underline flex-shrink-0"
         >
           Utiliser
           <ChevronRight className={`w-4 h-4 transition-transform ${expanded ? 'rotate-90' : ''}`} />
@@ -615,8 +615,8 @@ function TemplateCard({
             <button
               onClick={handleGenerate}
               disabled={generating}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#111827] text-white font-medium rounded-xl
-                hover:bg-[#111827]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#374151] text-white font-medium rounded-xl
+                hover:bg-[#374151]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {generating ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Génération…</>
@@ -688,20 +688,20 @@ export default function ModelesPage() {
       <DocTabs />
 
       {/* Info banner */}
-      <div className="flex items-start gap-3 p-4 bg-slate-100 border border-[#111827]/20 rounded-xl">
-        <FileStack className="w-5 h-5 text-[#111827] flex-shrink-0 mt-0.5" />
+      <div className="flex items-start gap-3 p-4 bg-slate-100 border border-[#374151]/20 rounded-xl">
+        <FileStack className="w-5 h-5 text-[#374151] flex-shrink-0 mt-0.5" />
         <div className="text-sm text-coplio-text">
           <p>
             <strong>4 modèles disponibles.</strong> Remplissez le formulaire et téléchargez un PDF prêt à envoyer.
           </p>
           {cabinetInfo?.logo_url ? (
-            <p className="text-xs text-[#111827] mt-1">
+            <p className="text-xs text-[#374151] mt-1">
               ✓ Votre logo sera automatiquement ajouté aux documents générés.
             </p>
           ) : (
             <p className="text-xs text-muted-foreground mt-1">
               Ajoutez votre logo dans{' '}
-              <a href="/parametres" className="underline hover:text-[#111827]">Paramètres</a>
+              <a href="/parametres" className="underline hover:text-[#374151]">Paramètres</a>
               {' '}pour qu&apos;il apparaisse automatiquement sur vos documents.
             </p>
           )}

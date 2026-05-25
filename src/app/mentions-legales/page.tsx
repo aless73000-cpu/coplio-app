@@ -13,7 +13,7 @@ export default function MentionsLegalesPage() {
     <div className="min-h-screen bg-coplio-bg py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 bg-[#111827] rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-[#374151] rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">C</span>
           </div>
           <span className="text-coplio-text font-bold text-xl">Coplio</span>
@@ -38,7 +38,7 @@ export default function MentionsLegalesPage() {
               <li><strong>Forme juridique :</strong> Société par actions simplifiée</li>
               <li><strong>Capital social :</strong> En cours de constitution</li>
               <li><strong>Siège social :</strong> France</li>
-              <li><strong>Email :</strong> <a href="mailto:contact@coplio.fr" className="text-[#111827] hover:underline">contact@coplio.fr</a></li>
+              <li><strong>Email :</strong> <a href="mailto:contact@coplio.fr" className="text-[#374151] hover:underline">contact@coplio.fr</a></li>
             </ul>
           </section>
 
@@ -46,7 +46,7 @@ export default function MentionsLegalesPage() {
             <h2 className="text-lg font-semibold text-coplio-text mb-3">2. Directeur de la publication</h2>
             <p className="text-sm text-coplio-text leading-relaxed">
               Le directeur de la publication est le représentant légal de Coplio SAS.
-              Pour tout contact : <a href="mailto:contact@coplio.fr" className="text-[#111827] hover:underline">contact@coplio.fr</a>
+              Pour tout contact : <a href="mailto:contact@coplio.fr" className="text-[#374151] hover:underline">contact@coplio.fr</a>
             </p>
           </section>
 
@@ -58,14 +58,14 @@ export default function MentionsLegalesPage() {
             <ul className="text-sm text-coplio-text leading-relaxed mt-2 space-y-1">
               <li><strong>Vercel Inc.</strong></li>
               <li>440 N Barranca Ave #4133, Covina, CA 91723, États-Unis</li>
-              <li><a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="text-[#111827] hover:underline">vercel.com</a></li>
+              <li><a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="text-[#374151] hover:underline">vercel.com</a></li>
             </ul>
             <p className="text-sm text-coplio-text leading-relaxed mt-2">
               Les données sont stockées par :
             </p>
             <ul className="text-sm text-coplio-text leading-relaxed mt-2 space-y-1">
               <li><strong>Supabase Inc.</strong> — base de données (région EU West)</li>
-              <li><a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-[#111827] hover:underline">supabase.com</a></li>
+              <li><a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-[#374151] hover:underline">supabase.com</a></li>
             </ul>
           </section>
 
@@ -85,10 +85,10 @@ export default function MentionsLegalesPage() {
               Conformément au Règlement Général sur la Protection des Données (RGPD) et à la loi Informatique et Libertés, vous disposez d&apos;un droit d&apos;accès, de rectification, d&apos;effacement et de portabilité de vos données personnelles.
             </p>
             <p className="text-sm text-coplio-text leading-relaxed mt-2">
-              Pour exercer ces droits ou pour toute question relative au traitement de vos données, contactez-nous à <a href="mailto:contact@coplio.fr" className="text-[#111827] hover:underline">contact@coplio.fr</a>.
+              Pour exercer ces droits ou pour toute question relative au traitement de vos données, contactez-nous à <a href="mailto:contact@coplio.fr" className="text-[#374151] hover:underline">contact@coplio.fr</a>.
             </p>
             <p className="text-sm text-coplio-text leading-relaxed mt-2">
-              Pour plus d&apos;informations, consultez notre <Link href="/confidentialite" className="text-[#111827] hover:underline">politique de confidentialité</Link>.
+              Pour plus d&apos;informations, consultez notre <Link href="/confidentialite" className="text-[#374151] hover:underline">politique de confidentialité</Link>.
             </p>
           </section>
 
@@ -123,7 +123,7 @@ export default function MentionsLegalesPage() {
             <h2 className="text-lg font-semibold text-coplio-text mb-3">9. Contact</h2>
             <p className="text-sm text-coplio-text leading-relaxed">
               Pour toute question ou réclamation, vous pouvez nous contacter à :<br />
-              <a href="mailto:contact@coplio.fr" className="text-[#111827] hover:underline">contact@coplio.fr</a>
+              <a href="mailto:contact@coplio.fr" className="text-[#374151] hover:underline">contact@coplio.fr</a>
             </p>
           </section>
         </div>

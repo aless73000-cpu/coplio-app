@@ -50,7 +50,7 @@ export default function ImportLotsPage() {
   }
 
   const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-    focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
+    focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent
     placeholder:text-gray-400 transition-shadow`
 
   if (result) {
@@ -59,7 +59,7 @@ export default function ImportLotsPage() {
         <div className="coplio-card">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5 text-[#111827]" />
+              <CheckCircle2 className="w-5 h-5 text-[#374151]" />
             </div>
             <div>
               <p className="font-semibold text-coplio-text">Import terminé</p>
@@ -67,8 +67,8 @@ export default function ImportLotsPage() {
             </div>
           </div>
           <div className="bg-slate-100 rounded-xl p-6 text-center">
-            <p className="text-4xl font-bold text-[#111827]">{result.lots_created}</p>
-            <p className="text-sm text-[#111827]/80 mt-1">Lot{result.lots_created > 1 ? 's' : ''} créé{result.lots_created > 1 ? 's' : ''}</p>
+            <p className="text-4xl font-bold text-[#374151]">{result.lots_created}</p>
+            <p className="text-sm text-[#374151]/80 mt-1">Lot{result.lots_created > 1 ? 's' : ''} créé{result.lots_created > 1 ? 's' : ''}</p>
           </div>
           {result.errors.length > 0 && (
             <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
@@ -90,7 +90,7 @@ export default function ImportLotsPage() {
           </button>
           <button
             onClick={() => router.push(`/coproprietes/${coproprieteId}/lots`)}
-            className="flex-1 bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#111827]/90 transition-colors text-sm"
+            className="flex-1 bg-[#374151] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#374151]/90 transition-colors text-sm"
           >
             Voir les lots
           </button>
@@ -162,10 +162,10 @@ export default function ImportLotsPage() {
             <div
               className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${
                 isDragging
-                  ? 'border-[#111827] bg-slate-100'
+                  ? 'border-[#374151] bg-slate-100'
                   : file
-                  ? 'border-[#111827]/50 bg-slate-100/40'
-                  : 'border-border hover:border-[#111827]/50 hover:bg-coplio-bg'
+                  ? 'border-[#374151]/50 bg-slate-100/40'
+                  : 'border-border hover:border-[#374151]/50 hover:bg-coplio-bg'
               }`}
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
               onDragLeave={() => setIsDragging(false)}
@@ -181,7 +181,7 @@ export default function ImportLotsPage() {
               />
               {file ? (
                 <div className="flex items-center justify-center gap-3">
-                  <FileSpreadsheet className="w-8 h-8 text-[#111827]" />
+                  <FileSpreadsheet className="w-8 h-8 text-[#374151]" />
                   <div className="text-left">
                     <p className="font-medium text-coplio-text text-sm">{file.name}</p>
                     <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(1)} Ko</p>
@@ -215,7 +215,7 @@ export default function ImportLotsPage() {
           <button
             onClick={handleSubmit}
             disabled={!file || loading}
-            className="flex-1 bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+            className="flex-1 bg-[#374151] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#374151]/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
           >
             {loading ? (
               <><Loader2 className="w-4 h-4 animate-spin" /> Import en cours...</>

@@ -62,8 +62,8 @@ export default async function SinistresPage({
         </div>
         <Link
           href="/sinistres/new"
-          className="flex items-center gap-2 bg-[#111827] text-white px-3 py-2 rounded-lg
-                     text-sm font-medium hover:bg-[#111827]/90 transition-colors flex-shrink-0"
+          className="flex items-center gap-2 bg-[#374151] text-white px-3 py-2 rounded-lg
+                     text-sm font-medium hover:bg-[#374151]/90 transition-colors flex-shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">Déclarer un sinistre</span>
@@ -92,7 +92,7 @@ export default async function SinistresPage({
         </div>
         <div className="coplio-card flex items-center gap-3">
           <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-            <CheckCircle2 className="w-5 h-5 text-[#111827]" />
+            <CheckCircle2 className="w-5 h-5 text-[#374151]" />
           </div>
           <div>
             <p className="text-2xl font-bold text-coplio-text">{stats.clotures}</p>
@@ -112,8 +112,8 @@ export default async function SinistresPage({
             href={`/sinistres?status=${value}`}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
               (searchParams.status ?? 'all') === value
-                ? 'bg-[#111827] text-white border-[#111827]'
-                : 'bg-white text-coplio-text border-border hover:border-[#111827]/30'
+                ? 'bg-[#374151] text-white border-[#374151]'
+                : 'bg-white text-coplio-text border-border hover:border-[#374151]/30'
             }`}
           >
             {label}
@@ -191,7 +191,7 @@ function SinistreCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom
           </div>
           <div className="h-1.5 bg-coplio-bg rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#111827] rounded-full transition-all"
+              className="h-full bg-[#374151] rounded-full transition-all"
               style={{ width: `${progress}%` }}
             />
           </div>

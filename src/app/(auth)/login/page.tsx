@@ -14,10 +14,10 @@ export default function LoginPage({
 
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2.5 mb-10 group">
-        <div className="w-9 h-9 bg-[#111827] rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+        <div className="w-9 h-9 bg-[#374151] rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
           <span className="text-white text-sm font-bold">C</span>
         </div>
-        <span className="font-bold text-xl text-[#111827]" style={{ letterSpacing: '-0.02em' }}>Coplio</span>
+        <span className="font-bold text-xl text-[#374151]" style={{ letterSpacing: '-0.02em' }}>Coplio</span>
       </Link>
 
       {/* Card */}
@@ -25,7 +25,7 @@ export default function LoginPage({
         style={{ boxShadow: '0 4px 6px rgba(0,0,0,0.03), 0 20px 60px rgba(0,0,0,0.07)' }}>
 
         <div className="mb-7">
-          <h1 className="text-2xl font-bold text-[#111827]" style={{ letterSpacing: '-0.03em' }}>
+          <h1 className="text-2xl font-bold text-[#374151]" style={{ letterSpacing: '-0.03em' }}>
             Bon retour 👋
           </h1>
           <p className="text-slate-400 mt-1.5 text-sm">Connectez-vous à votre espace syndic</p>
@@ -48,13 +48,13 @@ export default function LoginPage({
       <div className="mt-6 space-y-2 text-center">
         <p className="text-sm text-slate-400">
           Pas encore de compte ?{' '}
-          <Link href="/register" className="text-[#111827] font-semibold hover:underline">
+          <Link href="/register" className="text-[#374151] font-semibold hover:underline">
             Essai gratuit 14 jours
           </Link>
         </p>
         <p className="text-xs text-slate-300">
           Copropriétaire ?{' '}
-          <Link href="/portail" className="text-[#111827] hover:underline">Accéder au portail</Link>
+          <Link href="/portail" className="text-[#374151] hover:underline">Accéder au portail</Link>
         </p>
       </div>
 

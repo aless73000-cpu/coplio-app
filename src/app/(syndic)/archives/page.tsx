@@ -94,12 +94,12 @@ export default function ArchivesPage() {
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-coplio-text flex items-center gap-2">
-            <Archive className="w-6 h-6 text-[#111827]" />Archivage légal
+            <Archive className="w-6 h-6 text-[#374151]" />Archivage légal
           </h1>
           <p className="text-muted-foreground text-sm mt-0.5">Conservation certifiée 10 ans — PV, convocations, contrats</p>
         </div>
         <button onClick={() => setShowUpload(v => !v)}
-          className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors flex-shrink-0">
+          className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors flex-shrink-0">
           <Upload className="w-4 h-4" /><span className="hidden sm:inline">Archiver un document</span>
         </button>
       </div>
@@ -116,9 +116,9 @@ export default function ArchivesPage() {
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Volume total</p>
           <p className="text-xl font-bold text-coplio-text">{(totalSize / 1024 / 1024).toFixed(1)} MB</p>
         </div>
-        <div className="coplio-card text-center bg-slate-100 border-[#111827]/20">
-          <p className="text-xs text-[#111827] uppercase tracking-wide mb-1 font-medium">Rétention légale</p>
-          <p className="text-xl font-bold text-[#111827] flex items-center justify-center gap-1">
+        <div className="coplio-card text-center bg-slate-100 border-[#374151]/20">
+          <p className="text-xs text-[#374151] uppercase tracking-wide mb-1 font-medium">Rétention légale</p>
+          <p className="text-xl font-bold text-[#374151] flex items-center justify-center gap-1">
             <Shield className="w-5 h-5" />10 ans
           </p>
         </div>
@@ -131,7 +131,7 @@ export default function ArchivesPage() {
           <form onSubmit={handleUpload} className="space-y-4">
             <div
               onClick={() => fileRef.current?.click()}
-              className="border-2 border-dashed border-border rounded-xl py-8 text-center cursor-pointer hover:border-[#111827] transition-colors">
+              className="border-2 border-dashed border-border rounded-xl py-8 text-center cursor-pointer hover:border-[#374151] transition-colors">
               <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">{selectedFile ? selectedFile.name : 'Cliquez pour choisir un fichier (PDF, max 20MB)'}</p>
               <input ref={fileRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.jpg,.png"
@@ -144,19 +144,19 @@ export default function ArchivesPage() {
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Nom *</label>
                 <input value={uploadForm.nom} onChange={e => setUploadForm(f => ({ ...f, nom: e.target.value }))} required
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Type</label>
                 <select value={uploadForm.type} onChange={e => setUploadForm(f => ({ ...f, type: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 bg-white">
                   {TYPES_ARCHIVE.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Copropriété</label>
                 <select value={uploadForm.copropriete_id} onChange={e => setUploadForm(f => ({ ...f, copropriete_id: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 bg-white">
                   <option value="">— Toutes —</option>
                   {coproprietes.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
                 </select>
@@ -164,11 +164,11 @@ export default function ArchivesPage() {
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Date du document</label>
                 <input type="date" value={uploadForm.date_document} onChange={e => setUploadForm(f => ({ ...f, date_document: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
             </div>
             <button type="submit" disabled={uploading || !selectedFile}
-              className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 disabled:opacity-60">
+              className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 disabled:opacity-60">
               {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Archive className="w-4 h-4" />}
               {uploading ? 'Archivage...' : 'Archiver'}
             </button>
@@ -181,15 +181,15 @@ export default function ArchivesPage() {
         <div className="relative flex-1 min-w-48">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..."
-            className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+            className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
         </div>
         <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
-          className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
+          className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 bg-white">
           <option value="">Tous les types</option>
           {TYPES_ARCHIVE.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
         <select value={coproprieteFilter} onChange={e => setCoproprieteFilter(e.target.value)}
-          className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
+          className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 bg-white">
           <option value="">Toutes les copropriétés</option>
           {coproprietes.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
         </select>
@@ -208,7 +208,7 @@ export default function ArchivesPage() {
           {filtered.map(a => (
             <div key={a.id} className="coplio-card flex items-center gap-3">
               <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <FileText className="w-4 h-4 text-[#111827]" />
+                <FileText className="w-4 h-4 text-[#374151]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-coplio-text text-sm truncate">{a.nom}</p>
@@ -217,13 +217,13 @@ export default function ArchivesPage() {
                   {a.copropriete && <span>{a.copropriete.nom}</span>}
                   {a.date_document && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(a.date_document)}</span>}
                   {a.taille_octets && <span>{(a.taille_octets / 1024).toFixed(0)} KB</span>}
-                  <span className="flex items-center gap-1 text-[#111827]"><Shield className="w-3 h-3" />Jusqu&apos;au {formatDate(a.retention_jusqu_au)}</span>
+                  <span className="flex items-center gap-1 text-[#374151]"><Shield className="w-3 h-3" />Jusqu&apos;au {formatDate(a.retention_jusqu_au)}</span>
                 </div>
                 {a.hash_sha256 && <p className="text-[10px] text-muted-foreground mt-0.5 font-mono truncate">SHA256: {a.hash_sha256.slice(0, 32)}…</p>}
               </div>
               <div className="flex gap-1 flex-shrink-0">
                 <a href={a.fichier_url} target="_blank" rel="noopener noreferrer"
-                  className="p-1.5 text-muted-foreground hover:text-[#111827] transition-colors">
+                  className="p-1.5 text-muted-foreground hover:text-[#374151] transition-colors">
                   <Download className="w-4 h-4" />
                 </a>
                 <button onClick={() => handleDelete(a.id)} className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors">

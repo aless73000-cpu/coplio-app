@@ -53,7 +53,7 @@ export function DocumentActions({ documentId, typeMime }: { documentId: string; 
         <button
           onClick={handlePreview}
           disabled={loading !== null}
-          className="p-1.5 rounded-md hover:bg-slate-100 text-muted-foreground hover:text-[#111827] transition-colors disabled:opacity-50"
+          className="p-1.5 rounded-md hover:bg-slate-100 text-muted-foreground hover:text-[#374151] transition-colors disabled:opacity-50"
           title="Aperçu"
         >
           {loading === 'preview' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
@@ -62,7 +62,7 @@ export function DocumentActions({ documentId, typeMime }: { documentId: string; 
       <button
         onClick={handleDownload}
         disabled={loading !== null}
-        className="p-1.5 rounded-md hover:bg-slate-100 text-muted-foreground hover:text-[#111827] transition-colors disabled:opacity-50"
+        className="p-1.5 rounded-md hover:bg-slate-100 text-muted-foreground hover:text-[#374151] transition-colors disabled:opacity-50"
         title="Télécharger"
       >
         {loading === 'download' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}

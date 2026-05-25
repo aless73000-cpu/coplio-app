@@ -103,8 +103,8 @@ export default async function AppelsChargesPage({
           )}
           <Link
             href="/appels-charges/new"
-            className="flex items-center gap-2 bg-[#111827] text-white px-3 py-2 rounded-lg
-                       text-sm font-medium hover:bg-[#111827]/90 transition-colors"
+            className="flex items-center gap-2 bg-[#374151] text-white px-3 py-2 rounded-lg
+                       text-sm font-medium hover:bg-[#374151]/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Nouvel appel</span>
@@ -116,7 +116,7 @@ export default async function AppelsChargesPage({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="coplio-card flex items-center gap-3">
           <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-            <CreditCard className="w-5 h-5 text-[#111827]" />
+            <CreditCard className="w-5 h-5 text-[#374151]" />
           </div>
           <div>
             <p className="text-2xl font-bold text-coplio-text">{stats.total}</p>
@@ -125,7 +125,7 @@ export default async function AppelsChargesPage({
         </div>
         <div className="coplio-card flex items-center gap-3">
           <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-            <CheckCircle2 className="w-5 h-5 text-[#111827]" />
+            <CheckCircle2 className="w-5 h-5 text-[#374151]" />
           </div>
           <div>
             <p className="text-2xl font-bold text-coplio-text">{stats.payes}</p>
@@ -165,8 +165,8 @@ export default async function AppelsChargesPage({
               href={`/appels-charges${value ? `?statut=${value}` : ''}${searchParams.copropriete ? `${value ? '&' : '?'}copropriete=${searchParams.copropriete}` : ''}`}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
                 (searchParams.statut ?? '') === value
-                  ? 'bg-[#111827] text-white border-[#111827]'
-                  : 'bg-white text-coplio-text border-border hover:border-[#111827]/30'
+                  ? 'bg-[#374151] text-white border-[#374151]'
+                  : 'bg-white text-coplio-text border-border hover:border-[#374151]/30'
               }`}
             >
               {label}
@@ -180,8 +180,8 @@ export default async function AppelsChargesPage({
               href={`/appels-charges${searchParams.statut ? `?statut=${searchParams.statut}` : ''}`}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                 !searchParams.copropriete
-                  ? 'bg-[#111827] text-white border-[#111827]'
-                  : 'bg-white text-coplio-text border-border hover:border-[#111827]/30'
+                  ? 'bg-[#374151] text-white border-[#374151]'
+                  : 'bg-white text-coplio-text border-border hover:border-[#374151]/30'
               }`}
             >
               Toutes
@@ -192,8 +192,8 @@ export default async function AppelsChargesPage({
                 href={`/appels-charges?copropriete=${c.id}${searchParams.statut ? `&statut=${searchParams.statut}` : ''}`}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                   searchParams.copropriete === c.id
-                    ? 'bg-[#111827] text-white border-[#111827]'
-                    : 'bg-white text-coplio-text border-border hover:border-[#111827]/30'
+                    ? 'bg-[#374151] text-white border-[#374151]'
+                    : 'bg-white text-coplio-text border-border hover:border-[#374151]/30'
                 }`}
               >
                 {c.nom}
@@ -207,7 +207,7 @@ export default async function AppelsChargesPage({
       {(!appels || appels.length === 0) ? (
         <div className="coplio-card text-center py-16">
           <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CreditCard className="w-7 h-7 text-[#111827]" />
+            <CreditCard className="w-7 h-7 text-[#374151]" />
           </div>
           <h3 className="font-semibold text-coplio-text mb-1">Aucun appel de charges</h3>
           <p className="text-muted-foreground text-sm mb-4">
@@ -215,7 +215,7 @@ export default async function AppelsChargesPage({
           </p>
           <Link
             href="/appels-charges/new"
-            className="inline-flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors"
+            className="inline-flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Créer un appel de charges
@@ -280,7 +280,7 @@ export default async function AppelsChargesPage({
                     </td>
                     <td className="py-3">
                       {appel.paye ? (
-                        <span className="flex items-center gap-1 text-xs font-medium text-[#111827]">
+                        <span className="flex items-center gap-1 text-xs font-medium text-[#374151]">
                           <CheckCircle2 className="w-3.5 h-3.5" /> Payé
                         </span>
                       ) : (
@@ -298,7 +298,7 @@ export default async function AppelsChargesPage({
                           href={`/api/appels-charges/${appel.id}/pdf`}
                           download
                           title="Télécharger le PDF"
-                          className="flex items-center justify-center w-7 h-7 rounded-md hover:bg-slate-100 transition-colors text-muted-foreground hover:text-[#111827]"
+                          className="flex items-center justify-center w-7 h-7 rounded-md hover:bg-slate-100 transition-colors text-muted-foreground hover:text-[#374151]"
                         >
                           <FileDown className="w-3.5 h-3.5" />
                         </a>

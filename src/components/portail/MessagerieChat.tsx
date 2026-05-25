@@ -118,14 +118,14 @@ export function MessagerieChat({ userId, conversationId: initialConvId, onConver
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
         <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center">
-          <MessageCircle className="w-5 h-5 text-[#111827]" />
+          <MessageCircle className="w-5 h-5 text-[#374151]" />
         </div>
         <div>
           <p className="font-semibold text-coplio-text">Votre syndic</p>
           <p className="text-xs text-muted-foreground">Messagerie privée</p>
         </div>
         <div className="ml-auto flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-[#111827] animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-[#374151] animate-pulse" />
           <span className="text-xs text-muted-foreground">En ligne</span>
         </div>
       </div>
@@ -134,12 +134,12 @@ export function MessagerieChat({ userId, conversationId: initialConvId, onConver
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {loading ? (
           <div className="flex justify-center pt-8">
-            <Loader2 className="w-5 h-5 animate-spin text-[#111827]" />
+            <Loader2 className="w-5 h-5 animate-spin text-[#374151]" />
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mb-3">
-              <MessageCircle className="w-7 h-7 text-[#111827]" />
+              <MessageCircle className="w-7 h-7 text-[#374151]" />
             </div>
             <p className="font-medium text-coplio-text">Aucun message</p>
             <p className="text-sm text-muted-foreground mt-1">
@@ -154,11 +154,11 @@ export function MessagerieChat({ userId, conversationId: initialConvId, onConver
               <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[80%] sm:max-w-[65%] rounded-2xl px-4 py-3 transition-opacity ${
                   isMine
-                    ? 'bg-[#111827] text-white rounded-br-sm'
+                    ? 'bg-[#374151] text-white rounded-br-sm'
                     : 'bg-coplio-bg border border-border text-coplio-text rounded-bl-sm'
                 } ${isOptimistic ? 'opacity-70' : 'opacity-100'}`}>
                   {!isMine && (
-                    <p className="text-xs font-semibold text-[#111827] mb-1">
+                    <p className="text-xs font-semibold text-[#374151] mb-1">
                       {msg.expediteur?.prenom} {msg.expediteur?.nom}
                     </p>
                   )}
@@ -185,13 +185,13 @@ export function MessagerieChat({ userId, conversationId: initialConvId, onConver
             placeholder="Écrivez votre message…"
             autoComplete="off"
             className="flex-1 px-4 py-3 bg-coplio-bg border border-border rounded-xl text-sm
-                       focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent"
+                       focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent"
           />
           <button
             type="submit"
             disabled={sending || !input.trim()}
-            className="px-4 py-3 bg-[#111827] text-white rounded-xl font-medium text-sm
-                       hover:bg-[#111827]/90 transition-colors flex items-center gap-2 flex-shrink-0
+            className="px-4 py-3 bg-[#374151] text-white rounded-xl font-medium text-sm
+                       hover:bg-[#374151]/90 transition-colors flex items-center gap-2 flex-shrink-0
                        disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

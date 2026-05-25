@@ -154,7 +154,7 @@ export default async function MonCalendrier() {
               label: 'Prochaine AG',
               event: upcoming.find(e => e.type === 'ag'),
               icon: Users,
-              color: 'bg-slate-100 text-[#111827]',
+              color: 'bg-slate-100 text-[#374151]',
             },
             {
               label: 'Prochaine charge',
@@ -193,7 +193,7 @@ export default async function MonCalendrier() {
       {Object.keys(byMonth).length === 0 ? (
         <div className="coplio-card text-center py-16">
           <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Calendar className="w-7 h-7 text-[#111827]" />
+            <Calendar className="w-7 h-7 text-[#374151]" />
           </div>
           <p className="font-medium text-coplio-text">Aucun événement à venir</p>
           <p className="text-sm text-muted-foreground mt-1">Votre calendrier est vide pour les prochains mois.</p>
@@ -209,7 +209,7 @@ export default async function MonCalendrier() {
                 <div className="flex items-center gap-3 mb-3">
                   <div className={`px-3 py-1 rounded-full text-sm font-bold ${
                     isCurrentMonth
-                      ? 'bg-[#111827] text-white'
+                      ? 'bg-[#374151] text-white'
                       : 'bg-coplio-bg text-muted-foreground'
                   }`}>
                     {MOIS[month]} {year}
@@ -244,7 +244,7 @@ function EventRow({ event, isToday }: { event: CalEvent; isToday: boolean }) {
   const jourSemaine = event.date.toLocaleDateString('fr-FR', { weekday: 'short' })
 
   const typeConfig = {
-    ag:            { icon: Users,         bg: 'bg-slate-100',  iconColor: 'text-[#111827]',  border: 'border-[#111827]/20' },
+    ag:            { icon: Users,         bg: 'bg-slate-100',  iconColor: 'text-[#374151]',  border: 'border-[#374151]/20' },
     charge:        { icon: CreditCard,    bg: 'bg-blue-50',             iconColor: 'text-blue-500',      border: 'border-blue-100' },
     charge_retard: { icon: AlertTriangle, bg: 'bg-coplio-red-bg',       iconColor: 'text-coplio-red',    border: 'border-coplio-red/20' },
     sinistre:      { icon: Wrench,        bg: 'bg-coplio-amber-bg',     iconColor: 'text-coplio-amber',  border: 'border-coplio-amber/20' },
@@ -257,12 +257,12 @@ function EventRow({ event, isToday }: { event: CalEvent; isToday: boolean }) {
       event.isPast
         ? 'opacity-50 bg-white border-transparent'
         : isToday
-        ? 'bg-slate-100/40 border-[#111827]/30 shadow-sm'
+        ? 'bg-slate-100/40 border-[#374151]/30 shadow-sm'
         : `bg-white ${typeConfig.border}`
     }`}>
       {/* Date */}
       <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center flex-shrink-0 font-bold ${
-        isToday ? 'bg-[#111827] text-white' : 'bg-coplio-bg text-coplio-text'
+        isToday ? 'bg-[#374151] text-white' : 'bg-coplio-bg text-coplio-text'
       }`}>
         <span className="text-[10px] uppercase opacity-70 leading-none">{jourSemaine}</span>
         <span className="text-lg leading-tight">{jour}</span>
@@ -290,7 +290,7 @@ function EventRow({ event, isToday }: { event: CalEvent; isToday: boolean }) {
             </span>
           )}
           {isToday && (
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#111827] text-white flex-shrink-0">
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#374151] text-white flex-shrink-0">
               Aujourd'hui
             </span>
           )}
@@ -311,7 +311,7 @@ function EventRow({ event, isToday }: { event: CalEvent; isToday: boolean }) {
             </span>
           )}
           {event.type === 'charge' && event.montant !== undefined && event.montant <= 0 && (
-            <span className="text-xs font-medium text-[#111827] flex items-center gap-1">
+            <span className="text-xs font-medium text-[#374151] flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3" /> Réglé
             </span>
           )}

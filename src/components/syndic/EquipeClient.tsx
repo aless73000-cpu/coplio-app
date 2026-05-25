@@ -77,7 +77,7 @@ export function EquipeClient({ currentUserId, isOwner, quota }: Props) {
   }
 
   const inputCls = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-    focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent`
+    focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent`
 
   return (
     <div className="max-w-2xl space-y-6 animate-fade-in">
@@ -93,10 +93,10 @@ export function EquipeClient({ currentUserId, isOwner, quota }: Props) {
 
       {/* Quota */}
       <div className={`flex items-center justify-between p-4 rounded-xl border ${
-        quota.allowed ? 'bg-slate-100 border-[#111827]/20' : 'bg-amber-50 border-amber-200'
+        quota.allowed ? 'bg-slate-100 border-[#374151]/20' : 'bg-amber-50 border-amber-200'
       }`}>
         <div className="flex items-center gap-3">
-          <Users className={`w-5 h-5 ${quota.allowed ? 'text-[#111827]' : 'text-amber-600'}`} />
+          <Users className={`w-5 h-5 ${quota.allowed ? 'text-[#374151]' : 'text-amber-600'}`} />
           <div>
             <p className="text-sm font-semibold text-coplio-text">
               {quota.current} / {quota.max} gestionnaire{quota.max > 1 ? 's' : ''}
@@ -119,7 +119,7 @@ export function EquipeClient({ currentUserId, isOwner, quota }: Props) {
       {isOwner && (
         <div className="coplio-card">
           <div className="flex items-center gap-2 mb-4">
-            <UserPlus className="w-4 h-4 text-[#111827]" />
+            <UserPlus className="w-4 h-4 text-[#374151]" />
             <h2 className="font-semibold text-coplio-text">Inviter un gestionnaire</h2>
           </div>
 
@@ -130,7 +130,7 @@ export function EquipeClient({ currentUserId, isOwner, quota }: Props) {
             </div>
           )}
           {success && (
-            <div className="mb-4 p-3 bg-slate-100 border border-[#111827]/20 rounded-lg flex items-center gap-2 text-[#111827] text-sm">
+            <div className="mb-4 p-3 bg-slate-100 border border-[#374151]/20 rounded-lg flex items-center gap-2 text-[#374151] text-sm">
               <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
               {success}
             </div>
@@ -162,7 +162,7 @@ export function EquipeClient({ currentUserId, isOwner, quota }: Props) {
           <button
             onClick={handleInvite}
             disabled={inviting || !email || !quota.allowed}
-            className="w-full flex items-center justify-center gap-2 bg-[#111827] text-white font-medium py-2.5 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-50 text-sm"
+            className="w-full flex items-center justify-center gap-2 bg-[#374151] text-white font-medium py-2.5 rounded-lg hover:bg-[#374151]/90 transition-colors disabled:opacity-50 text-sm"
           >
             {inviting ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
             {inviting ? 'Envoi en cours...' : "Envoyer l'invitation"}
@@ -187,7 +187,7 @@ export function EquipeClient({ currentUserId, isOwner, quota }: Props) {
             {members.map((m) => (
               <div key={m.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-coplio-bg transition-colors">
                 <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-bold text-[#111827]">
+                  <span className="text-sm font-bold text-[#374151]">
                     {(m.prenom?.[0] ?? m.email[0]).toUpperCase()}
                   </span>
                 </div>

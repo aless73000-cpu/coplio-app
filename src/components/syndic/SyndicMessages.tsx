@@ -93,7 +93,7 @@ function NewMessageModal({ onClose, onCreated }: { onClose: () => void; onCreate
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Rechercher un copropriétaire…"
-              className="w-full pl-9 pr-4 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#111827]/20"
+              className="w-full pl-9 pr-4 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#374151]/20"
             />
           </div>
 
@@ -111,14 +111,14 @@ function NewMessageModal({ onClose, onCreated }: { onClose: () => void; onCreate
                 disabled={creating === c.id}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-coplio-bg transition-colors text-left disabled:opacity-60"
               >
-                <div className="w-9 h-9 bg-[#111827]/10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold text-[#111827]">
+                <div className="w-9 h-9 bg-[#374151]/10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold text-[#374151]">
                   {c.prenom[0]}{c.nom[0]}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-coplio-text">{c.prenom} {c.nom}</p>
                   {c.email && <p className="text-xs text-muted-foreground truncate">{c.email}</p>}
                 </div>
-                {creating === c.id && <Loader2 className="w-4 h-4 animate-spin text-[#111827]" />}
+                {creating === c.id && <Loader2 className="w-4 h-4 animate-spin text-[#374151]" />}
               </button>
             ))}
           </div>
@@ -298,7 +298,7 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
         </div>
         <button
           onClick={() => setShowNewModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#111827] text-white text-sm font-medium rounded-xl hover:bg-[#111827]/90 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[#374151] text-white text-sm font-medium rounded-xl hover:bg-[#374151]/90 transition-colors"
         >
           <Plus className="w-4 h-4" /> Nouveau message
         </button>
@@ -309,11 +309,11 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
         <div className={`w-full md:w-72 flex-shrink-0 flex-col gap-3 ${showChat ? 'hidden md:flex' : 'flex'}`}>
           <div className="flex gap-2">
             <button onClick={() => { setTab('copro'); setSelectedConv(null) }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors ${tab === 'copro' ? 'bg-[#111827] text-white' : 'bg-white text-coplio-text border border-border hover:bg-coplio-bg'}`}>
+              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors ${tab === 'copro' ? 'bg-[#374151] text-white' : 'bg-white text-coplio-text border border-border hover:bg-coplio-bg'}`}>
               <Users className="w-4 h-4" /> Copropriétaires
             </button>
             <button onClick={() => setTab('admin')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors ${tab === 'admin' ? 'bg-[#111827] text-white' : 'bg-white text-coplio-text border border-border hover:bg-coplio-bg'}`}>
+              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors ${tab === 'admin' ? 'bg-[#374151] text-white' : 'bg-white text-coplio-text border border-border hover:bg-coplio-bg'}`}>
               <ShieldCheck className="w-4 h-4" /> Admin
             </button>
           </div>
@@ -327,7 +327,7 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
                   <MessageSquare className="w-8 h-8 text-muted-foreground mb-2" />
                   <p className="text-sm text-muted-foreground">Aucune conversation</p>
                   <button onClick={() => setShowNewModal(true)}
-                    className="mt-2 text-xs text-[#111827] hover:underline">
+                    className="mt-2 text-xs text-[#374151] hover:underline">
                     Démarrer un échange →
                   </button>
                 </div>
@@ -340,9 +340,9 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
                   : '?'
                 return (
                   <button key={conv.id} onClick={() => setSelectedConv(conv)}
-                    className={`w-full text-left px-4 py-3 border-b border-border last:border-0 hover:bg-coplio-bg transition-colors ${selectedConv?.id === conv.id ? 'bg-[#111827]/5 border-l-2 border-l-[#111827]' : ''}`}>
+                    className={`w-full text-left px-4 py-3 border-b border-border last:border-0 hover:bg-coplio-bg transition-colors ${selectedConv?.id === conv.id ? 'bg-[#374151]/5 border-l-2 border-l-[#374151]' : ''}`}>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-[#111827]/10 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-semibold text-[#111827]">
+                      <div className="w-8 h-8 bg-[#374151]/10 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-semibold text-[#374151]">
                         {initials}
                       </div>
                       <div className="min-w-0">
@@ -360,8 +360,8 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
 
           {tab === 'admin' && (
             <div className="coplio-card flex-1 flex flex-col justify-center items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-[#111827]/10 flex items-center justify-center mb-3">
-                <ShieldCheck className="w-6 h-6 text-[#111827]" />
+              <div className="w-12 h-12 rounded-full bg-[#374151]/10 flex items-center justify-center mb-3">
+                <ShieldCheck className="w-6 h-6 text-[#374151]" />
               </div>
               <p className="text-sm font-medium text-coplio-text">Support Coplio</p>
               <p className="text-xs text-muted-foreground mt-1">Échangez avec l&apos;équipe admin</p>
@@ -373,13 +373,13 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
         <div className={`flex-1 coplio-card p-0 overflow-hidden flex-col min-h-0 ${showChat ? 'flex' : 'hidden md:flex'}`}>
           {!showChat ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-              <div className="w-16 h-16 bg-[#111827]/10 rounded-full flex items-center justify-center mb-4">
-                <MessageSquare className="w-8 h-8 text-[#111827]" />
+              <div className="w-16 h-16 bg-[#374151]/10 rounded-full flex items-center justify-center mb-4">
+                <MessageSquare className="w-8 h-8 text-[#374151]" />
               </div>
               <p className="font-semibold text-coplio-text mb-1">Sélectionnez une conversation</p>
               <p className="text-sm text-muted-foreground mb-4">ou démarrez un nouvel échange</p>
               <button onClick={() => setShowNewModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#111827] text-white text-sm font-medium rounded-xl hover:bg-[#111827]/90 transition-colors">
+                className="flex items-center gap-2 px-4 py-2 bg-[#374151] text-white text-sm font-medium rounded-xl hover:bg-[#374151]/90 transition-colors">
                 <Plus className="w-4 h-4" /> Nouveau message
               </button>
             </div>
@@ -392,7 +392,7 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
                     <ChevronLeft className="w-5 h-5" />
                   </button>
                 )}
-                <div className="w-9 h-9 bg-[#111827]/10 rounded-full flex items-center justify-center text-sm font-semibold text-[#111827] flex-shrink-0">
+                <div className="w-9 h-9 bg-[#374151]/10 rounded-full flex items-center justify-center text-sm font-semibold text-[#374151] flex-shrink-0">
                   {tab === 'admin'
                     ? <ShieldCheck className="w-5 h-5" />
                     : selectedConv?.coproprietaire
@@ -415,7 +415,7 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
               {/* Messages */}
               <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
                 {loadingMessages ? (
-                  <div className="flex justify-center pt-8"><Loader2 className="w-5 h-5 animate-spin text-[#111827]" /></div>
+                  <div className="flex justify-center pt-8"><Loader2 className="w-5 h-5 animate-spin text-[#374151]" /></div>
                 ) : tab === 'admin' ? (
                   adminMessages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center">
@@ -426,8 +426,8 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
                     const isMe = msg.sender_type === 'client'
                     return (
                       <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[65%] rounded-2xl px-4 py-3 ${isMe ? 'bg-[#111827] text-white rounded-br-sm' : 'bg-coplio-bg border border-border text-coplio-text rounded-bl-sm'}`}>
-                          {!isMe && <p className="text-xs font-semibold text-[#111827] mb-1">Coplio Admin</p>}
+                        <div className={`max-w-[65%] rounded-2xl px-4 py-3 ${isMe ? 'bg-[#374151] text-white rounded-br-sm' : 'bg-coplio-bg border border-border text-coplio-text rounded-bl-sm'}`}>
+                          {!isMe && <p className="text-xs font-semibold text-[#374151] mb-1">Coplio Admin</p>}
                           <p className="text-sm">{msg.contenu}</p>
                           <p className={`text-[10px] mt-1.5 ${isMe ? 'text-white/60' : 'text-muted-foreground'}`}>{formatDateTime(msg.created_at)}</p>
                         </div>
@@ -444,9 +444,9 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
                     const isMe = msg.expediteur_id === userId
                     return (
                       <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[65%] rounded-2xl px-4 py-3 ${isMe ? 'bg-[#111827] text-white rounded-br-sm' : 'bg-coplio-bg border border-border text-coplio-text rounded-bl-sm'}`}>
+                        <div className={`max-w-[65%] rounded-2xl px-4 py-3 ${isMe ? 'bg-[#374151] text-white rounded-br-sm' : 'bg-coplio-bg border border-border text-coplio-text rounded-bl-sm'}`}>
                           {!isMe && msg.expediteur && (
-                            <p className="text-xs font-semibold text-[#111827] mb-1">
+                            <p className="text-xs font-semibold text-[#374151] mb-1">
                               {msg.expediteur.prenom} {msg.expediteur.nom}
                             </p>
                           )}
@@ -467,10 +467,10 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(e) } }}
                   placeholder="Écrire un message…"
-                  className="flex-1 px-4 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]/20"
+                  className="flex-1 px-4 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#374151]/20"
                 />
                 <button type="submit" disabled={sending || !input.trim()}
-                  className="bg-[#111827] text-white px-4 py-2.5 rounded-xl hover:bg-[#111827]/90 transition-colors disabled:opacity-60 flex items-center gap-2 text-sm font-medium">
+                  className="bg-[#374151] text-white px-4 py-2.5 rounded-xl hover:bg-[#374151]/90 transition-colors disabled:opacity-60 flex items-center gap-2 text-sm font-medium">
                   {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   Envoyer
                 </button>

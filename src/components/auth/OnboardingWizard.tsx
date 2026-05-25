@@ -109,17 +109,17 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
   }
 
   const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-    focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
+    focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent
     placeholder:text-gray-400 transition-shadow`
 
   return (
     <div className="w-full max-w-lg">
       {/* Logo */}
       <div className="flex items-center gap-2 mb-8 justify-center">
-        <div className="w-9 h-9 bg-[#111827] rounded-xl flex items-center justify-center">
+        <div className="w-9 h-9 bg-[#374151] rounded-xl flex items-center justify-center">
           <Home className="w-5 h-5 text-white" />
         </div>
-        <span className="font-bold text-xl text-[#111827]">Coplio</span>
+        <span className="font-bold text-xl text-[#374151]">Coplio</span>
       </div>
 
       {/* Stepper */}
@@ -130,9 +130,9 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
                   currentStep > step.id
-                    ? 'bg-[#111827] text-white'
+                    ? 'bg-[#374151] text-white'
                     : currentStep === step.id
-                    ? 'bg-[#111827] text-white'
+                    ? 'bg-[#374151] text-white'
                     : 'bg-white border-2 border-border text-muted-foreground'
                 }`}
               >
@@ -144,7 +144,7 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
               </div>
               <span
                 className={`text-xs mt-1 font-medium ${
-                  currentStep >= step.id ? 'text-[#111827]' : 'text-muted-foreground'
+                  currentStep >= step.id ? 'text-[#374151]' : 'text-muted-foreground'
                 }`}
               >
                 {step.title}
@@ -153,7 +153,7 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
             {i < steps.length - 1 && (
               <div
                 className={`w-16 h-0.5 mb-4 mx-2 transition-colors ${
-                  currentStep > step.id ? 'bg-[#111827]' : 'bg-border'
+                  currentStep > step.id ? 'bg-[#374151]' : 'bg-border'
                 }`}
               />
             )}
@@ -196,8 +196,8 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
               </div>
               <button
                 type="submit"
-                className="w-full bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg
-                           hover:bg-[#111827]/90 transition-colors flex items-center justify-center gap-2 text-sm"
+                className="w-full bg-[#374151] text-white font-medium py-2.5 px-4 rounded-lg
+                           hover:bg-[#374151]/90 transition-colors flex items-center justify-center gap-2 text-sm"
               >
                 Continuer
                 <ChevronRight className="w-4 h-4" />
@@ -284,8 +284,8 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg
-                             hover:bg-[#111827]/90 transition-colors disabled:opacity-60
+                  className="flex-1 bg-[#374151] text-white font-medium py-2.5 px-4 rounded-lg
+                             hover:bg-[#374151]/90 transition-colors disabled:opacity-60
                              flex items-center justify-center gap-2 text-sm"
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
@@ -301,9 +301,9 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
           <div className="text-center py-2">
             {/* Badge succès animé */}
             <div className="relative w-20 h-20 mx-auto mb-5">
-              <div className="absolute inset-0 bg-[#111827]/20 rounded-full animate-ping opacity-50" />
+              <div className="absolute inset-0 bg-[#374151]/20 rounded-full animate-ping opacity-50" />
               <div className="relative w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center">
-                <Check className="w-9 h-9 text-[#111827]" />
+                <Check className="w-9 h-9 text-[#374151]" />
               </div>
             </div>
 
@@ -318,8 +318,8 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
             {/* CTA principal */}
             <a
               href="/coproprietes/new"
-              className="flex items-center justify-center gap-2 w-full bg-[#111827] text-white
-                         font-semibold py-3 px-4 rounded-xl hover:bg-[#111827]/90 transition-colors
+              className="flex items-center justify-center gap-2 w-full bg-[#374151] text-white
+                         font-semibold py-3 px-4 rounded-xl hover:bg-[#374151]/90 transition-colors
                          text-sm mb-3"
             >
               <Building2 className="w-4 h-4" />

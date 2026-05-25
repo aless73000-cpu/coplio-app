@@ -27,7 +27,7 @@ const STATUT_PIPELINE = [
   { key: 'contact', label: 'Contact établi', color: 'bg-blue-50 text-blue-700 border-blue-200' },
   { key: 'proposition', label: 'Proposition', color: 'bg-amber-50 text-amber-700 border-amber-200' },
   { key: 'nego', label: 'Négociation', color: 'bg-orange-50 text-orange-700 border-orange-200' },
-  { key: 'gagne', label: 'Gagné', color: 'bg-slate-100 text-[#111827] border-[#111827]/20' },
+  { key: 'gagne', label: 'Gagné', color: 'bg-slate-100 text-[#374151] border-[#374151]/20' },
   { key: 'perdu', label: 'Perdu', color: 'bg-red-50 text-red-700 border-red-200' },
 ]
 
@@ -111,11 +111,11 @@ export function CoproprietesClient({ coproprietes }: Props) {
         coproprietes.length === 0 ? (
           <div className="coplio-card text-center py-16">
             <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Building2 className="w-8 h-8 text-[#111827]" />
+              <Building2 className="w-8 h-8 text-[#374151]" />
             </div>
             <h3 className="text-lg font-semibold text-coplio-text mb-2">Aucune copropriété</h3>
             <p className="text-muted-foreground text-sm mb-6">Ajoutez votre première copropriété pour commencer.</p>
-            <Link href="/coproprietes/new" className="inline-flex items-center gap-2 bg-[#111827] text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-[#111827]/90 transition-colors">
+            <Link href="/coproprietes/new" className="inline-flex items-center gap-2 bg-[#374151] text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-[#374151]/90 transition-colors">
               <Plus className="w-4 h-4" />Ajouter
             </Link>
           </div>
@@ -135,18 +135,18 @@ export function CoproprietesClient({ coproprietes }: Props) {
             </div>
             <div className="relative z-10">
               <p className="text-sm font-semibold text-coplio-text mb-4 flex items-center gap-2">
-                <Map className="w-4 h-4 text-[#111827]" />{coproprietes.length} copropriété{coproprietes.length > 1 ? 's' : ''} dans votre portefeuille
+                <Map className="w-4 h-4 text-[#374151]" />{coproprietes.length} copropriété{coproprietes.length > 1 ? 's' : ''} dans votre portefeuille
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {coproprietes.map(c => {
-                  const cfg = c.statut === 'urgent' ? 'bg-red-500' : c.statut === 'attention' ? 'bg-amber-400' : 'bg-[#111827]'
+                  const cfg = c.statut === 'urgent' ? 'bg-red-500' : c.statut === 'attention' ? 'bg-amber-400' : 'bg-[#374151]'
                   return (
                     <Link key={c.id} href={`/coproprietes/${c.id}`}
                       className="bg-white rounded-xl p-3 border border-white/50 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 group">
                       <div className="flex items-start gap-2">
                         <div className={`w-3 h-3 rounded-full flex-shrink-0 mt-1 ${cfg}`} />
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-coplio-text group-hover:text-[#111827] transition-colors truncate">{c.nom}</p>
+                          <p className="text-sm font-semibold text-coplio-text group-hover:text-[#374151] transition-colors truncate">{c.nom}</p>
                           <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                             <MapPin className="w-3 h-3 flex-shrink-0" />
                             <span className="truncate">{c.ville ? `${c.code_postal ?? ''} ${c.ville}`.trim() : c.adresse ?? '—'}</span>
@@ -164,7 +164,7 @@ export function CoproprietesClient({ coproprietes }: Props) {
             </div>
           </div>
           <p className="text-xs text-muted-foreground text-center">
-            <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#111827] inline-block" /> À jour</span>
+            <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#374151] inline-block" /> À jour</span>
             {' · '}
             <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block" /> Attention</span>
             {' · '}
@@ -184,20 +184,20 @@ export function CoproprietesClient({ coproprietes }: Props) {
             </div>
             <div className="coplio-card text-center">
               <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Potentiel pipeline</p>
-              <p className="text-xl font-bold text-[#111827]">{formatEuro(totalPotentiel)}</p>
+              <p className="text-xl font-bold text-[#374151]">{formatEuro(totalPotentiel)}</p>
             </div>
             <div className="coplio-card text-center">
               <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Gagnés</p>
-              <p className="text-xl font-bold text-[#111827]">{nbGagnes}</p>
+              <p className="text-xl font-bold text-[#374151]">{nbGagnes}</p>
             </div>
           </div>
 
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-coplio-text flex items-center gap-2">
-              <Target className="w-4 h-4 text-[#111827]" />CRM Prospects
+              <Target className="w-4 h-4 text-[#374151]" />CRM Prospects
             </h3>
             <button onClick={() => setShowForm(v => !v)}
-              className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors">
+              className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors">
               <Plus className="w-4 h-4" />Nouveau prospect
             </button>
           </div>
@@ -208,31 +208,31 @@ export function CoproprietesClient({ coproprietes }: Props) {
               <form onSubmit={handleCreate} className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <input value={form.nom} onChange={e => setForm(f => ({ ...f, nom: e.target.value }))} placeholder="Nom de la copropriété *" required
-                    className="col-span-2 px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                    className="col-span-2 px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
                   <input value={form.adresse} onChange={e => setForm(f => ({ ...f, adresse: e.target.value }))} placeholder="Adresse"
-                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
                   <input value={form.ville} onChange={e => setForm(f => ({ ...f, ville: e.target.value }))} placeholder="Ville"
-                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
                   <input type="number" value={form.nb_lots} onChange={e => setForm(f => ({ ...f, nb_lots: e.target.value }))} placeholder="Nombre de lots"
-                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
                   <select value={form.statut} onChange={e => setForm(f => ({ ...f, statut: e.target.value }))}
-                    className="px-3 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#111827]/20">
+                    className="px-3 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#374151]/20">
                     {STATUT_PIPELINE.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
                   </select>
                   <input value={form.contact_nom} onChange={e => setForm(f => ({ ...f, contact_nom: e.target.value }))} placeholder="Contact (nom)"
-                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
                   <input value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="Email contact" type="email"
-                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
                   <input value={form.contact_telephone} onChange={e => setForm(f => ({ ...f, contact_telephone: e.target.value }))} placeholder="Téléphone"
-                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
                   <input type="number" value={form.montant_potentiel} onChange={e => setForm(f => ({ ...f, montant_potentiel: e.target.value }))} placeholder="Honoraires potentiels (€/an)"
-                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
                 </div>
                 <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Notes"
-                  rows={2} className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 resize-none" />
+                  rows={2} className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 resize-none" />
                 <div className="flex gap-2">
                   <button type="submit" disabled={saving}
-                    className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 disabled:opacity-60">
+                    className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 disabled:opacity-60">
                     {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}Ajouter
                   </button>
                   <button type="button" onClick={() => setShowForm(false)} className="text-sm text-muted-foreground px-4 py-2 border border-border rounded-lg">Annuler</button>
@@ -265,7 +265,7 @@ export function CoproprietesClient({ coproprietes }: Props) {
                           <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mt-0.5">
                             {p.ville && <span className="flex items-center gap-0.5"><MapPin className="w-3 h-3" />{p.ville}</span>}
                             {p.nb_lots > 0 && <span className="flex items-center gap-0.5"><Home className="w-3 h-3" />{p.nb_lots} lots</span>}
-                            {p.montant_potentiel > 0 && <span className="flex items-center gap-0.5 text-[#111827] font-medium"><TrendingUp className="w-3 h-3" />{formatEuro(p.montant_potentiel)}/an</span>}
+                            {p.montant_potentiel > 0 && <span className="flex items-center gap-0.5 text-[#374151] font-medium"><TrendingUp className="w-3 h-3" />{formatEuro(p.montant_potentiel)}/an</span>}
                           </div>
                           {p.contact_nom && (
                             <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mt-0.5">
@@ -278,7 +278,7 @@ export function CoproprietesClient({ coproprietes }: Props) {
                         </div>
                         <div className="flex flex-col gap-1 flex-shrink-0 items-end">
                           <select value={p.statut} onChange={e => handleUpdateStatut(p.id, e.target.value)}
-                            className="text-xs border border-border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#111827]/20">
+                            className="text-xs border border-border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#374151]/20">
                             {STATUT_PIPELINE.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
                           </select>
                           <button onClick={() => handleDelete(p.id)} className="p-1 text-muted-foreground hover:text-coplio-red transition-colors">
@@ -311,11 +311,11 @@ function CoproprieteCard({ copropriete }: { copropriete: Copropriete }) {
       <Link href={`/coproprietes/${copropriete.id}`} className="flex-1 group">
         <div className="flex items-start justify-between mb-3">
           <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-            <Building2 className="w-5 h-5 text-[#111827]" />
+            <Building2 className="w-5 h-5 text-[#374151]" />
           </div>
           <span className={cls}>{label}</span>
         </div>
-        <h3 className="font-semibold text-coplio-text group-hover:text-[#111827] transition-colors mb-1">{copropriete.nom}</h3>
+        <h3 className="font-semibold text-coplio-text group-hover:text-[#374151] transition-colors mb-1">{copropriete.nom}</h3>
         {(copropriete.ville || copropriete.adresse) && (
           <div className="flex items-center gap-1 text-xs text-muted-foreground mb-4">
             <MapPin className="w-3 h-3" />

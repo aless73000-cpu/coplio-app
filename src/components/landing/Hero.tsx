@@ -76,7 +76,7 @@ export default function Hero() {
           {/* Dashboard preview */}
           <div className="flex h-[240px] sm:h-[300px] overflow-hidden">
             {/* Sidebar */}
-            <div className="w-[160px] p-3 flex flex-col gap-1 flex-shrink-0 border-r border-white/[0.05]" style={{ background: '#111827' }}>
+            <div className="w-[160px] p-3 flex flex-col gap-1 flex-shrink-0 border-r border-white/[0.05]" style={{ background: '#374151' }}>
               <div className="flex items-center gap-2 px-2 py-2 mb-3">
                 <div className="w-5 h-5 bg-white rounded-md flex items-center justify-center">
                   <span className="text-[#0D1117] text-[9px] font-bold">C</span>
@@ -91,10 +91,10 @@ export default function Hero() {
             </div>
             {/* Main */}
             <div className="flex-1 p-5 space-y-3 overflow-hidden bg-[#F8F9FA]">
-              <div className="text-xs font-semibold text-[#111827]">Bonjour, Jean 👋</div>
+              <div className="text-xs font-semibold text-[#374151]">Bonjour, Jean 👋</div>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { v: '12',  l: 'Copropriétés', c: '#111827', bg: '#F1F5F9' },
+                  { v: '12',  l: 'Copropriétés', c: '#374151', bg: '#F1F5F9' },
                   { v: '284', l: 'Lots',          c: '#334155', bg: '#E2E8F0' },
                   { v: '2',   l: 'Impayés',       c: '#DC2626', bg: '#FEF2F2' },
                 ].map(({ v, l, c, bg }) => (

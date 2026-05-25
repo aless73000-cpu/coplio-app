@@ -45,7 +45,7 @@ export function NotificationsClient({ userId, initialNotifications }: { userId: 
           </p>
         </div>
         {unread > 0 && (
-          <button onClick={markAllRead} className="flex items-center gap-2 text-sm text-[#111827] font-medium hover:underline">
+          <button onClick={markAllRead} className="flex items-center gap-2 text-sm text-[#374151] font-medium hover:underline">
             <CheckCheck className="w-4 h-4" />
             Tout marquer comme lu
           </button>
@@ -54,8 +54,8 @@ export function NotificationsClient({ userId, initialNotifications }: { userId: 
 
       {notifications.length === 0 ? (
         <div className="coplio-card text-center py-16">
-          <div className="w-14 h-14 bg-[#111827]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Bell className="w-7 h-7 text-[#111827]" />
+          <div className="w-14 h-14 bg-[#374151]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Bell className="w-7 h-7 text-[#374151]" />
           </div>
           <p className="font-semibold text-coplio-text">Aucune notification</p>
           <p className="text-muted-foreground text-sm mt-1">Vous êtes à jour !</p>

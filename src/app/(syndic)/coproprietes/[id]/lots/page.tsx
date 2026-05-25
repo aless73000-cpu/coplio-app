@@ -43,7 +43,7 @@ export default async function LotsPage({ params }: { params: { id: string } }) {
             <FileSpreadsheet className="w-4 h-4" />
             Import Excel
           </Link>
-          <Link href={`/coproprietes/${params.id}/lots/new`} className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors">
+          <Link href={`/coproprietes/${params.id}/lots/new`} className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors">
             <Plus className="w-4 h-4" />
             Ajouter
           </Link>
@@ -68,7 +68,7 @@ export default async function LotsPage({ params }: { params: { id: string } }) {
               {lots.map((lot) => (
                 <tr key={lot.id} className="border-b border-border hover:bg-coplio-bg transition-colors">
                   <td className="py-3">
-                    <Link href={`/lots/${lot.id}`} className="font-medium text-[#111827] hover:underline">
+                    <Link href={`/lots/${lot.id}`} className="font-medium text-[#374151] hover:underline">
                       Lot {lot.numero}
                     </Link>
                   </td>
@@ -97,14 +97,14 @@ export default async function LotsPage({ params }: { params: { id: string } }) {
         ) : (
           <div className="text-center py-14">
             <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <FileSpreadsheet className="w-7 h-7 text-[#111827]" />
+              <FileSpreadsheet className="w-7 h-7 text-[#374151]" />
             </div>
             <p className="font-semibold text-coplio-text mb-1">Aucun lot enregistré</p>
             <p className="text-sm text-muted-foreground mb-5">Créez vos lots manuellement, par génération automatique ou via import Excel.</p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <Link
                 href={`/coproprietes/${params.id}/lots/generer`}
-                className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors"
+                className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors"
               >
                 <Wand2 className="w-4 h-4" />
                 Génération automatique

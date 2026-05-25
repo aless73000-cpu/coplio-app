@@ -16,7 +16,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
       </p>
       <button
         onClick={reset}
-        className="flex items-center gap-2 bg-[#111827] text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-[#111827]/90 transition-colors"
+        className="flex items-center gap-2 bg-[#374151] text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-[#374151]/90 transition-colors"
       >
         <RefreshCw className="w-4 h-4" />
         Réessayer

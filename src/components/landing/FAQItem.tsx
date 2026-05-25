@@ -8,7 +8,7 @@ export default function FAQItem({ question, answer }: { question: string; answer
 
   return (
     <div className={`border rounded-2xl overflow-hidden transition-all duration-200 ${
-      open ? 'border-[#111827]/30 bg-[#F5F5F7]' : 'border-gray-100 bg-white hover:border-gray-200'
+      open ? 'border-[#374151]/30 bg-[#F5F5F7]' : 'border-gray-100 bg-white hover:border-gray-200'
     }`}>
       <button
         className="w-full flex items-center justify-between p-5 text-left"
@@ -16,10 +16,10 @@ export default function FAQItem({ question, answer }: { question: string; answer
       >
         <span className="font-semibold text-[#1D1D1F] text-sm pr-6 leading-relaxed">{question}</span>
         <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
-          open ? 'bg-[#111827]' : 'bg-[#F1F5F9]'
+          open ? 'bg-[#374151]' : 'bg-[#F1F5F9]'
         }`}>
           <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${
-            open ? 'rotate-180 text-white' : 'text-[#111827]'
+            open ? 'rotate-180 text-white' : 'text-[#374151]'
           }`} />
         </div>
       </button>

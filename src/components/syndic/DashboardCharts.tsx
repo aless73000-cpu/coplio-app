@@ -73,9 +73,9 @@ export function EvolutionChart({ data }: EvolutionProps) {
           <Line
             type="monotone"
             dataKey="recouvre"
-            stroke="#111827"
+            stroke="#64748B"
             strokeWidth={2}
-            dot={{ fill: '#111827', strokeWidth: 0, r: 3 }}
+            dot={{ fill: "#64748B", strokeWidth: 0, r: 3 }}
             name="recouvre"
           />
         </LineChart>
@@ -86,7 +86,7 @@ export function EvolutionChart({ data }: EvolutionProps) {
           <span className="text-xs text-muted-foreground">Émis</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-0.5 bg-[#111827] rounded" />
+          <div className="w-3 h-0.5 bg-[#64748B] rounded" />
           <span className="text-xs text-muted-foreground">Recouvré</span>
         </div>
       </div>
@@ -103,7 +103,7 @@ interface TauxGlobalProps {
 }
 
 export function TauxGlobalCard({ taux, montantRecouvre, montantTotal }: TauxGlobalProps) {
-  const color = taux >= 90 ? '#111827' : taux >= 70 ? '#E6A93A' : '#D04040'
+  const color = taux >= 90 ? '#64748B' : taux >= 70 ? '#E6A93A' : '#D04040'
   const circumference = 2 * Math.PI * 40
   const offset = circumference - (taux / 100) * circumference
 
@@ -132,7 +132,7 @@ export function TauxGlobalCard({ taux, montantRecouvre, montantTotal }: TauxGlob
       <div className="mt-4 grid grid-cols-2 gap-3 w-full">
         <div className="bg-slate-100 rounded-lg p-2">
           <p className="text-xs text-muted-foreground">Recouvré</p>
-          <p className="text-sm font-bold text-[#111827]">
+          <p className="text-sm font-bold text-[#374151]">
             {montantRecouvre.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
           </p>
         </div>
@@ -197,7 +197,7 @@ export function RecouvrementChart({ data }: RecouvrementProps) {
                 key={entry.nom}
                 fill={
                   entry.taux >= 90
-                    ? '#111827'
+                    ? '#64748B'
                     : entry.taux >= 70
                     ? '#E6A93A'
                     : '#D04040'
@@ -248,7 +248,7 @@ export function StatutChart({ aJour, attention, urgent }: StatutProps) {
   if (total === 0) return null
 
   const data: StatutData[] = [
-    { name: 'À jour', value: aJour, color: '#111827' },
+    { name: 'À jour', value: aJour, color: '#64748B' },
     { name: 'Attention', value: attention, color: '#E6A93A' },
     { name: 'Urgent', value: urgent, color: '#D04040' },
   ].filter((d) => d.value > 0)

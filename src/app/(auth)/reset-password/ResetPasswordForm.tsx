@@ -7,7 +7,7 @@ import { Loader2, CheckCircle2, Eye, EyeOff, KeyRound } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-  focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
+  focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent
   placeholder:text-muted-foreground transition-shadow`
 
 export default function ResetPasswordForm() {
@@ -88,7 +88,7 @@ export default function ResetPasswordForm() {
       <div className="w-full max-w-md">
         {/* Logo — lien vers la landing */}
         <Link href="/" className="flex items-center gap-2 mb-8 w-fit">
-          <div className="w-8 h-8 bg-[#111827] rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-[#374151] rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">C</span>
           </div>
           <span className="text-coplio-text font-bold text-xl">Coplio</span>
@@ -96,7 +96,7 @@ export default function ResetPasswordForm() {
 
         {done ? (
           <div className="coplio-card text-center py-10">
-            <CheckCircle2 className="w-14 h-14 text-[#111827] mx-auto mb-4" />
+            <CheckCircle2 className="w-14 h-14 text-[#374151] mx-auto mb-4" />
             <h1 className="text-xl font-bold text-coplio-text mb-2">Mot de passe mis à jour !</h1>
             <p className="text-muted-foreground text-sm">
               Vous allez être redirigé vers votre espace…
@@ -106,7 +106,7 @@ export default function ResetPasswordForm() {
           <div className="coplio-card">
             <div className="mb-6">
               <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
-                <KeyRound className="w-6 h-6 text-[#111827]" />
+                <KeyRound className="w-6 h-6 text-[#374151]" />
               </div>
               <h1 className="text-2xl font-bold text-coplio-text">Nouveau mot de passe</h1>
               <p className="text-muted-foreground text-sm mt-1">
@@ -171,8 +171,8 @@ export default function ResetPasswordForm() {
               <button
                 type="submit"
                 disabled={loading || !sessionReady}
-                className="w-full bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg
-                           hover:bg-[#111827]/90 transition-colors disabled:opacity-60
+                className="w-full bg-[#374151] text-white font-medium py-2.5 px-4 rounded-lg
+                           hover:bg-[#374151]/90 transition-colors disabled:opacity-60
                            flex items-center justify-center gap-2 text-sm"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
@@ -182,7 +182,7 @@ export default function ResetPasswordForm() {
 
             <p className="text-center text-xs text-muted-foreground mt-4">
               Lien expiré ?{' '}
-              <Link href="/forgot-password" className="text-[#111827] hover:underline">
+              <Link href="/forgot-password" className="text-[#374151] hover:underline">
                 Demander un nouveau lien
               </Link>
             </p>

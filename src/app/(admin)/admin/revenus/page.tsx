@@ -10,7 +10,7 @@ const MRRChart = dynamic(() => import('./MRRChart').then(m => m.MRRChart), {
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase())
 const PLAN_PRICES: Record<string, number> = { trial: 0, starter: 79, pro: 149, expert: 299 }
 const PLAN_LABELS: Record<string, string> = { trial: 'Essai', starter: 'Starter', pro: 'Pro', expert: 'Expert' }
-const PLAN_COLORS: Record<string, string> = { trial: '#94a3b8', starter: '#60a5fa', pro: '#111827', expert: '#f59e0b' }
+const PLAN_COLORS: Record<string, string> = { trial: '#94a3b8', starter: '#60a5fa', pro: '#374151', expert: '#f59e0b' }
 
 export default async function AdminRevenusPage() {
   const supabase = await createClient()

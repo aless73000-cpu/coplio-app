@@ -92,7 +92,7 @@ function GlobalSearch({ className }: { className?: string }) {
         onFocus={() => setOpen(true)}
         placeholder="Rechercher… (⌘K)"
         className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl
-                   focus:outline-none focus:ring-2 focus:ring-[#111827]/15 focus:border-[#111827] focus:bg-white
+                   focus:outline-none focus:ring-2 focus:ring-[#374151]/15 focus:border-[#374151] focus:bg-white
                    placeholder:text-slate-400 transition-all"
       />
       {loading && (
@@ -114,7 +114,7 @@ function GlobalSearch({ className }: { className?: string }) {
                       className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors text-left"
                     >
                       <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-3.5 h-3.5 text-[#111827]" />
+                        <Icon className="w-3.5 h-3.5 text-[#374151]" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-coplio-text truncate">{r.label}</p>
@@ -221,7 +221,7 @@ export function Header({ title, notifications: initial = [], userId, mobileSideb
                   )}
                 </div>
                 {unreadCount > 0 && (
-                  <button onClick={markAllRead} className="text-xs text-[#111827] hover:underline">
+                  <button onClick={markAllRead} className="text-xs text-[#374151] hover:underline">
                     Tout marquer lu
                   </button>
                 )}
@@ -242,7 +242,7 @@ export function Header({ title, notifications: initial = [], userId, mobileSideb
               <div className="px-4 py-2 border-t border-border">
                 <Link
                   href="/notifications"
-                  className="text-xs text-[#111827] font-medium hover:underline"
+                  className="text-xs text-[#374151] font-medium hover:underline"
                   onClick={() => setShowNotifications(false)}
                 >
                   Voir toutes les notifications
@@ -285,7 +285,7 @@ function NotificationItem({ notification, onRead }: { notification: Notification
             })}
           </p>
         </div>
-        {!notification.lu && <span className="w-2 h-2 rounded-full bg-[#111827] flex-shrink-0 mt-1.5" />}
+        {!notification.lu && <span className="w-2 h-2 rounded-full bg-[#374151] flex-shrink-0 mt-1.5" />}
       </div>
     </div>
   )

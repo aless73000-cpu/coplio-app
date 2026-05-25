@@ -15,7 +15,7 @@ const STATUTS = [
   { value: 'devis', label: 'Devis', icon: Euro, color: 'bg-amber-50 text-amber-600' },
   { value: 'vote', label: 'Vote AG', icon: Vote, color: 'bg-purple-50 text-purple-600' },
   { value: 'commande', label: 'Commandé', icon: ShoppingCart, color: 'bg-orange-50 text-orange-600' },
-  { value: 'realisation', label: 'En cours', icon: Hammer, color: 'bg-slate-100 text-[#111827]' },
+  { value: 'realisation', label: 'En cours', icon: Hammer, color: 'bg-slate-100 text-[#374151]' },
   { value: 'reception', label: 'Réception', icon: CheckCircle2, color: 'bg-teal-50 text-teal-600' },
   { value: 'archive', label: 'Archivé', icon: Archive, color: 'bg-coplio-bg text-muted-foreground' },
 ]
@@ -132,7 +132,7 @@ export default function TravauxPage() {
           <p className="text-muted-foreground text-sm mt-0.5">Workflow demande → réception</p>
         </div>
         <button onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors">
+          className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors">
           <Plus className="w-4 h-4" />Nouveau chantier
         </button>
       </div>
@@ -144,7 +144,7 @@ export default function TravauxPage() {
           return (
             <button key={s.value} onClick={() => setFilterStatut(filterStatut === s.value ? '' : s.value)}
               className={`flex-1 min-w-20 text-center py-2 px-2 rounded-xl text-xs font-medium transition-all border-2 ${
-                filterStatut === s.value ? 'border-[#111827]' : 'border-transparent'
+                filterStatut === s.value ? 'border-[#374151]' : 'border-transparent'
               } ${s.color}`}>
               <p className="font-bold text-base">{count}</p>
               <p>{s.label}</p>
@@ -163,24 +163,24 @@ export default function TravauxPage() {
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Titre *</label>
                 <input value={form.titre} onChange={e => setForm(f => ({ ...f, titre: e.target.value }))} required
-                  placeholder="Ex: Ravalement façade nord" className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  placeholder="Ex: Ravalement façade nord" className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Priorité</label>
                 <select value={form.priorite} onChange={e => setForm(f => ({ ...f, priorite: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 bg-white">
                   {PRIORITES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Budget estimé (€)</label>
                 <input type="number" value={form.montant_estime} onChange={e => setForm(f => ({ ...f, montant_estime: e.target.value }))}
-                  placeholder="0" className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  placeholder="0" className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Prestataire pressenti</label>
                 <select value={form.prestataire_id} onChange={e => setForm(f => ({ ...f, prestataire_id: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 bg-white">
                   <option value="">— Non assigné —</option>
                   {prestataires.map(p => <option key={p.id} value={p.id}>{p.nom}</option>)}
                 </select>
@@ -188,12 +188,12 @@ export default function TravauxPage() {
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Description</label>
                 <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 resize-none" />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 resize-none" />
               </div>
             </div>
             <div className="flex gap-3">
               <button type="submit" disabled={saving}
-                className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 disabled:opacity-60">
+                className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 disabled:opacity-60">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                 Créer
               </button>
@@ -247,7 +247,7 @@ export default function TravauxPage() {
                   <div className="flex items-center gap-1 flex-shrink-0">
                     {nextStatut && (
                       <button onClick={() => handleStatut(t.id, nextStatut)}
-                        className="text-xs text-[#111827] hover:bg-slate-100 px-2 py-1 rounded-lg transition-colors font-medium whitespace-nowrap">
+                        className="text-xs text-[#374151] hover:bg-slate-100 px-2 py-1 rounded-lg transition-colors font-medium whitespace-nowrap">
                         → {STATUTS.find(s => s.value === nextStatut)?.label}
                       </button>
                     )}
@@ -268,7 +268,7 @@ export default function TravauxPage() {
                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Historique</p>
                         {t.etapes.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()).map(e => (
                           <div key={e.id} className="flex gap-3 text-sm">
-                            <div className="w-2 h-2 bg-[#111827] rounded-full mt-1.5 flex-shrink-0" />
+                            <div className="w-2 h-2 bg-[#374151] rounded-full mt-1.5 flex-shrink-0" />
                             <div>
                               <span className="font-medium text-coplio-text">{ETAPE_TYPES.find(et => et.value === e.type)?.label ?? e.type}</span>
                               {e.montant && <span className="text-muted-foreground ml-2">{formatEuro(e.montant)}</span>}
@@ -287,20 +287,20 @@ export default function TravauxPage() {
                         <select
                           value={etapeForm[t.id]?.type ?? 'note'}
                           onChange={e => setEtapeForm(prev => ({ ...prev, [t.id]: { ...prev[t.id], type: e.target.value } }))}
-                          className="col-span-1 px-2 py-1.5 text-xs border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20 bg-white">
+                          className="col-span-1 px-2 py-1.5 text-xs border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#374151]/20 bg-white">
                           {ETAPE_TYPES.map(et => <option key={et.value} value={et.value}>{et.label}</option>)}
                         </select>
                         <input
                           value={etapeForm[t.id]?.description ?? ''}
                           onChange={e => setEtapeForm(prev => ({ ...prev, [t.id]: { ...prev[t.id], description: e.target.value } }))}
-                          placeholder="Description..." className="col-span-1 px-2 py-1.5 text-xs border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20" />
+                          placeholder="Description..." className="col-span-1 px-2 py-1.5 text-xs border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#374151]/20" />
                         <div className="flex gap-1">
                           <input type="number"
                             value={etapeForm[t.id]?.montant ?? ''}
                             onChange={e => setEtapeForm(prev => ({ ...prev, [t.id]: { ...prev[t.id], montant: e.target.value } }))}
-                            placeholder="Montant €" className="flex-1 px-2 py-1.5 text-xs border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20 min-w-0" />
+                            placeholder="Montant €" className="flex-1 px-2 py-1.5 text-xs border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#374151]/20 min-w-0" />
                           <button onClick={() => handleAddEtape(t.id)}
-                            className="px-2 py-1.5 bg-[#111827] text-white text-xs rounded-lg hover:bg-[#111827]/90 flex-shrink-0">
+                            className="px-2 py-1.5 bg-[#374151] text-white text-xs rounded-lg hover:bg-[#374151]/90 flex-shrink-0">
                             <Plus className="w-3.5 h-3.5" />
                           </button>
                         </div>

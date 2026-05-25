@@ -136,12 +136,12 @@ export default function FondsTravauxPage() {
         </Link>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-coplio-text flex items-center gap-2">
-            <PiggyBank className="w-6 h-6 text-[#111827]" />Fonds de travaux ALUR
+            <PiggyBank className="w-6 h-6 text-[#374151]" />Fonds de travaux ALUR
           </h1>
           <p className="text-muted-foreground text-sm mt-0.5">Suivi du fonds de réserve obligatoire (art. 18 loi ALUR)</p>
         </div>
         <select value={selectedYear} onChange={e => setSelectedYear(Number(e.target.value))}
-          className="px-3 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#111827]/20">
+          className="px-3 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#374151]/20">
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
       </div>
@@ -160,7 +160,7 @@ export default function FondsTravauxPage() {
           <h2 className="font-semibold text-coplio-text mb-2">Aucun fonds de travaux pour {selectedYear}</h2>
           <p className="text-sm text-muted-foreground mb-6">Créez le suivi du fonds de travaux pour cette année</p>
           <button onClick={handleCreate} disabled={creating}
-            className="flex items-center gap-2 mx-auto bg-[#111827] text-white font-medium px-5 py-2.5 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60">
+            className="flex items-center gap-2 mx-auto bg-[#374151] text-white font-medium px-5 py-2.5 rounded-lg hover:bg-[#374151]/90 transition-colors disabled:opacity-60">
             {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Créer le fonds {selectedYear}
           </button>
@@ -171,7 +171,7 @@ export default function FondsTravauxPage() {
           <div className="grid grid-cols-3 gap-4">
             <div className="coplio-card text-center">
               <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Solde actuel</p>
-              <p className="text-xl font-bold text-[#111827]">{fmt(current.solde_actuel)}</p>
+              <p className="text-xl font-bold text-[#374151]">{fmt(current.solde_actuel)}</p>
             </div>
             <div className="coplio-card text-center">
               <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Cotisation annuelle</p>
@@ -188,10 +188,10 @@ export default function FondsTravauxPage() {
             <div className="coplio-card">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-semibold text-coplio-text">Progression vers l&apos;objectif</p>
-                <span className="text-sm font-bold text-[#111827]">{progressPct}%</span>
+                <span className="text-sm font-bold text-[#374151]">{progressPct}%</span>
               </div>
               <div className="h-3 bg-coplio-bg rounded-full overflow-hidden">
-                <div className="h-full bg-[#111827] rounded-full transition-all" style={{ width: `${progressPct}%` }} />
+                <div className="h-full bg-[#374151] rounded-full transition-all" style={{ width: `${progressPct}%` }} />
               </div>
               <p className="text-xs text-muted-foreground mt-1">{fmt(current.solde_actuel)} sur {fmt(current.objectif_5ans)}</p>
             </div>
@@ -200,33 +200,33 @@ export default function FondsTravauxPage() {
           {/* Paramètres */}
           <div className="coplio-card">
             <h2 className="font-semibold text-coplio-text mb-4 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-[#111827]" />Paramètres
+              <TrendingUp className="w-4 h-4 text-[#374151]" />Paramètres
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Cotisation annuelle (€)</label>
                 <input type="number" value={editForm.cotisation_annuelle} onChange={e => setEditForm(f => ({ ...f, cotisation_annuelle: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Objectif sur 5 ans (€)</label>
                 <input type="number" value={editForm.objectif_5ans} onChange={e => setEditForm(f => ({ ...f, objectif_5ans: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Compte bancaire dédié</label>
                 <input value={editForm.compte_bancaire} onChange={e => setEditForm(f => ({ ...f, compte_bancaire: e.target.value }))}
                   placeholder="IBAN ou numéro de compte"
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Notes</label>
                 <input value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
             </div>
             <button onClick={handleSave} disabled={saving}
-              className="mt-4 flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60">
+              className="mt-4 flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors disabled:opacity-60">
               {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : saved ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
               {saved ? 'Enregistré' : 'Enregistrer'}
             </button>
@@ -237,7 +237,7 @@ export default function FondsTravauxPage() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-coplio-text">Mouvements de fonds</h2>
               <button onClick={() => setShowMvt(v => !v)}
-                className="flex items-center gap-1.5 text-sm text-[#111827] font-medium hover:text-[#111827]/80">
+                className="flex items-center gap-1.5 text-sm text-[#374151] font-medium hover:text-[#374151]/80">
                 <Plus className="w-4 h-4" />Ajouter
               </button>
             </div>
@@ -248,7 +248,7 @@ export default function FondsTravauxPage() {
                   <div>
                     <label className="block text-xs font-medium text-coplio-text mb-1">Type</label>
                     <select value={mvtForm.type} onChange={e => setMvtForm(f => ({ ...f, type: e.target.value }))}
-                      className="w-full px-2.5 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#111827]/20">
+                      className="w-full px-2.5 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#374151]/20">
                       <option value="cotisation">Cotisation</option>
                       <option value="retrait">Retrait (travaux)</option>
                       <option value="interet">Intérêts</option>
@@ -258,22 +258,22 @@ export default function FondsTravauxPage() {
                   <div>
                     <label className="block text-xs font-medium text-coplio-text mb-1">Montant (€)</label>
                     <input type="number" value={mvtForm.montant} onChange={e => setMvtForm(f => ({ ...f, montant: e.target.value }))} required
-                      className="w-full px-2.5 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20" />
+                      className="w-full px-2.5 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#374151]/20" />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-coplio-text mb-1">Libellé</label>
                     <input value={mvtForm.libelle} onChange={e => setMvtForm(f => ({ ...f, libelle: e.target.value }))} placeholder="Optionnel"
-                      className="w-full px-2.5 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20" />
+                      className="w-full px-2.5 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#374151]/20" />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-coplio-text mb-1">Date</label>
                     <input type="date" value={mvtForm.date_mouvement} onChange={e => setMvtForm(f => ({ ...f, date_mouvement: e.target.value }))}
-                      className="w-full px-2.5 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20" />
+                      className="w-full px-2.5 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#374151]/20" />
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <button type="submit" disabled={savingMvt}
-                    className="flex items-center gap-1.5 bg-[#111827] text-white text-sm px-3 py-1.5 rounded-lg hover:bg-[#111827]/90 disabled:opacity-60">
+                    className="flex items-center gap-1.5 bg-[#374151] text-white text-sm px-3 py-1.5 rounded-lg hover:bg-[#374151]/90 disabled:opacity-60">
                     {savingMvt ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}Enregistrer
                   </button>
                   <button type="button" onClick={() => setShowMvt(false)} className="text-sm text-muted-foreground px-3 py-1.5 border border-border rounded-lg">Annuler</button>
@@ -287,14 +287,14 @@ export default function FondsTravauxPage() {
               <div className="space-y-2">
                 {[...current.mouvements].sort((a, b) => new Date(b.date_mouvement).getTime() - new Date(a.date_mouvement).getTime()).map(m => (
                   <div key={m.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-coplio-bg transition-colors">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${m.type === 'retrait' ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-[#111827]'}`}>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${m.type === 'retrait' ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-[#374151]'}`}>
                       {m.type === 'retrait' ? <ArrowUpCircle className="w-4 h-4" /> : <ArrowDownCircle className="w-4 h-4" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-coplio-text">{m.libelle || ROLE_LABELS[m.type]}</p>
                       <p className="text-xs text-muted-foreground">{new Date(m.date_mouvement).toLocaleDateString('fr-FR')} · {ROLE_LABELS[m.type]}</p>
                     </div>
-                    <p className={`text-sm font-bold flex-shrink-0 ${m.type === 'retrait' ? 'text-coplio-red' : 'text-[#111827]'}`}>
+                    <p className={`text-sm font-bold flex-shrink-0 ${m.type === 'retrait' ? 'text-coplio-red' : 'text-[#374151]'}`}>
                       {m.type === 'retrait' ? '-' : '+'}{fmt(Math.abs(m.montant))}
                     </p>
                   </div>

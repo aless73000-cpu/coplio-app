@@ -60,7 +60,7 @@ export function MesVotesClient({ userId, votes: initialVotes }: Props) {
     return (
       <div className="coplio-card text-center py-16">
         <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Vote className="w-7 h-7 text-[#111827]" />
+          <Vote className="w-7 h-7 text-[#374151]" />
         </div>
         <p className="font-semibold text-coplio-text mb-1">Aucun vote en cours</p>
         <p className="text-sm text-muted-foreground">Votre syndic n&apos;a pas de consultation ouverte pour le moment.</p>
@@ -81,7 +81,7 @@ export function MesVotesClient({ userId, votes: initialVotes }: Props) {
           <div key={vote.id} className="coplio-card">
             <div className="flex items-start gap-3 mb-4">
               <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Vote className="w-5 h-5 text-[#111827]" />
+                <Vote className="w-5 h-5 text-[#374151]" />
               </div>
               <div className="flex-1">
                 <h2 className="font-semibold text-coplio-text">{vote.titre}</h2>
@@ -92,7 +92,7 @@ export function MesVotesClient({ userId, votes: initialVotes }: Props) {
                 </div>
               </div>
               {hasVoted && (
-                <div className="flex items-center gap-1 text-[#111827] text-xs font-medium flex-shrink-0">
+                <div className="flex items-center gap-1 text-[#374151] text-xs font-medium flex-shrink-0">
                   <CheckCircle2 className="w-4 h-4" />
                   Voté
                 </div>
@@ -114,20 +114,20 @@ export function MesVotesClient({ userId, votes: initialVotes }: Props) {
                       <button
                         onClick={() => handleVote(vote.id, option.id)}
                         disabled={voting === option.id}
-                        className="w-full text-left px-4 py-3 rounded-xl border-2 border-border hover:border-[#111827] hover:bg-slate-100 transition-all text-sm font-medium text-coplio-text flex items-center justify-between group disabled:opacity-60"
+                        className="w-full text-left px-4 py-3 rounded-xl border-2 border-border hover:border-[#374151] hover:bg-slate-100 transition-all text-sm font-medium text-coplio-text flex items-center justify-between group disabled:opacity-60"
                       >
                         <span>{option.label}</span>
                         {voting === option.id
-                          ? <Loader2 className="w-4 h-4 animate-spin text-[#111827]" />
-                          : <span className="text-xs text-muted-foreground group-hover:text-[#111827]">Voter →</span>
+                          ? <Loader2 className="w-4 h-4 animate-spin text-[#374151]" />
+                          : <span className="text-xs text-muted-foreground group-hover:text-[#374151]">Voter →</span>
                         }
                       </button>
                     ) : (
                       <div className={`px-4 py-3 rounded-xl border-2 transition-all ${
-                        isMyChoice ? 'border-[#111827] bg-slate-100' : 'border-border bg-coplio-bg'
+                        isMyChoice ? 'border-[#374151] bg-slate-100' : 'border-border bg-coplio-bg'
                       }`}>
                         <div className="flex justify-between text-sm mb-1.5">
-                          <span className={`font-medium ${isMyChoice ? 'text-[#111827]' : 'text-coplio-text'}`}>
+                          <span className={`font-medium ${isMyChoice ? 'text-[#374151]' : 'text-coplio-text'}`}>
                             {option.label}
                             {isMyChoice && ' ✓'}
                           </span>
@@ -135,7 +135,7 @@ export function MesVotesClient({ userId, votes: initialVotes }: Props) {
                         </div>
                         <div className="h-1.5 bg-white/60 rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all duration-500 ${isMyChoice ? 'bg-[#111827]' : 'bg-muted-foreground/30'}`}
+                            className={`h-full rounded-full transition-all duration-500 ${isMyChoice ? 'bg-[#374151]' : 'bg-muted-foreground/30'}`}
                             style={{ width: `${pct}%` }}
                           />
                         </div>

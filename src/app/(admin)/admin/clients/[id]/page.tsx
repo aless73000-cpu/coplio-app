@@ -95,7 +95,7 @@ export default function AdminClientDetailPage({ params }: { params: { id: string
 
   if (loading) return (
     <div className="flex items-center justify-center py-20">
-      <Loader2 className="w-6 h-6 animate-spin text-[#111827]" />
+      <Loader2 className="w-6 h-6 animate-spin text-[#374151]" />
     </div>
   )
 
@@ -132,7 +132,7 @@ export default function AdminClientDetailPage({ params }: { params: { id: string
             <dt className="text-muted-foreground">Max lots</dt>
             <dd className="text-coplio-text">{cabinet.max_lots}</dd>
             <dt className="text-muted-foreground">Portail brandé</dt>
-            <dd className={cabinet.addon_portail_actif ? 'text-[#111827] font-medium' : 'text-muted-foreground'}>
+            <dd className={cabinet.addon_portail_actif ? 'text-[#374151] font-medium' : 'text-muted-foreground'}>
               {cabinet.addon_portail_actif ? 'Actif' : 'Inactif'}
             </dd>
             {cabinet.current_period_end && (
@@ -150,11 +150,11 @@ export default function AdminClientDetailPage({ params }: { params: { id: string
               <label
                 key={plan}
                 className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors ${
-                  selectedPlan === plan ? 'border-[#111827] bg-[#111827]/5' : 'border-border hover:bg-coplio-bg'
+                  selectedPlan === plan ? 'border-[#374151] bg-[#374151]/5' : 'border-border hover:bg-coplio-bg'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <input type="radio" name="plan" value={plan} checked={selectedPlan === plan} onChange={() => setSelectedPlan(plan)} className="accent-[#111827]" />
+                  <input type="radio" name="plan" value={plan} checked={selectedPlan === plan} onChange={() => setSelectedPlan(plan)} className="accent-[#374151]" />
                   <span className="text-sm font-medium text-coplio-text">{PLAN_LABELS[plan]}</span>
                 </div>
                 <span className="text-xs text-muted-foreground">{PLAN_PRICES[plan] > 0 ? `${PLAN_PRICES[plan]}€/mo` : 'Gratuit'}</span>
@@ -164,7 +164,7 @@ export default function AdminClientDetailPage({ params }: { params: { id: string
           <button
             onClick={updatePlan}
             disabled={saving || selectedPlan === cabinet.plan}
-            className="w-full bg-[#111827] text-white font-medium py-2.5 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
+            className="w-full bg-[#374151] text-white font-medium py-2.5 rounded-lg hover:bg-[#374151]/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             Enregistrer le plan
@@ -180,8 +180,8 @@ export default function AdminClientDetailPage({ params }: { params: { id: string
             <div className="space-y-2">
               {profiles.map(p => (
                 <div key={p.id} className="flex items-center gap-3 p-2 bg-coplio-bg rounded-lg">
-                  <div className="w-8 h-8 bg-[#111827]/10 rounded-full flex items-center justify-center flex-shrink-0">
-                    <User className="w-4 h-4 text-[#111827]" />
+                  <div className="w-8 h-8 bg-[#374151]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <User className="w-4 h-4 text-[#374151]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-coplio-text">{p.prenom} {p.nom}</p>
@@ -204,7 +204,7 @@ export default function AdminClientDetailPage({ params }: { params: { id: string
               <button
                 onClick={reactiver}
                 disabled={saving}
-                className="flex-1 flex items-center justify-center gap-2 bg-[#111827] text-white font-medium py-2.5 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60 text-sm"
+                className="flex-1 flex items-center justify-center gap-2 bg-[#374151] text-white font-medium py-2.5 rounded-lg hover:bg-[#374151]/90 transition-colors disabled:opacity-60 text-sm"
               >
                 <CheckCircle className="w-4 h-4" />
                 Réactiver

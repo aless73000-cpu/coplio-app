@@ -15,7 +15,7 @@ export default function TrustBar() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map(({ value, label }) => (
             <div key={label} className="text-center">
-              <div className="text-2xl font-bold text-[#111827] mb-1" style={{ letterSpacing: '-0.02em' }}>
+              <div className="text-2xl font-bold text-[#374151] mb-1" style={{ letterSpacing: '-0.02em' }}>
                 {value}
               </div>
               <div className="text-xs text-slate-400">{label}</div>

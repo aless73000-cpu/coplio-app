@@ -52,7 +52,7 @@ export default async function CopropriétésPage({
         </div>
         <Link
           href="/coproprietes/new"
-          className="flex items-center gap-2 bg-[#111827] text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-[#111827]/90 transition-colors"
+          className="flex items-center gap-2 bg-[#374151] text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-[#374151]/90 transition-colors"
         >
           <Plus className="w-4 h-4" />Ajouter
         </Link>
@@ -71,8 +71,8 @@ export default async function CopropriétésPage({
             href={`/coproprietes?statut=${value}${searchParams.q ? `&q=${searchParams.q}` : ''}`}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
               (searchParams.statut ?? 'all') === value
-                ? 'bg-[#111827] text-white border-[#111827]'
-                : 'bg-white text-coplio-text border-border hover:border-[#111827]/30'
+                ? 'bg-[#374151] text-white border-[#374151]'
+                : 'bg-white text-coplio-text border-border hover:border-[#374151]/30'
             }`}
           >
             {label}

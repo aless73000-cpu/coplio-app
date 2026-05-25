@@ -24,7 +24,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-  focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
+  focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent
   placeholder:text-gray-400 transition-shadow`
 
 export default function EditCopropietePage({ params }: { params: { id: string } }) {
@@ -75,7 +75,7 @@ export default function EditCopropietePage({ params }: { params: { id: string } 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-6 h-6 animate-spin text-[#111827]" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#374151]" />
       </div>
     )
   }
@@ -166,7 +166,7 @@ export default function EditCopropietePage({ params }: { params: { id: string } 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
+            className="flex-1 bg-[#374151] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#374151]/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
           >
             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             Enregistrer

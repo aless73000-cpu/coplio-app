@@ -75,7 +75,7 @@ export function MessagesClient({ currentEmail, cabinets }: Props) {
         <button
           onClick={() => setTab('support')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            tab === 'support' ? 'bg-[#111827] text-white' : 'bg-white text-coplio-text hover:bg-coplio-bg border border-border'
+            tab === 'support' ? 'bg-[#374151] text-white' : 'bg-white text-coplio-text hover:bg-coplio-bg border border-border'
           }`}
         >
           Support clients
@@ -83,7 +83,7 @@ export function MessagesClient({ currentEmail, cabinets }: Props) {
         <button
           onClick={() => setTab('interne')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            tab === 'interne' ? 'bg-[#111827] text-white' : 'bg-white text-coplio-text hover:bg-coplio-bg border border-border'
+            tab === 'interne' ? 'bg-[#374151] text-white' : 'bg-white text-coplio-text hover:bg-coplio-bg border border-border'
           }`}
         >
           Chat interne
@@ -100,7 +100,7 @@ export function MessagesClient({ currentEmail, cabinets }: Props) {
               <select
                 value={selectedCabinet}
                 onChange={e => setSelectedCabinet(e.target.value)}
-                className="w-full px-3 py-2 text-sm bg-coplio-bg border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20"
+                className="w-full px-3 py-2 text-sm bg-coplio-bg border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20"
               >
                 {cabinets.map(c => (
                   <option key={c.id} value={c.id}>{c.nom}</option>
@@ -114,7 +114,7 @@ export function MessagesClient({ currentEmail, cabinets }: Props) {
         <div className="flex-1 overflow-y-auto space-y-3 pr-1">
           {loading ? (
             <div className="flex items-center justify-center h-full">
-              <Loader2 className="w-5 h-5 animate-spin text-[#111827]" />
+              <Loader2 className="w-5 h-5 animate-spin text-[#374151]" />
             </div>
           ) : messages.length === 0 ? (
             <div className="flex items-center justify-center h-full">
@@ -127,7 +127,7 @@ export function MessagesClient({ currentEmail, cabinets }: Props) {
                 <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-xs lg:max-w-md px-4 py-2.5 rounded-2xl text-sm ${
                     isMe
-                      ? 'bg-[#111827] text-white rounded-br-sm'
+                      ? 'bg-[#374151] text-white rounded-br-sm'
                       : 'bg-coplio-bg text-coplio-text rounded-bl-sm'
                   }`}>
                     {!isMe && (
@@ -152,12 +152,12 @@ export function MessagesClient({ currentEmail, cabinets }: Props) {
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()}
             placeholder={tab === 'interne' ? 'Message aux admins...' : 'Répondre au client...'}
-            className="flex-1 px-3 py-2.5 text-sm bg-coplio-bg border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20"
+            className="flex-1 px-3 py-2.5 text-sm bg-coplio-bg border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20"
           />
           <button
             onClick={send}
             disabled={sending || !input.trim()}
-            className="bg-[#111827] text-white p-2.5 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60"
+            className="bg-[#374151] text-white p-2.5 rounded-lg hover:bg-[#374151]/90 transition-colors disabled:opacity-60"
           >
             {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>

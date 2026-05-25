@@ -14,7 +14,7 @@ export default function CGUPage() {
     <div className="min-h-screen bg-coplio-bg py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 bg-[#111827] rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-[#374151] rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">C</span>
           </div>
           <span className="text-coplio-text font-bold text-xl">Coplio</span>
@@ -102,7 +102,7 @@ export default function CGUPage() {
 
           <div className="mt-8 pt-6 border-t border-border">
             <p className="text-xs text-muted-foreground">
-              Pour toute question : <a href="mailto:legal@coplio.fr" className="text-[#111827] hover:underline">legal@coplio.fr</a>
+              Pour toute question : <a href="mailto:legal@coplio.fr" className="text-[#374151] hover:underline">legal@coplio.fr</a>
             </p>
           </div>
         </div>

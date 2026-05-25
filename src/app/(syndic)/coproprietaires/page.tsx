@@ -49,7 +49,7 @@ export default async function CopropriétairesPage() {
           </Link>
           <Link
             href="/coproprietaires/new"
-            className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors"
+            className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Ajouter</span>
@@ -66,12 +66,12 @@ export default async function CopropriétairesPage() {
             <p className="text-xs text-muted-foreground mt-0.5">copropriétaires</p>
           </div>
 
-          <div className="coplio-card py-4 border-[#111827]/20">
+          <div className="coplio-card py-4 border-[#374151]/20">
             <div className="flex items-center justify-between mb-1">
               <p className="text-xs text-muted-foreground uppercase tracking-wide">Portail actif</p>
-              <UserCheck className="w-4 h-4 text-[#111827]" />
+              <UserCheck className="w-4 h-4 text-[#374151]" />
             </div>
-            <p className="text-2xl font-bold text-[#111827]">{portailActif}</p>
+            <p className="text-2xl font-bold text-[#374151]">{portailActif}</p>
             <p className="text-xs text-muted-foreground mt-0.5">
               {total > 0 ? `${Math.round((portailActif / total) * 100)}% du total` : '—'}
             </p>
@@ -105,8 +105,8 @@ export default async function CopropriétairesPage() {
         <CoproprietairesClient data={copropriétaires} />
       ) : (
         <div className="coplio-card text-center py-16">
-          <div className="w-14 h-14 bg-[#111827]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Plus className="w-7 h-7 text-[#111827]" />
+          <div className="w-14 h-14 bg-[#374151]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Plus className="w-7 h-7 text-[#374151]" />
           </div>
           <h3 className="font-semibold text-coplio-text mb-1">Aucun copropriétaire</h3>
           <p className="text-muted-foreground text-sm mb-4">
@@ -114,7 +114,7 @@ export default async function CopropriétairesPage() {
           </p>
           <Link
             href="/coproprietaires/new"
-            className="inline-flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors"
+            className="inline-flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Ajouter un copropriétaire

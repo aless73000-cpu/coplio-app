@@ -17,7 +17,7 @@ interface KpiCardProps {
 
 export function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }: KpiCardProps) {
   const iconStyles: Record<string, { bg: string; fg: string }> = {
-    green: { bg: 'bg-slate-100',  fg: 'text-[#111827]' },
+    green: { bg: 'bg-slate-100',  fg: 'text-[#374151]' },
     blue:  { bg: 'bg-blue-50',   fg: 'text-blue-600'  },
     amber: { bg: 'bg-amber-50',  fg: 'text-amber-600' },
     red:   { bg: 'bg-red-50',    fg: 'text-red-600'   },
@@ -25,7 +25,7 @@ export function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }
   const s = iconStyles[color]
   const valueColor = (isAmount && typeof value === 'string' && value.includes('-'))
     ? 'text-red-600'
-    : 'text-[#111827]'
+    : 'text-[#374151]'
 
   return (
     <Link
@@ -58,14 +58,14 @@ interface PerformanceSectionProps {
 
 export function PerformanceSection({ tauxGlobal, nbCoproprietes, nbLots }: PerformanceSectionProps) {
   const lotsParCopro = nbCoproprietes > 0 ? Math.round(nbLots / nbCoproprietes) : 0
-  const tauxColor = tauxGlobal >= 90 ? 'text-[#111827]' : tauxGlobal >= 70 ? 'text-amber-600' : 'text-red-600'
-  const tauxBg    = tauxGlobal >= 90 ? 'bg-[#111827]'   : tauxGlobal >= 70 ? 'bg-amber-500'   : 'bg-red-500'
+  const tauxColor = tauxGlobal >= 90 ? 'text-[#374151]' : tauxGlobal >= 70 ? 'text-amber-600' : 'text-red-600'
+  const tauxBg    = tauxGlobal >= 90 ? 'bg-[#374151]'   : tauxGlobal >= 70 ? 'bg-amber-500'   : 'bg-red-500'
 
   return (
     <div className="coplio-card">
       <div className="flex items-center gap-2 mb-4">
         <BarChart2 className="w-4 h-4 text-slate-400" />
-        <h2 className="font-semibold text-[#111827] text-sm">Performance</h2>
+        <h2 className="font-semibold text-[#374151] text-sm">Performance</h2>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="p-4 bg-slate-50 rounded-xl">
@@ -84,9 +84,9 @@ export function PerformanceSection({ tauxGlobal, nbCoproprietes, nbLots }: Perfo
         </div>
         <div className="p-4 bg-slate-50 rounded-xl">
           <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">Lots / copropriété</p>
-          <p className="text-3xl font-bold text-[#111827] mb-3">{lotsParCopro}</p>
+          <p className="text-3xl font-bold text-[#374151] mb-3">{lotsParCopro}</p>
           <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
-            <div className="h-full bg-[#111827] rounded-full" style={{ width: `${Math.min(100, lotsParCopro * 2)}%` }} />
+            <div className="h-full bg-[#374151] rounded-full" style={{ width: `${Math.min(100, lotsParCopro * 2)}%` }} />
           </div>
           <p className="text-xs text-slate-400 mt-2 leading-relaxed">
             {nbLots} lot{nbLots > 1 ? 's' : ''} sur {nbCoproprietes} copropriété{nbCoproprietes > 1 ? 's' : ''}
@@ -109,10 +109,10 @@ export function CoproprieteAlertRow({ copropriete }: { copropriete: CoproprieteA
     >
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
-          <Building2 className="w-4 h-4 text-[#111827]" />
+          <Building2 className="w-4 h-4 text-[#374151]" />
         </div>
         <div>
-          <p className="text-sm font-medium text-[#111827]">{copropriete.nom}</p>
+          <p className="text-sm font-medium text-[#374151]">{copropriete.nom}</p>
           <p className="text-xs text-slate-400">
             {copropriete.nb_lots} lots · {copropriete.ville}
           </p>
@@ -160,7 +160,7 @@ export function SinistreRow({ sinistre }: { sinistre: SinistreItem }) {
       className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors group"
     >
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-[#111827] truncate">{sinistre.titre}</p>
+        <p className="text-sm font-medium text-[#374151] truncate">{sinistre.titre}</p>
         <p className="text-xs text-slate-400 mt-0.5">
           {sinistre.reference} · {sinistre.copropriete?.nom}
         </p>
@@ -184,13 +184,13 @@ export function AgRow({ ag }: { ag: AgItem }) {
   return (
     <Link href={`/assemblees/${ag.id}`} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors group">
       <div className={`w-10 h-10 rounded-xl flex flex-col items-center justify-center flex-shrink-0 ${isUrgent ? 'bg-amber-50' : 'bg-slate-100'}`}>
-        <span className={`font-bold text-sm leading-none ${isUrgent ? 'text-amber-700' : 'text-[#111827]'}`}>{date.getDate()}</span>
+        <span className={`font-bold text-sm leading-none ${isUrgent ? 'text-amber-700' : 'text-[#374151]'}`}>{date.getDate()}</span>
         <span className={`text-[10px] uppercase mt-0.5 ${isUrgent ? 'text-amber-500' : 'text-slate-400'}`}>
           {date.toLocaleDateString('fr-FR', { month: 'short' })}
         </span>
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-[#111827] truncate">{ag.titre}</p>
+        <p className="text-sm font-medium text-[#374151] truncate">{ag.titre}</p>
         <p className="text-xs text-slate-400">{ag.copropriete?.nom}</p>
       </div>
       <span className={`text-xs font-semibold flex-shrink-0 px-2 py-1 rounded-full ${isUrgent ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-500'}`}>

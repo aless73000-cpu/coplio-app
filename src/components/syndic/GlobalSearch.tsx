@@ -127,7 +127,7 @@ export function GlobalSearch() {
         {/* Input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
           {loading
-            ? <Loader2 className="w-4 h-4 text-[#111827] animate-spin flex-shrink-0" />
+            ? <Loader2 className="w-4 h-4 text-[#374151] animate-spin flex-shrink-0" />
             : <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
           }
           <input
@@ -162,16 +162,16 @@ export function GlobalSearch() {
                     }`}
                   >
                     <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                      selected === i ? 'bg-[#111827]/20' : 'bg-gray-100'
+                      selected === i ? 'bg-[#374151]/20' : 'bg-gray-100'
                     }`}>
-                      <Icon className={`w-3.5 h-3.5 ${selected === i ? 'text-[#111827]' : 'text-gray-500'}`} />
+                      <Icon className={`w-3.5 h-3.5 ${selected === i ? 'text-[#374151]' : 'text-gray-500'}`} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-gray-900 truncate">{r.label}</p>
                       {r.sub && <p className="text-xs text-gray-500 truncate">{r.sub}</p>}
                     </div>
                     <span className={`text-xs px-1.5 py-0.5 rounded-full flex-shrink-0 ${
-                      selected === i ? 'bg-[#111827]/20 text-[#111827]' : 'bg-gray-100 text-gray-500'
+                      selected === i ? 'bg-[#374151]/20 text-[#374151]' : 'bg-gray-100 text-gray-500'
                     }`}>
                       {typeLabel}
                     </span>

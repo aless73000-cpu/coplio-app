@@ -140,12 +140,12 @@ export function IaRedaction({ coproprietes, coproprieteId, onCoproprieteChange }
                 onClick={() => { setTemplate(t.value); setDonnees({}) }}
                 className={`w-full text-left px-3 py-2.5 rounded-xl border-2 transition-all text-sm ${
                   template === t.value
-                    ? 'border-[#111827] bg-slate-100'
-                    : 'border-border hover:border-[#111827]/30'
+                    ? 'border-[#374151] bg-slate-100'
+                    : 'border-border hover:border-[#374151]/30'
                 }`}
               >
                 <span className="mr-2">{t.icon}</span>
-                <span className={`font-medium ${template === t.value ? 'text-[#111827]' : 'text-coplio-text'}`}>
+                <span className={`font-medium ${template === t.value ? 'text-[#374151]' : 'text-coplio-text'}`}>
                   {t.label}
                 </span>
                 <p className="text-xs text-muted-foreground mt-0.5 ml-6">{t.desc}</p>
@@ -159,7 +159,7 @@ export function IaRedaction({ coproprietes, coproprieteId, onCoproprieteChange }
           <select
             value={coproprieteId}
             onChange={e => onCoproprieteChange(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white"
+            className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 bg-white"
           >
             {coproprietes.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
           </select>
@@ -176,7 +176,7 @@ export function IaRedaction({ coproprietes, coproprieteId, onCoproprieteChange }
                     value={donnees[champ.key] ?? ''}
                     onChange={e => setDonnees(prev => ({ ...prev, [champ.key]: e.target.value }))}
                     placeholder={champ.placeholder}
-                    className="w-full px-2.5 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20"
+                    className="w-full px-2.5 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#374151]/20"
                   />
                 </div>
               ))}
@@ -187,7 +187,7 @@ export function IaRedaction({ coproprietes, coproprieteId, onCoproprieteChange }
         <button
           onClick={handleGenerate}
           disabled={generating || !coproprieteId}
-          className="w-full flex items-center justify-center gap-2 bg-[#111827] text-white font-medium py-3 rounded-xl hover:bg-[#111827]/90 transition-colors disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 bg-[#374151] text-white font-medium py-3 rounded-xl hover:bg-[#374151]/90 transition-colors disabled:opacity-60"
         >
           {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
           {generating ? 'Génération en cours...' : 'Générer le document'}
@@ -226,14 +226,14 @@ export function IaRedaction({ coproprietes, coproprieteId, onCoproprieteChange }
                   onClick={handleCopy}
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-coplio-text px-2.5 py-1.5 rounded-lg border border-border transition-colors bg-white"
                 >
-                  {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-[#111827]" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-[#374151]" /> : <Copy className="w-3.5 h-3.5" />}
                   {copied ? 'Copié' : 'Copier'}
                 </button>
 
                 <button
                   onClick={handlePdf}
                   disabled={pdfLoading}
-                  className="flex items-center gap-1.5 text-xs font-medium text-white bg-[#111827] hover:bg-[#111827]/90 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60"
+                  className="flex items-center gap-1.5 text-xs font-medium text-white bg-[#374151] hover:bg-[#374151]/90 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60"
                 >
                   {pdfLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                   {pdfLoading ? 'Export…' : 'PDF'}
@@ -246,7 +246,7 @@ export function IaRedaction({ coproprietes, coproprieteId, onCoproprieteChange }
           {generating ? (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
-                <Loader2 className="w-8 h-8 animate-spin text-[#111827] mx-auto mb-3" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#374151] mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">L&apos;IA rédige votre document…</p>
               </div>
             </div>

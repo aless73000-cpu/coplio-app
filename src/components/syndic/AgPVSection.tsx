@@ -53,14 +53,14 @@ export function AgPVSection({ agId, pvNom, pvUrl }: Props) {
       <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-2">Procès-verbal (PV)</p>
 
       {pvUrl && pvNom ? (
-        <div className="flex items-center gap-2 p-3 bg-slate-100 rounded-xl border border-[#111827]/20">
-          <FileText className="w-4 h-4 text-[#111827] flex-shrink-0" />
+        <div className="flex items-center gap-2 p-3 bg-slate-100 rounded-xl border border-[#374151]/20">
+          <FileText className="w-4 h-4 text-[#374151] flex-shrink-0" />
           <span className="text-sm font-medium text-coplio-text truncate flex-1">{pvNom}</span>
           <a
             href={pvUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#111827] hover:text-[#111827]/80"
+            className="text-[#374151] hover:text-[#374151]/80"
             title="Ouvrir"
           >
             <ExternalLink className="w-3.5 h-3.5" />
@@ -86,7 +86,7 @@ export function AgPVSection({ agId, pvNom, pvUrl }: Props) {
           <button
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
-            className="flex items-center gap-2 w-full px-3 py-2.5 border border-dashed border-border rounded-xl text-xs text-muted-foreground hover:border-[#111827] hover:text-[#111827] transition-colors disabled:opacity-60"
+            className="flex items-center gap-2 w-full px-3 py-2.5 border border-dashed border-border rounded-xl text-xs text-muted-foreground hover:border-[#374151] hover:text-[#374151] transition-colors disabled:opacity-60"
           >
             {uploading
               ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Upload en cours…</>

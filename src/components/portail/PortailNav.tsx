@@ -31,13 +31,13 @@ export function PortailNav() {
               <Icon
                 className={cn(
                   'w-5 h-5 transition-colors',
-                  active ? 'text-[#111827]' : 'text-muted-foreground'
+                  active ? 'text-[#374151]' : 'text-muted-foreground'
                 )}
               />
               <span
                 className={cn(
                   'text-[10px] font-medium transition-colors',
-                  active ? 'text-[#111827]' : 'text-muted-foreground'
+                  active ? 'text-[#374151]' : 'text-muted-foreground'
                 )}
               >
                 {label}

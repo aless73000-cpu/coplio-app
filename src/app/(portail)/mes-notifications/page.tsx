@@ -92,7 +92,7 @@ export default async function MesNotifications() {
       {all.length === 0 && (
         <div className="coplio-card text-center py-16">
           <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <BellOff className="w-7 h-7 text-[#111827]" />
+            <BellOff className="w-7 h-7 text-[#374151]" />
           </div>
           <p className="font-medium text-coplio-text">Aucune notification</p>
           <p className="text-sm text-muted-foreground mt-1">Vous serez informé des actualités de votre copropriété ici.</p>
@@ -135,7 +135,7 @@ export default async function MesNotifications() {
                         </p>
                         <div className="flex items-center gap-1.5 flex-shrink-0">
                           {isUnread && (
-                            <span className="w-2 h-2 bg-[#111827] rounded-full" />
+                            <span className="w-2 h-2 bg-[#374151] rounded-full" />
                           )}
                           <span className="text-[11px] text-muted-foreground whitespace-nowrap">
                             {timeAgo(n.created_at)}

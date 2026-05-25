@@ -41,8 +41,8 @@ const TRAVAUX_STATUT_COLORS: Record<string, string> = {
   devis: 'bg-blue-50 text-blue-600',
   vote: 'bg-purple-50 text-purple-600',
   commande: 'bg-coplio-amber-bg text-coplio-amber',
-  realisation: 'bg-slate-100 text-[#111827]',
-  reception: 'bg-slate-100 text-[#111827]',
+  realisation: 'bg-slate-100 text-[#374151]',
+  reception: 'bg-slate-100 text-[#374151]',
   archive: 'bg-gray-100 text-gray-400',
 }
 
@@ -224,7 +224,7 @@ export default async function MesTravaux({
         </div>
         <a
           href="/mes-travaux?nouveau=1"
-          className="flex items-center justify-center gap-2 bg-[#111827] text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#111827]/90 transition-colors sm:flex-shrink-0"
+          className="flex items-center justify-center gap-2 bg-[#374151] text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#374151]/90 transition-colors sm:flex-shrink-0"
         >
           <Plus className="w-4 h-4" />
           Signaler un problème
@@ -237,7 +237,7 @@ export default async function MesTravaux({
           href="/mes-travaux"
           className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
             activeTab === 'demandes'
-              ? 'bg-[#111827] text-white shadow-sm'
+              ? 'bg-[#374151] text-white shadow-sm'
               : 'text-muted-foreground hover:text-coplio-text hover:bg-coplio-bg'
           }`}
         >
@@ -255,7 +255,7 @@ export default async function MesTravaux({
           href="/mes-travaux?tab=batiment"
           className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
             activeTab === 'batiment'
-              ? 'bg-[#111827] text-white shadow-sm'
+              ? 'bg-[#374151] text-white shadow-sm'
               : 'text-muted-foreground hover:text-coplio-text hover:bg-coplio-bg'
           }`}
         >
@@ -273,7 +273,7 @@ export default async function MesTravaux({
           href="/mes-travaux?tab=votes"
           className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
             activeTab === 'votes'
-              ? 'bg-[#111827] text-white shadow-sm'
+              ? 'bg-[#374151] text-white shadow-sm'
               : 'text-muted-foreground hover:text-coplio-text hover:bg-coplio-bg'
           }`}
         >
@@ -294,10 +294,10 @@ export default async function MesTravaux({
         <div className="space-y-6">
           {/* Formulaire de signalement */}
           {showForm && (
-            <div className="coplio-card border-[#111827]/30 bg-slate-100/20">
+            <div className="coplio-card border-[#374151]/30 bg-slate-100/20">
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[#111827] rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-[#374151] rounded-xl flex items-center justify-center">
                     <Wrench className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -319,7 +319,7 @@ export default async function MesTravaux({
                     <select
                       name="type"
                       required
-                      className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent"
+                      className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent"
                     >
                       <option value="">Sélectionnez...</option>
                       {TYPE_OPTIONS.map(opt => (
@@ -337,7 +337,7 @@ export default async function MesTravaux({
                       name="titre"
                       required
                       placeholder="Ex : Fuite sous l'évier de la cuisine"
-                      className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent"
+                      className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -351,7 +351,7 @@ export default async function MesTravaux({
                     required
                     rows={4}
                     placeholder="Décrivez le problème : depuis quand, localisation précise, impact sur votre logement..."
-                    className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent resize-none"
                   />
                 </div>
 
@@ -364,7 +364,7 @@ export default async function MesTravaux({
                     name="photos"
                     multiple
                     accept="image/*,.heic,.heif"
-                    className="w-full text-sm text-muted-foreground file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-[#111827] hover:file:bg-[#111827]/20 transition-colors cursor-pointer"
+                    className="w-full text-sm text-muted-foreground file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-[#374151] hover:file:bg-[#374151]/20 transition-colors cursor-pointer"
                   />
                 </div>
 
@@ -386,7 +386,7 @@ export default async function MesTravaux({
                 <div className="flex items-center gap-3">
                   <button
                     type="submit"
-                    className="flex items-center gap-2 bg-[#111827] text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-[#111827]/90 transition-colors"
+                    className="flex items-center gap-2 bg-[#374151] text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-[#374151]/90 transition-colors"
                   >
                     <Send className="w-4 h-4" />
                     Envoyer au syndic
@@ -403,13 +403,13 @@ export default async function MesTravaux({
           {(!sinistres || sinistres.length === 0) && !showForm && (
             <div className="coplio-card text-center py-16">
               <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Wrench className="w-7 h-7 text-[#111827]" />
+                <Wrench className="w-7 h-7 text-[#374151]" />
               </div>
               <p className="font-medium text-coplio-text">Aucune demande en cours</p>
               <p className="text-sm text-muted-foreground mt-1">Vous n&apos;avez pas de dossier vous concernant.</p>
               <a
                 href="/mes-travaux?nouveau=1"
-                className="inline-flex items-center gap-2 mt-4 text-sm font-medium text-[#111827] hover:underline"
+                className="inline-flex items-center gap-2 mt-4 text-sm font-medium text-[#374151] hover:underline"
               >
                 <Plus className="w-4 h-4" /> Signaler un premier problème
               </a>
@@ -436,7 +436,7 @@ export default async function MesTravaux({
           {clotures.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <CheckCircle2 className="w-4 h-4 text-[#111827]" />
+                <CheckCircle2 className="w-4 h-4 text-[#374151]" />
                 <h2 className="font-semibold text-muted-foreground text-sm uppercase tracking-wide">Clôturés</h2>
                 <span className="text-xs text-muted-foreground">({clotures.length})</span>
               </div>
@@ -536,7 +536,7 @@ function SinistreCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom
           </p>
         </div>
         <span className={`text-xs font-medium px-2.5 py-1 rounded-full flex-shrink-0 ${
-          isClosed ? 'bg-slate-100 text-[#111827]' :
+          isClosed ? 'bg-slate-100 text-[#374151]' :
           isUrgent ? 'bg-coplio-red-bg text-coplio-red' :
           'bg-coplio-amber-bg text-coplio-amber'
         }`}>
@@ -569,14 +569,14 @@ function SinistreCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom
               <div className="relative w-full flex items-center">
                 <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center z-10 mx-auto flex-shrink-0 ${
                   done
-                    ? isUrgent ? 'bg-coplio-red border-coplio-red' : 'bg-[#111827] border-[#111827]'
+                    ? isUrgent ? 'bg-coplio-red border-coplio-red' : 'bg-[#374151] border-[#374151]'
                     : 'bg-white border-border'
                 }`}>
                   {done && <CheckCircle2 className="w-2.5 h-2.5 text-white" />}
                 </div>
                 {i < STEP_ORDER.length - 1 && (
                   <div className={`absolute left-1/2 w-full h-0.5 top-2 ${
-                    done && stepIndex > i ? (isUrgent ? 'bg-coplio-red/50' : 'bg-[#111827]/50') : 'bg-border'
+                    done && stepIndex > i ? (isUrgent ? 'bg-coplio-red/50' : 'bg-[#374151]/50') : 'bg-border'
                   }`} />
                 )}
               </div>
@@ -607,7 +607,7 @@ function SinistreCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom
               </p>
             )}
             {(sinistre.montant_indemnisation ?? 0) > 0 && (
-              <p className="text-xs text-[#111827] font-semibold">
+              <p className="text-xs text-[#374151] font-semibold">
                 Indemnisation : {formatEuro(sinistre.montant_indemnisation!)}
               </p>
             )}

@@ -70,20 +70,20 @@ export default async function SinistrePage({ params }: { params: { id: string } 
               <div key={step.key} className="flex items-center flex-1 last:flex-none">
                 <div className="flex flex-col items-center">
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-colors ${
-                    isDone ? 'bg-[#111827] border-[#111827] text-white' :
-                    isCurrent ? 'bg-white border-[#111827] text-[#111827]' :
+                    isDone ? 'bg-[#374151] border-[#374151] text-white' :
+                    isCurrent ? 'bg-white border-[#374151] text-[#374151]' :
                     'bg-white border-border text-muted-foreground'
                   }`}>
                     {isDone ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                   </div>
                   <span className={`text-xs mt-1 text-center leading-tight max-w-[60px] ${
-                    isCurrent ? 'text-[#111827] font-medium' : isDone ? 'text-coplio-text' : 'text-muted-foreground'
+                    isCurrent ? 'text-[#374151] font-medium' : isDone ? 'text-coplio-text' : 'text-muted-foreground'
                   }`}>
                     {step.label}
                   </span>
                 </div>
                 {i < STATUS_STEPS.length - 1 && (
-                  <div className={`flex-1 h-0.5 mb-4 mx-1 ${i < currentStepIndex ? 'bg-[#111827]' : 'bg-border'}`} />
+                  <div className={`flex-1 h-0.5 mb-4 mx-1 ${i < currentStepIndex ? 'bg-[#374151]' : 'bg-border'}`} />
                 )}
               </div>
             )
@@ -117,7 +117,7 @@ export default async function SinistrePage({ params }: { params: { id: string } 
               {STATUS_STEPS.filter(s => s.key !== sinistre.status).map(step => (
                 <form key={step.key} action={`/api/sinistres/${sinistre.id}/status`} method="POST">
                   <input type="hidden" name="status" value={step.key} />
-                  <button type="submit" className="text-xs px-3 py-1.5 border border-border rounded-lg hover:border-[#111827] hover:text-[#111827] transition-colors">
+                  <button type="submit" className="text-xs px-3 py-1.5 border border-border rounded-lg hover:border-[#374151] hover:text-[#374151] transition-colors">
                     → {step.label}
                   </button>
                 </form>
@@ -134,7 +134,7 @@ export default async function SinistrePage({ params }: { params: { id: string } 
               <div>
                 <dt className="text-muted-foreground text-xs">Copropriété</dt>
                 <dd className="font-medium text-coplio-text mt-0.5">
-                  <Link href={`/coproprietes/${sinistre.copropriete?.id}`} className="text-[#111827] hover:underline">
+                  <Link href={`/coproprietes/${sinistre.copropriete?.id}`} className="text-[#374151] hover:underline">
                     {sinistre.copropriete?.nom}
                   </Link>
                 </dd>

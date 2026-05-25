@@ -92,7 +92,7 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Rechercher par nom, email, téléphone…"
-            className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20"
+            className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20"
           />
         </div>
         <button
@@ -118,7 +118,7 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
           <button
             onClick={handleInviterTous}
             disabled={invitingAll}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-[#111827] text-white rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-[#374151] text-white rounded-lg hover:bg-[#374151]/90 transition-colors disabled:opacity-60"
           >
             {invitingAll
               ? <Loader2 className="w-4 h-4 animate-spin" />
@@ -132,7 +132,7 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
       {/* Résultat envoi groupé */}
       {inviteResult && (
         <div className={`mb-4 px-4 py-3 rounded-xl text-sm flex items-center gap-2 ${
-          inviteResult.failed > 0 ? 'bg-amber-50 border border-amber-200 text-amber-800' : 'bg-slate-100 border border-[#111827]/20 text-[#111827]'
+          inviteResult.failed > 0 ? 'bg-amber-50 border border-amber-200 text-amber-800' : 'bg-slate-100 border border-[#374151]/20 text-[#374151]'
         }`}>
           <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
           <span>
@@ -148,16 +148,16 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
           {filtered.map((c) => {
             const inviteEnvoye = !!c.invitation_envoyee_at && !c.portail_actif
             return (
-              <Link key={c.id} href={`/coproprietaires/${c.id}`} className="coplio-card hover:border-[#111827]/30 transition-colors block">
+              <Link key={c.id} href={`/coproprietaires/${c.id}`} className="coplio-card hover:border-[#374151]/30 transition-colors block">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-[#111827]/10 rounded-full flex items-center justify-center flex-shrink-0">
-                    <User className="w-5 h-5 text-[#111827]" />
+                  <div className="w-10 h-10 bg-[#374151]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <User className="w-5 h-5 text-[#374151]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-semibold text-coplio-text">{c.prenom} {c.nom}</p>
                       {c.portail_actif && (
-                        <span className="text-xs bg-slate-100 text-[#111827] px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="text-xs bg-slate-100 text-[#374151] px-1.5 py-0.5 rounded-full flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" /> Portail
                         </span>
                       )}

@@ -27,7 +27,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* Logo */}
         <div className="px-5 py-5 border-b border-white/10">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-[#111827] rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 bg-[#374151] rounded-lg flex items-center justify-center flex-shrink-0">
               <ShieldCheck className="w-4 h-4 text-white" />
             </div>
             <div>

@@ -32,11 +32,11 @@ export default function FAQ() {
     <section id="faq" className="py-24 bg-white">
       <div className="max-w-3xl mx-auto px-6">
         <div className="text-center mb-14">
-          <span className="text-[11px] font-bold text-[#111827] uppercase tracking-[0.18em]">FAQ</span>
+          <span className="text-[11px] font-bold text-[#374151] uppercase tracking-[0.18em]">FAQ</span>
           <h2 className="text-4xl font-bold text-[#1D1D1F] mt-3 mb-4 tracking-tight">Questions fréquentes</h2>
           <p className="text-gray-500 text-lg">
             Vous ne trouvez pas votre réponse ?{' '}
-            <a href="mailto:contact@coplio.fr" className="text-[#111827] hover:underline font-semibold">
+            <a href="mailto:contact@coplio.fr" className="text-[#374151] hover:underline font-semibold">
               Écrivez-nous
             </a>
           </p>

@@ -29,7 +29,7 @@ interface Props {
   canEdit: boolean
 }
 
-const inputClass = 'w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent placeholder:text-gray-400'
+const inputClass = 'w-full px-3 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent placeholder:text-gray-400'
 
 export function AgResolutionsManager({ agId, initialResolutions, canEdit }: Props) {
   const router = useRouter()
@@ -90,7 +90,7 @@ export function AgResolutionsManager({ agId, initialResolutions, canEdit }: Prop
         {canEdit && (
           <button
             onClick={() => setShowForm(v => !v)}
-            className="flex items-center gap-1 text-xs font-medium text-[#111827] hover:underline"
+            className="flex items-center gap-1 text-xs font-medium text-[#374151] hover:underline"
           >
             {showForm ? <ChevronUp className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
             {showForm ? 'Annuler' : 'Ajouter'}
@@ -141,7 +141,7 @@ export function AgResolutionsManager({ agId, initialResolutions, canEdit }: Prop
             <button
               type="submit"
               disabled={saving || !titre.trim()}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-[#111827] rounded-lg hover:bg-[#111827]/90 disabled:opacity-60"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-[#374151] rounded-lg hover:bg-[#374151]/90 disabled:opacity-60"
             >
               {saving && <Loader2 className="w-3 h-3 animate-spin" />}
               Ajouter la résolution
@@ -157,7 +157,7 @@ export function AgResolutionsManager({ agId, initialResolutions, canEdit }: Prop
           {canEdit && (
             <button
               onClick={() => setShowForm(true)}
-              className="mt-2 text-xs text-[#111827] hover:underline"
+              className="mt-2 text-xs text-[#374151] hover:underline"
             >
               + Préparer l&apos;ordre du jour
             </button>
@@ -187,7 +187,7 @@ export function AgResolutionsManager({ agId, initialResolutions, canEdit }: Prop
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {res.adoptee !== null && res.adoptee !== undefined && (
                       <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                        res.adoptee ? 'bg-slate-100 text-[#111827]' : 'bg-red-50 text-red-600'
+                        res.adoptee ? 'bg-slate-100 text-[#374151]' : 'bg-red-50 text-red-600'
                       }`}>
                         {res.adoptee ? 'Adoptée' : 'Rejetée'}
                       </span>
@@ -211,7 +211,7 @@ export function AgResolutionsManager({ agId, initialResolutions, canEdit }: Prop
                 {/* Résultats */}
                 {total > 0 && (
                   <div className="flex items-center gap-4 text-xs mt-2 pt-2 border-t border-border">
-                    <span className="flex items-center gap-1 text-[#111827]">
+                    <span className="flex items-center gap-1 text-[#374151]">
                       <Check className="w-3 h-3" /> {res.voix_pour} pour
                     </span>
                     <span className="flex items-center gap-1 text-coplio-red">

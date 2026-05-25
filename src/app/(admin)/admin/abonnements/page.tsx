@@ -88,14 +88,14 @@ export default async function AdminAbonnementsPage() {
                   </td>
                   <td className="px-5 py-3">
                     {c.addon_portail_actif
-                      ? <span className="text-xs text-[#111827] font-medium">Actif</span>
+                      ? <span className="text-xs text-[#374151] font-medium">Actif</span>
                       : <span className="text-xs text-muted-foreground">Non</span>}
                   </td>
                   <td className="px-5 py-3 text-muted-foreground text-xs">
                     {finPeriode ? new Date(finPeriode).toLocaleDateString('fr-FR') : '—'}
                   </td>
                   <td className="px-5 py-3">
-                    <Link href={`/admin/clients/${c.id}`} className="text-[#111827] hover:underline text-xs font-medium">
+                    <Link href={`/admin/clients/${c.id}`} className="text-[#374151] hover:underline text-xs font-medium">
                       Gérer →
                     </Link>
                   </td>

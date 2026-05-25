@@ -21,7 +21,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   budget: 'bg-green-50 text-green-700',
   contrat: 'bg-purple-50 text-purple-700',
   sinistre: 'bg-coplio-amber-bg text-coplio-amber',
-  appel_fonds: 'bg-slate-100 text-[#111827]',
+  appel_fonds: 'bg-slate-100 text-[#374151]',
   reglement: 'bg-gray-100 text-gray-600',
   autre: 'bg-coplio-bg text-muted-foreground',
 }
@@ -50,7 +50,7 @@ function DocRow({
         <div className="flex items-center gap-2">
           <p className="text-sm font-medium text-coplio-text truncate">{doc.nom}</p>
           {isNew && (
-            <span className="flex-shrink-0 text-[10px] font-bold text-[#111827] bg-slate-100 px-1.5 py-0.5 rounded-full">
+            <span className="flex-shrink-0 text-[10px] font-bold text-[#374151] bg-slate-100 px-1.5 py-0.5 rounded-full">
               NOUVEAU
             </span>
           )}
@@ -76,7 +76,7 @@ function DocRow({
           target="_blank"
           rel="noopener noreferrer"
           download={doc.nom}
-          className="flex-shrink-0 flex items-center gap-1.5 text-xs font-medium text-[#111827] opacity-0 group-hover:opacity-100 bg-slate-100 px-3 py-1.5 rounded-lg transition-all hover:bg-[#111827] hover:text-white"
+          className="flex-shrink-0 flex items-center gap-1.5 text-xs font-medium text-[#374151] opacity-0 group-hover:opacity-100 bg-slate-100 px-3 py-1.5 rounded-lg transition-all hover:bg-[#374151] hover:text-white"
         >
           <Download className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Télécharger</span>
@@ -131,7 +131,7 @@ export function MesDocumentsClient({ documents }: Props) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher un document…"
-            className="w-full pl-9 pr-9 py-2.5 text-sm bg-white border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent placeholder:text-gray-400"
+            className="w-full pl-9 pr-9 py-2.5 text-sm bg-white border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent placeholder:text-gray-400"
           />
           {search && (
             <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -142,7 +142,7 @@ export function MesDocumentsClient({ documents }: Props) {
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="text-sm bg-white border border-border rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#111827]/20 text-coplio-text cursor-pointer"
+          className="text-sm bg-white border border-border rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#374151]/20 text-coplio-text cursor-pointer"
         >
           <option value="all">Toutes catégories</option>
           {categories.filter((c) => c !== 'all').map((cat) => (
@@ -166,7 +166,7 @@ export function MesDocumentsClient({ documents }: Props) {
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="mt-3 text-sm text-[#111827] hover:underline"
+              className="mt-3 text-sm text-[#374151] hover:underline"
             >
               Effacer la recherche
             </button>
@@ -177,9 +177,9 @@ export function MesDocumentsClient({ documents }: Props) {
           {/* New documents section */}
           {newDocs.length > 0 && (
             <>
-              <div className="px-5 py-3 bg-slate-100/50 border-b border-[#111827]/10 flex items-center gap-2">
-                <div className="w-2 h-2 bg-[#111827] rounded-full" />
-                <span className="text-xs font-semibold text-[#111827] uppercase tracking-wide">
+              <div className="px-5 py-3 bg-slate-100/50 border-b border-[#374151]/10 flex items-center gap-2">
+                <div className="w-2 h-2 bg-[#374151] rounded-full" />
+                <span className="text-xs font-semibold text-[#374151] uppercase tracking-wide">
                   Nouveaux · {newDocs.length} doc{newDocs.length > 1 ? 's' : ''}
                 </span>
               </div>

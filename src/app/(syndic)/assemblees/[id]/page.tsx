@@ -69,7 +69,7 @@ export default async function AssembléePage({ params }: { params: { id: string 
               </span>
             </div>
             <p className="text-muted-foreground text-sm mt-0.5">
-              <Link href={`/coproprietes/${ag.copropriete?.id}`} className="hover:text-[#111827]">
+              <Link href={`/coproprietes/${ag.copropriete?.id}`} className="hover:text-[#374151]">
                 {ag.copropriete?.nom}
               </Link>
             </p>
@@ -114,7 +114,7 @@ export default async function AssembléePage({ params }: { params: { id: string 
               <div>
                 <dt className="text-muted-foreground text-xs mb-0.5">Date et heure</dt>
                 <dd className="font-medium text-coplio-text flex items-center gap-1.5">
-                  <CalendarDays className="w-3.5 h-3.5 text-[#111827] flex-shrink-0" />
+                  <CalendarDays className="w-3.5 h-3.5 text-[#374151] flex-shrink-0" />
                   {formatDate(ag.date_ag)}
                 </dd>
                 <dd className="text-muted-foreground text-xs mt-0.5 ml-5">
@@ -132,7 +132,7 @@ export default async function AssembléePage({ params }: { params: { id: string 
                     </>
                   ) : ag.lieu ? (
                     <>
-                      <MapPin className="w-3.5 h-3.5 text-[#111827] flex-shrink-0" />
+                      <MapPin className="w-3.5 h-3.5 text-[#374151] flex-shrink-0" />
                       {ag.lieu}
                     </>
                   ) : (
@@ -152,7 +152,7 @@ export default async function AssembléePage({ params }: { params: { id: string 
                 <div>
                   <dt className="text-muted-foreground text-xs mb-0.5">Tantièmes représentés</dt>
                   <dd className="font-medium text-coplio-text flex items-center gap-1.5">
-                    <Users className="w-3.5 h-3.5 text-[#111827] flex-shrink-0" />
+                    <Users className="w-3.5 h-3.5 text-[#374151] flex-shrink-0" />
                     {ag.tantiemes_presents}
                     {ag.tantiemes_requis ? ` / ${ag.tantiemes_requis} requis` : ''}
                   </dd>
@@ -173,7 +173,7 @@ export default async function AssembléePage({ params }: { params: { id: string 
             <h3 className="font-semibold text-coplio-text mb-3">Copropriété</h3>
             <Link
               href={`/coproprietes/${ag.copropriete?.id}`}
-              className="text-sm text-[#111827] hover:underline"
+              className="text-sm text-[#374151] hover:underline"
             >
               {ag.copropriete?.nom}
             </Link>

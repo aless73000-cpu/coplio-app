@@ -12,7 +12,7 @@ const config: Config = {
       colors: {
         // ── Palette Coplio — Apple-refined ──────────────────────────
         coplio: {
-          green:         '#111827',   // Anthracite principal — sobre & luxe
+          green:         '#374151',   // Gris foncé principal (gray-700)
           'green-light': '#F1F5F9',   // Slate-100 — fond neutre
           'green-medium':'#64748B',   // Slate-500 — secondaire
           text:          '#1D1D1F',   // Apple near-black
@@ -31,12 +31,12 @@ const config: Config = {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT:    '#111827',
+          DEFAULT:    '#374151',
           foreground: '#FFFFFF',
         },
         secondary: {
           DEFAULT:    '#F1F5F9',
-          foreground: '#111827',
+          foreground: '#374151',
         },
         destructive: {
           DEFAULT:    '#C0392B',
@@ -48,7 +48,7 @@ const config: Config = {
         },
         accent: {
           DEFAULT:    '#64748B',
-          foreground: '#111827',
+          foreground: '#374151',
         },
         popover: {
           DEFAULT:    'hsl(var(--popover))',

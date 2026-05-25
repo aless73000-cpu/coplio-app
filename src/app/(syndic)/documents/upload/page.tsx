@@ -9,7 +9,7 @@ import type { DocumentCategory } from '@/types'
 import { DOCUMENT_CATEGORY_LABELS } from '@/types'
 
 const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-  focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
+  focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent
   placeholder:text-gray-400 transition-shadow`
 
 export default function DocumentUploadPage() {
@@ -104,10 +104,10 @@ export default function DocumentUploadPage() {
           <div
             className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
               isDragging
-                ? 'border-[#111827] bg-slate-100'
+                ? 'border-[#374151] bg-slate-100'
                 : file
-                ? 'border-[#111827]/50 bg-slate-100/30'
-                : 'border-border hover:border-[#111827]/50 hover:bg-coplio-bg'
+                ? 'border-[#374151]/50 bg-slate-100/30'
+                : 'border-border hover:border-[#374151]/50 hover:bg-coplio-bg'
             }`}
             onClick={() => fileInputRef.current?.click()}
             onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
@@ -123,7 +123,7 @@ export default function DocumentUploadPage() {
             />
             {file ? (
               <div className="flex flex-col items-center gap-2">
-                <FileText className="w-8 h-8 text-[#111827]" />
+                <FileText className="w-8 h-8 text-[#374151]" />
                 <p className="text-sm font-medium text-coplio-text">{file.name}</p>
                 <p className="text-xs text-muted-foreground">
                   {(file.size / 1024 / 1024).toFixed(2)} Mo
@@ -210,7 +210,7 @@ export default function DocumentUploadPage() {
                 checked={visibleCoproprietaires}
                 onChange={e => setVisibleCoproprietaires(e.target.checked)}
               />
-              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${visibleCoproprietaires ? 'bg-[#111827] border-[#111827]' : 'border-border bg-white'}`}>
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${visibleCoproprietaires ? 'bg-[#374151] border-[#374151]' : 'border-border bg-white'}`}>
                 {visibleCoproprietaires && (
                   <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 12 12">
                     <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -237,7 +237,7 @@ export default function DocumentUploadPage() {
           <button
             type="submit"
             disabled={isSubmitting || !file}
-            className="flex-1 bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
+            className="flex-1 bg-[#374151] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#374151]/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
           >
             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
             {isSubmitting ? 'Import en cours...' : 'Importer'}

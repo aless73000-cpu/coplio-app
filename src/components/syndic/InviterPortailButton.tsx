@@ -42,7 +42,7 @@ export function InviterPortailButton({
 
   if (status === 'success') {
     return (
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 rounded-lg text-sm text-[#111827] font-medium">
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 rounded-lg text-sm text-[#374151] font-medium">
         <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
         Invitation envoyée à {email}
       </div>
@@ -54,8 +54,8 @@ export function InviterPortailButton({
       <button
         onClick={handleInviter}
         disabled={status === 'loading'}
-        className="flex items-center gap-2 px-4 py-2.5 bg-[#111827] text-white rounded-lg text-sm font-medium
-                   hover:bg-[#111827]/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        className="flex items-center gap-2 px-4 py-2.5 bg-[#374151] text-white rounded-lg text-sm font-medium
+                   hover:bg-[#374151]/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {status === 'loading' ? (
           <Loader2 className="w-4 h-4 animate-spin" />

@@ -116,7 +116,7 @@ export default async function MesSignaturesPage() {
                       download={doc.nom}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-xs font-medium text-[#111827] bg-slate-100 hover:bg-[#111827] hover:text-white px-2.5 py-1 rounded-full transition-colors"
+                      className="flex items-center gap-1.5 text-xs font-medium text-[#374151] bg-slate-100 hover:bg-[#374151] hover:text-white px-2.5 py-1 rounded-full transition-colors"
                     >
                       <Download className="w-3 h-3" /> Télécharger
                     </a>
@@ -132,7 +132,7 @@ export default async function MesSignaturesPage() {
       {(assemblees ?? []).length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <Calendar className="w-4 h-4 text-[#111827]" />
+            <Calendar className="w-4 h-4 text-[#374151]" />
             <h2 className="font-semibold text-coplio-text text-sm uppercase tracking-wide">
               Procès-verbaux d&apos;assemblée générale
             </h2>
@@ -141,7 +141,7 @@ export default async function MesSignaturesPage() {
             {(assemblees ?? []).map((ag) => (
               <div key={ag.id} className="coplio-card flex items-center gap-4">
                 <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <CheckCircle2 className="w-5 h-5 text-[#111827]" />
+                  <CheckCircle2 className="w-5 h-5 text-[#374151]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-coplio-text">{ag.titre}</p>
@@ -154,7 +154,7 @@ export default async function MesSignaturesPage() {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
                     ag.status === 'terminee'
-                      ? 'bg-slate-100 text-[#111827]'
+                      ? 'bg-slate-100 text-[#374151]'
                       : 'bg-gray-100 text-gray-500'
                   }`}>
                     {AG_STATUS_LABELS[ag.status ?? ''] ?? ag.status}
@@ -162,7 +162,7 @@ export default async function MesSignaturesPage() {
                   {ag.pv_document_id && (
                     <Link
                       href="/mes-assemblees"
-                      className="flex items-center gap-1 text-xs font-medium text-[#111827] bg-slate-100 px-2.5 py-1 rounded-full hover:bg-[#111827] hover:text-white transition-colors"
+                      className="flex items-center gap-1 text-xs font-medium text-[#374151] bg-slate-100 px-2.5 py-1 rounded-full hover:bg-[#374151] hover:text-white transition-colors"
                     >
                       <ExternalLink className="w-3 h-3" /> PV <ChevronRight className="w-3 h-3" />
                     </Link>
@@ -222,7 +222,7 @@ export default async function MesSignaturesPage() {
           </p>
           <Link
             href="/mes-assemblees"
-            className="inline-flex items-center gap-1.5 mt-4 text-sm font-medium text-[#111827] hover:underline"
+            className="inline-flex items-center gap-1.5 mt-4 text-sm font-medium text-[#374151] hover:underline"
           >
             Voir mes assemblées générales <ChevronRight className="w-4 h-4" />
           </Link>

@@ -43,7 +43,7 @@ export function MessageriePortailWrapper({ userId }: Props) {
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-[#111827]" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#374151]" />
       </div>
     )
   }
@@ -59,7 +59,7 @@ export function MessageriePortailWrapper({ userId }: Props) {
               onClick={() => setSelectedId(conv.id)}
               className={`flex-shrink-0 px-3 py-2 rounded-xl text-sm font-medium transition-colors border ${
                 conv.id === selectedId
-                  ? 'bg-[#111827] text-white border-[#111827]'
+                  ? 'bg-[#374151] text-white border-[#374151]'
                   : 'bg-white border-border text-coplio-text'
               }`}
             >
@@ -91,12 +91,12 @@ export function MessageriePortailWrapper({ userId }: Props) {
                   >
                     <div className="flex items-start gap-2">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                        isActive ? 'bg-[#111827]' : 'bg-coplio-bg'
+                        isActive ? 'bg-[#374151]' : 'bg-coplio-bg'
                       }`}>
                         <MessageCircle className={`w-4 h-4 ${isActive ? 'text-white' : 'text-muted-foreground'}`} />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className={`text-sm font-medium truncate ${isActive ? 'text-[#111827]' : 'text-coplio-text'}`}>
+                        <p className={`text-sm font-medium truncate ${isActive ? 'text-[#374151]' : 'text-coplio-text'}`}>
                           {conv.sujet || 'Message au syndic'}
                         </p>
                         <p className="text-[10px] text-muted-foreground mt-0.5">

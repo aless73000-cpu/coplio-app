@@ -83,7 +83,7 @@ export default function EditLotPage() {
   }
 
   const inputCls = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-    focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent`
+    focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent`
 
   if (loading) {
     return (
@@ -189,7 +189,7 @@ export default function EditLotPage() {
           <button
             onClick={handleSave}
             disabled={saving || !form.numero || !form.tantiemes}
-            className="flex-1 flex items-center justify-center gap-2 bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-50 text-sm"
+            className="flex-1 flex items-center justify-center gap-2 bg-[#374151] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#374151]/90 transition-colors disabled:opacity-50 text-sm"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
             Enregistrer

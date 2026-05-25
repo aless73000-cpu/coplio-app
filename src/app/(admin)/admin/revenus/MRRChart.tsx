@@ -25,9 +25,9 @@ export function MRRChart({ data }: Props) {
         <Line
           type="monotone"
           dataKey="mrr"
-          stroke="#111827"
+          stroke="#374151"
           strokeWidth={2.5}
-          dot={{ fill: '#111827', r: 4 }}
+          dot={{ fill: '#374151', r: 4 }}
           activeDot={{ r: 6 }}
         />
       </LineChart>

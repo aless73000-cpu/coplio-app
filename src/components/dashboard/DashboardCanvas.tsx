@@ -214,8 +214,8 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
         return (
           <div key="alertes_coproprietes" className="coplio-card">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-[#111827]">Alertes copropriétés</h2>
-              <Link href="/coproprietes" className="text-xs text-slate-400 hover:text-[#111827] transition-colors flex items-center gap-1">
+              <h2 className="text-sm font-semibold text-[#374151]">Alertes copropriétés</h2>
+              <Link href="/coproprietes" className="text-xs text-slate-400 hover:text-[#374151] transition-colors flex items-center gap-1">
                 Voir tout <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
@@ -231,8 +231,8 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
         return (
           <div key="sinistres" className="coplio-card">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-[#111827]">Sinistres en cours</h2>
-              <Link href="/sinistres" className="text-xs text-slate-400 hover:text-[#111827] transition-colors flex items-center gap-1">
+              <h2 className="text-sm font-semibold text-[#374151]">Sinistres en cours</h2>
+              <Link href="/sinistres" className="text-xs text-slate-400 hover:text-[#374151] transition-colors flex items-center gap-1">
                 Voir tout <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
@@ -247,8 +247,8 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
         return (
           <div key="ag" className="coplio-card">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-[#111827]">AG à venir</h2>
-              <Link href="/assemblees/new" className="text-xs text-slate-400 hover:text-[#111827] transition-colors">
+              <h2 className="text-sm font-semibold text-[#374151]">AG à venir</h2>
+              <Link href="/assemblees/new" className="text-xs text-slate-400 hover:text-[#374151] transition-colors">
                 + Planifier
               </Link>
             </div>
@@ -261,7 +261,7 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
       case 'actions_rapides':
         return (
           <div key="actions_rapides" className="coplio-card">
-            <h2 className="text-sm font-semibold text-[#111827] mb-3">Actions rapides</h2>
+            <h2 className="text-sm font-semibold text-[#374151] mb-3">Actions rapides</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {[
                 { href: '/coproprietes/new',   label: 'Nouvelle copropriété',   icon: Building2 },
@@ -276,9 +276,9 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
                   className="flex flex-col items-center gap-2 p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors text-center group"
                 >
                   <div className="w-9 h-9 bg-white border border-slate-200 rounded-xl flex items-center justify-center group-hover:border-slate-300 transition-colors shadow-sm">
-                    <Icon className="w-4 h-4 text-[#111827]" />
+                    <Icon className="w-4 h-4 text-[#374151]" />
                   </div>
-                  <span className="text-xs font-medium text-[#111827] leading-tight">{label}</span>
+                  <span className="text-xs font-medium text-[#374151] leading-tight">{label}</span>
                 </Link>
               ))}
             </div>
@@ -295,7 +295,7 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
       {/* En-tête */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-[#111827]" style={{ letterSpacing: '-0.02em' }}>
+          <h1 className="text-xl font-bold text-[#374151]" style={{ letterSpacing: '-0.02em' }}>
             Bonjour, {data.prenom} 👋
           </h1>
           <p className="text-slate-400 text-sm mt-0.5">
@@ -324,19 +324,19 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
           style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}
         >
           <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Building2 className="w-7 h-7 text-[#111827]" />
+            <Building2 className="w-7 h-7 text-[#374151]" />
           </div>
-          <h2 className="text-lg font-bold text-[#111827] mb-2" style={{ letterSpacing: '-0.02em' }}>
+          <h2 className="text-lg font-bold text-[#374151] mb-2" style={{ letterSpacing: '-0.02em' }}>
             Ajoutez votre première copropriété
           </h2>
           <p className="text-slate-400 text-sm max-w-xs mx-auto mb-8 leading-relaxed">
             Votre tableau de bord s&apos;animera une fois votre première copropriété créée.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/coproprietes/new" className="inline-flex items-center gap-2 bg-[#111827] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#1F2937] transition-colors">
+            <Link href="/coproprietes/new" className="inline-flex items-center gap-2 bg-[#374151] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#4B5563] transition-colors">
               <Building2 className="w-4 h-4" /> Créer une copropriété
             </Link>
-            <Link href="/importer" className="inline-flex items-center gap-2 bg-slate-50 text-[#111827] px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-100 border border-slate-200 transition-colors">
+            <Link href="/importer" className="inline-flex items-center gap-2 bg-slate-50 text-[#374151] px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-100 border border-slate-200 transition-colors">
               Importer depuis un fichier
             </Link>
           </div>
@@ -460,7 +460,7 @@ export function DashboardPrefsEditor({ userId }: { userId: string }) {
               <button
                 onClick={() => toggle(w.id)}
                 className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${
-                  w.visible ? 'text-[#111827] hover:bg-slate-100' : 'text-muted-foreground hover:bg-coplio-bg'
+                  w.visible ? 'text-[#374151] hover:bg-slate-100' : 'text-muted-foreground hover:bg-coplio-bg'
                 }`}
                 title={w.visible ? 'Masquer ce bloc' : 'Afficher ce bloc'}
               >
@@ -473,7 +473,7 @@ export function DashboardPrefsEditor({ userId }: { userId: string }) {
 
       <button
         onClick={handleSave}
-        className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors"
+        className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors"
       >
         {saved && <CheckCircle2 className="w-4 h-4" />}
         {saved ? 'Enregistré !' : 'Enregistrer les modifications'}

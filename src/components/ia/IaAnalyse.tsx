@@ -61,8 +61,8 @@ export function IaAnalyse() {
                 onClick={() => setTypeDoc(t.value)}
                 className={`w-full text-left px-3 py-2.5 rounded-xl border-2 transition-all text-sm font-medium ${
                   typeDoc === t.value
-                    ? 'border-[#111827] bg-slate-100 text-[#111827]'
-                    : 'border-border text-coplio-text hover:border-[#111827]/30'
+                    ? 'border-[#374151] bg-slate-100 text-[#374151]'
+                    : 'border-border text-coplio-text hover:border-[#374151]/30'
                 }`}
               >
                 {t.label}
@@ -82,9 +82,9 @@ export function IaAnalyse() {
           />
           <button
             onClick={() => fileRef.current?.click()}
-            className="w-full border-2 border-dashed border-border rounded-xl py-8 text-center hover:border-[#111827] transition-colors group"
+            className="w-full border-2 border-dashed border-border rounded-xl py-8 text-center hover:border-[#374151] transition-colors group"
           >
-            <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2 group-hover:text-[#111827] transition-colors" />
+            <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2 group-hover:text-[#374151] transition-colors" />
             <p className="text-sm text-muted-foreground group-hover:text-coplio-text">
               {file ? file.name : 'Cliquez pour uploader un PDF'}
             </p>
@@ -100,7 +100,7 @@ export function IaAnalyse() {
         <button
           onClick={handleAnalyse}
           disabled={analysing || !file}
-          className="w-full flex items-center justify-center gap-2 bg-[#111827] text-white font-medium py-3 rounded-xl hover:bg-[#111827]/90 transition-colors disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 bg-[#374151] text-white font-medium py-3 rounded-xl hover:bg-[#374151]/90 transition-colors disabled:opacity-60"
         >
           {analysing ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSearch className="w-4 h-4" />}
           {analysing ? 'Analyse en cours...' : 'Analyser le document'}
@@ -118,7 +118,7 @@ export function IaAnalyse() {
                   onClick={handleCopy}
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-coplio-text px-2.5 py-1.5 rounded-lg border border-border transition-colors"
                 >
-                  {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-[#111827]" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-[#374151]" /> : <Copy className="w-3.5 h-3.5" />}
                   {copied ? 'Copié' : 'Copier'}
                 </button>
                 <button
@@ -134,7 +134,7 @@ export function IaAnalyse() {
           {analysing ? (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
-                <Loader2 className="w-8 h-8 animate-spin text-[#111827] mx-auto mb-3" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#374151] mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">L&apos;IA analyse votre document...</p>
               </div>
             </div>

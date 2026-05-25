@@ -14,7 +14,7 @@ export default function ConfidentialitePage() {
     <div className="min-h-screen bg-coplio-bg py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 bg-[#111827] rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-[#374151] rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">C</span>
           </div>
           <span className="text-coplio-text font-bold text-xl">Coplio</span>
@@ -32,7 +32,7 @@ export default function ConfidentialitePage() {
           <section className="mb-6">
             <h2 className="text-lg font-semibold text-coplio-text mb-3">1. Responsable du traitement</h2>
             <p className="text-sm text-coplio-text leading-relaxed">
-              Coplio SAS est responsable du traitement de vos données personnelles. Contact DPO : <a href="mailto:privacy@coplio.fr" className="text-[#111827] hover:underline">privacy@coplio.fr</a>
+              Coplio SAS est responsable du traitement de vos données personnelles. Contact DPO : <a href="mailto:privacy@coplio.fr" className="text-[#374151] hover:underline">privacy@coplio.fr</a>
             </p>
           </section>
 
@@ -97,8 +97,8 @@ export default function ConfidentialitePage() {
               <li>Droit d&apos;opposition et de limitation</li>
             </ul>
             <p className="text-sm text-coplio-text leading-relaxed mt-2">
-              Pour exercer ces droits : <a href="mailto:privacy@coplio.fr" className="text-[#111827] hover:underline">privacy@coplio.fr</a>.
-              Vous pouvez également déposer une plainte auprès de la CNIL (<a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-[#111827] hover:underline">www.cnil.fr</a>).
+              Pour exercer ces droits : <a href="mailto:privacy@coplio.fr" className="text-[#374151] hover:underline">privacy@coplio.fr</a>.
+              Vous pouvez également déposer une plainte auprès de la CNIL (<a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-[#374151] hover:underline">www.cnil.fr</a>).
             </p>
           </section>
 
@@ -112,7 +112,7 @@ export default function ConfidentialitePage() {
 
           <div className="mt-8 pt-6 border-t border-border">
             <p className="text-xs text-muted-foreground">
-              Pour toute question : <a href="mailto:privacy@coplio.fr" className="text-[#111827] hover:underline">privacy@coplio.fr</a>
+              Pour toute question : <a href="mailto:privacy@coplio.fr" className="text-[#374151] hover:underline">privacy@coplio.fr</a>
             </p>
           </div>
         </div>

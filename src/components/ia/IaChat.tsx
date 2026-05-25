@@ -70,7 +70,7 @@ export function IaChat({ coproprietes, coproprieteId, onCoproprieteChange }: Pro
           <select
             value={coproprieteId}
             onChange={e => onCoproprieteChange(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white"
+            className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 bg-white"
           >
             <option value="">Toutes les copropriétés</option>
             {coproprietes.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
@@ -84,7 +84,7 @@ export function IaChat({ coproprietes, coproprieteId, onCoproprieteChange }: Pro
               <button
                 key={q}
                 onClick={() => setInput(q)}
-                className="w-full text-left text-xs text-muted-foreground hover:text-[#111827] hover:bg-slate-100 px-2.5 py-2 rounded-lg transition-colors border border-transparent hover:border-[#111827]/20"
+                className="w-full text-left text-xs text-muted-foreground hover:text-[#374151] hover:bg-slate-100 px-2.5 py-2 rounded-lg transition-colors border border-transparent hover:border-[#374151]/20"
               >
                 {q}
               </button>
@@ -119,18 +119,18 @@ export function IaChat({ coproprietes, coproprieteId, onCoproprieteChange }: Pro
                 <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {msg.role === 'assistant' && (
                     <div className="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Bot className="w-3.5 h-3.5 text-[#111827]" />
+                      <Bot className="w-3.5 h-3.5 text-[#374151]" />
                     </div>
                   )}
                   <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-[#111827] text-white rounded-tr-sm'
+                      ? 'bg-[#374151] text-white rounded-tr-sm'
                       : 'bg-coplio-bg text-coplio-text rounded-tl-sm'
                   }`}>
                     <p className="whitespace-pre-wrap">{msg.content}</p>
                   </div>
                   {msg.role === 'user' && (
-                    <div className="w-7 h-7 bg-[#111827] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-7 h-7 bg-[#374151] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <User className="w-3.5 h-3.5 text-white" />
                     </div>
                   )}
@@ -140,7 +140,7 @@ export function IaChat({ coproprietes, coproprieteId, onCoproprieteChange }: Pro
             {chatLoading && (
               <div className="flex gap-2 justify-start">
                 <div className="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-3.5 h-3.5 text-[#111827]" />
+                  <Bot className="w-3.5 h-3.5 text-[#374151]" />
                 </div>
                 <div className="bg-coplio-bg rounded-2xl rounded-tl-sm px-3 py-2">
                   <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
@@ -155,12 +155,12 @@ export function IaChat({ coproprietes, coproprieteId, onCoproprieteChange }: Pro
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="Posez une question sur vos copropriétés..."
-              className="flex-1 px-3 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#111827]/20"
+              className="flex-1 px-3 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#374151]/20"
             />
             <button
               type="submit"
               disabled={chatLoading || !input.trim()}
-              className="flex items-center gap-1.5 bg-[#111827] text-white px-4 py-2.5 rounded-xl hover:bg-[#111827]/90 transition-colors disabled:opacity-60"
+              className="flex items-center gap-1.5 bg-[#374151] text-white px-4 py-2.5 rounded-xl hover:bg-[#374151]/90 transition-colors disabled:opacity-60"
             >
               <Send className="w-4 h-4" />
             </button>

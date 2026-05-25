@@ -14,7 +14,7 @@ export default function ProblemSolution() {
 
         <div className="max-w-2xl mb-20">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-[0.18em] mb-4">Vos besoins</p>
-          <h2 className="text-4xl sm:text-5xl font-bold text-[#111827] mb-5" style={{ letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+          <h2 className="text-4xl sm:text-5xl font-bold text-[#374151] mb-5" style={{ letterSpacing: '-0.03em', lineHeight: 1.1 }}>
             On connaît<br />vos problèmes
           </h2>
           <p className="text-lg text-slate-400">
@@ -32,10 +32,10 @@ export default function ProblemSolution() {
                 <p className="text-sm text-slate-400 leading-relaxed">{before}</p>
               </div>
               <div className="flex gap-4 p-6 bg-slate-50/50">
-                <div className="w-6 h-6 rounded-full bg-[#111827] flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-6 h-6 rounded-full bg-[#374151] flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Check className="w-3 h-3 text-white" />
                 </div>
-                <p className="text-sm text-[#111827] leading-relaxed">{after}</p>
+                <p className="text-sm text-[#374151] leading-relaxed">{after}</p>
               </div>
             </div>
           ))}

@@ -19,7 +19,7 @@ const TYPES = [
 
 const STATUTS = [
   { value: 'planifie', label: 'Planifié', color: 'text-blue-600 bg-blue-50' },
-  { value: 'realise', label: 'Réalisé', color: 'text-[#111827] bg-slate-100' },
+  { value: 'realise', label: 'Réalisé', color: 'text-[#374151] bg-slate-100' },
   { value: 'annule', label: 'Annulé', color: 'text-muted-foreground bg-coplio-bg' },
 ]
 
@@ -115,7 +115,7 @@ export default function CarnetEntretienPage() {
           <p className="text-muted-foreground text-sm mt-0.5">Suivi des interventions et maintenances</p>
         </div>
         <button onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors">
+          className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors">
           <Plus className="w-4 h-4" />Ajouter
         </button>
       </div>
@@ -128,7 +128,7 @@ export default function CarnetEntretienPage() {
         </div>
         <div className="coplio-card text-center">
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Réalisées</p>
-          <p className="text-xl font-bold text-[#111827]">{entretiens.filter(e => e.statut === 'realise').length}</p>
+          <p className="text-xl font-bold text-[#374151]">{entretiens.filter(e => e.statut === 'realise').length}</p>
         </div>
         <div className="coplio-card text-center">
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Coût total</p>
@@ -146,36 +146,36 @@ export default function CarnetEntretienPage() {
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Titre *</label>
                 <input value={form.titre} onChange={e => setForm(f => ({ ...f, titre: e.target.value }))} required
-                  placeholder="Ex: Révision chaudière" className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  placeholder="Ex: Révision chaudière" className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Type</label>
                 <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 bg-white">
                   {TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Statut</label>
                 <select value={form.statut} onChange={e => setForm(f => ({ ...f, statut: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 bg-white">
                   {STATUTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Date *</label>
                 <input type="datetime-local" value={form.date_intervention} onChange={e => setForm(f => ({ ...f, date_intervention: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Coût (€)</label>
                 <input type="number" value={form.cout} onChange={e => setForm(f => ({ ...f, cout: e.target.value }))} placeholder="0"
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Prestataire</label>
                 <select value={form.prestataire_id} onChange={e => setForm(f => ({ ...f, prestataire_id: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 bg-white">
                   <option value="">— Aucun —</option>
                   {prestataires.map(p => <option key={p.id} value={p.id}>{p.nom}</option>)}
                 </select>
@@ -183,12 +183,12 @@ export default function CarnetEntretienPage() {
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Description</label>
                 <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 resize-none" placeholder="Détails de l'intervention..." />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 resize-none" placeholder="Détails de l'intervention..." />
               </div>
             </div>
             <div className="flex gap-3">
               <button type="submit" disabled={saving}
-                className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 disabled:opacity-60">
+                className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 disabled:opacity-60">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                 Enregistrer
               </button>
@@ -202,7 +202,7 @@ export default function CarnetEntretienPage() {
       {/* Filtres */}
       <div className="flex flex-wrap gap-2">
         <button onClick={() => setTypeFilter('')}
-          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${!typeFilter ? 'bg-[#111827] text-white' : 'bg-coplio-bg text-muted-foreground hover:text-coplio-text'}`}>
+          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${!typeFilter ? 'bg-[#374151] text-white' : 'bg-coplio-bg text-muted-foreground hover:text-coplio-text'}`}>
           Tous ({entretiens.length})
         </button>
         {TYPES.map(t => {
@@ -210,7 +210,7 @@ export default function CarnetEntretienPage() {
           if (count === 0) return null
           return (
             <button key={t.value} onClick={() => setTypeFilter(typeFilter === t.value ? '' : t.value)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${typeFilter === t.value ? 'bg-[#111827] text-white' : 'bg-coplio-bg text-muted-foreground hover:text-coplio-text'}`}>
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${typeFilter === t.value ? 'bg-[#374151] text-white' : 'bg-coplio-bg text-muted-foreground hover:text-coplio-text'}`}>
               {t.label} ({count})
             </button>
           )
@@ -237,7 +237,7 @@ export default function CarnetEntretienPage() {
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
                     e.statut === 'realise' ? 'bg-slate-100' : e.type === 'urgence' ? 'bg-red-50' : 'bg-coplio-bg'
                   }`}>
-                    {e.statut === 'realise' ? <CheckCircle2 className="w-5 h-5 text-[#111827]" />
+                    {e.statut === 'realise' ? <CheckCircle2 className="w-5 h-5 text-[#374151]" />
                       : e.type === 'urgence' ? <AlertTriangle className="w-5 h-5 text-coplio-red" />
                       : <Wrench className="w-5 h-5 text-muted-foreground" />}
                   </div>
@@ -256,7 +256,7 @@ export default function CarnetEntretienPage() {
                   <div className="flex items-center gap-1 flex-shrink-0">
                     {e.statut === 'planifie' && (
                       <button onClick={() => handleStatut(e.id, 'realise')}
-                        className="text-xs text-[#111827] hover:bg-slate-100 px-2 py-1 rounded-lg transition-colors font-medium">
+                        className="text-xs text-[#374151] hover:bg-slate-100 px-2 py-1 rounded-lg transition-colors font-medium">
                         ✓ Réalisé
                       </button>
                     )}
@@ -274,7 +274,7 @@ export default function CarnetEntretienPage() {
                   <div className="mt-3 pt-3 border-t border-border">
                     <p className="text-sm text-coplio-text">{e.description}</p>
                     {e.prestataire?.telephone && (
-                      <a href={`tel:${e.prestataire.telephone}`} className="text-sm text-[#111827] hover:underline mt-1 inline-block">
+                      <a href={`tel:${e.prestataire.telephone}`} className="text-sm text-[#374151] hover:underline mt-1 inline-block">
                         📞 {e.prestataire.telephone}
                       </a>
                     )}

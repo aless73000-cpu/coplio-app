@@ -105,7 +105,7 @@ export function Sidebar({
   }
 
   return (
-    <aside className="w-64 flex-shrink-0 flex flex-col h-screen sticky top-0 overflow-y-auto" style={{ background: '#111827' }}>
+    <aside className="w-64 flex-shrink-0 flex flex-col h-screen sticky top-0 overflow-y-auto" style={{ background: '#374151' }}>
       {/* Logo */}
       <div className="px-6 py-5 border-b border-white/10">
         <Link href="/dashboard" className="flex items-center gap-2">

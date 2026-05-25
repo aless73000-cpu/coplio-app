@@ -109,7 +109,7 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
     <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
       {/* Navigation */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Link href="/coproprietes" className="hover:text-[#111827] flex items-center gap-1">
+        <Link href="/coproprietes" className="hover:text-[#374151] flex items-center gap-1">
           <ChevronLeft className="w-4 h-4" />
           Copropriétés
         </Link>
@@ -121,7 +121,7 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
           <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center flex-shrink-0">
-            <Building2 className="w-7 h-7 text-[#111827]" />
+            <Building2 className="w-7 h-7 text-[#374151]" />
           </div>
           <div>
             <div className="flex items-center gap-3">
@@ -168,12 +168,12 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
         </div>
         <div className="coplio-card">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">Taux recouvrement</p>
-          <p className={`text-2xl font-bold mt-1 ${tauxRecouvrement >= 90 ? 'text-[#111827]' : tauxRecouvrement >= 70 ? 'text-coplio-amber' : 'text-coplio-red'}`}>
+          <p className={`text-2xl font-bold mt-1 ${tauxRecouvrement >= 90 ? 'text-[#374151]' : tauxRecouvrement >= 70 ? 'text-coplio-amber' : 'text-coplio-red'}`}>
             {tauxRecouvrement}%
           </p>
           <div className="mt-2 h-1.5 bg-coplio-bg rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all ${tauxRecouvrement >= 90 ? 'bg-[#111827]' : tauxRecouvrement >= 70 ? 'bg-coplio-amber' : 'bg-coplio-red'}`}
+              className={`h-full rounded-full transition-all ${tauxRecouvrement >= 90 ? 'bg-[#374151]' : tauxRecouvrement >= 70 ? 'bg-coplio-amber' : 'bg-coplio-red'}`}
               style={{ width: `${tauxRecouvrement}%` }}
             />
           </div>
@@ -182,8 +182,8 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
 
       {/* Prochaine AG */}
       {prochainAG && (
-        <div className="coplio-card bg-slate-100 border-[#111827]/20 flex items-center gap-4">
-          <div className="w-10 h-10 bg-[#111827] rounded-xl flex items-center justify-center flex-shrink-0">
+        <div className="coplio-card bg-slate-100 border-[#374151]/20 flex items-center gap-4">
+          <div className="w-10 h-10 bg-[#374151] rounded-xl flex items-center justify-center flex-shrink-0">
             <CalendarDays className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
@@ -195,7 +195,7 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
               {prochainAG.lieu ? ` · ${prochainAG.lieu}` : ''}
             </p>
           </div>
-          <Link href={`/assemblees/${prochainAG.id}`} className="text-xs text-[#111827] hover:underline flex-shrink-0">
+          <Link href={`/assemblees/${prochainAG.id}`} className="text-xs text-[#374151] hover:underline flex-shrink-0">
             Voir →
           </Link>
         </div>
@@ -230,7 +230,7 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
                     {lots.slice(0, 8).map((lot) => (
                       <tr key={lot.id} className="border-b border-border hover:bg-coplio-bg transition-colors">
                         <td className="py-2.5">
-                          <Link href={`/lots/${lot.id}`} className="font-medium text-[#111827] hover:underline">
+                          <Link href={`/lots/${lot.id}`} className="font-medium text-[#374151] hover:underline">
                             Lot {lot.numero}
                           </Link>
                           {lot.etage && <span className="text-xs text-muted-foreground ml-1">· {lot.etage}</span>}
@@ -321,113 +321,113 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
           {/* Travaux */}
           <Link
             href={`/coproprietes/${copropriete.id}/travaux`}
-            className="coplio-card flex items-center gap-3 hover:border-[#111827]/40 transition-colors group"
+            className="coplio-card flex items-center gap-3 hover:border-[#374151]/40 transition-colors group"
           >
             <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <HardHat className="w-5 h-5 text-[#111827]" />
+              <HardHat className="w-5 h-5 text-[#374151]" />
             </div>
             <div className="flex-1">
               <p className="font-semibold text-coplio-text text-sm">Suivi des travaux</p>
               <p className="text-xs text-muted-foreground mt-0.5">Demande → réception</p>
             </div>
-            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#111827] transition-colors" />
+            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#374151] transition-colors" />
           </Link>
 
           {/* Clés & accès */}
           <Link
             href={`/coproprietes/${copropriete.id}/cles`}
-            className="coplio-card flex items-center gap-3 hover:border-[#111827]/40 transition-colors group"
+            className="coplio-card flex items-center gap-3 hover:border-[#374151]/40 transition-colors group"
           >
             <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Key className="w-5 h-5 text-[#111827]" />
+              <Key className="w-5 h-5 text-[#374151]" />
             </div>
             <div className="flex-1">
               <p className="font-semibold text-coplio-text text-sm">Clés & accès</p>
               <p className="text-xs text-muted-foreground mt-0.5">Registre numérique</p>
             </div>
-            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#111827] transition-colors" />
+            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#374151] transition-colors" />
           </Link>
 
           {/* Obligations légales */}
           <Link
             href={`/coproprietes/${copropriete.id}/obligations`}
-            className="coplio-card flex items-center gap-3 hover:border-[#111827]/40 transition-colors group"
+            className="coplio-card flex items-center gap-3 hover:border-[#374151]/40 transition-colors group"
           >
             <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Shield className="w-5 h-5 text-[#111827]" />
+              <Shield className="w-5 h-5 text-[#374151]" />
             </div>
             <div className="flex-1">
               <p className="font-semibold text-coplio-text text-sm">Obligations légales</p>
               <p className="text-xs text-muted-foreground mt-0.5">DPE, amiante, ascenseur…</p>
             </div>
-            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#111827] transition-colors" />
+            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#374151] transition-colors" />
           </Link>
 
           {/* Carnet d'entretien */}
           <Link
             href={`/coproprietes/${copropriete.id}/entretien`}
-            className="coplio-card flex items-center gap-3 hover:border-[#111827]/40 transition-colors group"
+            className="coplio-card flex items-center gap-3 hover:border-[#374151]/40 transition-colors group"
           >
             <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <ClipboardList className="w-5 h-5 text-[#111827]" />
+              <ClipboardList className="w-5 h-5 text-[#374151]" />
             </div>
             <div className="flex-1">
               <p className="font-semibold text-coplio-text text-sm">Carnet d&apos;entretien</p>
               <p className="text-xs text-muted-foreground mt-0.5">Interventions & maintenances</p>
             </div>
-            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#111827] transition-colors" />
+            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#374151] transition-colors" />
           </Link>
 
           {/* Votes */}
           <Link
             href={`/coproprietes/${copropriete.id}/votes`}
-            className="coplio-card flex items-center gap-3 hover:border-[#111827]/40 transition-colors group"
+            className="coplio-card flex items-center gap-3 hover:border-[#374151]/40 transition-colors group"
           >
             <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Vote className="w-5 h-5 text-[#111827]" />
+              <Vote className="w-5 h-5 text-[#374151]" />
             </div>
             <div className="flex-1">
               <p className="font-semibold text-coplio-text text-sm">Votes & consultations</p>
               <p className="text-xs text-muted-foreground mt-0.5">Consulter les copropriétaires</p>
             </div>
-            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#111827] transition-colors" />
+            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#374151] transition-colors" />
           </Link>
 
           {/* Budget prévisionnel */}
           <Link
             href={`/coproprietes/${copropriete.id}/budget`}
-            className="coplio-card flex items-center gap-3 hover:border-[#111827]/40 transition-colors group"
+            className="coplio-card flex items-center gap-3 hover:border-[#374151]/40 transition-colors group"
           >
             <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <PiggyBank className="w-5 h-5 text-[#111827]" />
+              <PiggyBank className="w-5 h-5 text-[#374151]" />
             </div>
             <div className="flex-1">
               <p className="font-semibold text-coplio-text text-sm">Budget prévisionnel</p>
               <p className="text-xs text-muted-foreground mt-0.5">Planifier les charges {new Date().getFullYear()}</p>
             </div>
-            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#111827] transition-colors" />
+            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#374151] transition-colors" />
           </Link>
 
           {/* Fonds de travaux ALUR */}
           <Link
             href={`/coproprietes/${copropriete.id}/fonds-travaux`}
-            className="coplio-card flex items-center gap-3 hover:border-[#111827]/40 transition-colors group"
+            className="coplio-card flex items-center gap-3 hover:border-[#374151]/40 transition-colors group"
           >
             <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Landmark className="w-5 h-5 text-[#111827]" />
+              <Landmark className="w-5 h-5 text-[#374151]" />
             </div>
             <div className="flex-1">
               <p className="font-semibold text-coplio-text text-sm">Fonds de travaux ALUR</p>
               <p className="text-xs text-muted-foreground mt-0.5">Fonds de réserve obligatoire</p>
             </div>
-            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#111827] transition-colors" />
+            <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-[#374151] transition-colors" />
           </Link>
 
           {/* Documents récents */}
           <div className="coplio-card">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-coplio-text">Documents récents</h3>
-              <Link href="/documents" className="text-xs text-[#111827] hover:underline">
+              <Link href="/documents" className="text-xs text-[#374151] hover:underline">
                 Voir tout
               </Link>
             </div>
@@ -495,12 +495,12 @@ function SectionCard({
               Import Excel
             </Link>
           )}
-          <Link href={addHref} className="text-xs text-[#111827] hover:underline flex items-center gap-1">
+          <Link href={addHref} className="text-xs text-[#374151] hover:underline flex items-center gap-1">
             <Plus className="w-3 h-3" />
             Ajouter
           </Link>
           <span className="text-border">|</span>
-          <Link href={href} className="text-xs text-[#111827] hover:underline">
+          <Link href={href} className="text-xs text-[#374151] hover:underline">
             Voir tout
           </Link>
         </div>

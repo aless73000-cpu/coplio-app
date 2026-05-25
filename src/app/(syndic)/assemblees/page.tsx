@@ -52,15 +52,15 @@ export default async function AssembleesPage() {
           <Link
             href="/votes"
             className="flex items-center gap-2 border border-border text-coplio-text px-4 py-2.5 rounded-lg
-                       text-sm font-medium hover:border-[#111827]/50 hover:text-[#111827] transition-colors"
+                       text-sm font-medium hover:border-[#374151]/50 hover:text-[#374151] transition-colors"
           >
             <Vote className="w-4 h-4" />
             Votes en ligne
           </Link>
           <Link
             href="/assemblees/new"
-            className="flex items-center gap-2 bg-[#111827] text-white px-4 py-2.5 rounded-lg
-                       text-sm font-medium hover:bg-[#111827]/90 transition-colors"
+            className="flex items-center gap-2 bg-[#374151] text-white px-4 py-2.5 rounded-lg
+                       text-sm font-medium hover:bg-[#374151]/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Planifier une AG
@@ -101,8 +101,8 @@ export default async function AssembleesPage() {
           </p>
           <Link
             href="/assemblees/new"
-            className="inline-flex items-center gap-2 bg-[#111827] text-white px-6 py-2.5 rounded-lg
-                       text-sm font-medium hover:bg-[#111827]/90 transition-colors"
+            className="inline-flex items-center gap-2 bg-[#374151] text-white px-6 py-2.5 rounded-lg
+                       text-sm font-medium hover:bg-[#374151]/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Planifier une AG
@@ -128,11 +128,11 @@ function AgCard({ ag }: { ag: AgWithJoins }) {
     >
       {/* Date */}
       <div className="w-14 h-14 bg-slate-100 rounded-xl flex flex-col items-center justify-center flex-shrink-0">
-        <span className="text-[#111827] font-bold text-lg leading-none">{date.getDate()}</span>
-        <span className="text-[#111827]/70 text-xs uppercase">
+        <span className="text-[#374151] font-bold text-lg leading-none">{date.getDate()}</span>
+        <span className="text-[#374151]/70 text-xs uppercase">
           {date.toLocaleDateString('fr-FR', { month: 'short' })}
         </span>
-        <span className="text-[#111827]/50 text-[10px]">{date.getFullYear()}</span>
+        <span className="text-[#374151]/50 text-[10px]">{date.getFullYear()}</span>
       </div>
 
       <div className="flex-1 min-w-0">

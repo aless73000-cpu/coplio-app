@@ -57,7 +57,7 @@ const CUSTOM_COLORS: Record<string, string> = {
   intervention: 'bg-orange-50 text-orange-600',
   rdv: 'bg-teal-50 text-teal-600',
   rappel: 'bg-yellow-50 text-yellow-600',
-  autre: 'bg-slate-100 text-[#111827]',
+  autre: 'bg-slate-100 text-[#374151]',
 }
 
 const emptyForm = { titre: '', description: '', type: 'visite', date_debut: '', date_fin: '', lieu: '', assignee_id: '', copropriete_id: '' }
@@ -150,7 +150,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
           </div>
           {activeTab === 'agenda' && (
             <button onClick={() => setShowForm(v => !v)}
-              className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors">
+              className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors">
               {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
               {showForm ? 'Annuler' : 'Ajouter'}
             </button>
@@ -166,9 +166,9 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
               <div className="coplio-card">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-semibold text-coplio-text flex items-center gap-2">
-                    <Route className="w-4 h-4 text-[#111827]" />Tournée du
+                    <Route className="w-4 h-4 text-[#374151]" />Tournée du
                     <input type="date" value={tourneeDate} onChange={e => setTourneeDate(e.target.value)}
-                      className="px-2 py-1 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20" />
+                      className="px-2 py-1 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#374151]/20" />
                   </h2>
                   <span className="text-xs text-muted-foreground">{tourneeVisites.filter(v => v.fait).length}/{tourneeVisites.length} effectuées</span>
                 </div>
@@ -181,7 +181,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
                 ) : (
                   <div className="space-y-2">
                     {tourneeVisites.map((v, i) => (
-                      <div key={v.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${v.fait ? 'bg-slate-100 border-[#111827]/20 opacity-75' : 'bg-white border-border'}`}>
+                      <div key={v.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${v.fait ? 'bg-slate-100 border-[#374151]/20 opacity-75' : 'bg-white border-border'}`}>
                         <div className="w-7 h-7 rounded-full bg-coplio-bg flex items-center justify-center text-xs font-bold text-muted-foreground flex-shrink-0">
                           {i + 1}
                         </div>
@@ -191,7 +191,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
                           {v.adresse && <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3" />{v.adresse}</p>}
                         </div>
                         <button onClick={() => toggleVisite(v.id)}
-                          className={`p-1.5 rounded-lg transition-colors ${v.fait ? 'text-[#111827] hover:bg-[#111827]/10' : 'text-muted-foreground hover:text-[#111827] hover:bg-slate-100'}`}>
+                          className={`p-1.5 rounded-lg transition-colors ${v.fait ? 'text-[#374151] hover:bg-[#374151]/10' : 'text-muted-foreground hover:text-[#374151] hover:bg-slate-100'}`}>
                           <CheckCircle2 className="w-4 h-4" />
                         </button>
                         <button onClick={() => removeVisite(v.id)} className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors">
@@ -219,10 +219,10 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
                   const already = tourneeVisites.some(v => v.copropriete_id === c.id)
                   return (
                     <button key={c.id} onClick={() => addToTournee(c)} disabled={already}
-                      className={`w-full text-left p-2.5 rounded-xl border-2 transition-all text-sm ${already ? 'border-[#111827] bg-slate-100 opacity-60 cursor-default' : 'border-border hover:border-[#111827]/40 hover:bg-coplio-bg'}`}>
+                      className={`w-full text-left p-2.5 rounded-xl border-2 transition-all text-sm ${already ? 'border-[#374151] bg-slate-100 opacity-60 cursor-default' : 'border-border hover:border-[#374151]/40 hover:bg-coplio-bg'}`}>
                       <p className="font-medium text-coplio-text text-sm">{c.nom}</p>
                       {(c as { adresse?: string }).adresse && <p className="text-xs text-muted-foreground mt-0.5">{(c as { adresse?: string }).adresse}</p>}
-                      {already && <span className="text-xs text-[#111827]">✓ Ajoutée</span>}
+                      {already && <span className="text-xs text-[#374151]">✓ Ajoutée</span>}
                     </button>
                   )
                 })}
@@ -247,7 +247,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
               <div className="flex flex-wrap gap-2">
                 {TYPES_CUSTOM.map(t => (
                   <button key={t.value} type="button" onClick={() => setForm(f => ({ ...f, type: t.value }))}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border-2 transition-all ${form.type === t.value ? 'border-[#111827] bg-slate-100 text-[#111827]' : 'border-border text-muted-foreground hover:border-[#111827]/30'}`}>
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border-2 transition-all ${form.type === t.value ? 'border-[#374151] bg-slate-100 text-[#374151]' : 'border-border text-muted-foreground hover:border-[#374151]/30'}`}>
                     <t.icon className="w-3.5 h-3.5" />{t.label}
                   </button>
                 ))}
@@ -259,27 +259,27 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Titre *</label>
                 <input value={form.titre} onChange={e => setForm(f => ({ ...f, titre: e.target.value }))} required
                   placeholder="Ex: Visite copropriété Les Lilas"
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Début *</label>
                 <input type="datetime-local" value={form.date_debut} onChange={e => setForm(f => ({ ...f, date_debut: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Fin (optionnel)</label>
                 <input type="datetime-local" value={form.date_fin} onChange={e => setForm(f => ({ ...f, date_fin: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Lieu</label>
                 <input value={form.lieu} onChange={e => setForm(f => ({ ...f, lieu: e.target.value }))} placeholder="Adresse ou salle"
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Copropriété</label>
                 <select value={form.copropriete_id} onChange={e => setForm(f => ({ ...f, copropriete_id: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 bg-white">
                   <option value="">— Toutes —</option>
                   {coproprietes.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
                 </select>
@@ -287,7 +287,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Assigner à</label>
                 <select value={form.assignee_id} onChange={e => setForm(f => ({ ...f, assignee_id: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 bg-white">
                   <option value="">— Non assigné —</option>
                   {gestionnaires.map(g => <option key={g.id} value={g.id}>{g.prenom} {g.nom}</option>)}
                 </select>
@@ -296,7 +296,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
 
             <div className="flex gap-3">
               <button type="submit" disabled={saving}
-                className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 disabled:opacity-60">
+                className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 disabled:opacity-60">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                 Créer l&apos;événement
               </button>
@@ -311,7 +311,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
           { label: 'AG', color: 'bg-blue-50 text-blue-600' },
           { label: 'Échéance', color: 'bg-amber-50 text-amber-600' },
           { label: 'Sinistre', color: 'bg-red-50 text-red-600' },
-          { label: 'Événement', color: 'bg-slate-100 text-[#111827]' },
+          { label: 'Événement', color: 'bg-slate-100 text-[#374151]' },
         ].map(l => (
           <span key={l.label} className={`text-xs font-medium px-2.5 py-1 rounded-full ${l.color}`}>{l.label}</span>
         ))}
@@ -321,7 +321,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
       {allEvents.length === 0 ? (
         <div className="coplio-card text-center py-16">
           <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <CalendarDays className="w-7 h-7 text-[#111827]" />
+            <CalendarDays className="w-7 h-7 text-[#374151]" />
           </div>
           <p className="font-medium text-coplio-text">Rien à l&apos;horizon</p>
           <p className="text-sm text-muted-foreground mt-1">Aucun événement. Ajoutez-en un ci-dessus.</p>
@@ -343,7 +343,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
                     return (
                       <Link key={`sys-${id}`} href={ev.lien}
                         className="coplio-card flex items-center gap-4 hover:shadow-md transition-shadow group p-4">
-                        <div className={`flex-shrink-0 w-14 text-center rounded-xl py-2 ${isToday ? 'bg-[#111827] text-white' : 'bg-coplio-bg'}`}>
+                        <div className={`flex-shrink-0 w-14 text-center rounded-xl py-2 ${isToday ? 'bg-[#374151] text-white' : 'bg-coplio-bg'}`}>
                           <p className={`text-xl font-bold leading-none ${isToday ? 'text-white' : 'text-coplio-text'}`}>{d.getDate()}</p>
                           <p className={`text-xs mt-0.5 ${isToday ? 'text-white/80' : 'text-muted-foreground'}`}>{d.toLocaleDateString('fr-FR', { month: 'short' })}</p>
                         </div>
@@ -354,7 +354,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
                           <div className="flex items-center gap-2">
                             <p className="font-medium text-coplio-text text-sm truncate">{ev.titre}</p>
                             {isSoon && !isToday && <span className="text-xs bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">Bientôt</span>}
-                            {isToday && <span className="text-xs bg-[#111827] text-white px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">Aujourd&apos;hui</span>}
+                            {isToday && <span className="text-xs bg-[#374151] text-white px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">Aujourd&apos;hui</span>}
                           </div>
                           <div className="flex items-center gap-3 mt-0.5">
                             {ev.sous_titre && <span className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="w-3 h-3" />{ev.sous_titre}</span>}
@@ -362,7 +362,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
                             <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${color}`}>{label}</span>
                           </div>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#111827] transition-colors flex-shrink-0" />
+                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#374151] transition-colors flex-shrink-0" />
                       </Link>
                     )
                   }
@@ -371,11 +371,11 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
                   const ev = data as CustomEvent
                   const typeConfig = TYPES_CUSTOM.find(t => t.value === ev.type)
                   const Icon = typeConfig?.icon ?? CalendarCheck
-                  const color = CUSTOM_COLORS[ev.type] ?? 'bg-slate-100 text-[#111827]'
+                  const color = CUSTOM_COLORS[ev.type] ?? 'bg-slate-100 text-[#374151]'
 
                   return (
                     <div key={`custom-${id}`} className="coplio-card flex items-center gap-4 p-4">
-                      <div className={`flex-shrink-0 w-14 text-center rounded-xl py-2 ${isToday ? 'bg-[#111827] text-white' : 'bg-coplio-bg'}`}>
+                      <div className={`flex-shrink-0 w-14 text-center rounded-xl py-2 ${isToday ? 'bg-[#374151] text-white' : 'bg-coplio-bg'}`}>
                         <p className={`text-xl font-bold leading-none ${isToday ? 'text-white' : 'text-coplio-text'}`}>{d.getDate()}</p>
                         <p className={`text-xs mt-0.5 ${isToday ? 'text-white/80' : 'text-muted-foreground'}`}>{d.toLocaleDateString('fr-FR', { month: 'short' })}</p>
                       </div>
@@ -385,7 +385,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <p className="font-medium text-coplio-text text-sm truncate">{ev.titre}</p>
-                          {isToday && <span className="text-xs bg-[#111827] text-white px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">Aujourd&apos;hui</span>}
+                          {isToday && <span className="text-xs bg-[#374151] text-white px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">Aujourd&apos;hui</span>}
                           <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${color}`}>{typeConfig?.label ?? ev.type}</span>
                         </div>
                         <div className="flex items-center gap-3 mt-0.5 flex-wrap">

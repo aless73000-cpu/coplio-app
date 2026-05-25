@@ -48,7 +48,7 @@ export default async function LotPage({ params }: { params: { id: string } }) {
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-coplio-text">Lot {lot.numero}</h1>
           <p className="text-muted-foreground text-sm">
-            <Link href={`/coproprietes/${lot.copropriete?.id}`} className="hover:text-[#111827]">
+            <Link href={`/coproprietes/${lot.copropriete?.id}`} className="hover:text-[#374151]">
               {lot.copropriete?.nom}
             </Link>
           </p>
@@ -81,9 +81,9 @@ export default async function LotPage({ params }: { params: { id: string } }) {
           </dl>
         </div>
 
-        <div className={`coplio-card ${totalDu > 0 ? 'border-coplio-red/30 bg-coplio-red-bg' : 'border-[#111827]/20 bg-slate-100'}`}>
+        <div className={`coplio-card ${totalDu > 0 ? 'border-coplio-red/30 bg-coplio-red-bg' : 'border-[#374151]/20 bg-slate-100'}`}>
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Solde dû</p>
-          <p className={`text-2xl font-bold ${totalDu > 0 ? 'text-coplio-red' : 'text-[#111827]'}`}>
+          <p className={`text-2xl font-bold ${totalDu > 0 ? 'text-coplio-red' : 'text-[#374151]'}`}>
             {formatEuro(totalDu)}
           </p>
           {totalDu > 0 ? (
@@ -91,7 +91,7 @@ export default async function LotPage({ params }: { params: { id: string } }) {
               <AlertTriangle className="w-3 h-3" /> À recouvrer
             </p>
           ) : (
-            <p className="text-xs text-[#111827]/70 mt-1 flex items-center gap-1">
+            <p className="text-xs text-[#374151]/70 mt-1 flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3" /> À jour
             </p>
           )}
@@ -109,7 +109,7 @@ export default async function LotPage({ params }: { params: { id: string } }) {
           <h2 className="font-semibold text-coplio-text">Occupants / Copropriétaires</h2>
           <Link
             href={`/coproprietaires/new?lot_id=${lot.id}&copropriete_id=${lot.copropriete?.id}`}
-            className="flex items-center gap-1.5 text-xs font-medium text-[#111827] hover:underline"
+            className="flex items-center gap-1.5 text-xs font-medium text-[#374151] hover:underline"
           >
             <UserPlus className="w-3.5 h-3.5" /> Inviter
           </Link>
@@ -124,7 +124,7 @@ export default async function LotPage({ params }: { params: { id: string } }) {
             </p>
             <Link
               href={`/coproprietaires/new?lot_id=${lot.id}&copropriete_id=${lot.copropriete?.id}`}
-              className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-[#111827] bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-[#111827] hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-[#374151] bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-[#374151] hover:text-white transition-colors"
             >
               <UserPlus className="w-3.5 h-3.5" /> Inviter un copropriétaire
             </Link>
@@ -138,12 +138,12 @@ export default async function LotPage({ params }: { params: { id: string } }) {
                 className="flex items-center gap-4 p-3 rounded-xl hover:bg-coplio-bg transition-colors group"
               >
                 <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[#111827] font-bold text-sm">
+                  <span className="text-[#374151] font-bold text-sm">
                     {`${p.prenom?.[0] ?? ''}${p.nom?.[0] ?? ''}`.toUpperCase() || '?'}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-coplio-text group-hover:text-[#111827] transition-colors">
+                  <p className="font-medium text-coplio-text group-hover:text-[#374151] transition-colors">
                     {p.prenom} {p.nom}
                   </p>
                   <div className="flex items-center gap-3 mt-0.5">
@@ -177,7 +177,7 @@ export default async function LotPage({ params }: { params: { id: string } }) {
           </h2>
           <Link
             href={`/appels-charges?lot_id=${lot.id}`}
-            className="text-xs text-[#111827] font-medium hover:underline"
+            className="text-xs text-[#374151] font-medium hover:underline"
           >
             Tout voir
           </Link>
@@ -208,7 +208,7 @@ export default async function LotPage({ params }: { params: { id: string } }) {
                     <td className="px-4 py-3 text-right text-sm font-semibold text-coplio-text">{formatEuro(appel.montant)}</td>
                     <td className="px-6 py-3 text-right">
                       {appel.paye ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-[#111827] bg-slate-100 px-2.5 py-1 rounded-full">
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-[#374151] bg-slate-100 px-2.5 py-1 rounded-full">
                           <CheckCircle2 className="w-3 h-3" /> Payé
                         </span>
                       ) : isLate ? (

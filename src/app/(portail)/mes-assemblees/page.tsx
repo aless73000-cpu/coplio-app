@@ -11,7 +11,7 @@ import { getSignedDocumentUrl } from '@/lib/storage'
 const AG_STATUS_LABELS: Record<string, { label: string; color: string }> = {
   planifiee:               { label: 'Planifiée',             color: 'bg-blue-50 text-blue-600' },
   convocations_envoyees:   { label: 'Convocation envoyée',   color: 'bg-coplio-amber-bg text-coplio-amber' },
-  en_cours:                { label: 'En cours',              color: 'bg-slate-100 text-[#111827]' },
+  en_cours:                { label: 'En cours',              color: 'bg-slate-100 text-[#374151]' },
   terminee:                { label: 'Terminée',              color: 'bg-gray-100 text-gray-500' },
   annulee:                 { label: 'Annulée',               color: 'bg-coplio-red-bg text-coplio-red' },
 }
@@ -195,7 +195,7 @@ export default async function MesAssemblees() {
       {agsAVenir.length > 0 && (
         <div className="space-y-4">
           <h2 className="font-semibold text-sm uppercase tracking-wide text-coplio-text flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#111827]" /> À venir
+            <Clock className="w-4 h-4 text-[#374151]" /> À venir
           </h2>
           {agsAVenir.map((ag) => {
             const agResolutions = (resolutionsByAg[ag.id] ?? []) as AgResolution[]
@@ -203,12 +203,12 @@ export default async function MesAssemblees() {
             const statusInfo = AG_STATUS_LABELS[ag.status ?? ''] ?? { label: ag.status, color: 'bg-gray-100 text-gray-500' }
 
             return (
-              <div key={ag.id} className="coplio-card border-[#111827]/20">
+              <div key={ag.id} className="coplio-card border-[#374151]/20">
                 {/* Header AG */}
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#111827]" />
+                      <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#374151]" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-coplio-text text-base sm:text-lg leading-snug">{ag.titre}</h3>
@@ -227,7 +227,7 @@ export default async function MesAssemblees() {
                         )}
                         {ag.est_visio && ag.lien_visio && (
                           <a href={ag.lien_visio} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-[#111827] hover:underline">
+                            className="flex items-center gap-1 text-[#374151] hover:underline">
                             <Video className="w-3.5 h-3.5" /> Rejoindre en visio
                           </a>
                         )}
@@ -280,7 +280,7 @@ export default async function MesAssemblees() {
       {agsAVenir.length === 0 && agsPassees.length === 0 && (
         <div className="coplio-card text-center py-16">
           <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Calendar className="w-7 h-7 text-[#111827]" />
+            <Calendar className="w-7 h-7 text-[#374151]" />
           </div>
           <p className="font-medium text-coplio-text">Aucune assemblée générale</p>
           <p className="text-sm text-muted-foreground mt-1">Votre syndic n&apos;a pas encore planifié d&apos;AG.</p>
@@ -302,7 +302,7 @@ export default async function MesAssemblees() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${pvEntry ? 'bg-slate-100' : 'bg-coplio-bg'}`}>
-                      <FileText className={`w-5 h-5 ${pvEntry ? 'text-[#111827]' : 'text-muted-foreground'}`} />
+                      <FileText className={`w-5 h-5 ${pvEntry ? 'text-[#374151]' : 'text-muted-foreground'}`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-coplio-text truncate">{ag.titre}</p>
@@ -322,7 +322,7 @@ export default async function MesAssemblees() {
                         target="_blank"
                         rel="noopener noreferrer"
                         download={pvEntry.nom}
-                        className="flex items-center gap-1 text-xs font-medium text-[#111827] bg-slate-100 px-2.5 py-1 rounded-full hover:bg-[#111827] hover:text-white transition-colors"
+                        className="flex items-center gap-1 text-xs font-medium text-[#374151] bg-slate-100 px-2.5 py-1 rounded-full hover:bg-[#374151] hover:text-white transition-colors"
                       >
                         <FileText className="w-3 h-3" /> Télécharger le PV
                       </a>
@@ -352,7 +352,7 @@ function ResolutionCard({
   const pctPour = total > 0 ? Math.round((resolution.voix_pour / total) * 100) : 0
 
   return (
-    <div className={`rounded-xl border p-4 ${monVote ? 'border-[#111827]/30 bg-slate-100/20' : 'border-border bg-coplio-bg'}`}>
+    <div className={`rounded-xl border p-4 ${monVote ? 'border-[#374151]/30 bg-slate-100/20' : 'border-border bg-coplio-bg'}`}>
       {/* Title + description — full width */}
       <div className="flex items-start gap-2 mb-3">
         <span className="text-xs font-bold text-muted-foreground bg-white border border-border rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -373,7 +373,7 @@ function ResolutionCard({
       {monVote ? (
         <div className="flex items-center gap-2 pt-2 border-t border-border/50">
           <span className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full ${
-            monVote.valeur === 'pour' ? 'bg-[#111827] text-white' :
+            monVote.valeur === 'pour' ? 'bg-[#374151] text-white' :
             monVote.valeur === 'contre' ? 'bg-coplio-red text-white' :
             'bg-gray-200 text-gray-600'
           }`}>
@@ -403,7 +403,7 @@ function ResolutionCard({
                 title={val === 'pour' ? 'Pour' : val === 'contre' ? 'Contre' : 'Abstention'}
                 className={`w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
                   val === 'pour'
-                    ? 'border-[#111827] text-[#111827] hover:bg-[#111827] hover:text-white'
+                    ? 'border-[#374151] text-[#374151] hover:bg-[#374151] hover:text-white'
                     : val === 'contre'
                     ? 'border-coplio-red text-coplio-red hover:bg-coplio-red hover:text-white'
                     : 'border-gray-300 text-gray-500 hover:bg-gray-200'
@@ -427,7 +427,7 @@ function ResolutionCard({
       {total > 0 && (
         <div className="mt-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-            <CheckCircle2 className="w-3 h-3 text-[#111827]" />
+            <CheckCircle2 className="w-3 h-3 text-[#374151]" />
             <span>{resolution.voix_pour} pour</span>
             <XCircle className="w-3 h-3 text-coplio-red ml-1" />
             <span>{resolution.voix_contre} contre</span>
@@ -435,7 +435,7 @@ function ResolutionCard({
             <span>{resolution.voix_abstention} abstention{resolution.voix_abstention > 1 ? 's' : ''}</span>
           </div>
           <div className="h-1.5 bg-border rounded-full overflow-hidden flex">
-            <div className="bg-[#111827] h-full" style={{ width: `${pctPour}%` }} />
+            <div className="bg-[#374151] h-full" style={{ width: `${pctPour}%` }} />
             <div className="bg-gray-300 h-full" style={{ width: `${total > 0 ? Math.round((resolution.voix_abstention / total) * 100) : 0}%` }} />
             <div className="bg-coplio-red h-full flex-1" />
           </div>

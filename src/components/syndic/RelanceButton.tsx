@@ -47,7 +47,7 @@ export function RelanceButton({ appelId, nbRelances, onSuccess }: Props) {
 
   if (done) {
     return (
-      <span className="flex items-center gap-1 text-xs text-[#111827] font-medium">
+      <span className="flex items-center gap-1 text-xs text-[#374151] font-medium">
         <CheckCircle className="w-3 h-3" /> Envoyée
       </span>
     )
