@@ -167,8 +167,8 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
     return (
       <form onSubmit={onMfaSubmit} className="space-y-5">
         <div className="flex flex-col items-center gap-3 py-2">
-          <div className="w-14 h-14 bg-coplio-green-light rounded-2xl flex items-center justify-center shadow-apple-sm">
-            <ShieldCheck className="w-7 h-7 text-coplio-green" />
+          <div className="w-14 h-14 bg-[#0A3D2B]-light rounded-2xl flex items-center justify-center shadow-apple-sm">
+            <ShieldCheck className="w-7 h-7 text-[#0A3D2B]" />
           </div>
           <div className="text-center">
             <h2 className="font-semibold text-[#1D1D1F] text-base" style={{ letterSpacing: '-0.015em' }}>
@@ -200,7 +200,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             onChange={e => setMfaCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
             placeholder="000 000"
             className="w-full px-4 py-3.5 text-xl bg-white border border-[#E8E8ED] rounded-xl
-                       focus:outline-none focus:ring-2 focus:ring-coplio-green/25 focus:border-coplio-green
+                       focus:outline-none focus:ring-2 focus:ring-[#0A3D2B]/25 focus:border-[#0A3D2B]
                        placeholder:text-[#C7C7CC] transition-all text-center tracking-[0.5em] font-mono
                        shadow-apple-sm"
           />
@@ -209,8 +209,8 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
         <button
           type="submit"
           disabled={mfaLoading || mfaCode.length !== 6}
-          className="w-full bg-coplio-green text-white font-semibold py-3.5 px-4 rounded-xl
-                     hover:bg-[#0d5e49] transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+          className="w-full bg-[#0A3D2B] text-white font-semibold py-3.5 px-4 rounded-xl
+                     hover:bg-[#0d5240] transition-colors disabled:opacity-50 disabled:cursor-not-allowed
                      flex items-center justify-center gap-2 text-sm shadow-apple-sm
                      shadow-coplio-green/20"
           style={{ letterSpacing: '-0.01em' }}
@@ -255,7 +255,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
           {...register('email')}
           placeholder="vous@cabinet.fr"
           className="w-full px-4 py-3 text-sm bg-white border border-[#E8E8ED] rounded-xl
-                     focus:outline-none focus:ring-2 focus:ring-coplio-green/25 focus:border-coplio-green
+                     focus:outline-none focus:ring-2 focus:ring-[#0A3D2B]/25 focus:border-[#0A3D2B]
                      placeholder:text-[#C7C7CC] transition-all shadow-apple-sm"
         />
         {errors.email && (
@@ -271,7 +271,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
           </label>
           <a
             href="/forgot-password"
-            className="text-xs text-coplio-green hover:underline font-medium"
+            className="text-xs text-[#0A3D2B] hover:underline font-medium"
           >
             Mot de passe oublié ?
           </a>
@@ -282,7 +282,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             {...register('password')}
             placeholder="••••••••"
             className="w-full px-4 py-3 pr-11 text-sm bg-white border border-[#E8E8ED] rounded-xl
-                       focus:outline-none focus:ring-2 focus:ring-coplio-green/25 focus:border-coplio-green
+                       focus:outline-none focus:ring-2 focus:ring-[#0A3D2B]/25 focus:border-[#0A3D2B]
                        placeholder:text-[#C7C7CC] transition-all shadow-apple-sm"
           />
           <button
@@ -313,8 +313,8 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-coplio-green text-white font-semibold py-3.5 px-4 rounded-xl
-                   hover:bg-[#0d5e49] transition-all disabled:opacity-50 disabled:cursor-not-allowed
+        className="w-full bg-[#0A3D2B] text-white font-semibold py-3.5 px-4 rounded-xl
+                   hover:bg-[#0d5240] transition-all disabled:opacity-50 disabled:cursor-not-allowed
                    flex items-center justify-center gap-2 text-sm shadow-apple-sm
                    shadow-coplio-green/20 hover:-translate-y-px hover:shadow-apple-md"
         style={{ letterSpacing: '-0.01em' }}

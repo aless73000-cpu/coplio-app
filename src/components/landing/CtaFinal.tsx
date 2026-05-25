@@ -1,56 +1,41 @@
 import Link from 'next/link'
-import { ArrowRight, Star, Mail, Clock, Shield } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 export default function CtaFinal() {
   return (
-    <section className="py-24 bg-[#0F6E56] relative overflow-hidden">
-      {/* Orbs */}
-      <div className="absolute top-0 right-0 w-96 h-96 rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(255,255,255,.08) 0%, transparent 70%)' }} />
-      <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full translate-y-1/2 -translate-x-1/3 pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(159,225,203,.15) 0%, transparent 70%)' }} />
+    <section className="py-32 bg-white">
+      <div className="max-w-3xl mx-auto px-6 text-center">
 
-      <div className="relative max-w-3xl mx-auto px-6 text-center">
-        <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-white/80 text-sm mb-8">
-          <Star className="w-3.5 h-3.5 text-[#9FE1CB]" />
-          Offre de lancement · prix bloqué à vie
-        </div>
+        <p className="text-xs font-semibold text-[#0A3D2B] uppercase tracking-[0.18em] mb-6">Commencer</p>
 
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-5 tracking-tight">
+        <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#1D1D1F] mb-6" style={{ letterSpacing: '-0.04em', lineHeight: 1.05 }}>
           Prêt à simplifier<br />votre gestion ?
         </h2>
-        <p className="text-white/65 text-lg mb-12 max-w-lg mx-auto leading-relaxed">
-          Démarrez votre essai gratuit de 14 jours. Sans engagement, sans carte bancaire.
+
+        <p className="text-lg text-gray-400 mb-12 max-w-lg mx-auto leading-relaxed">
+          14 jours d&apos;essai gratuit. Sans engagement, sans carte bancaire.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             href="/register"
-            className="flex items-center gap-2 bg-white text-[#0F6E56] font-bold px-8 py-4 rounded-2xl hover:bg-[#E5F5EF] transition-all text-base shadow-xl shadow-black/20 hover:-translate-y-0.5 w-full sm:w-auto justify-center"
+            className="flex items-center gap-2 bg-[#0A3D2B] text-white font-semibold px-8 py-4 rounded-full hover:bg-[#0d5e49] transition-all text-base hover:-translate-y-0.5 shadow-xl shadow-[#0A3D2B]/20"
+            style={{ letterSpacing: '-0.01em' }}
           >
             Créer mon compte gratuitement <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="/login"
-            className="border border-white/25 bg-white/8 text-white font-medium px-8 py-4 rounded-2xl hover:bg-white/15 transition-all text-base w-full sm:w-auto text-center backdrop-blur-sm"
+            className="text-gray-400 hover:text-[#1D1D1F] transition-colors text-base px-6 py-4"
           >
             J&apos;ai déjà un compte
           </Link>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-white/45 text-sm">
-          <a href="mailto:contact@coplio.fr" className="flex items-center gap-2 hover:text-white/75 transition-colors">
-            <Mail className="w-4 h-4" /> contact@coplio.fr
-          </a>
-          <span className="hidden sm:block">·</span>
-          <span className="flex items-center gap-2">
-            <Clock className="w-4 h-4" /> Réponse sous 24h ouvrées
-          </span>
-          <span className="hidden sm:block">·</span>
-          <span className="flex items-center gap-2">
-            <Shield className="w-4 h-4" /> RGPD · Données en Europe
-          </span>
-        </div>
+        <p className="mt-10 text-xs text-gray-300">
+          contact@coplio.fr · Réponse sous 24h · RGPD · Données hébergées en Europe
+        </p>
+
       </div>
     </section>
   )

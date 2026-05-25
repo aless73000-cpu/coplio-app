@@ -53,19 +53,19 @@ export default function Nav() {
     : 'text-white/85 hover:text-white hover:bg-white/10'
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-400 ${
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       scrolled
-        ? 'bg-white/97 backdrop-blur-md shadow-sm border-b border-gray-100'
-        : 'bg-[#0B6349]/55 backdrop-blur-md'
+        ? 'bg-white/95 backdrop-blur-xl border-b border-gray-100'
+        : 'bg-[#0A3D2B]/60 backdrop-blur-md'
     }`}>
       <div className="max-w-7xl mx-auto px-5 h-[66px] flex items-center justify-between">
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
-          <div className="w-8 h-8 bg-[#0F6E56] rounded-xl flex items-center justify-center shadow-sm">
-            <Home className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 bg-[#0A3D2B] rounded-xl flex items-center justify-center">
+            <span className="text-[#3CC49A] text-xs font-bold">C</span>
           </div>
-          <span className={`font-bold text-xl tracking-tight ${scrolled ? 'text-[#0F6E56]' : 'text-white'}`}>
+          <span className={`font-bold text-xl ${scrolled ? 'text-[#1D1D1F]' : 'text-white'}`} style={{ letterSpacing: '-0.02em' }}>
             Coplio
           </span>
         </Link>
@@ -97,8 +97,8 @@ export default function Nav() {
                     onClick={() => handleModuleClick(idx)}
                     className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F5F5F7] transition-colors text-left group"
                   >
-                    <div className="w-8 h-8 bg-[#E5F5EF] rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-[#0F6E56] transition-colors">
-                      <Icon className="w-4 h-4 text-[#0F6E56] group-hover:text-white transition-colors" />
+                    <div className="w-8 h-8 bg-[#E8F5EF] rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-[#0A3D2B] transition-colors">
+                      <Icon className="w-4 h-4 text-[#0A3D2B] group-hover:text-white transition-colors" />
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-[#1D1D1F] leading-tight">{label}</div>
@@ -109,7 +109,7 @@ export default function Nav() {
               </div>
               <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
                 <span className="text-xs text-gray-400">Toutes les fonctionnalités incluses dès le 1er plan</span>
-                <Link href="/register" className="flex items-center gap-1 text-xs font-bold text-[#0F6E56] hover:underline">
+                <Link href="/register" className="flex items-center gap-1 text-xs font-bold text-[#0A3D2B] hover:underline">
                   Essai gratuit 14j <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -124,15 +124,20 @@ export default function Nav() {
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          <Link href="/portail" className={`text-sm font-medium transition-colors ${scrolled ? 'text-gray-500 hover:text-[#0F6E56]' : 'text-white/70 hover:text-white'}`}>
+          <Link href="/portail" className={`text-sm transition-colors ${scrolled ? 'text-gray-400 hover:text-[#1D1D1F]' : 'text-white/50 hover:text-white'}`}>
             Espace copropriétaire
           </Link>
-          <Link href="/login" className={`text-sm transition-colors ${scrolled ? 'text-gray-500 hover:text-[#1D1D1F]' : 'text-white/60 hover:text-white'}`}>
+          <Link href="/login" className={`text-sm transition-colors ${scrolled ? 'text-gray-400 hover:text-[#1D1D1F]' : 'text-white/50 hover:text-white'}`}>
             Se connecter
           </Link>
           <Link
             href="/register"
-            className="flex items-center gap-1.5 text-sm bg-[#0F6E56] text-white px-5 py-2.5 rounded-xl hover:bg-[#0d5e49] transition-colors font-semibold shadow-md shadow-[#0F6E56]/30"
+            className={`flex items-center gap-1.5 text-sm font-semibold px-5 py-2.5 rounded-full transition-all ${
+              scrolled
+                ? 'bg-[#0A3D2B] text-white hover:bg-[#0d5240]'
+                : 'bg-white text-[#0A3D2B] hover:bg-white/90'
+            }`}
+            style={{ letterSpacing: '-0.01em' }}
           >
             Essai gratuit 14j <ArrowRight className="w-3.5 h-3.5" />
           </Link>
