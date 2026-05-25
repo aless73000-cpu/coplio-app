@@ -9,7 +9,7 @@ import {
 import { formatEuro, formatDate } from '@/lib/utils'
 import { InviterPortailButton } from '@/components/syndic/InviterPortailButton'
 import { DeleteCoproprietaireButton } from '@/components/syndic/DeleteCoproprietaireButton'
-import { ConseilSyndicalSection } from '@/components/syndic/ConseilSyndicalSection'
+import { RoleManager } from '@/components/syndic/RoleManager'
 
 export default async function CopropriétairePage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
@@ -323,15 +323,18 @@ export default async function CopropriétairePage({ params }: { params: { id: st
         )}
       </div>
 
-      {/* ── Conseil syndical ──────────────────────────────────── */}
-      <ConseilSyndicalSection
-        coproprietaireId={copropriétaire.id}
+      {/* ── Rôle dans le portail ──────────────────────────────── */}
+      <RoleManager
         prenom={copropriétaire.prenom}
         nom={copropriétaire.nom}
         email={copropriétaire.email ?? null}
         telephone={copropriétaire.telephone ?? null}
         coproprietes={coproprietes}
-        memberships={memberships}
+        currentMemberships={memberships.map(m => ({
+          copropriete_id: m.copropriete_id,
+          conseil_id: m.id,
+          role: m.role,
+        }))}
       />
 
       {/* ── Portail copropriétaire ─────────────────────────────── */}
