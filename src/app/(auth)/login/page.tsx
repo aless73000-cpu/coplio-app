@@ -13,7 +13,7 @@ export default function LoginPage({
   searchParams: { redirectTo?: string; error?: string; message?: string }
 }) {
   return (
-    <div className="min-h-screen bg-[#F5F5F7] flex">
+    <div className="min-h-screen flex" style={{ background: '#F0F4F2' }}>
 
       {/* ── Panneau gauche — branding ─────────────────────────── */}
       <div
@@ -103,8 +103,11 @@ export default function LoginPage({
       </div>
 
       {/* ── Panneau droit — formulaire ────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
-        <div className="w-full max-w-[400px]">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-12 relative">
+        {/* Orb de fond subtil */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(15,110,86,.06) 0%, transparent 70%)', transform: 'translate(20%, -20%)' }} />
+        <div className="w-full max-w-[420px] relative z-10">
 
           {/* Logo mobile */}
           <Link href="/" className="lg:hidden flex items-center gap-2.5 mb-10 w-fit">
@@ -114,31 +117,35 @@ export default function LoginPage({
             <span className="font-semibold text-xl text-coplio-green" style={{ letterSpacing: '-0.025em' }}>Coplio</span>
           </Link>
 
-          {/* Titre */}
-          <div className="mb-8">
-            <h1 className="text-[1.75rem] font-bold text-[#1D1D1F]" style={{ letterSpacing: '-0.03em' }}>
-              Bon retour 👋
-            </h1>
-            <p className="text-[#6E6E73] mt-1.5 text-sm">
-              Connectez-vous à votre espace syndic
-            </p>
+          {/* Card formulaire */}
+          <div className="bg-white rounded-3xl p-8 border border-[#E8E8ED]/60"
+            style={{ boxShadow: '0 4px 6px rgba(0,0,0,0.04), 0 16px 48px rgba(0,0,0,0.08)' }}>
+            {/* Titre */}
+            <div className="mb-7">
+              <h1 className="text-2xl font-bold text-[#1D1D1F]" style={{ letterSpacing: '-0.03em' }}>
+                Bon retour 👋
+              </h1>
+              <p className="text-[#6E6E73] mt-1.5 text-sm">
+                Connectez-vous à votre espace syndic
+              </p>
+            </div>
+
+            {/* Alertes URL params */}
+            {searchParams.error && (
+              <div className="mb-5 p-3.5 bg-red-50 border border-red-200 rounded-xl">
+                <p className="text-red-600 text-sm">{searchParams.error}</p>
+              </div>
+            )}
+            {searchParams.message && (
+              <div className="mb-5 p-3.5 bg-[#E5F5EF] border border-[#0F6E56]/20 rounded-xl">
+                <p className="text-[#0F6E56] text-sm">{searchParams.message}</p>
+              </div>
+            )}
+
+            <LoginForm redirectTo={searchParams.redirectTo} />
           </div>
 
-          {/* Alertes URL params */}
-          {searchParams.error && (
-            <div className="mb-5 p-3.5 bg-coplio-red-bg border border-coplio-red/20 rounded-xl">
-              <p className="text-coplio-red text-sm">{searchParams.error}</p>
-            </div>
-          )}
-          {searchParams.message && (
-            <div className="mb-5 p-3.5 bg-coplio-green-light border border-coplio-green/20 rounded-xl">
-              <p className="text-coplio-green text-sm">{searchParams.message}</p>
-            </div>
-          )}
-
-          <LoginForm redirectTo={searchParams.redirectTo} />
-
-          <div className="mt-8 pt-6 border-t border-[#E8E8ED] space-y-3 text-center">
+          <div className="mt-6 space-y-3 text-center">
             <p className="text-sm text-[#6E6E73]">
               Pas encore de compte ?{' '}
               <Link href="/register" className="text-coplio-green font-medium hover:underline">

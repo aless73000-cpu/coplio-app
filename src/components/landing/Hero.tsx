@@ -36,13 +36,13 @@ export default function Hero() {
               <span className="truncate">Nouveau · Import CSV &amp; portail copropriétaire</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-[3.6rem] xl:text-6xl font-bold text-white leading-[1.08] mb-6 tracking-tight">
+            <h1 className="text-5xl sm:text-6xl lg:text-[4rem] xl:text-[4.5rem] font-bold text-white leading-[1.04] mb-6" style={{ letterSpacing: '-0.04em' }}>
               La gestion de<br />
-              copropriété,{' '}
-              <span className="text-[#9FE1CB]">enfin simple</span>
+              copropriété,<br />
+              <span style={{ color: '#9FE1CB' }}>enfin simple</span>
             </h1>
 
-            <p className="text-lg text-white/68 leading-relaxed mb-10 max-w-[480px]">
+            <p className="text-lg text-white/60 leading-relaxed mb-10 max-w-[480px]">
               Coplio centralise copropriétés, copropriétaires, charges, sinistres et assemblées générales dans une seule plateforme pensée pour les syndics indépendants.
             </p>
 
