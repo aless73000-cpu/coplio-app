@@ -55,7 +55,7 @@ export default function Nav() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
           <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${scrolled ? 'bg-[#374151]' : 'bg-white/10 border border-white/15'}`}>
-            <span className={`text-xs font-bold ${scrolled ? 'text-white' : 'text-white/70'}`}>C</span>
+            <Building2 className={`w-4 h-4 ${scrolled ? 'text-white' : 'text-white/70'}`} />
           </div>
           <span className={`font-bold text-xl ${scrolled ? 'text-[#374151]' : 'text-white/80'}`} style={{ letterSpacing: '-0.02em' }}>
             Coplio

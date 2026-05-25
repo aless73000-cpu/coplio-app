@@ -12,6 +12,7 @@ import {
   LogOut,
   ChevronDown,
   ChevronUp,
+  Building2,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -113,7 +114,7 @@ export function MobileSidebar({
         <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center border border-white/10">
-              <span className="text-white text-sm font-bold">C</span>
+              <Building2 className="w-4 h-4 text-white/80" />
             </div>
             <span className="text-white font-bold text-xl">Coplio</span>
           </div>

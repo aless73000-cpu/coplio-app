@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Building2 } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Politique de confidentialité',
@@ -15,7 +15,7 @@ export default function ConfidentialitePage() {
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center gap-2 mb-8">
           <div className="w-8 h-8 bg-[#374151] rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">C</span>
+            <Building2 className="w-4 h-4 text-white" />
           </div>
           <span className="text-coplio-text font-bold text-xl">Coplio</span>
         </div>

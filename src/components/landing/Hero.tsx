@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Building2 } from 'lucide-react'
 
 export default function Hero() {
   return (
@@ -78,8 +78,8 @@ export default function Hero() {
             {/* Sidebar */}
             <div className="w-[160px] p-3 flex flex-col gap-1 flex-shrink-0 border-r border-white/[0.05]" style={{ background: '#374151' }}>
               <div className="flex items-center gap-2 px-2 py-2 mb-3">
-                <div className="w-5 h-5 bg-white rounded-md flex items-center justify-center">
-                  <span className="text-[#0D1117] text-[9px] font-bold">C</span>
+                <div className="w-5 h-5 bg-white/10 border border-white/15 rounded-md flex items-center justify-center">
+                  <Building2 className="w-3 h-3 text-white/70" />
                 </div>
                 <span className="text-white/70 font-semibold text-sm">Coplio</span>
               </div>

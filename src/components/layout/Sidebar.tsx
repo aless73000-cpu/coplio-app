@@ -9,6 +9,7 @@ import {
   CreditCard,
   ChevronDown,
   ChevronUp,
+  Building2,
 } from 'lucide-react'
 import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
@@ -110,7 +111,7 @@ export function Sidebar({
       <div className="px-6 py-5 border-b border-white/10">
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center border border-white/10">
-            <span className="text-white text-sm font-bold">C</span>
+            <Building2 className="w-4 h-4 text-white/80" />
           </div>
           <span className="text-white font-semibold text-xl tracking-tight" style={{ letterSpacing: '-0.02em' }}>Coplio</span>
         </Link>

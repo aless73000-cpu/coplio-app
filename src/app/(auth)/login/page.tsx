@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { LoginForm } from '@/components/auth/LoginForm'
 import Link from 'next/link'
+import { Building2 } from 'lucide-react'
 
 export const metadata: Metadata = { title: 'Connexion' }
 
@@ -15,7 +16,7 @@ export default function LoginPage({
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2.5 mb-10 group">
         <div className="w-9 h-9 bg-[#374151] rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
-          <span className="text-white text-sm font-bold">C</span>
+          <Building2 className="w-4 h-4 text-white" />
         </div>
         <span className="font-bold text-xl text-[#374151]" style={{ letterSpacing: '-0.02em' }}>Coplio</span>
       </Link>

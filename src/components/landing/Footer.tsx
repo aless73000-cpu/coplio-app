@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Building2 } from 'lucide-react'
 
 export default function Footer() {
   return (
@@ -9,7 +10,7 @@ export default function Footer() {
           <div className="md:col-span-2">
             <div className="flex items-center gap-2.5 mb-5">
               <div className="w-8 h-8 bg-white/10 rounded-xl flex items-center justify-center border border-white/10">
-                <span className="text-white/60 text-xs font-bold">C</span>
+                <Building2 className="w-4 h-4 text-white/60" />
               </div>
               <span className="font-bold text-xl text-white/80" style={{ letterSpacing: '-0.02em' }}>Coplio</span>
             </div>

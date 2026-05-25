@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Loader2, CheckCircle2, Building2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
@@ -38,7 +38,7 @@ export default function ForgotPasswordForm() {
       <div className="w-full max-w-md">
         <Link href="/" className="flex items-center gap-2 mb-8 w-fit">
           <div className="w-8 h-8 bg-[#374151] rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">C</span>
+            <Building2 className="w-4 h-4 text-white" />
           </div>
           <span className="text-coplio-text font-bold text-xl">Coplio</span>
         </Link>
