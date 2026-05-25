@@ -24,7 +24,7 @@ import {
   SlidersHorizontal,
   X,
 } from 'lucide-react'
-import { Reorder, motion, AnimatePresence } from 'framer-motion'
+import { Reorder, motion } from 'framer-motion'
 import { formatEuro } from '@/lib/utils'
 import {
   RecouvrementChartLazy as RecouvrementChart,
@@ -343,69 +343,74 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
         })}
       </div>
 
-      {/* ── Modal de personnalisation (portal → hors de tout overflow) ── */}
-      {mounted && editMode && createPortal(
-        <AnimatePresence>
-          <motion.div
-            key="dashboard-edit-modal"
-            className="fixed inset-0 flex items-end sm:items-center justify-center"
-            style={{ zIndex: 9999 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
-          >
-            {/* Backdrop flouté */}
-            <div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={cancelEdit}
-            />
+      {/* ── Modal de personnalisation ── */}
+      {mounted && createPortal(
+        <>
+          {/* Overlay backdrop */}
+          <div
+            onClick={cancelEdit}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 9998,
+              background: 'rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(4px)',
+              display: editMode ? 'block' : 'none',
+            }}
+          />
 
-            {/* Fenêtre */}
-            <motion.div
-              className="relative w-full sm:max-w-md bg-white sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col"
-              style={{ maxHeight: '88vh', zIndex: 1 }}
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 32, stiffness: 320, mass: 0.9 }}
+          {/* Fenêtre */}
+          <div
+            style={{
+              position: 'fixed',
+              bottom: 0, left: 0, right: 0,
+              zIndex: 9999,
+              display: 'flex',
+              justifyContent: 'center',
+              transition: 'transform 0.35s cubic-bezier(0.32,0.72,0,1)',
+              transform: editMode ? 'translateY(0)' : 'translateY(110%)',
+              pointerEvents: editMode ? 'auto' : 'none',
+            }}
+          >
+            <div
+              style={{
+                width: '100%',
+                maxWidth: 480,
+                maxHeight: '88vh',
+                background: '#fff',
+                borderRadius: '24px 24px 0 0',
+                boxShadow: '0 -8px 40px rgba(0,0,0,0.18)',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+              }}
             >
-              {/* Poignée mobile */}
-              <div className="flex justify-center pt-3 pb-0 sm:hidden flex-shrink-0">
-                <div className="w-10 h-1 rounded-full bg-slate-200" />
+              {/* Poignée */}
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
+                <div style={{ width: 40, height: 4, borderRadius: 2, background: '#e2e8f0' }} />
               </div>
 
               {/* En-tête */}
-              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px 12px', borderBottom: '1px solid #f1f5f9' }}>
                 <button
                   onClick={cancelEdit}
-                  className="text-sm text-slate-400 hover:text-slate-600 transition-colors px-1 py-1"
+                  style={{ fontSize: 14, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
                 >
                   Annuler
                 </button>
-                <div className="text-center">
-                  <p className="text-sm font-bold text-[#374151]" style={{ letterSpacing: '-0.01em' }}>
-                    Personnaliser
-                  </p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Glissez pour réorganiser</p>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: '#374151', margin: 0 }}>Personnaliser</p>
+                  <p style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0 0' }}>Glissez pour réorganiser</p>
                 </div>
                 <button
                   onClick={saveEdit}
-                  className="text-sm font-bold text-[#374151] hover:text-[#4B5563] transition-colors px-1 py-1"
+                  style={{ fontSize: 14, fontWeight: 700, color: '#374151', background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
                 >
                   Enregistrer
                 </button>
               </div>
 
-              {/* Liste des blocs draggables */}
-              <div className="overflow-y-auto flex-1 p-4">
-                <Reorder.Group
-                  axis="y"
-                  values={editOrder}
-                  onReorder={setEditOrder}
-                  as="div"
-                  className="space-y-2"
-                >
+              {/* Liste des blocs */}
+              <div style={{ overflowY: 'auto', flex: 1, padding: 16 }}>
+                <Reorder.Group axis="y" values={editOrder} onReorder={setEditOrder} as="div" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {editOrder.map((id) => {
                     const visible = editVisible[id] ?? true
                     const Icon = WIDGET_ICONS[id] ?? BarChart2
@@ -414,38 +419,37 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
                         key={id}
                         value={id}
                         style={{ listStyle: 'none' }}
-                        whileDrag={{
-                          scale: 1.03,
-                          boxShadow: '0 12px 32px rgba(0,0,0,0.14)',
-                          zIndex: 50,
-                          borderRadius: 18,
-                        }}
-                        transition={{ duration: 0.15 }}
+                        whileDrag={{ scale: 1.03, boxShadow: '0 12px 32px rgba(0,0,0,0.14)', zIndex: 50, borderRadius: 18 }}
                       >
-                        <div
-                          className={`bg-white border rounded-2xl px-4 py-3.5 flex items-center gap-3 select-none cursor-grab active:cursor-grabbing transition-opacity ${
-                            visible ? 'border-slate-200 opacity-100' : 'border-slate-100 opacity-45'
-                          }`}
-                          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
-                        >
-                          <GripHorizontal className="w-4 h-4 text-slate-300 flex-shrink-0" />
-                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${visible ? 'bg-slate-100' : 'bg-slate-50'}`}>
-                            <Icon className="w-4 h-4 text-slate-500" />
+                        <div style={{
+                          background: '#fff',
+                          border: `1px solid ${visible ? '#e2e8f0' : '#f1f5f9'}`,
+                          borderRadius: 18,
+                          padding: '12px 16px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 12,
+                          cursor: 'grab',
+                          userSelect: 'none',
+                          opacity: visible ? 1 : 0.45,
+                          boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                        }}>
+                          <GripHorizontal style={{ width: 16, height: 16, color: '#cbd5e1', flexShrink: 0 }} />
+                          <div style={{ width: 36, height: 36, borderRadius: 12, background: visible ? '#f1f5f9' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <Icon style={{ width: 16, height: 16, color: '#64748b' }} />
                           </div>
-                          <span className="flex-1 text-sm font-semibold text-[#374151] min-w-0 truncate">
+                          <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {WIDGET_LABELS[id]}
                           </span>
                           <button
                             onPointerDown={(e) => e.stopPropagation()}
                             onClick={(e) => { e.stopPropagation(); toggleVisibility(id) }}
-                            className={`p-2 rounded-xl flex-shrink-0 transition-all ${
-                              visible
-                                ? 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                                : 'bg-slate-50 text-slate-300 hover:bg-slate-100'
-                            }`}
-                            title={visible ? 'Masquer ce bloc' : 'Afficher ce bloc'}
+                            style={{ padding: 8, borderRadius: 12, background: visible ? '#f1f5f9' : '#f8fafc', border: 'none', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                           >
-                            {visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                            {visible
+                              ? <Eye style={{ width: 16, height: 16, color: '#64748b' }} />
+                              : <EyeOff style={{ width: 16, height: 16, color: '#cbd5e1' }} />
+                            }
                           </button>
                         </div>
                       </Reorder.Item>
@@ -455,18 +459,17 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
               </div>
 
               {/* Pied de page */}
-              <div className="p-4 border-t border-slate-100 flex-shrink-0">
+              <div style={{ padding: 16, borderTop: '1px solid #f1f5f9' }}>
                 <button
                   onClick={saveEdit}
-                  className="w-full bg-[#374151] text-white text-sm font-bold py-3.5 rounded-2xl hover:bg-[#4B5563] transition-colors"
-                  style={{ letterSpacing: '-0.01em' }}
+                  style={{ width: '100%', background: '#374151', color: '#fff', fontSize: 14, fontWeight: 700, padding: '14px', borderRadius: 18, border: 'none', cursor: 'pointer' }}
                 >
                   Enregistrer les modifications
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
-        </AnimatePresence>,
+            </div>
+          </div>
+        </>,
         document.body
       )}
     </>
