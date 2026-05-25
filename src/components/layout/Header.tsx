@@ -91,9 +91,9 @@ function GlobalSearch({ className }: { className?: string }) {
         onChange={(e) => { setQuery(e.target.value); setOpen(true) }}
         onFocus={() => setOpen(true)}
         placeholder="Rechercher… (⌘K)"
-        className="w-full pl-9 pr-4 py-1.5 text-sm bg-coplio-bg border border-border rounded-lg
-                   focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-[#111827]
-                   placeholder:text-gray-400"
+        className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl
+                   focus:outline-none focus:ring-2 focus:ring-[#111827]/15 focus:border-[#111827] focus:bg-white
+                   placeholder:text-slate-400 transition-all"
       />
       {loading && (
         <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground animate-spin" />
@@ -190,7 +190,7 @@ export function Header({ title, notifications: initial = [], userId, mobileSideb
   }
 
   return (
-    <header className="h-14 bg-white border-b border-border flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30">
+    <header className="h-14 bg-white border-b border-slate-100 flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30" style={{ boxShadow: '0 1px 0 rgba(0,0,0,0.04)' }}>
       {mobileSidebar}
 
       {title && (

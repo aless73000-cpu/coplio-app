@@ -155,21 +155,25 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
             {data.smartAlerts.map((alert) => (
               <div
                 key={alert.id}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm ${
                   alert.severity === 'warning'
-                    ? 'bg-amber-50 border-amber-200 text-amber-800'
-                    : 'bg-blue-50 border-blue-200 text-blue-800'
+                    ? 'bg-amber-50 border border-amber-100'
+                    : 'bg-blue-50 border border-blue-100'
                 }`}
               >
-                <AlertTriangle className={`w-4 h-4 flex-shrink-0 ${alert.severity === 'warning' ? 'text-amber-500' : 'text-blue-500'}`} />
-                <p className="flex-1">{alert.message}</p>
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                  alert.severity === 'warning' ? 'bg-amber-100' : 'bg-blue-100'
+                }`}>
+                  <AlertTriangle className={`w-3.5 h-3.5 ${alert.severity === 'warning' ? 'text-amber-600' : 'text-blue-600'}`} />
+                </div>
+                <p className={`flex-1 font-medium ${alert.severity === 'warning' ? 'text-amber-900' : 'text-blue-900'}`}>{alert.message}</p>
                 <Link
                   href={alert.href}
-                  className={`text-xs font-medium px-3 py-1 rounded-lg flex-shrink-0 ${
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0 transition-colors ${
                     alert.severity === 'warning'
                       ? 'bg-amber-200 hover:bg-amber-300 text-amber-900'
                       : 'bg-blue-200 hover:bg-blue-300 text-blue-900'
-                  } transition-colors`}
+                  }`}
                 >
                   {alert.cta}
                 </Link>
@@ -206,91 +210,75 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
         )
 
       case 'alertes_coproprietes':
+        if (data.coproprietesCritiques.length === 0) return null
         return (
           <div key="alertes_coproprietes" className="coplio-card">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-coplio-text">Alertes copropriétés</h2>
-              <Link href="/coproprietes" className="text-xs text-[#111827] hover:underline flex items-center gap-1">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-[#111827]">Alertes copropriétés</h2>
+              <Link href="/coproprietes" className="text-xs text-slate-400 hover:text-[#111827] transition-colors flex items-center gap-1">
                 Voir tout <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
-            {data.coproprietesCritiques.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <TrendingUp className="w-6 h-6 text-[#111827]" />
-                </div>
-                <p className="text-sm font-medium text-coplio-text">Tout est à jour !</p>
-                <p className="text-xs text-muted-foreground mt-1">Aucune copropriété ne nécessite votre attention</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {data.coproprietesCritiques.map((c) => <CoproprieteAlertRow key={c.id} copropriete={c as any} />)}
-              </div>
-            )}
+            <div className="space-y-0.5">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {data.coproprietesCritiques.map((c) => <CoproprieteAlertRow key={c.id} copropriete={c as any} />)}
+            </div>
           </div>
         )
 
       case 'sinistres':
+        if (!data.sinistres || data.sinistres.length === 0) return null
         return (
           <div key="sinistres" className="coplio-card">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-coplio-text">Sinistres en cours</h2>
-              <Link href="/sinistres" className="text-xs text-[#111827] hover:underline flex items-center gap-1">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-[#111827]">Sinistres en cours</h2>
+              <Link href="/sinistres" className="text-xs text-slate-400 hover:text-[#111827] transition-colors flex items-center gap-1">
                 Voir tout <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
-            {(!data.sinistres || data.sinistres.length === 0) ? (
-              <p className="text-sm text-muted-foreground text-center py-6">Aucun sinistre en cours</p>
-            ) : (
-              <div className="space-y-2">
-                {data.sinistres.map((s) => <SinistreRow key={s.id} sinistre={s} />)}
-              </div>
-            )}
+            <div className="space-y-0.5">
+              {data.sinistres.map((s) => <SinistreRow key={s.id} sinistre={s} />)}
+            </div>
           </div>
         )
 
       case 'ag':
+        if (!data.agProchaines || data.agProchaines.length === 0) return null
         return (
           <div key="ag" className="coplio-card">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-coplio-text">AG à venir</h2>
-              <Link href="/assemblees" className="text-xs text-[#111827] hover:underline">Gérer</Link>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-[#111827]">AG à venir</h2>
+              <Link href="/assemblees/new" className="text-xs text-slate-400 hover:text-[#111827] transition-colors">
+                + Planifier
+              </Link>
             </div>
-            {(!data.agProchaines || data.agProchaines.length === 0) ? (
-              <p className="text-sm text-muted-foreground text-center py-4">Aucune AG planifiée</p>
-            ) : (
-              <div className="space-y-3">
-                {data.agProchaines.map((ag) => <AgRow key={ag.id} ag={ag} />)}
-              </div>
-            )}
-            <Link
-              href="/assemblees/new"
-              className="mt-4 block text-center text-sm text-[#111827] font-medium border border-[#111827]/30 rounded-lg py-2 hover:bg-slate-100 transition-colors"
-            >
-              + Planifier une AG
-            </Link>
+            <div className="space-y-0.5">
+              {data.agProchaines.map((ag) => <AgRow key={ag.id} ag={ag} />)}
+            </div>
           </div>
         )
 
       case 'actions_rapides':
         return (
           <div key="actions_rapides" className="coplio-card">
-            <h2 className="font-semibold text-coplio-text mb-3">Actions rapides</h2>
-            <div className="space-y-2">
+            <h2 className="text-sm font-semibold text-[#111827] mb-3">Actions rapides</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {[
-                { href: '/coproprietes/new',   label: 'Ajouter une copropriété',    icon: Building2 },
-                { href: '/appels-charges/new', label: 'Créer un appel de charges',  icon: Receipt },
-                { href: '/sinistres/new',       label: 'Déclarer un sinistre',       icon: AlertTriangle },
-                { href: '/assemblees/new',      label: 'Planifier une AG',           icon: CalendarDays },
-                { href: '/impayes',             label: 'Gérer les impayés',          icon: CreditCard },
+                { href: '/coproprietes/new',   label: 'Nouvelle copropriété',   icon: Building2 },
+                { href: '/appels-charges/new', label: 'Appel de charges',       icon: Receipt },
+                { href: '/sinistres/new',       label: 'Déclarer sinistre',      icon: AlertTriangle },
+                { href: '/assemblees/new',      label: 'Planifier une AG',       icon: CalendarDays },
+                { href: '/impayes',             label: 'Gérer les impayés',      icon: CreditCard },
               ].map(({ href, label, icon: Icon }) => (
-                <Link key={href} href={href} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-coplio-bg transition-colors text-sm">
-                  <div className="w-7 h-7 bg-slate-100 rounded-md flex items-center justify-center">
-                    <Icon className="w-3.5 h-3.5 text-[#111827]" />
+                <Link
+                  key={href}
+                  href={href}
+                  className="flex flex-col items-center gap-2 p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors text-center group"
+                >
+                  <div className="w-9 h-9 bg-white border border-slate-200 rounded-xl flex items-center justify-center group-hover:border-slate-300 transition-colors shadow-sm">
+                    <Icon className="w-4 h-4 text-[#111827]" />
                   </div>
-                  <span className="text-coplio-text">{label}</span>
-                  <ArrowRight className="w-3 h-3 text-muted-foreground ml-auto" />
+                  <span className="text-xs font-medium text-[#111827] leading-tight">{label}</span>
                 </Link>
               ))}
             </div>
@@ -303,17 +291,16 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-5 animate-fade-in">
       {/* En-tête */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-coplio-text">
+          <h1 className="text-xl font-bold text-[#111827]" style={{ letterSpacing: '-0.02em' }}>
             Bonjour, {data.prenom} 👋
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Voici un résumé de votre activité au{' '}
+          <p className="text-slate-400 text-sm mt-0.5">
             {new Date().toLocaleDateString('fr-FR', {
-              weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+              weekday: 'long', day: 'numeric', month: 'long',
             })}
           </p>
         </div>
@@ -333,21 +320,23 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
 
       {/* Empty state */}
       {data.kpis.nb_coproprietes === 0 && (
-        <div className="coplio-card text-center py-16 border-dashed">
-          <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
-            <Building2 className="w-8 h-8 text-[#111827]" />
+        <div className="bg-white rounded-2xl border border-dashed border-slate-200 text-center py-16 px-6"
+          style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}
+        >
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Building2 className="w-7 h-7 text-[#111827]" />
           </div>
-          <h2 className="text-xl font-bold text-coplio-text mb-2">
+          <h2 className="text-lg font-bold text-[#111827] mb-2" style={{ letterSpacing: '-0.02em' }}>
             Ajoutez votre première copropriété
           </h2>
-          <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-8 leading-relaxed">
+          <p className="text-slate-400 text-sm max-w-xs mx-auto mb-8 leading-relaxed">
             Votre tableau de bord s&apos;animera une fois votre première copropriété créée.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/coproprietes/new" className="inline-flex items-center gap-2 bg-[#111827] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#111827]/90 transition-colors">
+            <Link href="/coproprietes/new" className="inline-flex items-center gap-2 bg-[#111827] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#1F2937] transition-colors">
               <Building2 className="w-4 h-4" /> Créer une copropriété
             </Link>
-            <Link href="/importer" className="inline-flex items-center gap-2 bg-coplio-bg text-coplio-text px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-border transition-colors">
+            <Link href="/importer" className="inline-flex items-center gap-2 bg-slate-50 text-[#111827] px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-100 border border-slate-200 transition-colors">
               Importer depuis un fichier
             </Link>
           </div>
