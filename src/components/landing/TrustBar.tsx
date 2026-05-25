@@ -12,10 +12,10 @@ export default function TrustBar() {
             { emoji: '🎯', label: 'Conçu avec des syndics',       sub: 'Chaque fonction validée terrain' },
             { emoji: '🇫🇷', label: '100 % français',             sub: 'Données hébergées en Europe · RGPD' },
           ].map(({ emoji, label, sub }) => (
-            <div key={label} className="flex items-start gap-3.5 p-4 rounded-2xl bg-[#F4F2EB] hover:bg-[#ECEAE2] transition-colors">
+            <div key={label} className="flex items-start gap-3.5 p-4 rounded-2xl bg-[#F5F5F7] hover:bg-[#EBEBF0] transition-colors">
               <span className="text-2xl leading-none flex-shrink-0 mt-0.5">{emoji}</span>
               <div>
-                <div className="text-sm font-bold text-[#1C1C1A] leading-tight">{label}</div>
+                <div className="text-sm font-bold text-[#1D1D1F] leading-tight">{label}</div>
                 <div className="text-xs text-gray-500 mt-0.5 leading-relaxed">{sub}</div>
               </div>
             </div>

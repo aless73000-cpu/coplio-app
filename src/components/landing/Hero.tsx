@@ -48,7 +48,7 @@ export default function Hero() {
 
             <div className="flex flex-col sm:flex-row gap-3 mb-10">
               <Link href="/register"
-                className="flex items-center justify-center gap-2 bg-white text-[#0F6E56] font-bold px-7 py-4 rounded-2xl hover:bg-[#E1F5EE] transition-all text-base shadow-xl shadow-black/20 hover:shadow-2xl hover:shadow-black/25 hover:-translate-y-0.5">
+                className="flex items-center justify-center gap-2 bg-white text-[#0F6E56] font-bold px-7 py-4 rounded-2xl hover:bg-[#E5F5EF] transition-all text-base shadow-xl shadow-black/20 hover:shadow-2xl hover:shadow-black/25 hover:-translate-y-0.5">
                 Démarrer gratuitement <ArrowRight className="w-4 h-4" />
               </Link>
               <a href="#tarifs"
@@ -72,7 +72,7 @@ export default function Hero() {
             {/* Floating card 1 — Recouvrement */}
             <div className="float-a absolute -left-14 top-6 z-20 bg-white rounded-2xl shadow-2xl shadow-black/15 p-4 w-48 border border-gray-100/50">
               <div className="flex items-center gap-2 mb-2.5">
-                <div className="w-7 h-7 bg-[#E1F5EE] rounded-lg flex items-center justify-center">
+                <div className="w-7 h-7 bg-[#E5F5EF] rounded-lg flex items-center justify-center">
                   <TrendingUp className="w-3.5 h-3.5 text-[#0F6E56]" />
                 </div>
                 <span className="text-xs font-bold text-gray-700">Recouvrement</span>
@@ -83,7 +83,7 @@ export default function Hero() {
                 {[60, 72, 68, 85, 79, 94].map((h, i) => (
                   <div key={i} className="flex-1 rounded-sm" style={{
                     height: `${h}%`,
-                    background: i === 5 ? '#0F6E56' : i >= 4 ? '#6DC5A8' : '#E1F5EE',
+                    background: i === 5 ? '#0F6E56' : i >= 4 ? '#6DC5A8' : '#E5F5EF',
                   }} />
                 ))}
               </div>
@@ -97,7 +97,7 @@ export default function Hero() {
                 </div>
                 <span className="text-xs font-bold text-gray-700">Prochaine AG</span>
               </div>
-              <div className="text-sm font-semibold text-[#1C1C1A] mb-0.5">Résidence Bellevue</div>
+              <div className="text-sm font-semibold text-[#1D1D1F] mb-0.5">Résidence Bellevue</div>
               <div className="text-xs text-gray-400 mb-2">Convocations envoyées ✓</div>
               <div className="inline-flex items-center gap-1 bg-amber-50 text-amber-600 text-[10px] font-bold px-2.5 py-1 rounded-full">
                 <Bell className="w-2.5 h-2.5" /> J-12
@@ -113,7 +113,7 @@ export default function Hero() {
 
             {/* Browser window */}
             <div className="relative bg-white/12 backdrop-blur-sm border border-white/20 rounded-2xl p-2 shadow-2xl shadow-black/25">
-              <div className="bg-[#F4F2EB] rounded-xl overflow-hidden">
+              <div className="bg-[#F5F5F7] rounded-xl overflow-hidden">
                 {/* Browser chrome */}
                 <div className="bg-white px-4 py-2.5 flex items-center gap-3 border-b border-gray-100">
                   <div className="flex gap-1.5">
@@ -153,10 +153,10 @@ export default function Hero() {
 
                   {/* Main content */}
                   <div className="flex-1 p-4 space-y-3 overflow-hidden">
-                    <div className="text-xs font-bold text-[#1C1C1A]">Bonjour, Jean 👋</div>
+                    <div className="text-xs font-bold text-[#1D1D1F]">Bonjour, Jean 👋</div>
                     <div className="grid grid-cols-3 gap-2">
                       {[
-                        { v: '12',   l: 'Copropriétés', c: 'text-[#0F6E56]', bg: 'bg-[#E1F5EE]' },
+                        { v: '12',   l: 'Copropriétés', c: 'text-[#0F6E56]', bg: 'bg-[#E5F5EF]' },
                         { v: '284',  l: 'Lots',          c: 'text-blue-600',  bg: 'bg-blue-50' },
                         { v: '2',    l: 'Impayés',       c: 'text-red-500',   bg: 'bg-red-50' },
                       ].map(({ v, l, c, bg }) => (
@@ -172,7 +172,7 @@ export default function Hero() {
                         {[62, 74, 69, 83, 77, 94].map((h, i) => (
                           <div key={i} className="flex-1 rounded-sm" style={{
                             height: `${h}%`,
-                            background: i === 5 ? '#0F6E56' : i >= 4 ? '#6DC5A8' : '#E1F5EE',
+                            background: i === 5 ? '#0F6E56' : i >= 4 ? '#6DC5A8' : '#E5F5EF',
                           }} />
                         ))}
                       </div>

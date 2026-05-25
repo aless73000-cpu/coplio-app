@@ -106,14 +106,14 @@ export function Sidebar({
   }
 
   return (
-    <aside className="w-64 flex-shrink-0 bg-coplio-green flex flex-col h-screen sticky top-0 overflow-y-auto">
+    <aside className="w-64 flex-shrink-0 flex flex-col h-screen sticky top-0 overflow-y-auto" style={{ background: 'linear-gradient(180deg, #0C5E47 0%, #0A5240 100%)' }}>
       {/* Logo */}
       <div className="px-6 py-5 border-b border-white/10">
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <Home className="w-5 h-5 text-coplio-green" />
           </div>
-          <span className="text-white font-bold text-xl tracking-tight">Coplio</span>
+          <span className="text-white font-semibold text-xl tracking-tight" style={{ letterSpacing: '-0.02em' }}>Coplio</span>
         </Link>
       </div>
 

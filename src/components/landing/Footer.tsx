@@ -3,7 +3,7 @@ import { Home, Mail } from 'lucide-react'
 
 export default function Footer() {
   return (
-    <footer className="bg-[#1C1C1A] text-white">
+    <footer className="bg-[#111111] text-white">
       <div className="max-w-6xl mx-auto px-6 py-14">
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           {/* Brand */}

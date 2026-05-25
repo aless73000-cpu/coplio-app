@@ -26,7 +26,7 @@ export default function CtaFinal() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
           <Link
             href="/register"
-            className="flex items-center gap-2 bg-white text-[#0F6E56] font-bold px-8 py-4 rounded-2xl hover:bg-[#E1F5EE] transition-all text-base shadow-xl shadow-black/20 hover:-translate-y-0.5 w-full sm:w-auto justify-center"
+            className="flex items-center gap-2 bg-white text-[#0F6E56] font-bold px-8 py-4 rounded-2xl hover:bg-[#E5F5EF] transition-all text-base shadow-xl shadow-black/20 hover:-translate-y-0.5 w-full sm:w-auto justify-center"
           >
             Créer mon compte gratuitement <ArrowRight className="w-4 h-4" />
           </Link>

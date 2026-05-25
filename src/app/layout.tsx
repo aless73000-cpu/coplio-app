@@ -129,16 +129,22 @@ export default function RootLayout({
         <OrganizationJsonLd />
         <WebSiteJsonLd />
       </head>
-      <body className={`${inter.className} ${inter.variable}`}>
+      {/* inter.variable expose --font-inter comme fallback ; pas de inter.className
+          pour que -apple-system (SF Pro sur macOS) soit utilisé en priorité */}
+      <body className={inter.variable}>
         <ServiceWorkerRegistration />
         {children}
         <Toaster
           position="top-right"
           toastOptions={{
             style: {
-              background: '#fff',
-              border: '1px solid #E1F5EE',
-              color: '#444441',
+              background: '#FFFFFF',
+              border: '1px solid #E8E8ED',
+              color: '#1D1D1F',
+              borderRadius: '12px',
+              fontSize: '14px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif',
             },
           }}
         />

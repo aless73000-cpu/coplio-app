@@ -33,7 +33,7 @@ import Footer         from '@/components/landing/Footer'
 
 // Hauteur réservée pendant le chargement → évite le CLS (Cumulative Layout Shift)
 const FeaturesShowcaseFallback = () => (
-  <div className="min-h-[700px] bg-[#F4F2EB]" aria-hidden="true" />
+  <div className="min-h-[700px] bg-[#F5F5F7]" aria-hidden="true" />
 )
 const FeaturesShowcase = dynamic(
   () => import('@/components/landing/FeaturesShowcase'),
@@ -44,7 +44,7 @@ export default function LandingPage() {
   return (
     <>
       <SoftwareApplicationJsonLd />
-      <div className="min-h-screen bg-white antialiased text-[#1C1C1A]">
+      <div className="min-h-screen bg-white antialiased text-[#1D1D1F]">
         {/* Animations définies dans globals.css — suppression du inline <style> (meilleur LCP) */}
         <Nav />
         <Hero />

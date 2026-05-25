@@ -10,82 +10,105 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Palette Coplio officielle
+        // ── Palette Coplio — Apple-refined ──────────────────────────
         coplio: {
-          green: '#0F6E56',        // Vert principal
-          'green-light': '#E1F5EE', // Vert clair fond
-          'green-medium': '#9FE1CB', // Vert medium
-          text: '#444441',          // Texte sombre
-          bg: '#F1EFE8',            // Gris clair fond
-          amber: '#854F0B',
-          'amber-bg': '#FAEEDA',
-          red: '#A32D2D',
-          'red-bg': '#FCEBEB',
-          blue: '#185FA5',
-          'blue-bg': '#E6F1FB',
+          green:         '#0F6E56',   // Vert principal (inchangé — identité marque)
+          'green-light': '#E5F5EF',   // Tint vert — plus froid, plus propre
+          'green-medium':'#3CC49A',   // Vert medium — plus vif
+          text:          '#1D1D1F',   // Apple near-black
+          bg:            '#F5F5F7',   // Apple page background
+          amber:         '#8A4500',
+          'amber-bg':    '#FFF3E0',
+          red:           '#C0392B',
+          'red-bg':      '#FFF0EF',
+          blue:          '#0066CC',   // Apple blue
+          'blue-bg':     '#EBF3FF',
         },
-        // Mapping shadcn/ui
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
+        // ── shadcn/ui token mapping ───────────────────────────────────
+        border:     'hsl(var(--border))',
+        input:      'hsl(var(--input))',
+        ring:       'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#0F6E56',
+          DEFAULT:    '#0F6E56',
           foreground: '#FFFFFF',
         },
         secondary: {
-          DEFAULT: '#E1F5EE',
+          DEFAULT:    '#E5F5EF',
           foreground: '#0F6E56',
         },
         destructive: {
-          DEFAULT: '#A32D2D',
+          DEFAULT:    '#C0392B',
           foreground: '#FFFFFF',
         },
         muted: {
-          DEFAULT: '#F1EFE8',
-          foreground: '#444441',
+          DEFAULT:    'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
         },
         accent: {
-          DEFAULT: '#9FE1CB',
+          DEFAULT:    '#3CC49A',
           foreground: '#0F6E56',
         },
         popover: {
-          DEFAULT: 'hsl(var(--popover))',
+          DEFAULT:    'hsl(var(--popover))',
           foreground: 'hsl(var(--popover-foreground))',
         },
         card: {
-          DEFAULT: 'hsl(var(--card))',
+          DEFAULT:    'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        // Apple utilise 12–16 px pour les cartes et composants principaux
+        lg: 'var(--radius)',                        // 12 px
+        md: 'calc(var(--radius) - 2px)',            // 10 px
+        sm: 'calc(var(--radius) - 4px)',            // 8 px
+        xl: 'calc(var(--radius) + 4px)',            // 16 px
+        '2xl': 'calc(var(--radius) + 8px)',         // 20 px
       },
       fontFamily: {
-        // var(--font-inter) est injecté par next/font → 0 FOUT (Flash of Unstyled Text)
-        sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
+        // -apple-system → SF Pro sur macOS/iOS (rendu natif Apple)
+        // BlinkMacSystemFont → alias Blink pour SF Pro
+        // Fallback : Inter chargé via next/font
+        sans: [
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"SF Pro Display"',
+          '"SF Pro Text"',
+          '"Helvetica Neue"',
+          'var(--font-inter)',
+          'Inter',
+          'ui-sans-serif',
+          'system-ui',
+          'sans-serif',
+        ],
+      },
+      boxShadow: {
+        // Ombres Apple : très légères, à peine perceptibles
+        'apple-sm': '0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.03)',
+        'apple-md': '0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+        'apple-lg': '0 4px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
+        'apple-xl': '0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)',
       },
       keyframes: {
         'accordion-down': {
           from: { height: '0' },
-          to: { height: 'var(--radix-accordion-content-height)' },
+          to:   { height: 'var(--radix-accordion-content-height)' },
         },
         'accordion-up': {
           from: { height: 'var(--radix-accordion-content-height)' },
-          to: { height: '0' },
+          to:   { height: '0' },
         },
         'fade-in': {
-          from: { opacity: '0', transform: 'translateY(4px)' },
-          to: { opacity: '1', transform: 'translateY(0)' },
+          from: { opacity: '0', transform: 'translateY(6px)' },
+          to:   { opacity: '1', transform: 'translateY(0)' },
         },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out',
-        'fade-in': 'fade-in 0.3s ease-out',
+        'accordion-up':   'accordion-up 0.2s ease-out',
+        'fade-in':        'fade-in 0.25s ease-out',
       },
     },
   },

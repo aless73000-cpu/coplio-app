@@ -166,24 +166,28 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
   if (mfaStep) {
     return (
       <form onSubmit={onMfaSubmit} className="space-y-5">
-        <div className="flex flex-col items-center gap-2 py-2">
-          <div className="w-12 h-12 bg-coplio-green-light rounded-2xl flex items-center justify-center">
-            <ShieldCheck className="w-6 h-6 text-coplio-green" />
+        <div className="flex flex-col items-center gap-3 py-2">
+          <div className="w-14 h-14 bg-coplio-green-light rounded-2xl flex items-center justify-center shadow-apple-sm">
+            <ShieldCheck className="w-7 h-7 text-coplio-green" />
           </div>
-          <h2 className="font-semibold text-coplio-text text-center">Vérification en deux étapes</h2>
-          <p className="text-sm text-muted-foreground text-center leading-relaxed">
-            Ouvrez votre application d&apos;authentification et entrez le code à 6 chiffres.
-          </p>
+          <div className="text-center">
+            <h2 className="font-semibold text-[#1D1D1F] text-base" style={{ letterSpacing: '-0.015em' }}>
+              Vérification en deux étapes
+            </h2>
+            <p className="text-sm text-[#6E6E73] mt-1 leading-relaxed">
+              Ouvrez votre application d&apos;authentification<br />et entrez le code à 6 chiffres.
+            </p>
+          </div>
         </div>
 
         {mfaError && (
-          <div className="p-3 bg-coplio-red-bg border border-coplio-red/20 rounded-lg">
+          <div className="p-3.5 bg-coplio-red-bg border border-coplio-red/20 rounded-xl">
             <p className="text-coplio-red text-sm">{mfaError}</p>
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium text-coplio-text mb-1.5">
+          <label className="block text-sm font-medium text-[#1D1D1F] mb-2">
             Code d&apos;authentification
           </label>
           <input
@@ -194,19 +198,22 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             maxLength={6}
             value={mfaCode}
             onChange={e => setMfaCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            placeholder="000000"
-            className="w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-                       focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
-                       placeholder:text-gray-400 transition-shadow text-center tracking-[0.4em] font-mono text-lg"
+            placeholder="000 000"
+            className="w-full px-4 py-3.5 text-xl bg-white border border-[#E8E8ED] rounded-xl
+                       focus:outline-none focus:ring-2 focus:ring-coplio-green/25 focus:border-coplio-green
+                       placeholder:text-[#C7C7CC] transition-all text-center tracking-[0.5em] font-mono
+                       shadow-apple-sm"
           />
         </div>
 
         <button
           type="submit"
           disabled={mfaLoading || mfaCode.length !== 6}
-          className="w-full bg-coplio-green text-white font-medium py-2.5 px-4 rounded-lg
-                     hover:bg-coplio-green/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed
-                     flex items-center justify-center gap-2 text-sm"
+          className="w-full bg-coplio-green text-white font-semibold py-3.5 px-4 rounded-xl
+                     hover:bg-[#0d5e49] transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                     flex items-center justify-center gap-2 text-sm shadow-apple-sm
+                     shadow-coplio-green/20"
+          style={{ letterSpacing: '-0.01em' }}
         >
           {mfaLoading ? (
             <>
@@ -214,14 +221,14 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
               Vérification...
             </>
           ) : (
-            'Vérifier'
+            'Vérifier le code'
           )}
         </button>
 
         <button
           type="button"
           onClick={() => { setMfaStep(false); setMfaCode(''); setMfaError('') }}
-          className="w-full text-sm text-muted-foreground hover:text-coplio-text transition-colors"
+          className="w-full text-sm text-[#6E6E73] hover:text-[#1D1D1F] transition-colors py-1"
         >
           ← Retour à la connexion
         </button>
@@ -231,40 +238,40 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
 
   // ─── Étape 1 : email + mot de passe ─────────────────────────
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {serverError && (
-        <div className="p-3 bg-coplio-red-bg border border-coplio-red/20 rounded-lg">
+        <div className="p-3.5 bg-coplio-red-bg border border-coplio-red/20 rounded-xl">
           <p className="text-coplio-red text-sm">{serverError}</p>
         </div>
       )}
 
       {/* Email */}
       <div>
-        <label className="block text-sm font-medium text-coplio-text mb-1.5">
+        <label className="block text-sm font-medium text-[#1D1D1F] mb-2">
           Adresse email
         </label>
         <input
           type="email"
           {...register('email')}
           placeholder="vous@cabinet.fr"
-          className="w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-                     focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
-                     placeholder:text-gray-400 transition-shadow"
+          className="w-full px-4 py-3 text-sm bg-white border border-[#E8E8ED] rounded-xl
+                     focus:outline-none focus:ring-2 focus:ring-coplio-green/25 focus:border-coplio-green
+                     placeholder:text-[#C7C7CC] transition-all shadow-apple-sm"
         />
         {errors.email && (
-          <p className="mt-1 text-xs text-coplio-red">{errors.email.message}</p>
+          <p className="mt-1.5 text-xs text-coplio-red">{errors.email.message}</p>
         )}
       </div>
 
       {/* Mot de passe */}
       <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <label className="block text-sm font-medium text-coplio-text">
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-[#1D1D1F]">
             Mot de passe
           </label>
           <a
             href="/forgot-password"
-            className="text-xs text-coplio-green hover:underline"
+            className="text-xs text-coplio-green hover:underline font-medium"
           >
             Mot de passe oublié ?
           </a>
@@ -274,20 +281,20 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             type={showPassword ? 'text' : 'password'}
             {...register('password')}
             placeholder="••••••••"
-            className="w-full px-3 py-2.5 pr-10 text-sm bg-white border border-border rounded-lg
-                       focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
-                       placeholder:text-gray-400 transition-shadow"
+            className="w-full px-4 py-3 pr-11 text-sm bg-white border border-[#E8E8ED] rounded-xl
+                       focus:outline-none focus:ring-2 focus:ring-coplio-green/25 focus:border-coplio-green
+                       placeholder:text-[#C7C7CC] transition-all shadow-apple-sm"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-coplio-text"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AEAEB2] hover:text-[#6E6E73] transition-colors"
           >
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
         {errors.password && (
-          <p className="mt-1 text-xs text-coplio-red">{errors.password.message}</p>
+          <p className="mt-1.5 text-xs text-coplio-red">{errors.password.message}</p>
         )}
       </div>
 
@@ -297,23 +304,25 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
           type="checkbox"
           checked={persist}
           onChange={e => setPersist(e.target.checked)}
-          className="w-4 h-4 rounded border-border accent-coplio-green cursor-pointer"
+          className="w-4 h-4 rounded border-[#E8E8ED] accent-coplio-green cursor-pointer"
         />
-        <span className="text-sm text-coplio-text">Rester connecté</span>
+        <span className="text-sm text-[#6E6E73]">Rester connecté</span>
       </label>
 
       {/* Bouton connexion */}
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-coplio-green text-white font-medium py-2.5 px-4 rounded-lg
-                   hover:bg-coplio-green/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed
-                   flex items-center justify-center gap-2 text-sm"
+        className="w-full bg-coplio-green text-white font-semibold py-3.5 px-4 rounded-xl
+                   hover:bg-[#0d5e49] transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                   flex items-center justify-center gap-2 text-sm shadow-apple-sm
+                   shadow-coplio-green/20 hover:-translate-y-px hover:shadow-apple-md"
+        style={{ letterSpacing: '-0.01em' }}
       >
         {isSubmitting ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            Connexion...
+            Connexion en cours...
           </>
         ) : (
           'Se connecter'

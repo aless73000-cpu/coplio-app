@@ -105,9 +105,10 @@ export function MobileSidebar({
 
       <div
         className={cn(
-          'fixed top-0 left-0 h-full w-72 bg-coplio-green z-50 flex flex-col transition-transform duration-300 md:hidden',
+          'fixed top-0 left-0 h-full w-72 z-50 flex flex-col transition-transform duration-300 md:hidden',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
+        style={{ background: 'linear-gradient(180deg, #0C5E47 0%, #0A5240 100%)' }}
       >
         {/* Header */}
         <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">

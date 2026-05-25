@@ -3,110 +3,148 @@
 @tailwind utilities;
 
 @layer utilities {
-  /* Safe area insets — encoche iPhone / barre Android */
-  .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  /* Hauteur nav (64px) + 8px buffer + safe area iPhone */
-  .pb-nav {
-    padding-bottom: calc(4rem + 0.5rem + env(safe-area-inset-bottom, 0px));
-  }
+  .pb-safe   { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .pb-nav    { padding-bottom: calc(4rem + 0.5rem + env(safe-area-inset-bottom, 0px)); }
 }
 
 @layer base {
-  /* Placeholders gris clair dans tous les champs de texte */
+  /* ── Placeholders ──────────────────────────────────────────── */
   ::placeholder {
-    color: #9CA3AF;
+    color: #AEAEB2; /* Apple placeholder gray */
     opacity: 1;
   }
 
   html {
     -webkit-text-size-adjust: 100%;
     overflow-x: hidden;
+    /* Anti-aliasing rendu plus fin — style Apple */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
-  body {
-    overflow-x: hidden;
-  }
+  body { overflow-x: hidden; }
 
+  /* ── Design tokens ─────────────────────────────────────────── */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 30 3% 26%;
+    /* Fond page : Apple #F5F5F7 */
+    --background: 240 5% 96%;
+    --foreground: 0 0% 11%;           /* #1C1C1E Apple near-black */
 
     --card: 0 0% 100%;
-    --card-foreground: 30 3% 26%;
+    --card-foreground: 0 0% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 30 3% 26%;
+    --popover-foreground: 0 0% 11%;
 
-    --primary: 163 74% 25%;
+    --primary: 163 74% 25%;           /* #0F6E56 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 151 62% 92%;
+    --secondary: 151 38% 93%;         /* #E5F5EF */
     --secondary-foreground: 163 74% 25%;
 
-    --muted: 40 12% 94%;
-    --muted-foreground: 30 3% 40%;
+    /* Muted : même gris que le fond */
+    --muted: 240 5% 96%;
+    --muted-foreground: 220 8% 44%;   /* #6E6E73 Apple secondary text */
 
-    --accent: 158 58% 75%;
+    --accent: 163 54% 50%;
     --accent-foreground: 163 74% 25%;
 
-    --destructive: 0 57% 40%;
+    --destructive: 5 62% 46%;         /* #C0392B */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 12% 88%;
-    --input: 40 12% 88%;
-    --ring: 163 74% 25%;
+    /* Separator Apple : #E8E8ED — parfaitement neutre */
+    --border: 220 14% 91%;
+    --input:  220 14% 91%;
+    --ring:   163 74% 25%;
 
-    --radius: 0.5rem;
+    /* Rayon Apple : 12 px */
+    --radius: 0.75rem;
   }
 
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
 
   body {
-    @apply bg-coplio-bg text-coplio-text font-sans antialiased;
+    @apply bg-coplio-bg text-coplio-text font-sans;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
   }
 
-  /* Scrollbar personnalisée */
+  /* ── Sélection de texte ─────────────────────────────────────── */
+  ::selection {
+    background-color: rgba(15, 110, 86, 0.15);
+    color: #1D1D1F;
+  }
+
+  /* ── Scrollbar — fine, Apple-like ──────────────────────────── */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-coplio-bg;
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-coplio-green-medium rounded-full;
+    background: #C7C7CC;  /* Apple gray-3 */
+    border-radius: 100px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-coplio-green;
+    background: #AEAEB2;  /* Apple gray-4 */
   }
 }
 
 @layer components {
-  /* Badge statut copropriété */
+
+  /* ── Statuts copropriété ────────────────────────────────────── */
   .badge-a-jour {
-    @apply bg-coplio-green-light text-coplio-green text-xs font-medium px-2 py-0.5 rounded-full;
+    @apply bg-coplio-green-light text-coplio-green text-xs font-medium px-2.5 py-0.5 rounded-full;
   }
   .badge-attention {
-    @apply bg-coplio-amber-bg text-coplio-amber text-xs font-medium px-2 py-0.5 rounded-full;
+    @apply bg-coplio-amber-bg text-coplio-amber text-xs font-medium px-2.5 py-0.5 rounded-full;
   }
   .badge-urgent {
-    @apply bg-coplio-red-bg text-coplio-red text-xs font-medium px-2 py-0.5 rounded-full;
+    @apply bg-coplio-red-bg text-coplio-red text-xs font-medium px-2.5 py-0.5 rounded-full;
   }
 
-  /* Card standard Coplio */
+  /* ── Card standard — sobre et épuré ────────────────────────── */
   .coplio-card {
-    @apply bg-white rounded-xl border border-border shadow-sm p-4 md:p-5;
+    @apply bg-white rounded-2xl border border-border p-5 md:p-6;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.03),
+      0 2px 8px rgba(0, 0, 0, 0.04);
   }
 
-  /* ── Landing page animations ─────────────────────────────────────── */
-  /* Déclarées ici (pas en inline-style) pour que le browser les cache */
+  /* ── Sidebar — lien ─────────────────────────────────────────── */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+           text-white/65 hover:text-white hover:bg-white/[0.08] transition-all duration-150;
+    letter-spacing: -0.01em;
+  }
+  .sidebar-link.active {
+    @apply text-white bg-white/[0.14];
+  }
 
+  /* ── Inputs — style Apple ───────────────────────────────────── */
+  .input-apple {
+    @apply w-full px-3 py-2.5 text-sm bg-white border border-border rounded-xl
+           focus:outline-none focus:ring-2 focus:ring-coplio-green/30 focus:border-coplio-green
+           placeholder:text-[#AEAEB2] transition-all duration-150;
+  }
+
+  /* ── Bouton primaire ─────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 bg-coplio-green text-white text-sm font-semibold
+           px-4 py-2.5 rounded-xl hover:bg-[#0D6049] active:scale-[0.98]
+           transition-all duration-150 disabled:opacity-50;
+  }
+
+  /* ── Bouton secondaire ───────────────────────────────────────── */
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 bg-coplio-bg text-coplio-text text-sm font-medium
+           px-4 py-2.5 rounded-xl border border-border hover:bg-[#EBEBF0] active:scale-[0.98]
+           transition-all duration-150 disabled:opacity-50;
+  }
+
+  /* ── Landing page animations ─────────────────────────────────── */
   @keyframes floatY {
     0%, 100% { transform: translateY(0px); }
     50%       { transform: translateY(-10px); }
@@ -123,19 +161,10 @@
   .float-a { animation: floatY 4s ease-in-out infinite; }
   .float-b { animation: floatY 5s ease-in-out infinite; animation-delay: .9s; }
   .float-c { animation: floatY 3.6s ease-in-out infinite; animation-delay: 1.7s; }
-  .orb  { animation: meshPulse 7s ease-in-out infinite; }
-  .orb2 { animation: meshPulse 9s ease-in-out infinite; animation-delay: 3.5s; }
-  .orb3 { animation: meshPulse 6s ease-in-out infinite; animation-delay: 1.5s; }
+  .orb     { animation: meshPulse 7s ease-in-out infinite; }
+  .orb2    { animation: meshPulse 9s ease-in-out infinite; animation-delay: 3.5s; }
+  .orb3    { animation: meshPulse 6s ease-in-out infinite; animation-delay: 1.5s; }
   .fade-up   { animation: fadeUp .7s ease both; }
   .fade-up-2 { animation: fadeUp .7s .15s ease both; }
   .fade-up-3 { animation: fadeUp .7s .3s ease both; }
-
-  /* Sidebar link actif */
-  .sidebar-link {
-    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
-           text-white/70 hover:text-white hover:bg-white/10 transition-colors;
-  }
-  .sidebar-link.active {
-    @apply text-white bg-white/15;
-  }
 }

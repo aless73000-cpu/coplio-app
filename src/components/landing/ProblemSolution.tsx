@@ -21,11 +21,11 @@ const items = [
 
 export default function ProblemSolution() {
   return (
-    <section id="besoins" className="py-24 bg-[#F4F2EB]">
+    <section id="besoins" className="py-24 bg-[#F5F5F7]">
       <div className="max-w-5xl mx-auto px-6">
         <div className="text-center mb-14">
           <span className="text-[11px] font-bold text-[#0F6E56] uppercase tracking-[0.18em]">Vos besoins</span>
-          <h2 className="text-4xl font-bold text-[#1C1C1A] mt-3 mb-4 tracking-tight">
+          <h2 className="text-4xl font-bold text-[#1D1D1F] mt-3 mb-4 tracking-tight">
             On connaît vos problèmes
           </h2>
           <p className="text-gray-500 text-lg max-w-xl mx-auto">
@@ -43,8 +43,8 @@ export default function ProblemSolution() {
                   </div>
                   <p className="text-sm text-gray-500 font-medium">{before}</p>
                 </div>
-                <div className="flex items-start gap-3 bg-[#F4F2EB] rounded-xl p-4">
-                  <div className="w-6 h-6 bg-[#E1F5EE] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="flex items-start gap-3 bg-[#F5F5F7] rounded-xl p-4">
+                  <div className="w-6 h-6 bg-[#E5F5EF] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Check className="w-3.5 h-3.5 text-[#0F6E56]" />
                   </div>
                   <p className="text-sm text-gray-600 leading-relaxed">{after}</p>

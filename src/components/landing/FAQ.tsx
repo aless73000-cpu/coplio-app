@@ -33,7 +33,7 @@ export default function FAQ() {
       <div className="max-w-3xl mx-auto px-6">
         <div className="text-center mb-14">
           <span className="text-[11px] font-bold text-[#0F6E56] uppercase tracking-[0.18em]">FAQ</span>
-          <h2 className="text-4xl font-bold text-[#1C1C1A] mt-3 mb-4 tracking-tight">Questions fréquentes</h2>
+          <h2 className="text-4xl font-bold text-[#1D1D1F] mt-3 mb-4 tracking-tight">Questions fréquentes</h2>
           <p className="text-gray-500 text-lg">
             Vous ne trouvez pas votre réponse ?{' '}
             <a href="mailto:contact@coplio.fr" className="text-[#0F6E56] hover:underline font-semibold">

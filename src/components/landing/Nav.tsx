@@ -95,13 +95,13 @@ export default function Nav() {
                   <button
                     key={label}
                     onClick={() => handleModuleClick(idx)}
-                    className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F4F2EB] transition-colors text-left group"
+                    className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F5F5F7] transition-colors text-left group"
                   >
-                    <div className="w-8 h-8 bg-[#E1F5EE] rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-[#0F6E56] transition-colors">
+                    <div className="w-8 h-8 bg-[#E5F5EF] rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-[#0F6E56] transition-colors">
                       <Icon className="w-4 h-4 text-[#0F6E56] group-hover:text-white transition-colors" />
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-[#1C1C1A] leading-tight">{label}</div>
+                      <div className="text-sm font-semibold text-[#1D1D1F] leading-tight">{label}</div>
                       <div className="text-xs text-gray-400 mt-0.5">{desc}</div>
                     </div>
                   </button>
@@ -127,7 +127,7 @@ export default function Nav() {
           <Link href="/portail" className={`text-sm font-medium transition-colors ${scrolled ? 'text-gray-500 hover:text-[#0F6E56]' : 'text-white/70 hover:text-white'}`}>
             Espace copropriétaire
           </Link>
-          <Link href="/login" className={`text-sm transition-colors ${scrolled ? 'text-gray-500 hover:text-[#1C1C1A]' : 'text-white/60 hover:text-white'}`}>
+          <Link href="/login" className={`text-sm transition-colors ${scrolled ? 'text-gray-500 hover:text-[#1D1D1F]' : 'text-white/60 hover:text-white'}`}>
             Se connecter
           </Link>
           <Link
@@ -145,8 +145,8 @@ export default function Nav() {
           aria-label="Menu"
         >
           {mobileOpen
-            ? <X className={`w-5 h-5 ${scrolled ? 'text-[#1C1C1A]' : 'text-white'}`} />
-            : <Menu className={`w-5 h-5 ${scrolled ? 'text-[#1C1C1A]' : 'text-white'}`} />
+            ? <X className={`w-5 h-5 ${scrolled ? 'text-[#1D1D1F]' : 'text-white'}`} />
+            : <Menu className={`w-5 h-5 ${scrolled ? 'text-[#1D1D1F]' : 'text-white'}`} />
           }
         </button>
       </div>
@@ -158,16 +158,16 @@ export default function Nav() {
           <div className="space-y-0.5 mb-4">
             {modules.map(({ icon: Icon, label }, idx) => (
               <button key={label} onClick={() => handleModuleClick(idx)}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-[#F4F2EB] transition-colors text-sm text-gray-700">
+                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-[#F5F5F7] transition-colors text-sm text-gray-700">
                 <Icon className="w-4 h-4 text-[#0F6E56]" /> {label}
               </button>
             ))}
           </div>
           <div className="space-y-0.5 border-t border-gray-100 pt-4 mb-4">
-            <a href="#tarifs"          onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm text-gray-600 hover:text-[#0F6E56] rounded-xl hover:bg-[#F4F2EB]">Tarifs</a>
-            <a href="#faq"             onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm text-gray-600 hover:text-[#0F6E56] rounded-xl hover:bg-[#F4F2EB]">FAQ</a>
-            <Link href="/portail"      onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm text-gray-600 hover:text-[#0F6E56] rounded-xl hover:bg-[#F4F2EB]">Espace copropriétaire</Link>
-            <Link href="/login"        onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm text-gray-600 hover:text-[#0F6E56] rounded-xl hover:bg-[#F4F2EB]">Se connecter</Link>
+            <a href="#tarifs"          onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm text-gray-600 hover:text-[#0F6E56] rounded-xl hover:bg-[#F5F5F7]">Tarifs</a>
+            <a href="#faq"             onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm text-gray-600 hover:text-[#0F6E56] rounded-xl hover:bg-[#F5F5F7]">FAQ</a>
+            <Link href="/portail"      onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm text-gray-600 hover:text-[#0F6E56] rounded-xl hover:bg-[#F5F5F7]">Espace copropriétaire</Link>
+            <Link href="/login"        onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm text-gray-600 hover:text-[#0F6E56] rounded-xl hover:bg-[#F5F5F7]">Se connecter</Link>
           </div>
           <Link href="/register" onClick={() => setMobileOpen(false)}
             className="flex items-center justify-center gap-2 bg-[#0F6E56] text-white px-4 py-3.5 rounded-xl font-semibold text-sm hover:bg-[#0d5e49] transition-colors">

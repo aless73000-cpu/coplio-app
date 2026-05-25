@@ -37,7 +37,7 @@ export default function Tarifs() {
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-12">
           <span className="text-[11px] font-bold text-[#0F6E56] uppercase tracking-[0.18em]">Tarifs</span>
-          <h2 className="text-4xl font-bold text-[#1C1C1A] mt-3 mb-4 tracking-tight">
+          <h2 className="text-4xl font-bold text-[#1D1D1F] mt-3 mb-4 tracking-tight">
             Simple, transparent, sans surprise
           </h2>
           <p className="text-gray-500 text-lg max-w-xl mx-auto mb-8">
@@ -46,7 +46,7 @@ export default function Tarifs() {
         </div>
 
         {/* Early adopter banner */}
-        <div className="flex items-center justify-center gap-3 bg-gradient-to-r from-[#E1F5EE] to-[#F4F2EB] border border-[#0F6E56]/15 rounded-2xl p-4 mb-10">
+        <div className="flex items-center justify-center gap-3 bg-gradient-to-r from-[#E5F5EF] to-[#F5F5F7] border border-[#0F6E56]/15 rounded-2xl p-4 mb-10">
           <Zap className="w-4 h-4 text-[#0F6E56] flex-shrink-0" />
           <p className="text-sm text-[#0F6E56]">
             <strong>Offre de lancement</strong> — Les premiers abonnés bénéficient du tarif actuel{' '}
@@ -73,10 +73,10 @@ export default function Tarifs() {
               )}
 
               <div className="mb-7">
-                <h3 className={`font-bold text-xl mb-1.5 ${highlight ? 'text-white' : 'text-[#1C1C1A]'}`}>{name}</h3>
+                <h3 className={`font-bold text-xl mb-1.5 ${highlight ? 'text-white' : 'text-[#1D1D1F]'}`}>{name}</h3>
                 <p className={`text-sm mb-5 ${highlight ? 'text-white/65' : 'text-gray-500'}`}>{desc}</p>
                 <div className="flex items-end gap-2">
-                  <span className={`text-5xl font-bold tracking-tight ${highlight ? 'text-white' : 'text-[#1C1C1A]'}`}>
+                  <span className={`text-5xl font-bold tracking-tight ${highlight ? 'text-white' : 'text-[#1D1D1F]'}`}>
                     {price}€
                   </span>
                   <span className={`text-sm mb-2 ${highlight ? 'text-white/55' : 'text-gray-400'}`}>/mois HT</span>
@@ -87,7 +87,7 @@ export default function Tarifs() {
                 {features.map((f) => (
                   <li key={f} className="flex items-start gap-2.5 text-sm">
                     <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                      highlight ? 'bg-white/20' : 'bg-[#E1F5EE]'
+                      highlight ? 'bg-white/20' : 'bg-[#E5F5EF]'
                     }`}>
                       <Check className={`w-2.5 h-2.5 ${highlight ? 'text-white' : 'text-[#0F6E56]'}`} />
                     </div>
@@ -100,7 +100,7 @@ export default function Tarifs() {
                 href={href}
                 className={`w-full py-3.5 rounded-2xl font-bold text-sm text-center transition-all block ${
                   highlight
-                    ? 'bg-white text-[#0F6E56] hover:bg-[#E1F5EE] shadow-md'
+                    ? 'bg-white text-[#0F6E56] hover:bg-[#E5F5EF] shadow-md'
                     : 'bg-[#0F6E56] text-white hover:bg-[#0d5e49] shadow-md shadow-[#0F6E56]/20'
                 }`}
               >
