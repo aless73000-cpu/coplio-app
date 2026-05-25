@@ -16,7 +16,7 @@ function DashboardPreview() {
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2">
         {([
-          {v:'12',  l:'Copropriétés', c:'text-[#0F6E56]',  bg:'bg-[#E5F5EF]'},
+          {v:'12',  l:'Copropriétés', c:'text-[#111827]',  bg:'bg-[#F1F5F9]'},
           {v:'284', l:'Lots gérés',   c:'text-blue-600',   bg:'bg-blue-50'},
           {v:'3',   l:'Sinistres',    c:'text-amber-600',  bg:'bg-amber-50'},
           {v:'1.4k€',l:'Impayés',    c:'text-red-500',    bg:'bg-red-50'},
@@ -31,7 +31,7 @@ function DashboardPreview() {
         <div className="text-xs font-semibold text-gray-500 mb-2">Recouvrement — 6 mois</div>
         <div className="flex items-end gap-1.5 h-16">
           {[62,71,78,74,88,94].map((h,i) => (
-            <div key={i} className="flex-1 rounded-md" style={{height:`${h}%`,background:i===5?'#0F6E56':i>=4?'#6DC5A8':'#E5F5EF'}} />
+            <div key={i} className="flex-1 rounded-md" style={{height:`${h}%`,background:i===5?'#111827':i>=4?'#6DC5A8':'#F1F5F9'}} />
           ))}
         </div>
         <div className="flex justify-between text-[9px] text-gray-300 mt-1">
@@ -53,15 +53,15 @@ function CoproprietePreview() {
   return (
     <div className="space-y-2">
       {([
-        {nom:'Résidence Bellevue',    ville:'Lyon · 18 lots',      statut:'À jour',   sc:'bg-[#E5F5EF] text-[#0F6E56]'},
+        {nom:'Résidence Bellevue',    ville:'Lyon · 18 lots',      statut:'À jour',   sc:'bg-[#F1F5F9] text-[#111827]'},
         {nom:'Le Clos Saint-Martin',  ville:'Paris · 32 lots',     statut:'Attention',sc:'bg-amber-50 text-amber-700'},
         {nom:'Villa des Pins',        ville:'Marseille · 8 lots',  statut:'Urgent',   sc:'bg-red-50 text-red-600'},
-        {nom:'Les Hauts de Vienne',   ville:'Bordeaux · 24 lots',  statut:'À jour',   sc:'bg-[#E5F5EF] text-[#0F6E56]'},
+        {nom:'Les Hauts de Vienne',   ville:'Bordeaux · 24 lots',  statut:'À jour',   sc:'bg-[#F1F5F9] text-[#111827]'},
       ] as const).map(({nom,ville,statut,sc}) => (
         <div key={nom} className="flex items-center justify-between bg-white border border-gray-100 rounded-xl p-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-[#E5F5EF] rounded-lg flex items-center justify-center flex-shrink-0">
-              <Building2 className="w-4 h-4 text-[#0F6E56]" />
+            <div className="w-8 h-8 bg-[#F1F5F9] rounded-lg flex items-center justify-center flex-shrink-0">
+              <Building2 className="w-4 h-4 text-[#111827]" />
             </div>
             <div>
               <div className="text-xs font-semibold text-[#1D1D1F]">{nom}</div>
@@ -83,10 +83,10 @@ function CoproprietairesPreview() {
           <span>Copropriétaire</span><span>Lot</span><span>Statut</span>
         </div>
         {([
-          {n:'M. Martin',  lot:'A12', s:'À jour',   sc:'text-[#0F6E56]'},
+          {n:'M. Martin',  lot:'A12', s:'À jour',   sc:'text-[#111827]'},
           {n:'Mme Dupont', lot:'B04', s:'En retard',sc:'text-red-500'},
-          {n:'M. Leroy',   lot:'C07', s:'À jour',   sc:'text-[#0F6E56]'},
-          {n:'Mme Bernard',lot:'A03', s:'À jour',   sc:'text-[#0F6E56]'},
+          {n:'M. Leroy',   lot:'C07', s:'À jour',   sc:'text-[#111827]'},
+          {n:'Mme Bernard',lot:'A03', s:'À jour',   sc:'text-[#111827]'},
         ] as const).map(({n,lot,s,sc}) => (
           <div key={n} className="grid grid-cols-3 px-3 py-2.5 border-t border-gray-50 text-xs">
             <span className="font-medium text-[#1D1D1F]">{n}</span>
@@ -95,9 +95,9 @@ function CoproprietairesPreview() {
           </div>
         ))}
       </div>
-      <div className="flex items-center gap-2 bg-[#E5F5EF] rounded-xl p-3">
-        <CheckCircle2 className="w-4 h-4 text-[#0F6E56] flex-shrink-0" />
-        <span className="text-xs text-[#0F6E56] font-medium">3 invitations envoyées aujourd&apos;hui</span>
+      <div className="flex items-center gap-2 bg-[#F1F5F9] rounded-xl p-3">
+        <CheckCircle2 className="w-4 h-4 text-[#111827] flex-shrink-0" />
+        <span className="text-xs text-[#111827] font-medium">3 invitations envoyées aujourd&apos;hui</span>
       </div>
     </div>
   )
@@ -107,7 +107,7 @@ function ChargesPreview() {
   return (
     <div className="space-y-2.5">
       {([
-        {ref:'ACH-2025-001',cp:'M. Martin', mt:'420 €',s:'Payé',   p:100,pc:'bg-[#0F6E56]', sc:'bg-[#E5F5EF] text-[#0F6E56]'},
+        {ref:'ACH-2025-001',cp:'M. Martin', mt:'420 €',s:'Payé',   p:100,pc:'bg-[#111827]', sc:'bg-[#F1F5F9] text-[#111827]'},
         {ref:'ACH-2025-002',cp:'Mme Dupont',mt:'435 €',s:'Partiel',p:60, pc:'bg-amber-400', sc:'bg-amber-50 text-amber-700'},
         {ref:'ACH-2025-003',cp:'M. Leroy',  mt:'390 €',s:'Impayé', p:0,  pc:'bg-red-400',   sc:'bg-red-50 text-red-600'},
       ] as const).map(({ref,cp,mt,s,p,pc,sc}) => (
@@ -156,7 +156,7 @@ function SinistresPreview() {
       {([
         {label:'Signalé', bc:'border-amber-200 bg-amber-50',         tc:'text-amber-700',   items:['Dégât des eaux — Bellevue','Fissure façade — Le Clos']},
         {label:'En cours',bc:'border-blue-200 bg-blue-50',           tc:'text-blue-700',    items:['Ascenseur — Villa des Pins']},
-        {label:'Clôturé', bc:'border-[#0F6E56]/20 bg-[#E5F5EF]',    tc:'text-[#0F6E56]',   items:['Toiture — Les Hauts','Chaudière — Arc']},
+        {label:'Clôturé', bc:'border-[#111827]/20 bg-[#F1F5F9]',    tc:'text-[#111827]',   items:['Toiture — Les Hauts','Chaudière — Arc']},
       ] as const).map(({label,bc,tc,items}) => (
         <div key={label} className={`border rounded-xl p-2.5 ${bc}`}>
           <div className={`text-[10px] font-bold mb-2 ${tc}`}>{label}</div>
@@ -197,8 +197,8 @@ function AGPreview() {
             {step:'PV archivé',   done:false},
           ] as const).map(({step,done}) => (
             <div key={step} className="flex items-center gap-2">
-              <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${done?'bg-[#E5F5EF]':'bg-gray-100'}`}>
-                {done && <Check className="w-2.5 h-2.5 text-[#0F6E56]" />}
+              <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${done?'bg-[#F1F5F9]':'bg-gray-100'}`}>
+                {done && <Check className="w-2.5 h-2.5 text-[#111827]" />}
               </div>
               <span className={`text-xs ${done?'text-gray-600':'text-gray-300'}`}>{step}</span>
             </div>
@@ -219,7 +219,7 @@ function MessageriePreview() {
           {n:'M. Leroy',  msg:'Pouvez-vous me renvoyer la quittance Q1 ?',         time:'Lun.', unread:false},
         ] as const).map(({n,msg,time,unread}) => (
           <div key={n} className={`flex items-start gap-3 px-3 py-2.5 border-b border-gray-50 last:border-0 ${unread?'bg-[#F5F5F7]':''}`}>
-            <div className="w-7 h-7 bg-[#0F6E56] rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="w-7 h-7 bg-[#111827] rounded-full flex items-center justify-center flex-shrink-0">
               <span className="text-white text-[9px] font-bold">{n[2]}</span>
             </div>
             <div className="flex-1 min-w-0">
@@ -229,13 +229,13 @@ function MessageriePreview() {
               </div>
               <p className="text-[10px] text-gray-400 truncate">{msg}</p>
             </div>
-            {unread && <div className="w-1.5 h-1.5 rounded-full bg-[#0F6E56] flex-shrink-0 mt-1.5" />}
+            {unread && <div className="w-1.5 h-1.5 rounded-full bg-[#111827] flex-shrink-0 mt-1.5" />}
           </div>
         ))}
       </div>
       <div className="flex gap-2">
         <input readOnly value="Bonjour M. Martin, notre technicien..." className="flex-1 text-[11px] bg-white border border-gray-100 rounded-xl px-3 py-2 text-gray-400" />
-        <button className="bg-[#0F6E56] text-white px-3 py-2 rounded-xl flex-shrink-0">
+        <button className="bg-[#111827] text-white px-3 py-2 rounded-xl flex-shrink-0">
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -249,8 +249,8 @@ const FEATURES_DATA = [
   {
     icon: BarChart3,
     label: 'Tableau de bord',
-    color: 'text-[#0F6E56]',
-    bg: 'bg-[#E5F5EF]',
+    color: 'text-[#111827]',
+    bg: 'bg-[#F1F5F9]',
     headline: 'Pilotez tout votre portefeuille en temps réel',
     desc: 'Un tableau de bord pensé pour les syndics actifs : KPIs essentiels, graphiques de recouvrement, alertes prioritaires et rapports PDF en un clic.',
     bullets: [
@@ -386,7 +386,7 @@ export default function FeaturesShowcase() {
     <section id="fonctionnalites" className="py-24 bg-white scroll-mt-[66px]">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-12">
-          <span className="text-[11px] font-bold text-[#0F6E56] uppercase tracking-[0.18em]">Découvrez chaque module</span>
+          <span className="text-[11px] font-bold text-[#111827] uppercase tracking-[0.18em]">Découvrez chaque module</span>
           <h2 className="text-4xl font-bold text-[#1D1D1F] mt-3 mb-4 tracking-tight">
             Une fonctionnalité pour chaque besoin
           </h2>
@@ -403,7 +403,7 @@ export default function FeaturesShowcase() {
               onClick={() => setActiveTab(idx)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-semibold whitespace-nowrap transition-all flex-shrink-0 ${
                 activeTab === idx
-                  ? 'bg-[#0F6E56] text-white shadow-md shadow-[#0F6E56]/20'
+                  ? 'bg-[#111827] text-white shadow-md shadow-[#111827]/20'
                   : 'bg-[#F5F5F7] text-gray-500 hover:bg-[#E8E5DC] hover:text-[#1D1D1F]'
               }`}
             >
@@ -431,8 +431,8 @@ export default function FeaturesShowcase() {
             <ul className="space-y-3">
               {feature.bullets.map((b) => (
                 <li key={b} className="flex items-start gap-3 text-sm">
-                  <div className="w-5 h-5 bg-[#E5F5EF] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Check className="w-3 h-3 text-[#0F6E56]" />
+                  <div className="w-5 h-5 bg-[#F1F5F9] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 text-[#111827]" />
                   </div>
                   <span className="text-gray-600">{b}</span>
                 </li>
@@ -440,7 +440,7 @@ export default function FeaturesShowcase() {
             </ul>
             <Link
               href="/register"
-              className="mt-7 inline-flex items-center gap-2 bg-[#0F6E56] text-white text-sm font-bold px-5 py-3 rounded-xl hover:bg-[#0d5e49] transition-colors self-start shadow-md shadow-[#0F6E56]/20"
+              className="mt-7 inline-flex items-center gap-2 bg-[#111827] text-white text-sm font-bold px-5 py-3 rounded-xl hover:bg-[#1F2937] transition-colors self-start shadow-md shadow-[#111827]/20"
             >
               Essayer gratuitement <ArrowRight className="w-4 h-4" />
             </Link>
@@ -466,7 +466,7 @@ export default function FeaturesShowcase() {
         <div className="flex items-center justify-between mt-5">
           <button
             onClick={() => setActiveTab((t) => (t - 1 + FEATURES_DATA.length) % FEATURES_DATA.length)}
-            className="flex items-center gap-2 text-sm text-gray-400 hover:text-[#0F6E56] transition-colors px-3 py-1.5 rounded-xl hover:bg-[#F5F5F7]"
+            className="flex items-center gap-2 text-sm text-gray-400 hover:text-[#111827] transition-colors px-3 py-1.5 rounded-xl hover:bg-[#F5F5F7]"
           >
             <ChevronDown className="w-4 h-4 rotate-90" /> Précédent
           </button>
@@ -475,13 +475,13 @@ export default function FeaturesShowcase() {
               <button
                 key={idx}
                 onClick={() => setActiveTab(idx)}
-                className={`rounded-full transition-all ${activeTab === idx ? 'w-5 h-2 bg-[#0F6E56]' : 'w-2 h-2 bg-gray-200 hover:bg-gray-300'}`}
+                className={`rounded-full transition-all ${activeTab === idx ? 'w-5 h-2 bg-[#111827]' : 'w-2 h-2 bg-gray-200 hover:bg-gray-300'}`}
               />
             ))}
           </div>
           <button
             onClick={() => setActiveTab((t) => (t + 1) % FEATURES_DATA.length)}
-            className="flex items-center gap-2 text-sm text-gray-400 hover:text-[#0F6E56] transition-colors px-3 py-1.5 rounded-xl hover:bg-[#F5F5F7]"
+            className="flex items-center gap-2 text-sm text-gray-400 hover:text-[#111827] transition-colors px-3 py-1.5 rounded-xl hover:bg-[#F5F5F7]"
           >
             Suivant <ChevronDown className="w-4 h-4 -rotate-90" />
           </button>

@@ -23,7 +23,7 @@ function Toggle({ value, onChange, label }: { value: boolean; onChange: (v: bool
     <div className="flex items-center justify-between py-2">
       <span className="text-sm text-coplio-text">{label}</span>
       <button onClick={() => onChange(!value)}
-        className={`w-10 h-6 rounded-full relative transition-colors ${value ? 'bg-coplio-green' : 'bg-border'}`}>
+        className={`w-10 h-6 rounded-full relative transition-colors ${value ? 'bg-[#111827]' : 'bg-border'}`}>
         <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${value ? 'translate-x-5' : 'translate-x-1'}`} />
       </button>
     </div>
@@ -82,7 +82,7 @@ export default function RelancesConfigPage() {
       <div className="coplio-card">
         <label className="block text-sm font-medium text-coplio-text mb-2">Copropriété</label>
         <select value={selected} onChange={e => setSelected(e.target.value)}
-          className="w-full px-3 py-2.5 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-coplio-green">
+          className="w-full px-3 py-2.5 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#111827]/20">
           {coproprietes.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
         </select>
       </div>
@@ -94,8 +94,8 @@ export default function RelancesConfigPage() {
           {/* Activation globale */}
           <section className="coplio-card">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-9 h-9 bg-coplio-green-light rounded-xl flex items-center justify-center">
-                <Bell className="w-4 h-4 text-coplio-green" />
+              <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center">
+                <Bell className="w-4 h-4 text-[#111827]" />
               </div>
               <h2 className="font-semibold text-coplio-text">Activation</h2>
             </div>
@@ -124,7 +124,7 @@ export default function RelancesConfigPage() {
                     <input type="number" min="1" max="365"
                       value={p[key as keyof Params] as number}
                       onChange={e => set(key as keyof Params, Number(e.target.value))}
-                      className="w-20 px-3 py-1.5 text-sm border border-border rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+                      className="w-20 px-3 py-1.5 text-sm border border-border rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
                     <span className="text-sm text-muted-foreground">jours</span>
                   </div>
                 </div>
@@ -180,20 +180,20 @@ export default function RelancesConfigPage() {
                 <textarea rows={3} value={p.texte_premier_rappel ?? ''}
                   onChange={e => set('texte_premier_rappel', e.target.value)}
                   placeholder="Laissez vide pour utiliser le message par défaut…"
-                  className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green resize-none" />
+                  className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 resize-none" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Texte du 2ème rappel</label>
                 <textarea rows={3} value={p.texte_deuxieme_rappel ?? ''}
                   onChange={e => set('texte_deuxieme_rappel', e.target.value)}
                   placeholder="Laissez vide pour utiliser le message par défaut…"
-                  className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green resize-none" />
+                  className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 resize-none" />
               </div>
             </div>
           </section>
 
           <button onClick={save} disabled={saving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-coplio-green text-white text-sm font-medium rounded-xl hover:bg-coplio-green/90 transition-colors disabled:opacity-60">
+            className="flex items-center gap-2 px-6 py-2.5 bg-[#111827] text-white text-sm font-medium rounded-xl hover:bg-[#111827]/90 transition-colors disabled:opacity-60">
             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
             {saved && <CheckCircle2 className="w-4 h-4" />}
             {saved ? 'Enregistré !' : saving ? 'Enregistrement…' : 'Enregistrer les paramètres'}

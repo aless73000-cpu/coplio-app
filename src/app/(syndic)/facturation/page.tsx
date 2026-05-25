@@ -66,9 +66,9 @@ export default async function FacturationPage({
 
       {/* Alertes */}
       {searchParams.success && (
-        <div className="p-4 bg-coplio-green-light border border-coplio-green/20 rounded-xl">
-          <p className="text-coplio-green font-medium">✓ Abonnement activé avec succès !</p>
-          <p className="text-sm text-coplio-green/80 mt-1">Vous avez maintenant accès à toutes les fonctionnalités de votre plan.</p>
+        <div className="p-4 bg-slate-100 border border-[#111827]/20 rounded-xl">
+          <p className="text-[#111827] font-medium">✓ Abonnement activé avec succès !</p>
+          <p className="text-sm text-[#111827]/80 mt-1">Vous avez maintenant accès à toutes les fonctionnalités de votre plan.</p>
         </div>
       )}
       {searchParams.canceled && (
@@ -89,7 +89,7 @@ export default async function FacturationPage({
                   Plan {currentPlan === 'trial' ? 'Essai gratuit' : currentPlan}
                 </span>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                  isActive ? 'bg-coplio-green-light text-coplio-green' : 'bg-coplio-amber-bg text-coplio-amber'
+                  isActive ? 'bg-slate-100 text-[#111827]' : 'bg-coplio-amber-bg text-coplio-amber'
                 }`}>
                   {isActive ? 'Actif' : cabinet.subscription_status}
                 </span>
@@ -132,13 +132,13 @@ export default async function FacturationPage({
                 key={key}
                 className={`relative rounded-2xl border p-6 ${
                   isPro
-                    ? 'border-coplio-green shadow-md bg-coplio-green-light/30'
+                    ? 'border-[#111827] shadow-md bg-slate-100/30'
                     : 'border-border bg-white'
                 }`}
               >
                 {isPro && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="bg-coplio-green text-white text-xs font-semibold px-3 py-1 rounded-full">
+                    <span className="bg-[#111827] text-white text-xs font-semibold px-3 py-1 rounded-full">
                       Le plus populaire
                     </span>
                   </div>
@@ -155,14 +155,14 @@ export default async function FacturationPage({
                 <ul className="space-y-2 mb-6">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2 text-sm text-coplio-text">
-                      <Check className="w-4 h-4 text-coplio-green flex-shrink-0 mt-0.5" />
+                      <Check className="w-4 h-4 text-[#111827] flex-shrink-0 mt-0.5" />
                       {feature}
                     </li>
                   ))}
                 </ul>
 
                 {isCurrentPlan ? (
-                  <div className="w-full py-2.5 bg-coplio-green-light text-coplio-green text-center rounded-xl text-sm font-medium">
+                  <div className="w-full py-2.5 bg-slate-100 text-[#111827] text-center rounded-xl text-sm font-medium">
                     Plan actuel
                   </div>
                 ) : (
@@ -209,7 +209,7 @@ export default async function FacturationPage({
           <p className="text-sm font-medium text-coplio-text">Une question sur votre abonnement ?</p>
           <p className="text-sm text-muted-foreground">
             Contactez-nous :{' '}
-            <a href="mailto:contact@coplio.fr" className="text-coplio-green hover:underline font-medium">
+            <a href="mailto:contact@coplio.fr" className="text-[#111827] hover:underline font-medium">
               contact@coplio.fr
             </a>
           </p>

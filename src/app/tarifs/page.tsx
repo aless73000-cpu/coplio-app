@@ -49,14 +49,14 @@ export default function TarifsPage() {
         <div className="max-w-5xl mx-auto px-6 pt-10 pb-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#0F6E56] transition-colors mb-8"
+            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#111827] transition-colors mb-8"
           >
             <ArrowLeft className="w-4 h-4" />
             Retour à l&apos;accueil
           </Link>
 
           <div className="text-center mb-16">
-            <span className="text-[11px] font-bold text-[#0F6E56] uppercase tracking-[0.18em]">
+            <span className="text-[11px] font-bold text-[#111827] uppercase tracking-[0.18em]">
               Tarifs
             </span>
             <h1 className="text-5xl font-bold text-[#1C1C1A] mt-3 mb-5 tracking-tight">
@@ -75,13 +75,13 @@ export default function TarifsPage() {
               <div
                 key={plan.key}
                 className={`rounded-2xl border p-8 flex flex-col ${'popular' in plan && plan.popular
-                  ? 'border-[#0F6E56] shadow-lg shadow-[#0F6E56]/10 relative'
+                  ? 'border-[#111827] shadow-lg shadow-[#111827]/10 relative'
                   : 'border-gray-200'
                 }`}
               >
                 {'popular' in plan && plan.popular && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="bg-[#0F6E56] text-white text-[11px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">
+                    <span className="bg-[#111827] text-white text-[11px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">
                       Le plus populaire
                     </span>
                   </div>
@@ -100,7 +100,7 @@ export default function TarifsPage() {
                 <ul className="space-y-3 flex-1 mb-8">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-3 text-sm text-gray-700">
-                      <Check className="w-4 h-4 text-[#0F6E56] mt-0.5 flex-shrink-0" />
+                      <Check className="w-4 h-4 text-[#111827] mt-0.5 flex-shrink-0" />
                       {feature}
                     </li>
                   ))}
@@ -109,7 +109,7 @@ export default function TarifsPage() {
                 <a
                   href={plan.href}
                   className={`w-full py-3 rounded-xl text-sm font-semibold text-center transition-colors ${'popular' in plan && plan.popular
-                    ? 'bg-[#0F6E56] text-white hover:bg-[#0F6E56]/90'
+                    ? 'bg-[#111827] text-white hover:bg-[#111827]/90'
                     : 'bg-gray-100 text-[#1C1C1A] hover:bg-gray-200'
                   }`}
                 >

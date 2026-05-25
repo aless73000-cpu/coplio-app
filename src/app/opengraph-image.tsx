@@ -16,7 +16,7 @@ export default function Image() {
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #0F6E56 0%, #0a5240 100%)',
+          background: 'linear-gradient(135deg, #111827 0%, #0a5240 100%)',
           padding: '80px',
           fontFamily: 'sans-serif',
         }}
@@ -30,8 +30,8 @@ export default function Image() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="#0F6E56" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <polyline points="9,22 9,12 15,12 15,22" stroke="#0F6E56" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <polyline points="9,22 9,12 15,12 15,22" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
           <span style={{ color: 'white', fontSize: '36px', fontWeight: '800', letterSpacing: '-0.5px' }}>

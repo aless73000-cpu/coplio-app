@@ -35,7 +35,7 @@ export function RapportMensuelButton({ data }: { data: RapportData }) {
       const MUTED  = '#888888'
       const GRAY   = '#F8F8F6'
       const RULE   = '#E0E0DC'
-      const GREEN  = '#0F6E56'
+      const GREEN  = '#111827'
       const PAGE_W = 210
       const MARGIN = 20
       const CONTENT_W = PAGE_W - MARGIN * 2

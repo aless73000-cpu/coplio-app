@@ -7,7 +7,7 @@ import { ArrowLeft, Loader2, Calculator, ChevronDown, ChevronUp } from 'lucide-r
 import { createClient } from '@/lib/supabase/client'
 
 const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-  focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
+  focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
   placeholder:text-gray-400 transition-shadow`
 
 type Lot = {
@@ -243,11 +243,11 @@ export default function NewAppelChargesPage() {
                     onClick={() => setModeRepartition(value as typeof modeRepartition)}
                     className={`p-3 rounded-xl border-2 text-left transition-colors ${
                       modeRepartition === value
-                        ? 'border-coplio-green bg-coplio-green-light'
-                        : 'border-border hover:border-coplio-green/30'
+                        ? 'border-[#111827] bg-slate-100'
+                        : 'border-border hover:border-[#111827]/30'
                     }`}
                   >
-                    <p className={`text-sm font-medium ${modeRepartition === value ? 'text-coplio-green' : 'text-coplio-text'}`}>
+                    <p className={`text-sm font-medium ${modeRepartition === value ? 'text-[#111827]' : 'text-coplio-text'}`}>
                       {label}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
@@ -277,7 +277,7 @@ export default function NewAppelChargesPage() {
                 <button
                   type="button"
                   onClick={() => setShowDetails(!showDetails)}
-                  className="text-xs text-coplio-green flex items-center gap-1"
+                  className="text-xs text-[#111827] flex items-center gap-1"
                 >
                   {showDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                   {showDetails ? 'Réduire' : 'Détails'}
@@ -287,12 +287,12 @@ export default function NewAppelChargesPage() {
 
             {loadingLots ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-5 h-5 animate-spin text-coplio-green" />
+                <Loader2 className="w-5 h-5 animate-spin text-[#111827]" />
               </div>
             ) : lots.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
                 Aucun lot dans cette copropriété.{' '}
-                <Link href={`/coproprietes/${coproprieteId}/lots/new`} className="text-coplio-green hover:underline">
+                <Link href={`/coproprietes/${coproprieteId}/lots/new`} className="text-[#111827] hover:underline">
                   Ajouter un lot
                 </Link>
               </p>
@@ -303,7 +303,7 @@ export default function NewAppelChargesPage() {
                     const sel: Record<string, boolean> = {}
                     lots.forEach((l) => { sel[l.id] = true })
                     setLotsSelectionnes(sel)
-                  }} className="text-coplio-green hover:underline">Tout sélectionner</button>
+                  }} className="text-[#111827] hover:underline">Tout sélectionner</button>
                   <span className="text-border">·</span>
                   <button type="button" onClick={() => setLotsSelectionnes({})} className="text-muted-foreground hover:text-coplio-text">Tout désélectionner</button>
                 </div>
@@ -316,7 +316,7 @@ export default function NewAppelChargesPage() {
                         key={lot.id}
                         className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
                           lotsSelectionnes[lot.id]
-                            ? 'border-coplio-green/40 bg-coplio-green-light/30'
+                            ? 'border-[#111827]/40 bg-slate-100/30'
                             : 'border-border bg-white hover:bg-coplio-bg'
                         }`}
                       >
@@ -327,7 +327,7 @@ export default function NewAppelChargesPage() {
                             ...prev,
                             [lot.id]: e.target.checked,
                           }))}
-                          className="rounded border-border text-coplio-green focus:ring-coplio-green"
+                          className="rounded border-border text-[#111827] focus:ring-[#111827]/20"
                         />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-coplio-text">
@@ -348,7 +348,7 @@ export default function NewAppelChargesPage() {
                               [lot.id]: e.target.value,
                             }))}
                             onClick={(e) => e.preventDefault()}
-                            className="w-24 px-2 py-1 text-sm border border-border rounded-lg text-right focus:outline-none focus:ring-1 focus:ring-coplio-green"
+                            className="w-24 px-2 py-1 text-sm border border-border rounded-lg text-right focus:outline-none focus:ring-1 focus:ring-[#111827]/20"
                             placeholder="0.00"
                           />
                         ) : (
@@ -377,7 +377,7 @@ export default function NewAppelChargesPage() {
           <button
             type="submit"
             disabled={isSubmitting || !coproprieteId || lotsActifs.length === 0}
-            className="flex-1 bg-coplio-green text-white font-medium py-2.5 px-4 rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
+            className="flex-1 bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
           >
             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             Créer {lotsActifs.length > 0 ? `${lotsActifs.length} appel${lotsActifs.length > 1 ? 's' : ''}` : 'les appels'}

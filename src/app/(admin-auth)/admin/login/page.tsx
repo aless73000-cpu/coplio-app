@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
       {/* Panneau gauche décoratif */}
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-12" style={{ background: '#0F2B1F' }}>
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-coplio-green rounded-lg flex items-center justify-center">
+          <div className="w-9 h-9 bg-[#111827] rounded-lg flex items-center justify-center">
             <ShieldCheck className="w-5 h-5 text-white" />
           </div>
           <span className="text-white font-bold text-lg">Coplio</span>
@@ -72,7 +72,7 @@ export default function AdminLoginPage() {
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-8 lg:hidden">
-            <div className="w-9 h-9 bg-coplio-green rounded-lg flex items-center justify-center">
+            <div className="w-9 h-9 bg-[#111827] rounded-lg flex items-center justify-center">
               <ShieldCheck className="w-5 h-5 text-white" />
             </div>
             <span className="text-white font-bold text-lg">Coplio Admin</span>
@@ -80,8 +80,8 @@ export default function AdminLoginPage() {
 
           <div className="mb-8">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4" style={{ background: 'rgba(15,110,86,0.2)', border: '1px solid rgba(15,110,86,0.4)' }}>
-              <ShieldCheck className="w-3.5 h-3.5 text-coplio-green" />
-              <span className="text-coplio-green text-xs font-semibold tracking-wide uppercase">Portail Admin</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-[#111827]" />
+              <span className="text-[#111827] text-xs font-semibold tracking-wide uppercase">Portail Admin</span>
             </div>
             <h2 className="text-2xl font-bold text-white mb-1">Connexion administrateur</h2>
             <p className="text-white/40 text-sm">Accès restreint — administrateurs uniquement</p>
@@ -102,7 +102,7 @@ export default function AdminLoginPage() {
                 onChange={e => setEmail(e.target.value)}
                 required
                 placeholder="admin@coplio.fr"
-                className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-coplio-green"
+                className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#111827]/20"
                 style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}
               />
             </div>
@@ -116,7 +116,7 @@ export default function AdminLoginPage() {
                   onChange={e => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-coplio-green pr-11"
+                  className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#111827]/20 pr-11"
                   style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}
                 />
                 <button
@@ -132,7 +132,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-coplio-green text-white font-semibold py-3 rounded-xl hover:bg-coplio-green/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
+              className="w-full bg-[#111827] text-white font-semibold py-3 rounded-xl hover:bg-[#111827]/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
               {loading ? 'Connexion...' : 'Accéder au portail admin'}

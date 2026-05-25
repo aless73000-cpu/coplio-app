@@ -36,7 +36,7 @@ export default function Tarifs() {
     <section id="tarifs" className="py-24 bg-white">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-12">
-          <span className="text-[11px] font-bold text-[#0F6E56] uppercase tracking-[0.18em]">Tarifs</span>
+          <span className="text-[11px] font-bold text-[#111827] uppercase tracking-[0.18em]">Tarifs</span>
           <h2 className="text-4xl font-bold text-[#1D1D1F] mt-3 mb-4 tracking-tight">
             Simple, transparent, sans surprise
           </h2>
@@ -46,9 +46,9 @@ export default function Tarifs() {
         </div>
 
         {/* Early adopter banner */}
-        <div className="flex items-center justify-center gap-3 bg-gradient-to-r from-[#E5F5EF] to-[#F5F5F7] border border-[#0F6E56]/15 rounded-2xl p-4 mb-10">
-          <Zap className="w-4 h-4 text-[#0F6E56] flex-shrink-0" />
-          <p className="text-sm text-[#0F6E56]">
+        <div className="flex items-center justify-center gap-3 bg-gradient-to-r from-[#F1F5F9] to-[#F5F5F7] border border-[#111827]/15 rounded-2xl p-4 mb-10">
+          <Zap className="w-4 h-4 text-[#111827] flex-shrink-0" />
+          <p className="text-sm text-[#111827]">
             <strong>Offre de lancement</strong> — Les premiers abonnés bénéficient du tarif actuel{' '}
             <strong>bloqué à vie</strong>, même si les prix augmentent.
           </p>
@@ -60,13 +60,13 @@ export default function Tarifs() {
               key={key}
               className={`relative rounded-3xl p-8 border-2 flex flex-col transition-all duration-300 ${
                 highlight
-                  ? 'border-[#0F6E56] bg-[#0F6E56] shadow-2xl shadow-[#0F6E56]/25 md:-mt-5 md:-mb-5'
-                  : 'border-gray-100 bg-white hover:border-[#0F6E56]/30 hover:shadow-lg'
+                  ? 'border-[#111827] bg-[#111827] shadow-2xl shadow-[#111827]/25 md:-mt-5 md:-mb-5'
+                  : 'border-gray-100 bg-white hover:border-[#111827]/30 hover:shadow-lg'
               }`}
             >
               {badge && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                  <span className="bg-white text-[#0F6E56] text-xs font-bold px-5 py-1.5 rounded-full shadow-lg border border-[#0F6E56]/10">
+                  <span className="bg-white text-[#111827] text-xs font-bold px-5 py-1.5 rounded-full shadow-lg border border-[#111827]/10">
                     {badge}
                   </span>
                 </div>
@@ -87,9 +87,9 @@ export default function Tarifs() {
                 {features.map((f) => (
                   <li key={f} className="flex items-start gap-2.5 text-sm">
                     <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                      highlight ? 'bg-white/20' : 'bg-[#E5F5EF]'
+                      highlight ? 'bg-white/20' : 'bg-[#F1F5F9]'
                     }`}>
-                      <Check className={`w-2.5 h-2.5 ${highlight ? 'text-white' : 'text-[#0F6E56]'}`} />
+                      <Check className={`w-2.5 h-2.5 ${highlight ? 'text-white' : 'text-[#111827]'}`} />
                     </div>
                     <span className={highlight ? 'text-white/80' : 'text-gray-600'}>{f}</span>
                   </li>
@@ -100,8 +100,8 @@ export default function Tarifs() {
                 href={href}
                 className={`w-full py-3.5 rounded-2xl font-bold text-sm text-center transition-all block ${
                   highlight
-                    ? 'bg-white text-[#0F6E56] hover:bg-[#E5F5EF] shadow-md'
-                    : 'bg-[#0F6E56] text-white hover:bg-[#0d5e49] shadow-md shadow-[#0F6E56]/20'
+                    ? 'bg-white text-[#111827] hover:bg-[#F1F5F9] shadow-md'
+                    : 'bg-[#111827] text-white hover:bg-[#1F2937] shadow-md shadow-[#111827]/20'
                 }`}
               >
                 {cta}
@@ -112,7 +112,7 @@ export default function Tarifs() {
 
         <p className="text-center text-sm text-gray-400 mt-10">
           Tous les prix sont HT · TVA applicable selon votre situation ·{' '}
-          <a href="mailto:contact@coplio.fr" className="text-[#0F6E56] hover:underline font-medium">
+          <a href="mailto:contact@coplio.fr" className="text-[#111827] hover:underline font-medium">
             Tarif sur mesure pour grands portefeuilles
           </a>
         </p>

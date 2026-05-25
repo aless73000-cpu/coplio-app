@@ -40,11 +40,11 @@ export function MobileBottomNav({ unreadMessages = 0 }: MobileBottomNavProps) {
           >
             <div className={cn(
               'flex items-center justify-center w-10 h-[26px] rounded-full transition-all duration-200 relative',
-              isActive(href) ? 'bg-coplio-green-light' : ''
+              isActive(href) ? 'bg-slate-100' : ''
             )}>
               <Icon className={cn(
                 'w-[19px] h-[19px] transition-colors duration-200',
-                isActive(href) ? 'text-coplio-green stroke-[2.5px]' : 'text-muted-foreground'
+                isActive(href) ? 'text-[#111827] stroke-[2.5px]' : 'text-muted-foreground'
               )} />
               {href === '/messages' && unreadMessages > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-[15px] bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
@@ -54,7 +54,7 @@ export function MobileBottomNav({ unreadMessages = 0 }: MobileBottomNavProps) {
             </div>
             <span className={cn(
               'text-[10px] font-medium leading-none transition-colors duration-200',
-              isActive(href) ? 'text-coplio-green' : 'text-muted-foreground'
+              isActive(href) ? 'text-[#111827]' : 'text-muted-foreground'
             )}>
               {label}
             </span>

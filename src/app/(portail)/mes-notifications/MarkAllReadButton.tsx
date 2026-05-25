@@ -25,7 +25,7 @@ export function MarkAllReadButton({ userId }: { userId: string }) {
     <button
       onClick={markAllRead}
       disabled={loading}
-      className="flex items-center gap-2 text-sm font-medium text-coplio-green hover:text-coplio-green/80 bg-coplio-green-light px-3 py-2 rounded-xl transition-colors disabled:opacity-50"
+      className="flex items-center gap-2 text-sm font-medium text-[#111827] hover:text-[#111827]/80 bg-slate-100 px-3 py-2 rounded-xl transition-colors disabled:opacity-50"
     >
       <CheckCheck className="w-4 h-4" />
       {loading ? 'En cours...' : 'Tout marquer lu'}

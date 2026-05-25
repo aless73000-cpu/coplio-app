@@ -73,7 +73,7 @@ export function RegisterForm() {
   }
 
   const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-    focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
+    focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
     placeholder:text-gray-400 transition-shadow`
 
   return (
@@ -143,11 +143,11 @@ export function RegisterForm() {
           type="checkbox"
           id="accepteCGU"
           {...register('accepteCGU')}
-          className="mt-0.5 w-4 h-4 rounded border-border accent-coplio-green cursor-pointer flex-shrink-0"
+          className="mt-0.5 w-4 h-4 rounded border-border accent-[#111827] cursor-pointer flex-shrink-0"
         />
         <label htmlFor="accepteCGU" className="text-sm text-muted-foreground cursor-pointer">
           J&apos;accepte les{' '}
-          <Link href="/cgu" target="_blank" className="text-coplio-green underline underline-offset-2 hover:text-coplio-green/80">
+          <Link href="/cgu" target="_blank" className="text-[#111827] underline underline-offset-2 hover:text-[#111827]/80">
             conditions générales d&apos;utilisation
           </Link>
         </label>
@@ -159,8 +159,8 @@ export function RegisterForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-coplio-green text-white font-medium py-2.5 px-4 rounded-lg
-                   hover:bg-coplio-green/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed
+        className="w-full bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg
+                   hover:bg-[#111827]/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed
                    flex items-center justify-center gap-2 text-sm mt-2"
       >
         {isSubmitting ? (

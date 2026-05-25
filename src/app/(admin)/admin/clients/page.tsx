@@ -91,7 +91,7 @@ export default async function AdminClientsPage({
                       {c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '—'}
                     </td>
                     <td className="px-5 py-3">
-                      <Link href={`/admin/clients/${c.id}`} className="text-coplio-green hover:underline text-xs font-medium">
+                      <Link href={`/admin/clients/${c.id}`} className="text-[#111827] hover:underline text-xs font-medium">
                         Gérer →
                       </Link>
                     </td>

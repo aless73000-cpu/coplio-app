@@ -57,7 +57,7 @@ export default async function AccueilPage() {
           </p>
           <Link
             href="/mes-messages"
-            className="inline-flex items-center gap-2 bg-coplio-green text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+            className="inline-flex items-center gap-2 bg-[#111827] text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-[#111827]/90 transition-colors"
           >
             <MessageCircle className="w-4 h-4" />
             Contacter le syndic
@@ -169,15 +169,15 @@ export default async function AccueilPage() {
     }
   } else {
     heroBanner = {
-      bg: 'bg-coplio-green-light',
-      border: 'border-coplio-green/20',
-      icon: <CheckCircle2 className="w-5 h-5 text-coplio-green flex-shrink-0" />,
+      bg: 'bg-slate-100',
+      border: 'border-[#111827]/20',
+      icon: <CheckCircle2 className="w-5 h-5 text-[#111827] flex-shrink-0" />,
       text: (
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-coplio-green">
+          <p className="text-sm font-semibold text-[#111827]">
             Votre compte est à jour ✓
           </p>
-          <p className="text-xs text-coplio-green/70 mt-0.5">
+          <p className="text-xs text-[#111827]/70 mt-0.5">
             {prochainAG
               ? `Prochaine AG : ${new Date(prochainAG.date_ag).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}`
               : 'Aucun paiement en attente'
@@ -233,7 +233,7 @@ export default async function AccueilPage() {
     if (!n.created_at) return
     feedItems.push({
       id: `notif-${n.id}`,
-      icon: <Bell className={`w-4 h-4 ${n.type === 'urgent' ? 'text-coplio-red' : n.type === 'alerte' ? 'text-coplio-amber' : 'text-coplio-green'}`} />,
+      icon: <Bell className={`w-4 h-4 ${n.type === 'urgent' ? 'text-coplio-red' : n.type === 'alerte' ? 'text-coplio-amber' : 'text-[#111827]'}`} />,
       text: n.titre,
       sub: n.message ?? undefined,
       date: n.created_at,
@@ -276,17 +276,17 @@ export default async function AccueilPage() {
       {/* Two info cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Charges card */}
-        <Link href="/mes-charges" className="bg-white rounded-2xl border border-border p-5 shadow-sm hover:shadow-md hover:border-coplio-green/30 transition-all group">
+        <Link href="/mes-charges" className="bg-white rounded-2xl border border-border p-5 shadow-sm hover:shadow-md hover:border-[#111827]/30 transition-all group">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-coplio-green-light rounded-xl flex items-center justify-center">
-                <CreditCard className="w-4 h-4 text-coplio-green" />
+              <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center">
+                <CreditCard className="w-4 h-4 text-[#111827]" />
               </div>
               <span className="text-sm font-medium text-muted-foreground">Mes charges</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
+            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#111827] transition-colors" />
           </div>
-          <p className={`text-3xl font-bold ${montantDu > 0 ? 'text-coplio-red' : 'text-coplio-green'}`}>
+          <p className={`text-3xl font-bold ${montantDu > 0 ? 'text-coplio-red' : 'text-[#111827]'}`}>
             {montantDu > 0 ? formatEuro(montantDu) : '✓ À jour'}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
@@ -297,7 +297,7 @@ export default async function AccueilPage() {
         {/* Next event card */}
         <Link
           href={prochainAG ? '/mes-assemblees' : '/mon-calendrier'}
-          className="bg-white rounded-2xl border border-border p-5 shadow-sm hover:shadow-md hover:border-coplio-green/30 transition-all group"
+          className="bg-white rounded-2xl border border-border p-5 shadow-sm hover:shadow-md hover:border-[#111827]/30 transition-all group"
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -308,7 +308,7 @@ export default async function AccueilPage() {
                 {prochainAG ? 'Prochaine AG' : 'Calendrier'}
               </span>
             </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
+            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#111827] transition-colors" />
           </div>
           {prochainAG ? (
             <>

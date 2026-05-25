@@ -7,7 +7,7 @@ export default function SyndicLoading() {
   return (
     <div className="flex min-h-screen bg-coplio-bg">
       {/* Sidebar skeleton */}
-      <div className="w-60 flex-shrink-0 bg-coplio-green" />
+      <div className="w-60 flex-shrink-0 bg-[#111827]" />
 
       {/* Main content skeleton */}
       <div className="flex-1 flex flex-col overflow-hidden">

@@ -68,8 +68,8 @@ export default async function AdminDashboardPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
         <div className="coplio-card">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-9 h-9 bg-coplio-green/10 rounded-lg flex items-center justify-center">
-              <Users className="w-4 h-4 text-coplio-green" />
+            <div className="w-9 h-9 bg-[#111827]/10 rounded-lg flex items-center justify-center">
+              <Users className="w-4 h-4 text-[#111827]" />
             </div>
             <p className="text-sm text-muted-foreground">Clients totaux</p>
           </div>
@@ -78,8 +78,8 @@ export default async function AdminDashboardPage() {
 
         <div className="coplio-card">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-9 h-9 bg-coplio-green/10 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-coplio-green" />
+            <div className="w-9 h-9 bg-[#111827]/10 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-[#111827]" />
             </div>
             <p className="text-sm text-muted-foreground">MRR</p>
           </div>
@@ -119,7 +119,7 @@ export default async function AdminDashboardPage() {
                 <div className="flex items-center gap-3">
                   <div className="w-32 bg-coplio-bg rounded-full h-2">
                     <div
-                      className="bg-coplio-green h-2 rounded-full"
+                      className="bg-[#111827] h-2 rounded-full"
                       style={{ width: total > 0 ? `${(count / total) * 100}%` : '0%' }}
                     />
                   </div>
@@ -134,7 +134,7 @@ export default async function AdminDashboardPage() {
         <div className="coplio-card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-coplio-text">Derniers inscrits</h2>
-            <Link href="/admin/clients" className="text-xs text-coplio-green hover:underline">Voir tous</Link>
+            <Link href="/admin/clients" className="text-xs text-[#111827] hover:underline">Voir tous</Link>
           </div>
           <div className="space-y-3">
             {recents.length === 0 && (

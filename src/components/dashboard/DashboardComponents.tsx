@@ -17,7 +17,7 @@ interface KpiCardProps {
 
 export function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }: KpiCardProps) {
   const colors = {
-    green: 'bg-coplio-green-light text-coplio-green',
+    green: 'bg-slate-100 text-[#111827]',
     blue:  'bg-coplio-blue-bg text-coplio-blue',
     amber: 'bg-coplio-amber-bg text-coplio-amber',
     red:   'bg-coplio-red-bg text-coplio-red',
@@ -35,7 +35,7 @@ export function KpiCard({ title, value, icon: Icon, href, color, isAmount, sub }
         </p>
         {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
       </div>
-      <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground group-hover:text-coplio-green transition-colors">
+      <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground group-hover:text-[#111827] transition-colors">
         Voir le détail <ArrowRight className="w-3 h-3" />
       </div>
     </Link>
@@ -52,14 +52,14 @@ interface PerformanceSectionProps {
 
 export function PerformanceSection({ tauxGlobal, nbCoproprietes, nbLots }: PerformanceSectionProps) {
   const lotsParCopro = nbCoproprietes > 0 ? Math.round(nbLots / nbCoproprietes) : 0
-  const tauxColor = tauxGlobal >= 90 ? 'text-coplio-green' : tauxGlobal >= 70 ? 'text-coplio-amber' : 'text-coplio-red'
-  const tauxBg    = tauxGlobal >= 90 ? 'bg-coplio-green'   : tauxGlobal >= 70 ? 'bg-coplio-amber'   : 'bg-coplio-red'
+  const tauxColor = tauxGlobal >= 90 ? 'text-[#111827]' : tauxGlobal >= 70 ? 'text-coplio-amber' : 'text-coplio-red'
+  const tauxBg    = tauxGlobal >= 90 ? 'bg-[#111827]'   : tauxGlobal >= 70 ? 'bg-coplio-amber'   : 'bg-coplio-red'
 
   return (
     <div className="coplio-card">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-coplio-text flex items-center gap-2">
-          <BarChart2 className="w-4 h-4 text-coplio-green" />Performance du cabinet
+          <BarChart2 className="w-4 h-4 text-[#111827]" />Performance du cabinet
         </h2>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -81,7 +81,7 @@ export function PerformanceSection({ tauxGlobal, nbCoproprietes, nbLots }: Perfo
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Lots par copropriété</p>
           <p className="text-3xl font-bold text-coplio-text mb-2">{lotsParCopro}</p>
           <div className="h-2 bg-white rounded-full overflow-hidden">
-            <div className="h-full bg-coplio-green rounded-full" style={{ width: `${Math.min(100, lotsParCopro * 2)}%` }} />
+            <div className="h-full bg-[#111827] rounded-full" style={{ width: `${Math.min(100, lotsParCopro * 2)}%` }} />
           </div>
           <p className="text-xs text-muted-foreground mt-2">
             {nbLots} lot{nbLots > 1 ? 's' : ''} réparti{nbLots > 1 ? 's' : ''} sur {nbCoproprietes} copropriété{nbCoproprietes > 1 ? 's' : ''}
@@ -103,8 +103,8 @@ export function CoproprieteAlertRow({ copropriete }: { copropriete: CoproprieteA
       className="flex items-center justify-between p-3 rounded-lg hover:bg-coplio-bg transition-colors group"
     >
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 bg-coplio-green-light rounded-lg flex items-center justify-center">
-          <Building2 className="w-4 h-4 text-coplio-green" />
+        <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+          <Building2 className="w-4 h-4 text-[#111827]" />
         </div>
         <div>
           <p className="text-sm font-medium text-coplio-text">{copropriete.nom}</p>
@@ -122,7 +122,7 @@ export function CoproprieteAlertRow({ copropriete }: { copropriete: CoproprieteA
           {copropriete.statut === 'urgent' ? 'Urgent' :
            copropriete.statut === 'attention' ? 'Attention' : 'À jour'}
         </span>
-        <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-coplio-green transition-colors" />
+        <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-[#111827] transition-colors" />
       </div>
     </Link>
   )
@@ -178,9 +178,9 @@ export function AgRow({ ag }: { ag: AgItem }) {
   return (
     <Link href={`/assemblees/${ag.id}`} className="block group">
       <div className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-coplio-bg transition-colors">
-        <div className="w-10 h-10 bg-coplio-green-light rounded-xl flex flex-col items-center justify-center flex-shrink-0">
-          <span className="text-coplio-green font-bold text-sm leading-none">{date.getDate()}</span>
-          <span className="text-coplio-green/70 text-[10px] uppercase">
+        <div className="w-10 h-10 bg-slate-100 rounded-xl flex flex-col items-center justify-center flex-shrink-0">
+          <span className="text-[#111827] font-bold text-sm leading-none">{date.getDate()}</span>
+          <span className="text-[#111827]/70 text-[10px] uppercase">
             {date.toLocaleDateString('fr-FR', { month: 'short' })}
           </span>
         </div>

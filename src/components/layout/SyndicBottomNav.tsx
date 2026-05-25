@@ -31,7 +31,7 @@ export function SyndicBottomNav({ unreadMessages = 0 }: SyndicBottomNavProps) {
             href={href}
             className={cn(
               'flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors relative',
-              active ? 'text-coplio-green' : 'text-muted-foreground'
+              active ? 'text-[#111827]' : 'text-muted-foreground'
             )}
           >
             <div className="relative">
@@ -44,7 +44,7 @@ export function SyndicBottomNav({ unreadMessages = 0 }: SyndicBottomNavProps) {
             </div>
             <span className="text-[10px] font-medium leading-none">{label}</span>
             {active && (
-              <span className="absolute bottom-0 w-8 h-0.5 bg-coplio-green rounded-full" />
+              <span className="absolute bottom-0 w-8 h-0.5 bg-[#111827] rounded-full" />
             )}
           </Link>
         )

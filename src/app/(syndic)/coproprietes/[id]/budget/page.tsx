@@ -136,7 +136,7 @@ export default function BudgetPage() {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className="px-3 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-coplio-green"
+            className="px-3 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#111827]/20"
           >
             {years.map((y) => (
               <option key={y} value={y}>{y}</option>
@@ -167,7 +167,7 @@ export default function BudgetPage() {
           <button
             onClick={createBudget}
             disabled={creating}
-            className="flex items-center gap-2 mx-auto bg-coplio-green text-white font-medium px-5 py-2.5 rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-60"
+            className="flex items-center gap-2 mx-auto bg-[#111827] text-white font-medium px-5 py-2.5 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60"
           >
             {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Créer le budget {selectedYear}
@@ -187,7 +187,7 @@ export default function BudgetPage() {
             </div>
             <div className="coplio-card text-center">
               <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Écart</p>
-              <p className={`text-xl font-bold ${totalReel > totalPrev ? 'text-coplio-red' : 'text-coplio-green'}`}>
+              <p className={`text-xl font-bold ${totalReel > totalPrev ? 'text-coplio-red' : 'text-[#111827]'}`}>
                 {formatEuro(totalReel - totalPrev)}
               </p>
             </div>
@@ -197,14 +197,14 @@ export default function BudgetPage() {
           <div className="coplio-card">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-coplio-text flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-coplio-green" />
+                <TrendingUp className="w-4 h-4 text-[#111827]" />
                 Postes budgétaires ({lignes.length})
               </h2>
               <div className="flex items-center gap-2">
                 <button
                   onClick={save}
                   disabled={saving}
-                  className="flex items-center gap-1.5 bg-coplio-green text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-60"
+                  className="flex items-center gap-1.5 bg-[#111827] text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60"
                 >
                   {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : saved ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
                   {saved ? 'Enregistré' : 'Enregistrer'}
@@ -234,14 +234,14 @@ export default function BudgetPage() {
                         value={ligne.poste}
                         onChange={(e) => updateLigne(ligne.tempId, 'poste', e.target.value)}
                         placeholder="Ex: Ascenseur"
-                        className="w-full px-2 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-coplio-green"
+                        className="w-full px-2 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20"
                       />
                     </div>
                     <div className="col-span-3">
                       <select
                         value={ligne.categorie}
                         onChange={(e) => updateLigne(ligne.tempId, 'categorie', e.target.value)}
-                        className="w-full px-2 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-coplio-green bg-white"
+                        className="w-full px-2 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20 bg-white"
                       >
                         {CATEGORIES.map((c) => (
                           <option key={c} value={c}>{BUDGET_CATEGORIE_LABELS[c]}</option>
@@ -254,7 +254,7 @@ export default function BudgetPage() {
                         value={ligne.montant_previsionnel || ''}
                         onChange={(e) => updateLigne(ligne.tempId, 'montant_previsionnel', Number(e.target.value))}
                         placeholder="0"
-                        className="w-full px-2 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-coplio-green text-right"
+                        className="w-full px-2 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20 text-right"
                       />
                     </div>
                     <div className="col-span-2">
@@ -263,7 +263,7 @@ export default function BudgetPage() {
                         value={ligne.montant_reel ?? ''}
                         onChange={(e) => updateLigne(ligne.tempId, 'montant_reel', e.target.value ? Number(e.target.value) : undefined)}
                         placeholder="—"
-                        className="w-full px-2 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-coplio-green text-right"
+                        className="w-full px-2 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20 text-right"
                       />
                     </div>
                     <div className="col-span-1 flex justify-center">
@@ -289,7 +289,7 @@ export default function BudgetPage() {
 
             <button
               onClick={addLigne}
-              className="flex items-center gap-2 text-sm text-coplio-green hover:text-coplio-green/80 transition-colors font-medium"
+              className="flex items-center gap-2 text-sm text-[#111827] hover:text-[#111827]/80 transition-colors font-medium"
             >
               <Plus className="w-4 h-4" />
               Ajouter un poste

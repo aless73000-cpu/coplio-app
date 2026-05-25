@@ -210,14 +210,14 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
           <div key="alertes_coproprietes" className="coplio-card">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-coplio-text">Alertes copropriétés</h2>
-              <Link href="/coproprietes" className="text-xs text-coplio-green hover:underline flex items-center gap-1">
+              <Link href="/coproprietes" className="text-xs text-[#111827] hover:underline flex items-center gap-1">
                 Voir tout <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
             {data.coproprietesCritiques.length === 0 ? (
               <div className="text-center py-8">
-                <div className="w-12 h-12 bg-coplio-green-light rounded-full flex items-center justify-center mx-auto mb-3">
-                  <TrendingUp className="w-6 h-6 text-coplio-green" />
+                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <TrendingUp className="w-6 h-6 text-[#111827]" />
                 </div>
                 <p className="text-sm font-medium text-coplio-text">Tout est à jour !</p>
                 <p className="text-xs text-muted-foreground mt-1">Aucune copropriété ne nécessite votre attention</p>
@@ -236,7 +236,7 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
           <div key="sinistres" className="coplio-card">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-coplio-text">Sinistres en cours</h2>
-              <Link href="/sinistres" className="text-xs text-coplio-green hover:underline flex items-center gap-1">
+              <Link href="/sinistres" className="text-xs text-[#111827] hover:underline flex items-center gap-1">
                 Voir tout <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
@@ -255,7 +255,7 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
           <div key="ag" className="coplio-card">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-coplio-text">AG à venir</h2>
-              <Link href="/assemblees" className="text-xs text-coplio-green hover:underline">Gérer</Link>
+              <Link href="/assemblees" className="text-xs text-[#111827] hover:underline">Gérer</Link>
             </div>
             {(!data.agProchaines || data.agProchaines.length === 0) ? (
               <p className="text-sm text-muted-foreground text-center py-4">Aucune AG planifiée</p>
@@ -266,7 +266,7 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
             )}
             <Link
               href="/assemblees/new"
-              className="mt-4 block text-center text-sm text-coplio-green font-medium border border-coplio-green/30 rounded-lg py-2 hover:bg-coplio-green-light transition-colors"
+              className="mt-4 block text-center text-sm text-[#111827] font-medium border border-[#111827]/30 rounded-lg py-2 hover:bg-slate-100 transition-colors"
             >
               + Planifier une AG
             </Link>
@@ -286,8 +286,8 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
                 { href: '/impayes',             label: 'Gérer les impayés',          icon: CreditCard },
               ].map(({ href, label, icon: Icon }) => (
                 <Link key={href} href={href} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-coplio-bg transition-colors text-sm">
-                  <div className="w-7 h-7 bg-coplio-green-light rounded-md flex items-center justify-center">
-                    <Icon className="w-3.5 h-3.5 text-coplio-green" />
+                  <div className="w-7 h-7 bg-slate-100 rounded-md flex items-center justify-center">
+                    <Icon className="w-3.5 h-3.5 text-[#111827]" />
                   </div>
                   <span className="text-coplio-text">{label}</span>
                   <ArrowRight className="w-3 h-3 text-muted-foreground ml-auto" />
@@ -334,8 +334,8 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
       {/* Empty state */}
       {data.kpis.nb_coproprietes === 0 && (
         <div className="coplio-card text-center py-16 border-dashed">
-          <div className="w-16 h-16 bg-coplio-green-light rounded-2xl flex items-center justify-center mx-auto mb-5">
-            <Building2 className="w-8 h-8 text-coplio-green" />
+          <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
+            <Building2 className="w-8 h-8 text-[#111827]" />
           </div>
           <h2 className="text-xl font-bold text-coplio-text mb-2">
             Ajoutez votre première copropriété
@@ -344,7 +344,7 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
             Votre tableau de bord s&apos;animera une fois votre première copropriété créée.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/coproprietes/new" className="inline-flex items-center gap-2 bg-coplio-green text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-coplio-green/90 transition-colors">
+            <Link href="/coproprietes/new" className="inline-flex items-center gap-2 bg-[#111827] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#111827]/90 transition-colors">
               <Building2 className="w-4 h-4" /> Créer une copropriété
             </Link>
             <Link href="/importer" className="inline-flex items-center gap-2 bg-coplio-bg text-coplio-text px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-border transition-colors">
@@ -363,7 +363,7 @@ export function DashboardCanvas({ data }: { data: DashboardData }) {
 // ─── DashboardPrefsEditor (used in Paramètres) ────────────────
 
 const WIDGET_COLORS: Record<string, string> = {
-  kpis_1:               'bg-coplio-green-light',
+  kpis_1:               'bg-slate-100',
   kpis_2:               'bg-blue-50',
   alertes_intelligentes:'bg-amber-50',
   graphiques_finances:  'bg-purple-50',
@@ -372,7 +372,7 @@ const WIDGET_COLORS: Record<string, string> = {
   alertes_coproprietes: 'bg-red-50',
   sinistres:            'bg-orange-50',
   ag:                   'bg-teal-50',
-  actions_rapides:      'bg-coplio-green-light',
+  actions_rapides:      'bg-slate-100',
 }
 
 export function DashboardPrefsEditor({ userId }: { userId: string }) {
@@ -471,7 +471,7 @@ export function DashboardPrefsEditor({ userId }: { userId: string }) {
               <button
                 onClick={() => toggle(w.id)}
                 className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${
-                  w.visible ? 'text-coplio-green hover:bg-coplio-green-light' : 'text-muted-foreground hover:bg-coplio-bg'
+                  w.visible ? 'text-[#111827] hover:bg-slate-100' : 'text-muted-foreground hover:bg-coplio-bg'
                 }`}
                 title={w.visible ? 'Masquer ce bloc' : 'Afficher ce bloc'}
               >
@@ -484,7 +484,7 @@ export function DashboardPrefsEditor({ userId }: { userId: string }) {
 
       <button
         onClick={handleSave}
-        className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors"
+        className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors"
       >
         {saved && <CheckCircle2 className="w-4 h-4" />}
         {saved ? 'Enregistré !' : 'Enregistrer les modifications'}

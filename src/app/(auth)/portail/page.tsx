@@ -24,14 +24,14 @@ export default function PortailLoginPage({
       {/* Card principale */}
       <div className="w-full max-w-sm">
         <Link href="/" className="flex items-center gap-2 mb-6 w-fit">
-          <div className="w-8 h-8 bg-coplio-green rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-[#111827] rounded-lg flex items-center justify-center">
             <Home className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-lg text-coplio-green">Coplio</span>
+          <span className="font-bold text-lg text-[#111827]">Coplio</span>
         </Link>
 
         {/* Header vert */}
-        <div className="bg-coplio-green rounded-2xl px-6 pt-8 pb-6 mb-4 text-white text-center relative overflow-hidden">
+        <div className="bg-[#111827] rounded-2xl px-6 pt-8 pb-6 mb-4 text-white text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
 
@@ -52,8 +52,8 @@ export default function PortailLoginPage({
             </div>
           )}
           {searchParams.message && (
-            <div className="mb-4 p-3 bg-coplio-green-light border border-coplio-green/20 rounded-xl">
-              <p className="text-coplio-green text-sm">{searchParams.message}</p>
+            <div className="mb-4 p-3 bg-slate-100 border border-[#111827]/20 rounded-xl">
+              <p className="text-[#111827] text-sm">{searchParams.message}</p>
             </div>
           )}
 
@@ -73,8 +73,8 @@ export default function PortailLoginPage({
           <ul className="space-y-2.5">
             {FEATURES.map(({ icon: Icon, label }) => (
               <li key={label} className="flex items-center gap-3">
-                <div className="w-7 h-7 bg-coplio-green-light rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Icon className="w-3.5 h-3.5 text-coplio-green" />
+                <div className="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-3.5 h-3.5 text-[#111827]" />
                 </div>
                 <span className="text-sm text-coplio-text">{label}</span>
               </li>
@@ -85,7 +85,7 @@ export default function PortailLoginPage({
         {/* Lien syndic */}
         <p className="text-center text-xs text-muted-foreground">
           Vous êtes syndic ?{' '}
-          <Link href="/login" className="text-coplio-green font-medium hover:underline">
+          <Link href="/login" className="text-[#111827] font-medium hover:underline">
             Accéder à l&apos;espace gestionnaire
           </Link>
         </p>

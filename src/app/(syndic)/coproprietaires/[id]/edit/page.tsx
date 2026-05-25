@@ -27,7 +27,7 @@ interface Lot {
 }
 
 const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-  focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
+  focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
   placeholder:text-gray-400 transition-shadow`
 
 export default function EditCopropriétairePage({ params }: { params: { id: string } }) {
@@ -101,7 +101,7 @@ export default function EditCopropriétairePage({ params }: { params: { id: stri
 
   if (loading) return (
     <div className="flex items-center justify-center py-20">
-      <Loader2 className="w-6 h-6 animate-spin text-coplio-green" />
+      <Loader2 className="w-6 h-6 animate-spin text-[#111827]" />
     </div>
   )
 
@@ -174,7 +174,7 @@ export default function EditCopropriétairePage({ params }: { params: { id: stri
 
         <div className="coplio-card space-y-3">
           <div className="flex items-center gap-2 mb-1">
-            <Home className="w-4 h-4 text-coplio-green" />
+            <Home className="w-4 h-4 text-[#111827]" />
             <h2 className="font-semibold text-coplio-text text-sm">Lots assignés</h2>
           </div>
 
@@ -194,7 +194,7 @@ export default function EditCopropriétairePage({ params }: { params: { id: stri
                         type="checkbox"
                         checked={selectedLots.has(lot.id)}
                         onChange={() => toggleLot(lot.id)}
-                        className="w-4 h-4 accent-coplio-green"
+                        className="w-4 h-4 accent-[#111827]"
                       />
                       <span className="text-sm text-coplio-text">
                         Lot {lot.numero}
@@ -218,7 +218,7 @@ export default function EditCopropriétairePage({ params }: { params: { id: stri
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 bg-coplio-green text-white font-medium py-2.5 px-4 rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
+            className="flex-1 bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
           >
             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             Enregistrer

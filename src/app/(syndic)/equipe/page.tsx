@@ -166,11 +166,11 @@ export default function EquipePage() {
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <select value={selectedCopro} onChange={e => setSelectedCopro(e.target.value)}
-              className="flex-1 px-3 py-2.5 text-sm border border-border rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-coplio-green">
+              className="flex-1 px-3 py-2.5 text-sm border border-border rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#111827]/20">
               {coproprietes.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
             </select>
             <button onClick={() => setShowConseilForm(v => !v)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-coplio-green text-white text-sm font-medium rounded-xl hover:bg-coplio-green/90 transition-colors">
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#111827] text-white text-sm font-medium rounded-xl hover:bg-[#111827]/90 transition-colors">
               <Plus className="w-4 h-4" />Ajouter
             </button>
           </div>
@@ -181,23 +181,23 @@ export default function EquipePage() {
               <form onSubmit={handleAddConseil} className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <input value={conseilForm.prenom} onChange={e => setConseilForm(f => ({ ...f, prenom: e.target.value }))} placeholder="Prénom *" required
-                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
                   <input value={conseilForm.nom} onChange={e => setConseilForm(f => ({ ...f, nom: e.target.value }))} placeholder="Nom *" required
-                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
                   <input value={conseilForm.email} onChange={e => setConseilForm(f => ({ ...f, email: e.target.value }))} placeholder="Email" type="email"
-                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
                   <input value={conseilForm.telephone} onChange={e => setConseilForm(f => ({ ...f, telephone: e.target.value }))} placeholder="Téléphone"
-                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
                   <select value={conseilForm.role} onChange={e => setConseilForm(f => ({ ...f, role: e.target.value }))}
-                    className="px-3 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-coplio-green">
+                    className="px-3 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#111827]/20">
                     {CONSEIL_ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                   </select>
                   <input value={conseilForm.lot_numero} onChange={e => setConseilForm(f => ({ ...f, lot_numero: e.target.value }))} placeholder="N° lot"
-                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+                    className="px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
                 </div>
                 <div className="flex gap-2">
                   <button type="submit" disabled={savingConseil}
-                    className="flex items-center gap-2 bg-coplio-green text-white text-sm px-4 py-2 rounded-lg hover:bg-coplio-green/90 disabled:opacity-60">
+                    className="flex items-center gap-2 bg-[#111827] text-white text-sm px-4 py-2 rounded-lg hover:bg-[#111827]/90 disabled:opacity-60">
                     {savingConseil ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}Ajouter
                   </button>
                   <button type="button" onClick={() => setShowConseilForm(false)} className="text-sm text-muted-foreground px-4 py-2 border border-border rounded-lg">Annuler</button>
@@ -269,8 +269,8 @@ export default function EquipePage() {
           <div className="divide-y divide-border">
             {membres.map((m) => (
               <div key={m.id} className="flex items-center gap-4 px-6 py-4">
-                <div className="w-10 h-10 rounded-full bg-coplio-green-light flex items-center justify-center flex-shrink-0">
-                  <span className="text-coplio-green text-sm font-bold">{initials(m)}</span>
+                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+                  <span className="text-[#111827] text-sm font-bold">{initials(m)}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -325,7 +325,7 @@ export default function EquipePage() {
         {inviteStatus && (
           <div className={`flex items-start gap-2 p-3 rounded-xl text-sm ${
             inviteStatus.type === 'success'
-              ? 'bg-coplio-green-light text-coplio-green'
+              ? 'bg-slate-100 text-[#111827]'
               : 'bg-red-50 text-red-700'
           }`}>
             {inviteStatus.type === 'success'
@@ -343,14 +343,14 @@ export default function EquipePage() {
             placeholder="prenom.nom@cabinet.fr"
             required
             className="flex-1 px-3 py-2.5 text-sm bg-white border border-border rounded-xl
-              focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
+              focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
               placeholder:text-gray-400"
           />
           <button
             type="submit"
             disabled={inviting || !inviteEmail}
-            className="flex items-center gap-2 px-4 py-2.5 bg-coplio-green text-white text-sm font-medium rounded-xl
-              hover:bg-coplio-green/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#111827] text-white text-sm font-medium rounded-xl
+              hover:bg-[#111827]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {inviting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
             Inviter
@@ -363,7 +363,7 @@ export default function EquipePage() {
         <LinkIcon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         <p className="text-muted-foreground">
           Le nombre de gestionnaires dépend de votre plan.{' '}
-          <Link href="/facturation" className="text-coplio-green font-medium hover:underline">
+          <Link href="/facturation" className="text-[#111827] font-medium hover:underline">
             Voir les limites
           </Link>
         </p>

@@ -103,7 +103,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
           />
           <Link
             href={`/coproprietaires/${params.id}/edit`}
-            className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors"
+            className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors"
           >
             <Pencil className="w-4 h-4" />
             Modifier
@@ -115,18 +115,18 @@ export default async function CopropriétairePage({ params }: { params: { id: st
       <div className={`rounded-2xl border p-5 ${
         soldeTotalDu > 0
           ? 'bg-red-50 border-red-200'
-          : 'bg-coplio-green-light border-coplio-green/20'
+          : 'bg-slate-100 border-[#111827]/20'
       }`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-              soldeTotalDu > 0 ? 'bg-red-100' : 'bg-coplio-green/20'
+              soldeTotalDu > 0 ? 'bg-red-100' : 'bg-[#111827]/20'
             }`}>
-              <CreditCard className={`w-5 h-5 ${soldeTotalDu > 0 ? 'text-red-500' : 'text-coplio-green'}`} />
+              <CreditCard className={`w-5 h-5 ${soldeTotalDu > 0 ? 'text-red-500' : 'text-[#111827]'}`} />
             </div>
             <div>
               <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Solde dû</p>
-              <p className={`text-2xl font-bold ${soldeTotalDu > 0 ? 'text-red-600' : 'text-coplio-green'}`}>
+              <p className={`text-2xl font-bold ${soldeTotalDu > 0 ? 'text-red-600' : 'text-[#111827]'}`}>
                 {formatEuro(soldeTotalDu)}
               </p>
             </div>
@@ -154,8 +154,8 @@ export default async function CopropriétairePage({ params }: { params: { id: st
       {/* ── Fiche contact ──────────────────────────────────────── */}
       <div className="coplio-card">
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-14 h-14 bg-coplio-green/10 rounded-full flex items-center justify-center flex-shrink-0">
-            <User className="w-7 h-7 text-coplio-green" />
+          <div className="w-14 h-14 bg-[#111827]/10 rounded-full flex items-center justify-center flex-shrink-0">
+            <User className="w-7 h-7 text-[#111827]" />
           </div>
           <div className="flex-1">
             <p className="font-bold text-coplio-text text-lg">
@@ -163,7 +163,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
             </p>
             <span className={`text-xs px-2 py-0.5 rounded-full ${
               copropriétaire.portail_actif
-                ? 'bg-coplio-green-light text-coplio-green'
+                ? 'bg-slate-100 text-[#111827]'
                 : 'bg-coplio-bg text-muted-foreground'
             }`}>
               {copropriétaire.portail_actif ? 'Portail actif' : 'Portail inactif'}
@@ -173,7 +173,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
           {copropriétaire.profile_id && (
             <Link
               href={`/messages?copro=${copropriétaire.profile_id}`}
-              className="flex items-center gap-2 text-sm font-medium text-coplio-green border border-coplio-green/30 px-3 py-2 rounded-lg hover:bg-coplio-green-light transition-colors"
+              className="flex items-center gap-2 text-sm font-medium text-[#111827] border border-[#111827]/30 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
             >
               <MessageSquare className="w-4 h-4" />
               Message
@@ -185,7 +185,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
           {copropriétaire.email && (
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              <a href={`mailto:${copropriétaire.email}`} className="text-coplio-green hover:underline">
+              <a href={`mailto:${copropriétaire.email}`} className="text-[#111827] hover:underline">
                 {copropriétaire.email}
               </a>
             </div>
@@ -193,7 +193,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
           {copropriétaire.telephone && (
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              <a href={`tel:${copropriétaire.telephone}`} className="text-coplio-text hover:text-coplio-green">
+              <a href={`tel:${copropriétaire.telephone}`} className="text-coplio-text hover:text-[#111827]">
                 {copropriétaire.telephone}
               </a>
             </div>
@@ -228,7 +228,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
           </div>
           <Link
             href={`/appels-charges`}
-            className="text-xs text-coplio-green hover:underline"
+            className="text-xs text-[#111827] hover:underline"
           >
             Voir tous les appels
           </Link>
@@ -255,10 +255,10 @@ export default async function CopropriétairePage({ params }: { params: { id: st
                   }`}
                 >
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                    appel.paye ? 'bg-coplio-green/10' : isLate ? 'bg-red-100' : 'bg-amber-50'
+                    appel.paye ? 'bg-[#111827]/10' : isLate ? 'bg-red-100' : 'bg-amber-50'
                   }`}>
                     {appel.paye
-                      ? <CheckCircle2 className="w-4 h-4 text-coplio-green" />
+                      ? <CheckCircle2 className="w-4 h-4 text-[#111827]" />
                       : isLate
                       ? <AlertTriangle className="w-4 h-4 text-red-500" />
                       : <Clock className="w-4 h-4 text-amber-500" />
@@ -277,7 +277,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
 
                   <div className="text-right flex-shrink-0">
                     <p className={`text-sm font-semibold ${
-                      appel.paye ? 'text-coplio-green' : isLate ? 'text-red-600' : 'text-coplio-text'
+                      appel.paye ? 'text-[#111827]' : isLate ? 'text-red-600' : 'text-coplio-text'
                     }`}>
                       {appel.paye ? formatEuro(appel.montant) : formatEuro(restant)}
                     </p>
@@ -306,7 +306,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
           <div>
             <span className={`text-xs px-2 py-1 rounded-full font-medium ${
               copropriétaire.portail_actif
-                ? 'bg-coplio-green-light text-coplio-green'
+                ? 'bg-slate-100 text-[#111827]'
                 : 'bg-coplio-bg text-muted-foreground'
             }`}>
               {copropriétaire.portail_actif ? 'Accès actif' : 'Accès inactif'}
@@ -346,8 +346,8 @@ export default async function CopropriétairePage({ params }: { params: { id: st
                   href={`/lots/${lot.id}`}
                   className="flex items-center gap-3 p-3 bg-coplio-bg rounded-xl hover:bg-border transition-colors"
                 >
-                  <div className="w-9 h-9 bg-coplio-green/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Home className="w-4 h-4 text-coplio-green" />
+                  <div className="w-9 h-9 bg-[#111827]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Home className="w-4 h-4 text-[#111827]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-coplio-text">
@@ -362,7 +362,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
                   <div className="text-right flex-shrink-0">
                     <p className="text-xs text-muted-foreground">{lot.tantiemes} t.</p>
                     {(lot.solde_compte ?? 0) !== 0 && (
-                      <p className={`text-xs font-medium ${(lot.solde_compte ?? 0) < 0 ? 'text-red-500' : 'text-coplio-green'}`}>
+                      <p className={`text-xs font-medium ${(lot.solde_compte ?? 0) < 0 ? 'text-red-500' : 'text-[#111827]'}`}>
                         {formatEuro(lot.solde_compte ?? 0)}
                       </p>
                     )}

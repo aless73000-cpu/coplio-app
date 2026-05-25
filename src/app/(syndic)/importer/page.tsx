@@ -93,24 +93,24 @@ export default function ImporterPage() {
       </div>
 
       {/* Schéma visuel */}
-      <div className="coplio-card bg-coplio-green-light border-coplio-green/20 flex items-center gap-4 p-5">
+      <div className="coplio-card bg-slate-100 border-[#111827]/20 flex items-center gap-4 p-5">
         <div className="flex items-center gap-3 flex-1">
-          <div className="w-10 h-10 bg-coplio-green/10 rounded-xl flex items-center justify-center flex-shrink-0">
-            <FileSpreadsheet className="w-5 h-5 text-coplio-green" />
+          <div className="w-10 h-10 bg-[#111827]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+            <FileSpreadsheet className="w-5 h-5 text-[#111827]" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-coplio-green">1 fichier Excel, 2 feuilles</p>
-            <p className="text-xs text-coplio-green/70 mt-0.5">Feuille "Lots" + feuille "Copropriétaires"</p>
+            <p className="text-sm font-semibold text-[#111827]">1 fichier Excel, 2 feuilles</p>
+            <p className="text-xs text-[#111827]/70 mt-0.5">Feuille "Lots" + feuille "Copropriétaires"</p>
           </div>
         </div>
-        <ArrowRight className="w-5 h-5 text-coplio-green/40 flex-shrink-0" />
+        <ArrowRight className="w-5 h-5 text-[#111827]/40 flex-shrink-0" />
         <div className="flex items-center gap-3 flex-1">
-          <div className="w-10 h-10 bg-coplio-green/10 rounded-xl flex items-center justify-center flex-shrink-0">
-            <CheckCircle2 className="w-5 h-5 text-coplio-green" />
+          <div className="w-10 h-10 bg-[#111827]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+            <CheckCircle2 className="w-5 h-5 text-[#111827]" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-coplio-green">Tout est créé et lié</p>
-            <p className="text-xs text-coplio-green/70 mt-0.5">Lots créés, copros enregistrés, lots assignés</p>
+            <p className="text-sm font-semibold text-[#111827]">Tout est créé et lié</p>
+            <p className="text-xs text-[#111827]/70 mt-0.5">Lots créés, copros enregistrés, lots assignés</p>
           </div>
         </div>
       </div>
@@ -118,7 +118,7 @@ export default function ImporterPage() {
       {/* Step 1 — Template */}
       <div className="coplio-card space-y-4">
         <h2 className="font-semibold text-coplio-text flex items-center gap-2">
-          <span className="w-6 h-6 bg-coplio-green text-white rounded-full text-xs flex items-center justify-center font-bold">1</span>
+          <span className="w-6 h-6 bg-[#111827] text-white rounded-full text-xs flex items-center justify-center font-bold">1</span>
           Téléchargez et remplissez le modèle
         </h2>
         <div className="flex items-center justify-between p-4 bg-coplio-bg rounded-xl border border-border">
@@ -137,7 +137,7 @@ export default function ImporterPage() {
           <a
             href="/api/import/template"
             download="modele_coplio.xlsx"
-            className="flex items-center gap-1.5 text-sm font-medium text-coplio-green hover:text-coplio-green/80 transition-colors flex-shrink-0 ml-4"
+            className="flex items-center gap-1.5 text-sm font-medium text-[#111827] hover:text-[#111827]/80 transition-colors flex-shrink-0 ml-4"
           >
             <Download className="w-4 h-4" />
             Télécharger le modèle
@@ -151,7 +151,7 @@ export default function ImporterPage() {
       {/* Step 2 — Copropriété */}
       <div className="coplio-card space-y-4">
         <h2 className="font-semibold text-coplio-text flex items-center gap-2">
-          <span className="w-6 h-6 bg-coplio-green text-white rounded-full text-xs flex items-center justify-center font-bold">2</span>
+          <span className="w-6 h-6 bg-[#111827] text-white rounded-full text-xs flex items-center justify-center font-bold">2</span>
           Sélectionnez la copropriété cible
         </h2>
         <div className="relative">
@@ -159,7 +159,7 @@ export default function ImporterPage() {
           <select
             value={selectedCopro}
             onChange={(e) => setSelectedCopro(e.target.value)}
-            className="w-full pl-9 pr-8 py-2.5 text-sm bg-white border border-border rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-coplio-green"
+            className="w-full pl-9 pr-8 py-2.5 text-sm bg-white border border-border rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#111827]/20"
           >
             <option value="">Sélectionner une copropriété…</option>
             {coproprietes.map((c) => (
@@ -175,7 +175,7 @@ export default function ImporterPage() {
       {/* Step 3 — Upload */}
       <div className="coplio-card space-y-4">
         <h2 className="font-semibold text-coplio-text flex items-center gap-2">
-          <span className="w-6 h-6 bg-coplio-green text-white rounded-full text-xs flex items-center justify-center font-bold">3</span>
+          <span className="w-6 h-6 bg-[#111827] text-white rounded-full text-xs flex items-center justify-center font-bold">3</span>
           Déposez votre fichier Excel
         </h2>
 
@@ -187,23 +187,23 @@ export default function ImporterPage() {
             onClick={() => fileRef.current?.click()}
             className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors ${
               dragOver
-                ? 'border-coplio-green bg-coplio-green-light'
-                : 'border-border hover:border-coplio-green/50 hover:bg-coplio-bg'
+                ? 'border-[#111827] bg-slate-100'
+                : 'border-border hover:border-[#111827]/50 hover:bg-coplio-bg'
             }`}
           >
             <FileSpreadsheet className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
             <p className="font-medium text-coplio-text mb-1">Glisser-déposer votre fichier Excel</p>
             <p className="text-sm text-muted-foreground mb-4">ou cliquer pour parcourir</p>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-coplio-green text-white rounded-lg text-sm font-medium">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#111827] text-white rounded-lg text-sm font-medium">
               <Upload className="w-4 h-4" />
               Choisir un fichier .xlsx
             </div>
             <input ref={fileRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={onFileChange} />
           </div>
         ) : (
-          <div className="flex items-center justify-between p-3 bg-coplio-green-light rounded-xl">
+          <div className="flex items-center justify-between p-3 bg-slate-100 rounded-xl">
             <div className="flex items-center gap-3">
-              <FileSpreadsheet className="w-5 h-5 text-coplio-green" />
+              <FileSpreadsheet className="w-5 h-5 text-[#111827]" />
               <div>
                 <p className="text-sm font-medium text-coplio-text">{file.name}</p>
                 <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(1)} Ko</p>
@@ -221,7 +221,7 @@ export default function ImporterPage() {
         <button
           onClick={handleImport}
           disabled={loading || !selectedCopro || !file}
-          className="w-full flex items-center justify-center gap-2 py-3.5 bg-coplio-green text-white font-semibold rounded-xl hover:bg-coplio-green/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#111827] text-white font-semibold rounded-xl hover:bg-[#111827]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? (
             <><Loader2 className="w-5 h-5 animate-spin" /> Import en cours…</>
@@ -239,10 +239,10 @@ export default function ImporterPage() {
 
       {/* Results */}
       {result && (
-        <div className={`coplio-card space-y-4 ${totalSuccess > 0 ? 'border-coplio-green/30' : ''}`}>
+        <div className={`coplio-card space-y-4 ${totalSuccess > 0 ? 'border-[#111827]/30' : ''}`}>
           <div className="flex items-center gap-3">
             {totalSuccess > 0
-              ? <CheckCircle2 className="w-6 h-6 text-coplio-green flex-shrink-0" />
+              ? <CheckCircle2 className="w-6 h-6 text-[#111827] flex-shrink-0" />
               : <AlertTriangle className="w-6 h-6 text-coplio-amber flex-shrink-0" />
             }
             <div>
@@ -263,11 +263,11 @@ export default function ImporterPage() {
           {totalSuccess > 0 && (
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-coplio-bg rounded-xl p-4 text-center">
-                <p className="text-2xl font-bold text-coplio-green">{result.lots_created}</p>
+                <p className="text-2xl font-bold text-[#111827]">{result.lots_created}</p>
                 <p className="text-xs text-muted-foreground mt-1">Lots créés</p>
               </div>
               <div className="bg-coplio-bg rounded-xl p-4 text-center">
-                <p className="text-2xl font-bold text-coplio-green">{result.copros_created}</p>
+                <p className="text-2xl font-bold text-[#111827]">{result.copros_created}</p>
                 <p className="text-xs text-muted-foreground mt-1">Copropriétaires enregistrés</p>
               </div>
             </div>
@@ -288,7 +288,7 @@ export default function ImporterPage() {
           )}
 
           {totalSuccess > 0 && (
-            <button onClick={reset} className="text-sm text-coplio-green hover:underline font-medium">
+            <button onClick={reset} className="text-sm text-[#111827] hover:underline font-medium">
               Faire un autre import
             </button>
           )}

@@ -46,7 +46,7 @@ export function SinistreAssuranceForm({ sinistreId, compagnie_assurance, numero_
   return (
     <div className="coplio-card">
       <h2 className="font-semibold text-coplio-text mb-4 flex items-center gap-2">
-        <Shield className="w-4 h-4 text-coplio-green" />Suivi assurance
+        <Shield className="w-4 h-4 text-[#111827]" />Suivi assurance
       </h2>
       <form onSubmit={handleSave} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
@@ -54,25 +54,25 @@ export function SinistreAssuranceForm({ sinistreId, compagnie_assurance, numero_
             <label className="block text-xs font-medium text-muted-foreground mb-1.5">Compagnie d&apos;assurance</label>
             <input value={form.compagnie_assurance} onChange={e => setForm(f => ({ ...f, compagnie_assurance: e.target.value }))}
               placeholder="Ex: AXA, Allianz, MMA..."
-              className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+              className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1.5">N° déclaration assurance</label>
             <input value={form.numero_declaration_assurance} onChange={e => setForm(f => ({ ...f, numero_declaration_assurance: e.target.value }))}
               placeholder="Ex: SIN-2026-XXXXX"
-              className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+              className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1.5">Montant du sinistre (€)</label>
             <input type="number" value={form.montant_sinistre} onChange={e => setForm(f => ({ ...f, montant_sinistre: e.target.value }))}
               placeholder="0"
-              className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+              className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1.5">Montant indemnisé (€)</label>
             <input type="number" value={form.montant_indemnise} onChange={e => setForm(f => ({ ...f, montant_indemnise: e.target.value }))}
               placeholder="0"
-              className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+              className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
           </div>
         </div>
 
@@ -81,10 +81,10 @@ export function SinistreAssuranceForm({ sinistreId, compagnie_assurance, numero_
             <p className="text-xs text-muted-foreground mb-1">Taux d&apos;indemnisation</p>
             <div className="flex items-center gap-3">
               <div className="flex-1 h-2 bg-border rounded-full overflow-hidden">
-                <div className={`h-full rounded-full transition-all ${taux >= 80 ? 'bg-coplio-green' : taux >= 50 ? 'bg-amber-400' : 'bg-red-500'}`}
+                <div className={`h-full rounded-full transition-all ${taux >= 80 ? 'bg-[#111827]' : taux >= 50 ? 'bg-amber-400' : 'bg-red-500'}`}
                   style={{ width: `${Math.min(100, taux)}%` }} />
               </div>
-              <span className={`text-sm font-bold ${taux >= 80 ? 'text-coplio-green' : taux >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
+              <span className={`text-sm font-bold ${taux >= 80 ? 'text-[#111827]' : taux >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
                 {taux}%
               </span>
             </div>
@@ -92,7 +92,7 @@ export function SinistreAssuranceForm({ sinistreId, compagnie_assurance, numero_
         )}
 
         <button type="submit" disabled={saving}
-          className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-60">
+          className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60">
           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : saved ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
           {saved ? 'Enregistré' : 'Enregistrer'}
         </button>

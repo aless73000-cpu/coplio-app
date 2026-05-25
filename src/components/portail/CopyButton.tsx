@@ -37,8 +37,8 @@ export function CopyButton({ text, className }: Props) {
       title={copied ? 'Copié !' : 'Copier'}
       className={`flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0 ${
         copied
-          ? 'bg-coplio-green text-white'
-          : 'bg-coplio-bg hover:bg-coplio-green-light text-muted-foreground hover:text-coplio-green'
+          ? 'bg-[#111827] text-white'
+          : 'bg-coplio-bg hover:bg-slate-100 text-muted-foreground hover:text-[#111827]'
       } ${className ?? ''}`}
     >
       {copied ? (

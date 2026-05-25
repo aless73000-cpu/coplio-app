@@ -156,13 +156,13 @@ export default async function MesChargesPage() {
           </div>
         </div>
       ) : (
-        <div className="bg-coplio-green-light border border-coplio-green/20 rounded-2xl p-5 flex items-center gap-4">
-          <div className="w-12 h-12 bg-coplio-green rounded-xl flex items-center justify-center flex-shrink-0">
+        <div className="bg-slate-100 border border-[#111827]/20 rounded-2xl p-5 flex items-center gap-4">
+          <div className="w-12 h-12 bg-[#111827] rounded-xl flex items-center justify-center flex-shrink-0">
             <CheckCircle2 className="w-6 h-6 text-white" />
           </div>
           <div>
-            <p className="font-semibold text-coplio-green text-lg">Votre compte est à jour</p>
-            <p className="text-sm text-coplio-green/70 mt-0.5">Aucun paiement en attente · Continuez comme ça !</p>
+            <p className="font-semibold text-[#111827] text-lg">Votre compte est à jour</p>
+            <p className="text-sm text-[#111827]/70 mt-0.5">Aucun paiement en attente · Continuez comme ça !</p>
           </div>
         </div>
       )}
@@ -175,7 +175,7 @@ export default async function MesChargesPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border">
           <div className="px-4 py-4">
             <p className="text-xs text-muted-foreground mb-1">Solde actuel</p>
-            <p className={`text-lg font-bold ${soldeCompte >= 0 ? 'text-coplio-green' : 'text-coplio-red'}`}>
+            <p className={`text-lg font-bold ${soldeCompte >= 0 ? 'text-[#111827]' : 'text-coplio-red'}`}>
               {formatEuro(soldeCompte)}
             </p>
             <p className="text-[10px] text-muted-foreground mt-0.5">{soldeCompte >= 0 ? 'Créditeur' : 'Débiteur'}</p>
@@ -187,7 +187,7 @@ export default async function MesChargesPage() {
           </div>
           <div className="px-4 py-4">
             <p className="text-xs text-muted-foreground mb-1">Payé {currentYear}</p>
-            <p className="text-base font-bold text-coplio-green">{formatEuro(totalPaye)}</p>
+            <p className="text-base font-bold text-[#111827]">{formatEuro(totalPaye)}</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">
               {Math.round(totalAppele > 0 ? (totalPaye / totalAppele) * 100 : 100)}% réglé
             </p>
@@ -217,8 +217,8 @@ export default async function MesChargesPage() {
               <div key={year}>
                 {/* Year header */}
                 <div className="px-5 py-2.5 bg-coplio-bg flex items-center gap-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${year === currentYear ? 'bg-coplio-green' : 'bg-gray-300'}`} />
-                  <span className={`text-xs font-semibold uppercase tracking-wide ${year === currentYear ? 'text-coplio-green' : 'text-muted-foreground'}`}>
+                  <div className={`w-1.5 h-1.5 rounded-full ${year === currentYear ? 'bg-[#111827]' : 'bg-gray-300'}`} />
+                  <span className={`text-xs font-semibold uppercase tracking-wide ${year === currentYear ? 'text-[#111827]' : 'text-muted-foreground'}`}>
                     {year}
                   </span>
                 </div>
@@ -230,7 +230,7 @@ export default async function MesChargesPage() {
                     <div key={appel.id} className="flex items-center gap-3 px-4 py-3.5 hover:bg-coplio-bg/50 transition-colors">
                       {/* Status dot */}
                       <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                        appel.paye ? 'bg-coplio-green' :
+                        appel.paye ? 'bg-[#111827]' :
                         isLate ? 'bg-coplio-red' : 'bg-coplio-amber'
                       }`} />
                       {/* Info */}
@@ -250,7 +250,7 @@ export default async function MesChargesPage() {
                         <p className="text-sm font-bold text-coplio-text">{formatEuro(appel.montant)}</p>
                         <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full mt-1 ${
                           appel.paye
-                            ? 'bg-coplio-green-light text-coplio-green'
+                            ? 'bg-slate-100 text-[#111827]'
                             : isLate
                               ? 'bg-coplio-red-bg text-coplio-red'
                               : 'bg-coplio-amber-bg text-coplio-amber'

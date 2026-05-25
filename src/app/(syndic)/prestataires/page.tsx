@@ -78,12 +78,12 @@ function Modal({ open, onClose, onSave, initial }: {
             <div className="col-span-2">
               <label className="block text-sm font-medium text-coplio-text mb-1.5">Nom *</label>
               <input required value={form.nom} onChange={e => setForm(f => ({ ...f, nom: e.target.value }))}
-                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
             </div>
             <div>
               <label className="block text-sm font-medium text-coplio-text mb-1.5">Métier</label>
               <select value={form.metier} onChange={e => setForm(f => ({ ...f, metier: e.target.value }))}
-                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green bg-white">
+                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
                 <option value="">Sélectionner…</option>
                 {METIERS.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
@@ -91,22 +91,22 @@ function Modal({ open, onClose, onSave, initial }: {
             <div>
               <label className="block text-sm font-medium text-coplio-text mb-1.5">SIRET</label>
               <input value={form.siret} onChange={e => setForm(f => ({ ...f, siret: e.target.value }))}
-                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
             </div>
             <div>
               <label className="block text-sm font-medium text-coplio-text mb-1.5">Téléphone</label>
               <input type="tel" value={form.telephone} onChange={e => setForm(f => ({ ...f, telephone: e.target.value }))}
-                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
             </div>
             <div>
               <label className="block text-sm font-medium text-coplio-text mb-1.5">Email</label>
               <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-coplio-text mb-1.5">Adresse</label>
               <input value={form.adresse} onChange={e => setForm(f => ({ ...f, adresse: e.target.value }))}
-                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-coplio-text mb-1.5">Note</label>
@@ -115,13 +115,13 @@ function Modal({ open, onClose, onSave, initial }: {
             <div className="col-span-2">
               <label className="block text-sm font-medium text-coplio-text mb-1.5">Commentaire</label>
               <textarea rows={3} value={form.commentaire} onChange={e => setForm(f => ({ ...f, commentaire: e.target.value }))}
-                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green resize-none" />
+                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 resize-none" />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm border border-border rounded-lg hover:bg-coplio-bg transition-colors">Annuler</button>
             <button type="submit" disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 text-sm bg-coplio-green text-white rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-60">
+              className="flex items-center gap-2 px-4 py-2 text-sm bg-[#111827] text-white rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60">
               {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               {saving ? 'Enregistrement…' : initial ? 'Modifier' : 'Ajouter'}
             </button>
@@ -185,21 +185,21 @@ export default function PrestatairesPage() {
           <p className="text-muted-foreground text-sm mt-1">Annuaire de vos fournisseurs et intervenants</p>
         </div>
         <button onClick={() => { setEditing(null); setModalOpen(true) }}
-          className="flex items-center gap-2 px-4 py-2 bg-coplio-green text-white text-sm font-medium rounded-xl hover:bg-coplio-green/90 transition-colors">
+          className="flex items-center gap-2 px-4 py-2 bg-[#111827] text-white text-sm font-medium rounded-xl hover:bg-[#111827]/90 transition-colors">
           <Plus className="w-4 h-4" /> Ajouter
         </button>
       </div>
 
       <input value={search} onChange={e => setSearch(e.target.value)}
         placeholder="Rechercher par nom ou métier…"
-        className="w-full max-w-sm px-3 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-coplio-green bg-white" />
+        className="w-full max-w-sm px-3 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white" />
 
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
       ) : filtered.length === 0 ? (
         <div className="coplio-card text-center py-16">
-          <div className="w-14 h-14 bg-coplio-green-light rounded-full flex items-center justify-center mx-auto mb-3">
-            <Wrench className="w-7 h-7 text-coplio-green" />
+          <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Wrench className="w-7 h-7 text-[#111827]" />
           </div>
           <p className="font-medium text-coplio-text">{search ? 'Aucun résultat' : 'Aucun prestataire'}</p>
           <p className="text-sm text-muted-foreground mt-1">
@@ -212,8 +212,8 @@ export default function PrestatairesPage() {
             <div key={p.id} className="coplio-card space-y-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-coplio-green-light rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Building2 className="w-5 h-5 text-coplio-green" />
+                  <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Building2 className="w-5 h-5 text-[#111827]" />
                   </div>
                   <div>
                     <p className="font-semibold text-coplio-text text-sm">{p.nom}</p>
@@ -236,12 +236,12 @@ export default function PrestatairesPage() {
 
               <div className="space-y-1.5">
                 {p.telephone && (
-                  <a href={`tel:${p.telephone}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-coplio-green transition-colors">
+                  <a href={`tel:${p.telephone}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-[#111827] transition-colors">
                     <Phone className="w-3.5 h-3.5" /> {p.telephone}
                   </a>
                 )}
                 {p.email && (
-                  <a href={`mailto:${p.email}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-coplio-green transition-colors">
+                  <a href={`mailto:${p.email}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-[#111827] transition-colors">
                     <Mail className="w-3.5 h-3.5" /> {p.email}
                   </a>
                 )}

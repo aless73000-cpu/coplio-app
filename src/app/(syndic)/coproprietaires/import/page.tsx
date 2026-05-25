@@ -62,7 +62,7 @@ export default function ImportDossierPage() {
   }
 
   const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-    focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
+    focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
     placeholder:text-gray-400 transition-shadow`
 
   return (
@@ -82,8 +82,8 @@ export default function ImportDossierPage() {
         <div className="space-y-4">
           <div className="coplio-card">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-coplio-green-light rounded-full flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-coplio-green" />
+              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="w-5 h-5 text-[#111827]" />
               </div>
               <div>
                 <p className="font-semibold text-coplio-text">Import terminé</p>
@@ -91,9 +91,9 @@ export default function ImportDossierPage() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-coplio-green-light rounded-xl p-4 text-center">
-                <p className="text-3xl font-bold text-coplio-green">{result.lots_created}</p>
-                <p className="text-sm text-coplio-green/80 mt-0.5">Lots créés</p>
+              <div className="bg-slate-100 rounded-xl p-4 text-center">
+                <p className="text-3xl font-bold text-[#111827]">{result.lots_created}</p>
+                <p className="text-sm text-[#111827]/80 mt-0.5">Lots créés</p>
               </div>
               <div className="bg-coplio-blue-bg rounded-xl p-4 text-center">
                 <p className="text-3xl font-bold text-coplio-blue">{result.copros_created}</p>
@@ -120,7 +120,7 @@ export default function ImportDossierPage() {
             </button>
             <button
               onClick={() => router.push('/coproprietaires')}
-              className="flex-1 bg-coplio-green text-white font-medium py-2.5 px-4 rounded-lg hover:bg-coplio-green/90 transition-colors text-sm"
+              className="flex-1 bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#111827]/90 transition-colors text-sm"
             >
               Voir les copropriétaires
             </button>
@@ -182,10 +182,10 @@ export default function ImportDossierPage() {
               <div
                 className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${
                   isDragging
-                    ? 'border-coplio-green bg-coplio-green-light'
+                    ? 'border-[#111827] bg-slate-100'
                     : file
-                    ? 'border-coplio-green/50 bg-coplio-green-light/40'
-                    : 'border-border hover:border-coplio-green/50 hover:bg-coplio-bg'
+                    ? 'border-[#111827]/50 bg-slate-100/40'
+                    : 'border-border hover:border-[#111827]/50 hover:bg-coplio-bg'
                 }`}
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
                 onDragLeave={() => setIsDragging(false)}
@@ -204,7 +204,7 @@ export default function ImportDossierPage() {
                 />
                 {file ? (
                   <div className="flex items-center justify-center gap-3">
-                    <FileSpreadsheet className="w-8 h-8 text-coplio-green" />
+                    <FileSpreadsheet className="w-8 h-8 text-[#111827]" />
                     <div className="text-left">
                       <p className="font-medium text-coplio-text text-sm">{file.name}</p>
                       <p className="text-xs text-muted-foreground">
@@ -244,7 +244,7 @@ export default function ImportDossierPage() {
             <button
               onClick={handleSubmit}
               disabled={!file || !coproprieteId || loading}
-              className="flex-1 bg-coplio-green text-white font-medium py-2.5 px-4 rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+              className="flex-1 bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
             >
               {loading ? (
                 <>

@@ -25,7 +25,7 @@ export function AddonPortailButton() {
     <button
       onClick={handleActivate}
       disabled={loading}
-      className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-coplio-green/90 transition-colors disabled:opacity-60"
+      className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-[#111827]/90 transition-colors disabled:opacity-60"
     >
       {loading ? (
         <Loader2 className="w-4 h-4 animate-spin" />

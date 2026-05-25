@@ -39,7 +39,7 @@ interface Copropriete {
 
 const STATUT_LABELS = {
   brouillon: { label: 'Brouillon', color: 'text-muted-foreground bg-coplio-bg' },
-  ouvert:    { label: 'Ouvert',    color: 'text-coplio-green bg-coplio-green-light' },
+  ouvert:    { label: 'Ouvert',    color: 'text-[#111827] bg-slate-100' },
   clos:      { label: 'Clôturé',   color: 'text-coplio-red bg-red-50' },
 }
 
@@ -151,7 +151,7 @@ export default function VotesPage() {
         </div>
         <button
           onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-coplio-green/90 transition-colors"
+          className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-[#111827]/90 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Nouveau vote
@@ -171,7 +171,7 @@ export default function VotesPage() {
                 value={coproprieteId}
                 onChange={e => setCoproprieteId(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green bg-white"
+                className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white"
               >
                 <option value="">Sélectionner une copropriété…</option>
                 {coproprietes.map(c => (
@@ -187,7 +187,7 @@ export default function VotesPage() {
                 onChange={e => setTitre(e.target.value)}
                 required
                 placeholder="Ex: Approbation des comptes 2025"
-                className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green"
+                className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20"
               />
             </div>
 
@@ -198,7 +198,7 @@ export default function VotesPage() {
                 onChange={e => setDescription(e.target.value)}
                 rows={2}
                 placeholder="Contexte du vote…"
-                className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green resize-none"
+                className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 resize-none"
               />
             </div>
 
@@ -210,7 +210,7 @@ export default function VotesPage() {
                   value={dateFin}
                   onChange={e => setDateFin(e.target.value)}
                   required
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20"
                 />
               </div>
               <div>
@@ -218,7 +218,7 @@ export default function VotesPage() {
                 <select
                   value={statut}
                   onChange={e => setStatut(e.target.value as 'brouillon' | 'ouvert')}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green bg-white"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white"
                 >
                   <option value="ouvert">Ouvert immédiatement</option>
                   <option value="brouillon">Brouillon</option>
@@ -235,7 +235,7 @@ export default function VotesPage() {
                       value={opt}
                       onChange={e => setOptions(prev => prev.map((o, j) => j === i ? e.target.value : o))}
                       placeholder={`Option ${i + 1}`}
-                      className="flex-1 px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green"
+                      className="flex-1 px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20"
                     />
                     {options.length > 2 && (
                       <button type="button" onClick={() => setOptions(prev => prev.filter((_, j) => j !== i))}
@@ -246,7 +246,7 @@ export default function VotesPage() {
                   </div>
                 ))}
                 <button type="button" onClick={() => setOptions(prev => [...prev, ''])}
-                  className="text-sm text-coplio-green hover:text-coplio-green/80 flex items-center gap-1 font-medium">
+                  className="text-sm text-[#111827] hover:text-[#111827]/80 flex items-center gap-1 font-medium">
                   <Plus className="w-3.5 h-3.5" /> Ajouter une option
                 </button>
               </div>
@@ -254,7 +254,7 @@ export default function VotesPage() {
 
             <div className="flex gap-3 pt-2">
               <button type="submit" disabled={creating}
-                className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 disabled:opacity-60">
+                className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 disabled:opacity-60">
                 {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                 Créer le vote
               </button>
@@ -276,7 +276,7 @@ export default function VotesPage() {
               onClick={() => setFiltre(f)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border ${
                 filtre === f
-                  ? 'bg-coplio-green text-white border-coplio-green'
+                  ? 'bg-[#111827] text-white border-[#111827]'
                   : 'border-border text-muted-foreground hover:text-coplio-text bg-white'
               }`}
             >
@@ -313,8 +313,8 @@ export default function VotesPage() {
             return (
               <div key={vote.id} className="coplio-card">
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 bg-coplio-green-light rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Vote className="w-5 h-5 text-coplio-green" />
+                  <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Vote className="w-5 h-5 text-[#111827]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -349,7 +349,7 @@ export default function VotesPage() {
                     )}
                     {vote.statut === 'brouillon' && (
                       <button onClick={() => handleStatutChange(vote.id, 'ouvert')}
-                        className="text-xs text-coplio-green hover:bg-coplio-green-light px-2 py-1 rounded-lg transition-colors font-medium">
+                        className="text-xs text-[#111827] hover:bg-slate-100 px-2 py-1 rounded-lg transition-colors font-medium">
                         Ouvrir
                       </button>
                     )}
@@ -379,7 +379,7 @@ export default function VotesPage() {
                           </div>
                           <div className="h-2 bg-coplio-bg rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-coplio-green rounded-full transition-all duration-500"
+                              className="h-full bg-[#111827] rounded-full transition-all duration-500"
                               style={{ width: `${pct}%` }}
                             />
                           </div>

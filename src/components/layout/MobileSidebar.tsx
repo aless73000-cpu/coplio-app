@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils'
 import {
   Menu,
   X,
-  Home,
   CreditCard,
   Settings,
   LogOut,
@@ -90,7 +89,7 @@ export function MobileSidebar({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="md:hidden p-2 rounded-lg hover:bg-coplio-bg transition-colors"
+        className="md:hidden p-2 rounded-lg hover:bg-slate-50 transition-colors"
         aria-label="Ouvrir le menu"
       >
         <Menu className="w-5 h-5 text-coplio-text" />
@@ -108,13 +107,13 @@ export function MobileSidebar({
           'fixed top-0 left-0 h-full w-72 z-50 flex flex-col transition-transform duration-300 md:hidden',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
-        style={{ background: 'linear-gradient(180deg, #0C5E47 0%, #0A5240 100%)' }}
+        style={{ background: '#111827' }}
       >
         {/* Header */}
         <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-              <Home className="w-5 h-5 text-coplio-green" />
+            <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center border border-white/10">
+              <span className="text-white text-sm font-bold">C</span>
             </div>
             <span className="text-white font-bold text-xl">Coplio</span>
           </div>
@@ -161,7 +160,7 @@ export function MobileSidebar({
                 </span>
               )}
               {item.href === '/sinistres' && urgentSinistres > 0 && (
-                <span className="ml-auto bg-coplio-amber text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
+                <span className="ml-auto bg-amber-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
                   {urgentSinistres > 9 ? '9+' : urgentSinistres}
                 </span>
               )}

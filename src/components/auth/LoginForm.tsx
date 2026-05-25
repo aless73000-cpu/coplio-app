@@ -212,7 +212,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
           className="w-full bg-[#111827] text-white font-semibold py-3.5 px-4 rounded-xl
                      hover:bg-[#1F2937] transition-colors disabled:opacity-50 disabled:cursor-not-allowed
                      flex items-center justify-center gap-2 text-sm shadow-apple-sm
-                     shadow-coplio-green/20"
+                     shadow-[#111827]/20"
           style={{ letterSpacing: '-0.01em' }}
         >
           {mfaLoading ? (
@@ -316,7 +316,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
         className="w-full bg-[#111827] text-white font-semibold py-3.5 px-4 rounded-xl
                    hover:bg-[#1F2937] transition-all disabled:opacity-50 disabled:cursor-not-allowed
                    flex items-center justify-center gap-2 text-sm shadow-apple-sm
-                   shadow-coplio-green/20 hover:-translate-y-px hover:shadow-apple-md"
+                   shadow-[#111827]/20 hover:-translate-y-px hover:shadow-apple-md"
         style={{ letterSpacing: '-0.01em' }}
       >
         {isSubmitting ? (

@@ -32,7 +32,7 @@ export function DownloadChargesPDF({ charges, lotNumero, coproprieteNom, prenom,
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
       // ── En-tête ────────────────────────────────────────────────
-      doc.setFillColor(15, 110, 86) // coplio-green
+      doc.setFillColor(17, 24, 39) // anthracite #111827
       doc.rect(0, 0, 210, 38, 'F')
 
       doc.setTextColor(255, 255, 255)
@@ -152,7 +152,7 @@ export function DownloadChargesPDF({ charges, lotNumero, coproprieteNom, prenom,
     <button
       onClick={handleDownload}
       disabled={loading || charges.length === 0}
-      className="flex items-center gap-2 px-4 py-2.5 bg-white border border-border rounded-xl text-sm font-medium text-coplio-text hover:border-coplio-green hover:text-coplio-green transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="flex items-center gap-2 px-4 py-2.5 bg-white border border-border rounded-xl text-sm font-medium text-coplio-text hover:border-[#111827] hover:text-[#111827] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {loading
         ? <Loader2 className="w-4 h-4 animate-spin" />

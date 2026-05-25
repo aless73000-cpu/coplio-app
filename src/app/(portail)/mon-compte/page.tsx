@@ -106,9 +106,9 @@ export default async function MonComptePage({
 
       {/* Save confirmation */}
       {saved && (
-        <div className="flex items-center gap-3 p-4 bg-coplio-green-light border border-coplio-green/20 rounded-xl">
-          <CheckCircle2 className="w-5 h-5 text-coplio-green flex-shrink-0" />
-          <p className="text-sm font-medium text-coplio-green">Vos informations ont été mises à jour.</p>
+        <div className="flex items-center gap-3 p-4 bg-slate-100 border border-[#111827]/20 rounded-xl">
+          <CheckCircle2 className="w-5 h-5 text-[#111827] flex-shrink-0" />
+          <p className="text-sm font-medium text-[#111827]">Vos informations ont été mises à jour.</p>
         </div>
       )}
 
@@ -116,14 +116,14 @@ export default async function MonComptePage({
       <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
         {/* Section header */}
         <div className="px-4 py-3.5 border-b border-border flex items-center gap-3">
-          <div className="w-10 h-10 bg-coplio-green rounded-xl flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 bg-[#111827] rounded-xl flex items-center justify-center flex-shrink-0">
             <span className="text-white text-sm font-bold">{initials || <User className="w-5 h-5" />}</span>
           </div>
           <div>
             <h2 className="font-semibold text-coplio-text">Mes informations</h2>
             <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
-          <span className="ml-auto inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-coplio-green-light text-coplio-green">
+          <span className="ml-auto inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 text-[#111827]">
             <Shield className="w-3 h-3" />
             Copropriétaire
           </span>
@@ -140,7 +140,7 @@ export default async function MonComptePage({
                 defaultValue={profile?.prenom ?? ''}
                 required
                 placeholder="Votre prénom"
-                className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
+                className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent"
               />
             </div>
             <div>
@@ -152,7 +152,7 @@ export default async function MonComptePage({
                 defaultValue={profile?.nom ?? ''}
                 required
                 placeholder="Votre nom"
-                className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
+                className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent"
               />
             </div>
           </div>
@@ -179,14 +179,14 @@ export default async function MonComptePage({
               name="telephone"
               defaultValue={profile?.telephone ?? ''}
               placeholder="+33 6 00 00 00 00"
-              className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
+              className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent"
             />
           </div>
 
           <div className="pt-1">
             <button
               type="submit"
-              className="flex items-center gap-2 bg-coplio-green text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+              className="flex items-center gap-2 bg-[#111827] text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-[#111827]/90 transition-colors"
             >
               <Save className="w-4 h-4" />
               Enregistrer les modifications
@@ -242,16 +242,16 @@ export default async function MonComptePage({
             {lot.solde_compte != null && (
               <div className={`mt-3 flex items-center gap-3 p-4 rounded-xl border ${
                 lot.solde_compte >= 0
-                  ? 'bg-coplio-green-light border-coplio-green/20'
+                  ? 'bg-slate-100 border-[#111827]/20'
                   : 'bg-coplio-red-bg border-coplio-red/20'
               }`}>
                 {lot.solde_compte >= 0
-                  ? <CheckCircle2 className="w-5 h-5 text-coplio-green flex-shrink-0" />
+                  ? <CheckCircle2 className="w-5 h-5 text-[#111827] flex-shrink-0" />
                   : <AlertTriangle className="w-5 h-5 text-coplio-red flex-shrink-0" />
                 }
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">Solde compte lot</p>
-                  <p className={`font-bold text-lg ${lot.solde_compte >= 0 ? 'text-coplio-green' : 'text-coplio-red'}`}>
+                  <p className={`font-bold text-lg ${lot.solde_compte >= 0 ? 'text-[#111827]' : 'text-coplio-red'}`}>
                     {lot.solde_compte >= 0 ? '+' : ''}{lot.solde_compte.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
@@ -273,8 +273,8 @@ export default async function MonComptePage({
           </div>
           <div className="p-4 space-y-4">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-coplio-green-light rounded-xl flex items-center justify-center flex-shrink-0">
-                <Building2 className="w-6 h-6 text-coplio-green" />
+              <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Building2 className="w-6 h-6 text-[#111827]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-coplio-text">{lot.copropriete.cabinet.nom}</p>
@@ -292,7 +292,7 @@ export default async function MonComptePage({
                     <p className="text-xs text-muted-foreground">Email</p>
                     <a
                       href={`mailto:${lot.copropriete.cabinet.email_contact}`}
-                      className="text-sm font-medium text-coplio-text hover:text-coplio-green transition-colors truncate block"
+                      className="text-sm font-medium text-coplio-text hover:text-[#111827] transition-colors truncate block"
                     >
                       {lot.copropriete.cabinet.email_contact}
                     </a>
@@ -306,7 +306,7 @@ export default async function MonComptePage({
                     <p className="text-xs text-muted-foreground">Téléphone</p>
                     <a
                       href={`tel:${lot.copropriete.cabinet.telephone}`}
-                      className="text-sm font-medium text-coplio-text hover:text-coplio-green transition-colors"
+                      className="text-sm font-medium text-coplio-text hover:text-[#111827] transition-colors"
                     >
                       {lot.copropriete.cabinet.telephone}
                     </a>
@@ -317,7 +317,7 @@ export default async function MonComptePage({
 
             <a
               href="/mes-messages"
-              className="inline-flex items-center gap-2 bg-coplio-green text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+              className="inline-flex items-center gap-2 bg-[#111827] text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-[#111827]/90 transition-colors"
             >
               <MessageCircle className="w-4 h-4" />
               Envoyer un message
@@ -334,9 +334,9 @@ export default async function MonComptePage({
         </div>
         <div className="p-5">
           {pwdSaved && (
-            <div className="flex items-center gap-3 p-3 bg-coplio-green-light border border-coplio-green/20 rounded-xl mb-4">
-              <CheckCircle2 className="w-4 h-4 text-coplio-green flex-shrink-0" />
-              <p className="text-sm font-medium text-coplio-green">Mot de passe mis à jour avec succès.</p>
+            <div className="flex items-center gap-3 p-3 bg-slate-100 border border-[#111827]/20 rounded-xl mb-4">
+              <CheckCircle2 className="w-4 h-4 text-[#111827] flex-shrink-0" />
+              <p className="text-sm font-medium text-[#111827]">Mot de passe mis à jour avec succès.</p>
             </div>
           )}
           {pwdError && (
@@ -361,7 +361,7 @@ export default async function MonComptePage({
                 required
                 minLength={8}
                 placeholder="8 caractères minimum"
-                className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
+                className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent"
               />
             </div>
             <div>
@@ -374,7 +374,7 @@ export default async function MonComptePage({
                 required
                 minLength={8}
                 placeholder="Répétez votre nouveau mot de passe"
-                className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent"
+                className="w-full px-3 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent"
               />
             </div>
             <div className="pt-1">

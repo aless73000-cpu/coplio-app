@@ -45,7 +45,7 @@ export function NotificationsClient({ userId, initialNotifications }: { userId: 
           </p>
         </div>
         {unread > 0 && (
-          <button onClick={markAllRead} className="flex items-center gap-2 text-sm text-coplio-green font-medium hover:underline">
+          <button onClick={markAllRead} className="flex items-center gap-2 text-sm text-[#111827] font-medium hover:underline">
             <CheckCheck className="w-4 h-4" />
             Tout marquer comme lu
           </button>
@@ -54,8 +54,8 @@ export function NotificationsClient({ userId, initialNotifications }: { userId: 
 
       {notifications.length === 0 ? (
         <div className="coplio-card text-center py-16">
-          <div className="w-14 h-14 bg-coplio-green/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Bell className="w-7 h-7 text-coplio-green" />
+          <div className="w-14 h-14 bg-[#111827]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Bell className="w-7 h-7 text-[#111827]" />
           </div>
           <p className="font-semibold text-coplio-text">Aucune notification</p>
           <p className="text-muted-foreground text-sm mt-1">Vous êtes à jour !</p>
@@ -66,7 +66,7 @@ export function NotificationsClient({ userId, initialNotifications }: { userId: 
             const content = (
               <div
                 onClick={() => !n.lu && markRead(n.id)}
-                className={`flex items-start gap-4 px-5 py-4 hover:bg-coplio-bg transition-colors cursor-pointer ${!n.lu ? 'bg-coplio-green-light/20' : ''}`}
+                className={`flex items-start gap-4 px-5 py-4 hover:bg-coplio-bg transition-colors cursor-pointer ${!n.lu ? 'bg-slate-100/20' : ''}`}
               >
                 <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${typeColors[n.type] ?? 'bg-gray-100 text-gray-500'}`}>
                   <Bell className="w-4 h-4" />

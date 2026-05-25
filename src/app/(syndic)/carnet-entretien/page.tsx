@@ -101,7 +101,7 @@ function Modal({ open, onClose, onSave, coproprietes, prestataires, initial }: {
   const F = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div><label className="block text-sm font-medium text-coplio-text mb-1.5">{label}</label>{children}</div>
   )
-  const inputCls = "w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green bg-white"
+  const inputCls = "w-full px-3 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white"
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -159,7 +159,7 @@ function Modal({ open, onClose, onSave, coproprietes, prestataires, initial }: {
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm border border-border rounded-lg hover:bg-coplio-bg">Annuler</button>
             <button type="submit" disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 text-sm bg-coplio-green text-white rounded-lg hover:bg-coplio-green/90 disabled:opacity-60">
+              className="flex items-center gap-2 px-4 py-2 text-sm bg-[#111827] text-white rounded-lg hover:bg-[#111827]/90 disabled:opacity-60">
               {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               {saving ? 'Enregistrement…' : 'Ajouter'}
             </button>
@@ -248,7 +248,7 @@ export default function CarnetEntretienPage() {
           <p className="text-muted-foreground text-sm mt-1">Historique et planification des interventions</p>
         </div>
         <button onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-coplio-green text-white text-sm font-medium rounded-xl hover:bg-coplio-green/90 transition-colors">
+          className="flex items-center gap-2 px-4 py-2 bg-[#111827] text-white text-sm font-medium rounded-xl hover:bg-[#111827]/90 transition-colors">
           <Plus className="w-4 h-4" /> Ajouter
         </button>
       </div>
@@ -270,12 +270,12 @@ export default function CarnetEntretienPage() {
       {/* Filtres */}
       <div className="flex gap-3 flex-wrap">
         <select value={filterStatut} onChange={e => setFilterStatut(e.target.value)}
-          className="px-3 py-2 text-sm border border-border rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-coplio-green">
+          className="px-3 py-2 text-sm border border-border rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#111827]/20">
           <option value="">Tous les statuts</option>
           {STATUTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
         <select value={filterCopro} onChange={e => setFilterCopro(e.target.value)}
-          className="px-3 py-2 text-sm border border-border rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-coplio-green">
+          className="px-3 py-2 text-sm border border-border rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#111827]/20">
           <option value="">Toutes les copropriétés</option>
           {coproprietes.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
         </select>
@@ -285,8 +285,8 @@ export default function CarnetEntretienPage() {
         <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
       ) : filtered.length === 0 ? (
         <div className="coplio-card text-center py-16">
-          <div className="w-14 h-14 bg-coplio-green-light rounded-full flex items-center justify-center mx-auto mb-3">
-            <BookOpen className="w-7 h-7 text-coplio-green" />
+          <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <BookOpen className="w-7 h-7 text-[#111827]" />
           </div>
           <p className="font-medium text-coplio-text">Carnet vide</p>
           <p className="text-sm text-muted-foreground mt-1">Ajoutez la première intervention pour commencer.</p>
@@ -296,8 +296,8 @@ export default function CarnetEntretienPage() {
           {filtered.map(e => (
             <div key={e.id} className="coplio-card">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-coplio-green-light rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Wrench className="w-5 h-5 text-coplio-green" />
+                <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Wrench className="w-5 h-5 text-[#111827]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
@@ -340,7 +340,7 @@ export default function CarnetEntretienPage() {
 
                 <div className="flex gap-1 flex-shrink-0">
                   <button onClick={() => handleEdit(e)}
-                    className="p-1.5 hover:bg-coplio-bg rounded-lg transition-colors text-muted-foreground hover:text-coplio-green" title="Modifier">
+                    className="p-1.5 hover:bg-coplio-bg rounded-lg transition-colors text-muted-foreground hover:text-[#111827]" title="Modifier">
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                   {e.statut !== 'realise' && (

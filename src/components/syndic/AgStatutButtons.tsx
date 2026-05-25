@@ -15,7 +15,7 @@ const TRANSITIONS: Record<AgStatus, { label: string; next: AgStatus; color: stri
     { label: '→ Annuler', next: 'annulee', color: 'text-coplio-red bg-red-50 hover:bg-red-100' },
   ],
   en_cours: [
-    { label: '→ Terminée', next: 'terminee', color: 'text-coplio-green bg-coplio-green-light hover:bg-coplio-green/20' },
+    { label: '→ Terminée', next: 'terminee', color: 'text-[#111827] bg-slate-100 hover:bg-[#111827]/20' },
     { label: '→ Annuler', next: 'annulee', color: 'text-coplio-red bg-red-50 hover:bg-red-100' },
   ],
   terminee: [],

@@ -77,7 +77,7 @@ export function PortailSidebar({ prenom, nom, email, lotNumero, coproprieteNom, 
       <div className="px-5 py-5 border-b border-border">
         <div className="flex items-center justify-between">
           <Link href="/accueil" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-coplio-green rounded-xl flex items-center justify-center">
+            <div className="w-8 h-8 bg-[#111827] rounded-xl flex items-center justify-center">
               <Home className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-lg text-coplio-text tracking-tight">Coplio</span>
@@ -113,23 +113,23 @@ export function PortailSidebar({ prenom, nom, email, lotNumero, coproprieteNom, 
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group relative',
                 active
-                  ? 'bg-coplio-green-light text-coplio-green'
+                  ? 'bg-slate-100 text-[#111827]'
                   : 'text-muted-foreground hover:bg-coplio-bg hover:text-coplio-text'
               )}
             >
               {/* Left active indicator */}
               {active && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-coplio-green rounded-r-full" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-[#111827] rounded-r-full" />
               )}
               <Icon className={cn(
                 'w-4 h-4 flex-shrink-0 transition-colors',
-                active ? 'text-coplio-green' : 'text-muted-foreground group-hover:text-coplio-text'
+                active ? 'text-[#111827]' : 'text-muted-foreground group-hover:text-coplio-text'
               )} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <span className={cn(
                     'text-sm font-medium leading-tight',
-                    active ? 'text-coplio-green' : 'text-coplio-text'
+                    active ? 'text-[#111827]' : 'text-coplio-text'
                   )}>
                     {label}
                   </span>
@@ -142,7 +142,7 @@ export function PortailSidebar({ prenom, nom, email, lotNumero, coproprieteNom, 
                 {sub && (
                   <p className={cn(
                     'text-[10px] leading-tight mt-0.5 truncate',
-                    active ? 'text-coplio-green/70' : 'text-muted-foreground'
+                    active ? 'text-[#111827]/70' : 'text-muted-foreground'
                   )}>
                     {sub}
                   </p>
@@ -165,20 +165,20 @@ export function PortailSidebar({ prenom, nom, email, lotNumero, coproprieteNom, 
           className={cn(
             'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150',
             isAccountActive
-              ? 'bg-coplio-green-light text-coplio-green'
+              ? 'bg-slate-100 text-[#111827]'
               : 'text-muted-foreground hover:bg-coplio-bg hover:text-coplio-text'
           )}
         >
           <div className={cn(
             'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold',
-            isAccountActive ? 'bg-coplio-green text-white' : 'bg-coplio-bg text-coplio-text'
+            isAccountActive ? 'bg-[#111827] text-white' : 'bg-coplio-bg text-coplio-text'
           )}>
             {initials}
           </div>
           <div className="flex-1 min-w-0">
             <p className={cn(
               'text-sm font-medium truncate',
-              isAccountActive ? 'text-coplio-green' : 'text-coplio-text'
+              isAccountActive ? 'text-[#111827]' : 'text-coplio-text'
             )}>
               {prenom} {nom}
             </p>

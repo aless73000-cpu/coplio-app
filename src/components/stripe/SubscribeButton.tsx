@@ -38,8 +38,8 @@ export function SubscribeButton({ plan, isPro }: SubscribeButtonProps) {
       className={cn(
         'w-full py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-60',
         isPro
-          ? 'bg-coplio-green text-white hover:bg-coplio-green/90'
-          : 'bg-coplio-bg text-coplio-text border border-border hover:border-coplio-green/30 hover:bg-coplio-green-light'
+          ? 'bg-[#111827] text-white hover:bg-[#111827]/90'
+          : 'bg-coplio-bg text-coplio-text border border-border hover:border-[#111827]/30 hover:bg-slate-100'
       )}
     >
       {loading ? (

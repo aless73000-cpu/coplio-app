@@ -37,26 +37,26 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 11%;
 
-    --primary: 163 74% 25%;           /* #0F6E56 */
+    --primary: 221 39% 11%;            /* #111827 anthracite */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 151 38% 93%;         /* #E5F5EF */
-    --secondary-foreground: 163 74% 25%;
+    --secondary: 210 40% 96%;          /* slate-100 #F1F5F9 */
+    --secondary-foreground: 221 39% 11%;
 
     /* Muted : même gris que le fond */
-    --muted: 240 5% 96%;
-    --muted-foreground: 220 8% 44%;   /* #6E6E73 Apple secondary text */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;   /* slate-500 */
 
-    --accent: 163 54% 50%;
-    --accent-foreground: 163 74% 25%;
+    --accent: 215 16% 47%;             /* slate-500 */
+    --accent-foreground: 221 39% 11%;
 
-    --destructive: 5 62% 46%;         /* #C0392B */
+    --destructive: 5 62% 46%;          /* #C0392B */
     --destructive-foreground: 0 0% 100%;
 
-    /* Separator Apple : #E8E8ED — parfaitement neutre */
+    /* Separator : #E8E8ED — parfaitement neutre */
     --border: 220 14% 91%;
     --input:  220 14% 91%;
-    --ring:   163 74% 25%;
+    --ring:   221 39% 11%;
 
     /* Rayon Apple : 12 px */
     --radius: 0.75rem;
@@ -65,13 +65,13 @@
   * { @apply border-border; }
 
   body {
-    @apply bg-coplio-bg text-coplio-text font-sans;
+    @apply bg-slate-50 text-[#1D1D1F] font-sans;
     font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
   }
 
   /* ── Sélection de texte ─────────────────────────────────────── */
   ::selection {
-    background-color: rgba(15, 110, 86, 0.15);
+    background-color: rgba(17, 24, 39, 0.12);
     color: #1D1D1F;
   }
 
@@ -96,7 +96,7 @@
 
   /* ── Statuts copropriété ────────────────────────────────────── */
   .badge-a-jour {
-    @apply bg-coplio-green-light text-coplio-green text-xs font-medium px-2.5 py-0.5 rounded-full;
+    @apply bg-slate-100 text-[#111827] text-xs font-medium px-2.5 py-0.5 rounded-full;
   }
   .badge-attention {
     @apply bg-coplio-amber-bg text-coplio-amber text-xs font-medium px-2.5 py-0.5 rounded-full;
@@ -126,14 +126,14 @@
   /* ── Inputs — style Apple ───────────────────────────────────── */
   .input-apple {
     @apply w-full px-3 py-2.5 text-sm bg-white border border-border rounded-xl
-           focus:outline-none focus:ring-2 focus:ring-coplio-green/30 focus:border-coplio-green
+           focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-[#111827]
            placeholder:text-[#AEAEB2] transition-all duration-150;
   }
 
   /* ── Bouton primaire ─────────────────────────────────────────── */
   .btn-primary {
-    @apply inline-flex items-center gap-2 bg-coplio-green text-white text-sm font-semibold
-           px-4 py-2.5 rounded-xl hover:bg-[#0D6049] active:scale-[0.98]
+    @apply inline-flex items-center gap-2 bg-[#111827] text-white text-sm font-semibold
+           px-4 py-2.5 rounded-xl hover:bg-[#1F2937] active:scale-[0.98]
            transition-all duration-150 disabled:opacity-50;
   }
 

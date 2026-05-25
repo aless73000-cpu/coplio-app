@@ -126,8 +126,8 @@ export function ParametresClient({ profile }: Props) {
       {/* Profil personnel */}
       <section className="coplio-card">
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 bg-coplio-green-light rounded-xl flex items-center justify-center">
-            <User className="w-4 h-4 text-coplio-green" />
+          <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center">
+            <User className="w-4 h-4 text-[#111827]" />
           </div>
           <h2 className="font-semibold text-coplio-text">Mon profil</h2>
         </div>
@@ -143,7 +143,7 @@ export function ParametresClient({ profile }: Props) {
 
         {profileError && <p className="mt-3 text-sm text-coplio-red">{profileError}</p>}
         <button onClick={saveProfile} disabled={profileStatus === 'loading'}
-          className="mt-5 flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-60">
+          className="mt-5 flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60">
           {profileStatus === 'loading' && <Loader2 className="w-4 h-4 animate-spin" />}
           {profileStatus === 'success' && <CheckCircle2 className="w-4 h-4" />}
           {profileStatus === 'success' ? 'Enregistré !' : 'Enregistrer les modifications'}
@@ -153,8 +153,8 @@ export function ParametresClient({ profile }: Props) {
       {/* Cabinet */}
       <section className="coplio-card">
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 bg-coplio-green-light rounded-xl flex items-center justify-center">
-            <Building2 className="w-4 h-4 text-coplio-green" />
+          <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center">
+            <Building2 className="w-4 h-4 text-[#111827]" />
           </div>
           <h2 className="font-semibold text-coplio-text">Mon cabinet</h2>
         </div>
@@ -174,13 +174,13 @@ export function ParametresClient({ profile }: Props) {
             <input ref={logoInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/svg+xml"
               className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }} />
             <button onClick={() => logoInputRef.current?.click()} disabled={logoUploading}
-              className="flex items-center gap-1.5 text-xs font-medium text-coplio-green border border-coplio-green/40 px-3 py-1.5 rounded-lg hover:bg-coplio-green-light transition-colors disabled:opacity-60">
+              className="flex items-center gap-1.5 text-xs font-medium text-[#111827] border border-[#111827]/40 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-60">
               {logoUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
               {logoUploading ? 'Upload en cours...' : 'Changer le logo'}
             </button>
             {logoError && <p className="text-xs text-coplio-red mt-1">{logoError}</p>}
             {logoUrl && !logoUploading && (
-              <p className="text-xs text-coplio-green mt-1 flex items-center gap-1">
+              <p className="text-xs text-[#111827] mt-1 flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" /> Logo enregistré
               </p>
             )}
@@ -205,7 +205,7 @@ export function ParametresClient({ profile }: Props) {
 
         {cabinetError && <p className="mt-3 text-sm text-coplio-red">{cabinetError}</p>}
         <button onClick={saveCabinet} disabled={cabinetStatus === 'loading'}
-          className="mt-5 flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-60">
+          className="mt-5 flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60">
           {cabinetStatus === 'loading' && <Loader2 className="w-4 h-4 animate-spin" />}
           {cabinetStatus === 'success' && <CheckCircle2 className="w-4 h-4" />}
           {cabinetStatus === 'success' ? 'Enregistré !' : 'Enregistrer'}
@@ -213,22 +213,22 @@ export function ParametresClient({ profile }: Props) {
       </section>
 
       {/* Équipe */}
-      <Link href="/equipe" className="coplio-card flex items-center justify-between hover:border-coplio-green/40 transition-colors group">
+      <Link href="/equipe" className="coplio-card flex items-center justify-between hover:border-[#111827]/40 transition-colors group">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-coplio-green-light rounded-xl flex items-center justify-center">
-            <Users className="w-4 h-4 text-coplio-green" />
+          <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center">
+            <Users className="w-4 h-4 text-[#111827]" />
           </div>
           <div>
             <h2 className="font-semibold text-coplio-text">Mon équipe</h2>
             <p className="text-xs text-muted-foreground mt-0.5">Inviter et gérer vos gestionnaires</p>
           </div>
         </div>
-        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
+        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#111827] transition-colors" />
       </Link>
 
       {/* Outils */}
       <div className="grid grid-cols-2 gap-4">
-        <Link href="/relances-config" className="coplio-card flex items-center justify-between hover:border-coplio-green/40 transition-colors group">
+        <Link href="/relances-config" className="coplio-card flex items-center justify-between hover:border-[#111827]/40 transition-colors group">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center">
               <BellRing className="w-4 h-4 text-amber-600" />
@@ -238,10 +238,10 @@ export function ParametresClient({ profile }: Props) {
               <p className="text-xs text-muted-foreground mt-0.5">Impayés & rappels</p>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#111827] transition-colors" />
         </Link>
 
-        <Link href="/importer" className="coplio-card flex items-center justify-between hover:border-coplio-green/40 transition-colors group">
+        <Link href="/importer" className="coplio-card flex items-center justify-between hover:border-[#111827]/40 transition-colors group">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
               <FileUp className="w-4 h-4 text-blue-600" />
@@ -251,10 +251,10 @@ export function ParametresClient({ profile }: Props) {
               <p className="text-xs text-muted-foreground mt-0.5">Lots & copropriétaires en un fichier</p>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#111827] transition-colors" />
         </Link>
 
-        <Link href="/prestataires" className="coplio-card flex items-center justify-between hover:border-coplio-green/40 transition-colors group">
+        <Link href="/prestataires" className="coplio-card flex items-center justify-between hover:border-[#111827]/40 transition-colors group">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-orange-50 rounded-xl flex items-center justify-center">
               <Wrench className="w-4 h-4 text-orange-600" />
@@ -264,10 +264,10 @@ export function ParametresClient({ profile }: Props) {
               <p className="text-xs text-muted-foreground mt-0.5">Gérer vos intervenants</p>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#111827] transition-colors" />
         </Link>
 
-        <Link href="/carnet-entretien" className="coplio-card flex items-center justify-between hover:border-coplio-green/40 transition-colors group">
+        <Link href="/carnet-entretien" className="coplio-card flex items-center justify-between hover:border-[#111827]/40 transition-colors group">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-green-50 rounded-xl flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-green-600" />
@@ -277,7 +277,7 @@ export function ParametresClient({ profile }: Props) {
               <p className="text-xs text-muted-foreground mt-0.5">Suivi des interventions</p>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-coplio-green transition-colors" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#111827] transition-colors" />
         </Link>
       </div>
 
@@ -293,8 +293,8 @@ export function ParametresClient({ profile }: Props) {
       {/* Notifications */}
       <section className="coplio-card">
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 bg-coplio-green-light rounded-xl flex items-center justify-center">
-            <Bell className="w-4 h-4 text-coplio-green" />
+          <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center">
+            <Bell className="w-4 h-4 text-[#111827]" />
           </div>
           <h2 className="font-semibold text-coplio-text">Notifications</h2>
         </div>
@@ -314,7 +314,7 @@ export function ParametresClient({ profile }: Props) {
               ) : (
                 <button
                   onClick={push.state === 'subscribed' ? push.unsubscribe : push.subscribe}
-                  className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${push.state === 'subscribed' ? 'bg-coplio-green' : 'bg-border'}`}
+                  className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${push.state === 'subscribed' ? 'bg-[#111827]' : 'bg-border'}`}
                 >
                   <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${push.state === 'subscribed' ? 'translate-x-5' : 'translate-x-1'}`} />
                 </button>
@@ -374,8 +374,8 @@ function SidebarPrefsSection({ userId }: { userId: string }) {
         className="w-full flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-coplio-green-light rounded-xl flex items-center justify-center">
-            <SlidersHorizontal className="w-4 h-4 text-coplio-green" />
+          <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center">
+            <SlidersHorizontal className="w-4 h-4 text-[#111827]" />
           </div>
           <div className="text-left">
             <h2 className="font-semibold text-coplio-text">Ma Sidebar</h2>
@@ -432,19 +432,19 @@ function SidebarPrefsSection({ userId }: { userId: string }) {
                       key={item.id}
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border cursor-pointer transition-all ${
                         isPinned
-                          ? 'bg-coplio-green-light border-coplio-green/30'
-                          : 'bg-white border-border hover:border-coplio-green/20'
+                          ? 'bg-slate-100 border-[#111827]/30'
+                          : 'bg-white border-border hover:border-[#111827]/20'
                       }`}
                     >
                       <input
                         type="checkbox"
                         checked={isPinned}
                         onChange={() => toggle(item.id)}
-                        className="w-4 h-4 rounded accent-coplio-green flex-shrink-0"
+                        className="w-4 h-4 rounded accent-[#111827] flex-shrink-0"
                       />
-                      <item.icon className={`w-4 h-4 flex-shrink-0 ${isPinned ? 'text-coplio-green' : 'text-muted-foreground'}`} />
+                      <item.icon className={`w-4 h-4 flex-shrink-0 ${isPinned ? 'text-[#111827]' : 'text-muted-foreground'}`} />
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium ${isPinned ? 'text-coplio-green' : 'text-coplio-text'}`}>
+                        <p className={`text-sm font-medium ${isPinned ? 'text-[#111827]' : 'text-coplio-text'}`}>
                           {item.label}
                         </p>
                         <p className="text-xs text-muted-foreground">{item.description}</p>
@@ -459,7 +459,7 @@ function SidebarPrefsSection({ userId }: { userId: string }) {
           <button
             onClick={handleSave}
             disabled={!hydrated}
-            className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-60"
+            className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60"
           >
             {saved && <CheckCircle2 className="w-4 h-4" />}
             {saved ? 'Enregistré !' : 'Enregistrer'}
@@ -630,7 +630,7 @@ function TwoFactorSection() {
         </div>
       ) : step === 'idle' ? (
         <>
-          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-4 ${enabled ? 'bg-coplio-green-light text-coplio-green' : 'bg-coplio-bg text-muted-foreground'}`}>
+          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-4 ${enabled ? 'bg-slate-100 text-[#111827]' : 'bg-coplio-bg text-muted-foreground'}`}>
             {enabled
               ? <><CheckCircle2 className="w-4 h-4 flex-shrink-0" /> 2FA activée — votre compte est protégé</>
               : <><ShieldOff className="w-4 h-4 flex-shrink-0" /> 2FA désactivée</>
@@ -687,7 +687,7 @@ function TwoFactorSection() {
                   <button
                     type="button"
                     onClick={() => { navigator.clipboard.writeText(qrSecret); toast.success('Clé copiée') }}
-                    className="text-xs text-coplio-green hover:underline flex-shrink-0"
+                    className="text-xs text-[#111827] hover:underline flex-shrink-0"
                   >
                     Copier
                   </button>
@@ -715,7 +715,7 @@ function TwoFactorSection() {
               onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="000000"
               className="w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-                         focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
+                         focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
                          tracking-[0.4em] font-mono text-center text-lg"
             />
           </div>
@@ -724,7 +724,7 @@ function TwoFactorSection() {
             <button
               onClick={verifyEnroll}
               disabled={loading || code.length !== 6}
-              className="flex-1 flex items-center justify-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-60"
+              className="flex-1 flex items-center justify-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-60"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
               Confirmer
@@ -795,11 +795,11 @@ const ENTITE_LABELS: Record<string, string> = {
 }
 
 const ACTION_COLORS: Record<string, string> = {
-  create: 'bg-coplio-green-light text-coplio-green',
+  create: 'bg-slate-100 text-[#111827]',
   update: 'bg-blue-50 text-blue-600',
   delete: 'bg-red-50 text-red-600',
   send:   'bg-purple-50 text-purple-600',
-  pay:    'bg-coplio-green-light text-coplio-green',
+  pay:    'bg-slate-100 text-[#111827]',
   invite: 'bg-amber-50 text-amber-600',
   status_change: 'bg-blue-50 text-blue-600',
   upload: 'bg-coplio-bg text-muted-foreground',
@@ -858,7 +858,7 @@ function HistoriqueSection() {
             <button
               onClick={() => load(page)}
               disabled={loading}
-              className="flex items-center gap-1 text-xs text-coplio-green hover:underline disabled:opacity-50"
+              className="flex items-center gap-1 text-xs text-[#111827] hover:underline disabled:opacity-50"
             >
               <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
               Actualiser
@@ -957,9 +957,9 @@ function MigrationSection() {
   }
 
   if (status === 'ok') return (
-    <section className="coplio-card border-l-4 border-l-coplio-green">
+    <section className="coplio-card border-l-4 border-l-[#111827]">
       <div className="flex items-center gap-2">
-        <CheckCircle2 className="w-5 h-5 text-coplio-green" />
+        <CheckCircle2 className="w-5 h-5 text-[#111827]" />
         <p className="font-semibold text-coplio-text text-sm">Migrations appliquées avec succès</p>
       </div>
       {results.map((r) => (
@@ -1034,7 +1034,7 @@ function Field({
         disabled={disabled}
         onChange={(e) => onChange?.(e.target.value)}
         className="w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-          focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
+          focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
           placeholder:text-gray-400 disabled:bg-coplio-bg disabled:text-muted-foreground
           transition-shadow"
       />

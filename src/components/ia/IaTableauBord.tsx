@@ -57,7 +57,7 @@ export function IaTableauBord() {
   if (analyseLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4">
-        <Loader2 className="w-8 h-8 animate-spin text-coplio-green" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#111827]" />
         <p className="text-sm text-muted-foreground">L&apos;IA analyse votre portefeuille...</p>
       </div>
     )
@@ -69,7 +69,7 @@ export function IaTableauBord() {
         <BarChart2 className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-30" />
         <button
           onClick={loadAnalyse}
-          className="bg-coplio-green text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+          className="bg-[#111827] text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[#111827]/90 transition-colors"
         >
           Lancer l&apos;analyse
         </button>
@@ -81,9 +81,9 @@ export function IaTableauBord() {
     <div className="space-y-6">
       {/* Résumé */}
       {analyseData.analyse.resume && (
-        <div className="coplio-card bg-coplio-green-light border-coplio-green/20">
+        <div className="coplio-card bg-slate-100 border-[#111827]/20">
           <p className="text-sm text-coplio-text font-medium flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-coplio-green" />
+            <Sparkles className="w-4 h-4 text-[#111827]" />
             {analyseData.analyse.resume}
           </p>
         </div>
@@ -93,7 +93,7 @@ export function IaTableauBord() {
         {/* Scores de risque */}
         <div className="coplio-card">
           <h2 className="font-semibold text-coplio-text mb-4 flex items-center gap-2">
-            <TrendingDown className="w-4 h-4 text-coplio-green" />Score de risque par copropriété
+            <TrendingDown className="w-4 h-4 text-[#111827]" />Score de risque par copropriété
           </h2>
           <div className="space-y-3">
             {(analyseData.scores ?? []).map(s => (
@@ -105,7 +105,7 @@ export function IaTableauBord() {
                       s.niveau === 'critique' ? 'bg-red-50 text-red-600'
                       : s.niveau === 'élevé'  ? 'bg-orange-50 text-orange-600'
                       : s.niveau === 'moyen'  ? 'bg-amber-50 text-amber-600'
-                      : 'bg-coplio-green-light text-coplio-green'
+                      : 'bg-slate-100 text-[#111827]'
                     }`}>
                       {s.niveau}
                     </span>
@@ -115,7 +115,7 @@ export function IaTableauBord() {
                 <div className="h-2 bg-coplio-bg rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all ${
-                      s.score >= 80 ? 'bg-coplio-green'
+                      s.score >= 80 ? 'bg-[#111827]'
                       : s.score >= 60 ? 'bg-amber-400'
                       : s.score >= 40 ? 'bg-orange-400'
                       : 'bg-red-500'
@@ -131,7 +131,7 @@ export function IaTableauBord() {
           </div>
           <button
             onClick={() => { setAnalyseLoaded(false); loadAnalyse() }}
-            className="mt-4 text-xs text-coplio-green hover:underline"
+            className="mt-4 text-xs text-[#111827] hover:underline"
           >
             Rafraîchir l&apos;analyse
           </button>
@@ -156,7 +156,7 @@ export function IaTableauBord() {
                     <p className="font-medium text-coplio-text">{a.titre}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{a.description}</p>
                     {a.copropriete && (
-                      <span className="text-xs font-medium text-coplio-green mt-1 block">{a.copropriete}</span>
+                      <span className="text-xs font-medium text-[#111827] mt-1 block">{a.copropriete}</span>
                     )}
                   </div>
                 ))}
@@ -166,12 +166,12 @@ export function IaTableauBord() {
 
           <div className="coplio-card">
             <h2 className="font-semibold text-coplio-text mb-3 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-coplio-green" />Recommandations
+              <TrendingUp className="w-4 h-4 text-[#111827]" />Recommandations
             </h2>
             <ul className="space-y-2">
               {(analyseData.analyse.recommandations ?? []).map((r, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-coplio-text">
-                  <span className="text-coplio-green font-bold flex-shrink-0 mt-0.5">→</span>{r}
+                  <span className="text-[#111827] font-bold flex-shrink-0 mt-0.5">→</span>{r}
                 </li>
               ))}
             </ul>
@@ -180,12 +180,12 @@ export function IaTableauBord() {
           {(analyseData.analyse.points_positifs ?? []).length > 0 && (
             <div className="coplio-card">
               <h2 className="font-semibold text-coplio-text mb-3 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-coplio-green" />Points positifs
+                <CheckCircle2 className="w-4 h-4 text-[#111827]" />Points positifs
               </h2>
               <ul className="space-y-2">
                 {analyseData.analyse.points_positifs.map((p, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-coplio-text">
-                    <span className="text-coplio-green flex-shrink-0 mt-0.5">✓</span>{p}
+                    <span className="text-[#111827] flex-shrink-0 mt-0.5">✓</span>{p}
                   </li>
                 ))}
               </ul>

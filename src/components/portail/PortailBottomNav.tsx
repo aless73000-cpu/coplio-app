@@ -38,7 +38,7 @@ export function PortailBottomNav({ unreadMessages = 0 }: PortailBottomNavProps) 
                 <Icon
                   className={cn(
                     'w-[22px] h-[22px] transition-colors',
-                    active ? 'text-coplio-green' : 'text-gray-400'
+                    active ? 'text-[#111827]' : 'text-gray-400'
                   )}
                   strokeWidth={active ? 2.5 : 1.8}
                 />
@@ -50,12 +50,12 @@ export function PortailBottomNav({ unreadMessages = 0 }: PortailBottomNavProps) 
               </div>
               <span className={cn(
                 'text-[10px] font-medium leading-none mt-0.5',
-                active ? 'text-coplio-green' : 'text-gray-400'
+                active ? 'text-[#111827]' : 'text-gray-400'
               )}>
                 {label}
               </span>
               {active && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-coplio-green rounded-b-full" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-[#111827] rounded-b-full" />
               )}
             </Link>
           )

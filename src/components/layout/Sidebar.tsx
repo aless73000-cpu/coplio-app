@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils'
 import {
   Settings,
   LogOut,
-  Home,
   CreditCard,
   ChevronDown,
   ChevronUp,
@@ -106,12 +105,12 @@ export function Sidebar({
   }
 
   return (
-    <aside className="w-64 flex-shrink-0 flex flex-col h-screen sticky top-0 overflow-y-auto" style={{ background: 'linear-gradient(180deg, #0C5E47 0%, #0A5240 100%)' }}>
+    <aside className="w-64 flex-shrink-0 flex flex-col h-screen sticky top-0 overflow-y-auto" style={{ background: '#111827' }}>
       {/* Logo */}
       <div className="px-6 py-5 border-b border-white/10">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-            <Home className="w-5 h-5 text-coplio-green" />
+          <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center border border-white/10">
+            <span className="text-white text-sm font-bold">C</span>
           </div>
           <span className="text-white font-semibold text-xl tracking-tight" style={{ letterSpacing: '-0.02em' }}>Coplio</span>
         </Link>
@@ -157,7 +156,7 @@ export function Sidebar({
               </span>
             )}
             {item.href === '/sinistres' && urgentSinistres > 0 && (
-              <span className="ml-auto bg-coplio-amber text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
+              <span className="ml-auto bg-amber-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
                 {urgentSinistres > 9 ? '9+' : urgentSinistres}
               </span>
             )}

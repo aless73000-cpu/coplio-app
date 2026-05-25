@@ -50,7 +50,7 @@ export const EMAIL_CONFIG = {
   // ─── Branding ────────────────────────────────────────────────
   brand: {
     name: 'Coplio',
-    primaryColor: '#0F6E56',
+    primaryColor: '#111827',
     lightColor: '#E1F5EE',
     bgColor: '#F1EFE8',
     textColor: '#444441',

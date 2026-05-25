@@ -78,8 +78,8 @@ export default async function DocumentsPage({
         </div>
         <Link
           href="/documents/upload"
-          className="flex items-center gap-2 bg-coplio-green text-white px-4 py-2.5 rounded-lg
-                     text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+          className="flex items-center gap-2 bg-[#111827] text-white px-4 py-2.5 rounded-lg
+                     text-sm font-medium hover:bg-[#111827]/90 transition-colors"
         >
           <Upload className="w-4 h-4" />
           Importer
@@ -94,8 +94,8 @@ export default async function DocumentsPage({
           href="/documents"
           className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
             !searchParams.categorie || searchParams.categorie === 'all'
-              ? 'bg-coplio-green text-white border-coplio-green'
-              : 'bg-white text-coplio-text border-border hover:border-coplio-green/30'
+              ? 'bg-[#111827] text-white border-[#111827]'
+              : 'bg-white text-coplio-text border-border hover:border-[#111827]/30'
           }`}
         >
           Tous
@@ -106,8 +106,8 @@ export default async function DocumentsPage({
             href={`/documents?categorie=${cat}`}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
               searchParams.categorie === cat
-                ? 'bg-coplio-green text-white border-coplio-green'
-                : 'bg-white text-coplio-text border-border hover:border-coplio-green/30'
+                ? 'bg-[#111827] text-white border-[#111827]'
+                : 'bg-white text-coplio-text border-border hover:border-[#111827]/30'
             }`}
           >
             <span>{CATEGORY_ICONS[cat]}</span>
@@ -126,8 +126,8 @@ export default async function DocumentsPage({
           </p>
           <Link
             href="/documents/upload"
-            className="inline-flex items-center gap-2 bg-coplio-green text-white px-6 py-2.5 rounded-lg
-                       text-sm font-medium hover:bg-coplio-green/90 transition-colors"
+            className="inline-flex items-center gap-2 bg-[#111827] text-white px-6 py-2.5 rounded-lg
+                       text-sm font-medium hover:bg-[#111827]/90 transition-colors"
           >
             <Upload className="w-4 h-4" />
             Importer des documents

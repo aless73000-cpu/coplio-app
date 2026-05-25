@@ -19,10 +19,10 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-coplio-bg flex items-center justify-center p-4 sm:p-8">
       <div className="w-full max-w-md">
         <Link href="/" className="flex items-center gap-2 mb-6 sm:mb-8 justify-center w-fit mx-auto">
-          <div className="w-9 h-9 bg-coplio-green rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-[#111827] rounded-xl flex items-center justify-center">
             <Home className="w-5 h-5 text-white" />
           </div>
-          <span className="font-bold text-xl text-coplio-green">Coplio</span>
+          <span className="font-bold text-xl text-[#111827]">Coplio</span>
         </Link>
 
         <div className="bg-white rounded-2xl border border-border shadow-sm p-5 sm:p-8">
@@ -39,7 +39,7 @@ export default function RegisterPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-6">
             {FEATURES.map((f) => (
               <div key={f} className="flex items-center gap-2 text-sm text-coplio-text">
-                <Check className="w-4 h-4 text-coplio-green flex-shrink-0" />
+                <Check className="w-4 h-4 text-[#111827] flex-shrink-0" />
                 {f}
               </div>
             ))}
@@ -49,7 +49,7 @@ export default function RegisterPage() {
 
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Déjà un compte ?{' '}
-            <Link href="/login" className="text-coplio-green font-medium hover:underline">
+            <Link href="/login" className="text-[#111827] font-medium hover:underline">
               Se connecter
             </Link>
           </p>

@@ -104,8 +104,8 @@ export default async function ImpayésPage() {
       {/* Tableau des impayés */}
       {(!impayes || impayes.length === 0) ? (
         <div className="coplio-card text-center py-12">
-          <div className="w-14 h-14 bg-coplio-green-light rounded-full flex items-center justify-center mx-auto mb-3">
-            <CreditCard className="w-7 h-7 text-coplio-green" />
+          <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <CreditCard className="w-7 h-7 text-[#111827]" />
           </div>
           <p className="font-medium text-coplio-text">Aucun impayé</p>
           <p className="text-sm text-muted-foreground mt-1">Tous les appels de charges sont à jour.</p>

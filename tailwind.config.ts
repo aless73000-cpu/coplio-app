@@ -12,13 +12,13 @@ const config: Config = {
       colors: {
         // ── Palette Coplio — Apple-refined ──────────────────────────
         coplio: {
-          green:         '#0F6E56',   // Vert principal (inchangé — identité marque)
-          'green-light': '#E5F5EF',   // Tint vert — plus froid, plus propre
-          'green-medium':'#3CC49A',   // Vert medium — plus vif
+          green:         '#111827',   // Anthracite principal — sobre & luxe
+          'green-light': '#F1F5F9',   // Slate-100 — fond neutre
+          'green-medium':'#64748B',   // Slate-500 — secondaire
           text:          '#1D1D1F',   // Apple near-black
-          bg:            '#F5F5F7',   // Apple page background
-          amber:         '#8A4500',
-          'amber-bg':    '#FFF3E0',
+          bg:            '#F8FAFC',   // Slate-50 — fond page
+          amber:         '#92400E',
+          'amber-bg':    '#FFFBEB',
           red:           '#C0392B',
           'red-bg':      '#FFF0EF',
           blue:          '#0066CC',   // Apple blue
@@ -31,12 +31,12 @@ const config: Config = {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT:    '#0F6E56',
+          DEFAULT:    '#111827',
           foreground: '#FFFFFF',
         },
         secondary: {
-          DEFAULT:    '#E5F5EF',
-          foreground: '#0F6E56',
+          DEFAULT:    '#F1F5F9',
+          foreground: '#111827',
         },
         destructive: {
           DEFAULT:    '#C0392B',
@@ -47,8 +47,8 @@ const config: Config = {
           foreground: 'hsl(var(--muted-foreground))',
         },
         accent: {
-          DEFAULT:    '#3CC49A',
-          foreground: '#0F6E56',
+          DEFAULT:    '#64748B',
+          foreground: '#111827',
         },
         popover: {
           DEFAULT:    'hsl(var(--popover))',

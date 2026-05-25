@@ -6,7 +6,7 @@ import { ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-  focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
+  focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent
   placeholder:text-muted-foreground transition-shadow`
 
 export default function ForgotPasswordForm() {
@@ -37,7 +37,7 @@ export default function ForgotPasswordForm() {
     <div className="min-h-screen flex items-center justify-center bg-coplio-bg px-4">
       <div className="w-full max-w-md">
         <Link href="/" className="flex items-center gap-2 mb-8 w-fit">
-          <div className="w-8 h-8 bg-coplio-green rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-[#111827] rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">C</span>
           </div>
           <span className="text-coplio-text font-bold text-xl">Coplio</span>
@@ -45,12 +45,12 @@ export default function ForgotPasswordForm() {
 
         {sent ? (
           <div className="coplio-card text-center py-8">
-            <CheckCircle2 className="w-12 h-12 text-coplio-green mx-auto mb-4" />
+            <CheckCircle2 className="w-12 h-12 text-[#111827] mx-auto mb-4" />
             <h1 className="text-xl font-bold text-coplio-text mb-2">Email envoyé !</h1>
             <p className="text-muted-foreground text-sm mb-6">
               Si un compte existe pour <strong>{email}</strong>, vous recevrez un lien de réinitialisation dans quelques instants.
             </p>
-            <Link href="/login" className="text-coplio-green text-sm hover:underline">
+            <Link href="/login" className="text-[#111827] text-sm hover:underline">
               Retour à la connexion
             </Link>
           </div>
@@ -91,8 +91,8 @@ export default function ForgotPasswordForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-coplio-green text-white font-medium py-2.5 px-4 rounded-lg
-                           hover:bg-coplio-green/90 transition-colors disabled:opacity-60
+                className="w-full bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg
+                           hover:bg-[#111827]/90 transition-colors disabled:opacity-60
                            flex items-center justify-center gap-2 text-sm"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}

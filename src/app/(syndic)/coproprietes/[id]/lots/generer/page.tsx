@@ -124,24 +124,24 @@ export default function GenererLotsPage() {
   }
 
   const inputCls = `px-3 py-2 text-sm border border-border rounded-lg bg-white
-    focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent`
+    focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-transparent`
 
   if (result) {
     return (
       <div className="max-w-2xl mx-auto space-y-4 animate-fade-in">
         <div className="coplio-card">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 bg-coplio-green-light rounded-full flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5 text-coplio-green" />
+            <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
+              <CheckCircle2 className="w-5 h-5 text-[#111827]" />
             </div>
             <div>
               <p className="font-semibold text-coplio-text">Lots créés avec succès</p>
               <p className="text-sm text-muted-foreground">Ajoutés à la copropriété</p>
             </div>
           </div>
-          <div className="bg-coplio-green-light rounded-xl p-6 text-center">
-            <p className="text-4xl font-bold text-coplio-green">{result.lots_created}</p>
-            <p className="text-sm text-coplio-green/80 mt-1">Lot{result.lots_created > 1 ? 's' : ''} créé{result.lots_created > 1 ? 's' : ''}</p>
+          <div className="bg-slate-100 rounded-xl p-6 text-center">
+            <p className="text-4xl font-bold text-[#111827]">{result.lots_created}</p>
+            <p className="text-sm text-[#111827]/80 mt-1">Lot{result.lots_created > 1 ? 's' : ''} créé{result.lots_created > 1 ? 's' : ''}</p>
           </div>
           {result.errors.length > 0 && (
             <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
@@ -163,7 +163,7 @@ export default function GenererLotsPage() {
           </button>
           <button
             onClick={() => router.push(`/coproprietes/${coproprieteId}/lots`)}
-            className="flex-1 bg-coplio-green text-white font-medium py-2.5 px-4 rounded-lg hover:bg-coplio-green/90 transition-colors text-sm"
+            className="flex-1 bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#111827]/90 transition-colors text-sm"
           >
             Voir les lots
           </button>
@@ -191,8 +191,8 @@ export default function GenererLotsPage() {
         {/* Config card */}
         <div className="coplio-card">
           <div className="flex items-center gap-2 mb-5">
-            <div className="w-8 h-8 bg-coplio-green-light rounded-lg flex items-center justify-center">
-              <Wand2 className="w-4 h-4 text-coplio-green" />
+            <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+              <Wand2 className="w-4 h-4 text-[#111827]" />
             </div>
             <h2 className="font-semibold text-coplio-text">Configuration</h2>
           </div>
@@ -264,7 +264,7 @@ export default function GenererLotsPage() {
 
           <button
             onClick={handleGenerate}
-            className="mt-5 w-full flex items-center justify-center gap-2 bg-coplio-green text-white font-medium py-2.5 rounded-lg hover:bg-coplio-green/90 transition-colors text-sm"
+            className="mt-5 w-full flex items-center justify-center gap-2 bg-[#111827] text-white font-medium py-2.5 rounded-lg hover:bg-[#111827]/90 transition-colors text-sm"
           >
             <Wand2 className="w-4 h-4" />
             Générer la prévisualisation ({nbNiveaux * nbLotsParEtage} lots)
@@ -308,21 +308,21 @@ export default function GenererLotsPage() {
                 </thead>
                 <tbody>
                   {preview.map((lot, i) => (
-                    <tr key={i} className={`border-b border-border transition-colors ${editingIndex === i ? 'bg-coplio-green-light/30' : 'hover:bg-coplio-bg'}`}>
+                    <tr key={i} className={`border-b border-border transition-colors ${editingIndex === i ? 'bg-slate-100/30' : 'hover:bg-coplio-bg'}`}>
                       {editingIndex === i ? (
                         <>
                           <td className="py-1.5 px-3">
                             <input
                               value={lot.numero}
                               onChange={(e) => updateRow(i, 'numero', e.target.value)}
-                              className="w-20 px-2 py-1 text-xs border border-coplio-green/50 rounded focus:outline-none focus:ring-1 focus:ring-coplio-green"
+                              className="w-20 px-2 py-1 text-xs border border-[#111827]/50 rounded focus:outline-none focus:ring-1 focus:ring-[#111827]/20"
                             />
                           </td>
                           <td className="py-1.5 px-3">
                             <select
                               value={lot.type}
                               onChange={(e) => updateRow(i, 'type', e.target.value)}
-                              className="text-xs border border-coplio-green/50 rounded px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-coplio-green"
+                              className="text-xs border border-[#111827]/50 rounded px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-[#111827]/20"
                             >
                               {LOT_TYPES.map((t) => (
                                 <option key={t} value={t}>{LOT_TYPE_LABELS[t]}</option>
@@ -333,7 +333,7 @@ export default function GenererLotsPage() {
                             <input
                               value={lot.etage}
                               onChange={(e) => updateRow(i, 'etage', e.target.value)}
-                              className="w-20 px-2 py-1 text-xs border border-coplio-green/50 rounded focus:outline-none focus:ring-1 focus:ring-coplio-green"
+                              className="w-20 px-2 py-1 text-xs border border-[#111827]/50 rounded focus:outline-none focus:ring-1 focus:ring-[#111827]/20"
                             />
                           </td>
                           <td className="py-1.5 px-3">
@@ -342,7 +342,7 @@ export default function GenererLotsPage() {
                               value={lot.surface}
                               onChange={(e) => updateRow(i, 'surface', e.target.value)}
                               placeholder="—"
-                              className="w-20 px-2 py-1 text-xs border border-coplio-green/50 rounded focus:outline-none focus:ring-1 focus:ring-coplio-green"
+                              className="w-20 px-2 py-1 text-xs border border-[#111827]/50 rounded focus:outline-none focus:ring-1 focus:ring-[#111827]/20"
                             />
                           </td>
                           <td className="py-1.5 px-3">
@@ -350,13 +350,13 @@ export default function GenererLotsPage() {
                               type="number"
                               value={lot.tantiemes}
                               onChange={(e) => updateRow(i, 'tantiemes', e.target.value)}
-                              className="w-20 px-2 py-1 text-xs border border-coplio-green/50 rounded focus:outline-none focus:ring-1 focus:ring-coplio-green"
+                              className="w-20 px-2 py-1 text-xs border border-[#111827]/50 rounded focus:outline-none focus:ring-1 focus:ring-[#111827]/20"
                             />
                           </td>
                           <td className="py-1.5 px-3">
                             <button
                               onClick={() => setEditingIndex(null)}
-                              className="text-xs text-coplio-green font-medium hover:underline"
+                              className="text-xs text-[#111827] font-medium hover:underline"
                             >
                               OK
                             </button>
@@ -395,7 +395,7 @@ export default function GenererLotsPage() {
               <button
                 onClick={handleSubmit}
                 disabled={loading || preview.length === 0}
-                className="flex-1 bg-coplio-green text-white font-medium py-2.5 px-4 rounded-lg hover:bg-coplio-green/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+                className="flex-1 bg-[#111827] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#111827]/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
               >
                 {loading ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Création en cours...</>

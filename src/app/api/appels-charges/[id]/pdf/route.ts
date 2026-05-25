@@ -94,7 +94,7 @@ export const GET = withErrorHandler(async (
   // Titre
   doc.setFontSize(16)
   doc.setFont('helvetica', 'bold')
-  doc.setTextColor(15, 110, 86) // coplio-green
+  doc.setTextColor(17, 24, 39) // anthracite
   doc.text('AVIS D\'APPEL DE CHARGES', pageW / 2, 68, { align: 'center' })
 
   // Sous-titre
@@ -156,7 +156,7 @@ export const GET = withErrorHandler(async (
     doc.roundedRect(margin, tableEnd, pageW - margin * 2, 12, 3, 3, 'FD')
     doc.setFontSize(10)
     doc.setFont('helvetica', 'bold')
-    doc.setTextColor(15, 110, 86)
+    doc.setTextColor(17, 24, 39)
     doc.text('✓  Cet appel de charges est entièrement réglé.', pageW / 2, tableEnd + 8, { align: 'center' })
   } else {
     // Instructions de paiement

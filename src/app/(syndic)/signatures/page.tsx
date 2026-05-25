@@ -16,7 +16,7 @@ const TYPES_DOC = [
 const STATUT_CONFIG = {
   brouillon: { label: 'Brouillon', color: 'text-muted-foreground bg-coplio-bg', icon: Clock },
   en_attente: { label: 'En attente', color: 'text-amber-600 bg-amber-50', icon: Clock },
-  signe: { label: 'Signé', color: 'text-coplio-green bg-coplio-green-light', icon: CheckCircle2 },
+  signe: { label: 'Signé', color: 'text-[#111827] bg-slate-100', icon: CheckCircle2 },
   expire: { label: 'Expiré', color: 'text-muted-foreground bg-coplio-bg', icon: AlertTriangle },
   refuse: { label: 'Refusé', color: 'text-coplio-red bg-red-50', icon: X },
   annule: { label: 'Annulé', color: 'text-muted-foreground bg-coplio-bg', icon: X },
@@ -88,12 +88,12 @@ export default function SignaturesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text flex items-center gap-2">
-            <PenLine className="w-6 h-6 text-coplio-green" />Signatures électroniques
+            <PenLine className="w-6 h-6 text-[#111827]" />Signatures électroniques
           </h1>
           <p className="text-muted-foreground text-sm mt-0.5">PV d&apos;AG, mandats, devis — conformes eIDAS via DocuSeal</p>
         </div>
         <button onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 transition-colors">
+          className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 transition-colors">
           <Plus className="w-4 h-4" />Nouvelle demande
         </button>
       </div>
@@ -112,7 +112,7 @@ export default function SignaturesPage() {
         </div>
         <div className="coplio-card text-center">
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Signés</p>
-          <p className="text-xl font-bold text-coplio-green">{signed}</p>
+          <p className="text-xl font-bold text-[#111827]">{signed}</p>
         </div>
       </div>
 
@@ -144,19 +144,19 @@ export default function SignaturesPage() {
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Nom du document *</label>
                 <input value={form.nom} onChange={e => setForm(f => ({ ...f, nom: e.target.value }))} required
-                  placeholder="Ex: PV AG 2026" className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+                  placeholder="Ex: PV AG 2026" className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Type</label>
                 <select value={form.type_document} onChange={e => setForm(f => ({ ...f, type_document: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green bg-white">
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
                   {TYPES_DOC.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Copropriété</label>
                 <select value={form.copropriete_id} onChange={e => setForm(f => ({ ...f, copropriete_id: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green bg-white">
+                  className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20 bg-white">
                   <option value="">— Aucune —</option>
                   {coproprietes.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
                 </select>
@@ -164,7 +164,7 @@ export default function SignaturesPage() {
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">URL du document (PDF)</label>
                 <input value={form.fichier_url} onChange={e => setForm(f => ({ ...f, fichier_url: e.target.value }))}
-                  placeholder="https://..." className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-coplio-green" />
+                  placeholder="https://..." className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#111827]/20" />
               </div>
             </div>
 
@@ -174,12 +174,12 @@ export default function SignaturesPage() {
                 {signataires.map((s, i) => (
                   <div key={i} className="grid grid-cols-3 gap-2">
                     <input value={s.prenom} onChange={e => setSignataires(prev => prev.map((x, j) => j === i ? { ...x, prenom: e.target.value } : x))}
-                      placeholder="Prénom" className="px-2.5 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-coplio-green" />
+                      placeholder="Prénom" className="px-2.5 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20" />
                     <input value={s.nom} onChange={e => setSignataires(prev => prev.map((x, j) => j === i ? { ...x, nom: e.target.value } : x))}
-                      placeholder="Nom" className="px-2.5 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-coplio-green" />
+                      placeholder="Nom" className="px-2.5 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20" />
                     <div className="flex gap-1">
                       <input value={s.email} onChange={e => setSignataires(prev => prev.map((x, j) => j === i ? { ...x, email: e.target.value } : x))}
-                        placeholder="email@..." type="email" className="flex-1 px-2.5 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-coplio-green min-w-0" />
+                        placeholder="email@..." type="email" className="flex-1 px-2.5 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#111827]/20 min-w-0" />
                       {signataires.length > 1 && (
                         <button type="button" onClick={() => setSignataires(prev => prev.filter((_, j) => j !== i))}
                           className="p-2 text-muted-foreground hover:text-coplio-red"><Trash2 className="w-4 h-4" /></button>
@@ -188,7 +188,7 @@ export default function SignaturesPage() {
                   </div>
                 ))}
                 <button type="button" onClick={() => setSignataires(prev => [...prev, { ...emptySignataire }])}
-                  className="text-sm text-coplio-green font-medium flex items-center gap-1">
+                  className="text-sm text-[#111827] font-medium flex items-center gap-1">
                   <Plus className="w-3.5 h-3.5" />Ajouter un signataire
                 </button>
               </div>
@@ -196,7 +196,7 @@ export default function SignaturesPage() {
 
             <div className="flex gap-3">
               <button type="submit" disabled={saving}
-                className="flex items-center gap-2 bg-coplio-green text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-coplio-green/90 disabled:opacity-60">
+                className="flex items-center gap-2 bg-[#111827] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#111827]/90 disabled:opacity-60">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenLine className="w-4 h-4" />}
                 {hasDocuseal ? 'Envoyer pour signature' : 'Créer (brouillon)'}
               </button>
@@ -243,7 +243,7 @@ export default function SignaturesPage() {
                 </div>
                 {item.lien_signature && (
                   <a href={item.lien_signature} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs text-coplio-green font-medium hover:underline flex-shrink-0">
+                    className="flex items-center gap-1 text-xs text-[#111827] font-medium hover:underline flex-shrink-0">
                     <ExternalLink className="w-3.5 h-3.5" />Signer
                   </a>
                 )}

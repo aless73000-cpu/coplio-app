@@ -92,7 +92,7 @@ function GlobalSearch({ className }: { className?: string }) {
         onFocus={() => setOpen(true)}
         placeholder="Rechercher… (⌘K)"
         className="w-full pl-9 pr-4 py-1.5 text-sm bg-coplio-bg border border-border rounded-lg
-                   focus:outline-none focus:ring-2 focus:ring-coplio-green focus:border-transparent
+                   focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-[#111827]
                    placeholder:text-gray-400"
       />
       {loading && (
@@ -111,10 +111,10 @@ function GlobalSearch({ className }: { className?: string }) {
                   <li key={`${r.type}-${r.id}`}>
                     <button
                       onClick={() => handleSelect(r.href)}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-coplio-bg transition-colors text-left"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors text-left"
                     >
-                      <div className="w-7 h-7 rounded-lg bg-coplio-green-light flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-3.5 h-3.5 text-coplio-green" />
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-3.5 h-3.5 text-[#111827]" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-coplio-text truncate">{r.label}</p>
@@ -203,7 +203,7 @@ export function Header({ title, notifications: initial = [], userId, mobileSideb
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-2 rounded-lg hover:bg-coplio-bg transition-colors"
+            className="relative p-2 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <Bell className="w-5 h-5 text-coplio-text" />
             {unreadCount > 0 && (
@@ -221,7 +221,7 @@ export function Header({ title, notifications: initial = [], userId, mobileSideb
                   )}
                 </div>
                 {unreadCount > 0 && (
-                  <button onClick={markAllRead} className="text-xs text-coplio-green hover:underline">
+                  <button onClick={markAllRead} className="text-xs text-[#111827] hover:underline">
                     Tout marquer lu
                   </button>
                 )}
@@ -242,7 +242,7 @@ export function Header({ title, notifications: initial = [], userId, mobileSideb
               <div className="px-4 py-2 border-t border-border">
                 <Link
                   href="/notifications"
-                  className="text-xs text-coplio-green font-medium hover:underline"
+                  className="text-xs text-[#111827] font-medium hover:underline"
                   onClick={() => setShowNotifications(false)}
                 >
                   Voir toutes les notifications
@@ -258,9 +258,9 @@ export function Header({ title, notifications: initial = [], userId, mobileSideb
 
 function NotificationItem({ notification, onRead }: { notification: Notification; onRead: (id: string) => void }) {
   const dot: Record<string, string> = {
-    info: 'bg-coplio-blue',
-    alerte: 'bg-coplio-amber',
-    urgent: 'bg-coplio-red',
+    info: 'bg-blue-500',
+    alerte: 'bg-amber-500',
+    urgent: 'bg-red-500',
   }
 
   function handleClick() {
@@ -270,7 +270,7 @@ function NotificationItem({ notification, onRead }: { notification: Notification
   const content = (
     <div
       onClick={handleClick}
-      className={`px-4 py-3 border-b border-border hover:bg-coplio-bg transition-colors cursor-pointer ${!notification.lu ? 'bg-coplio-green-light/30' : ''}`}
+      className={`px-4 py-3 border-b border-border hover:bg-slate-50 transition-colors cursor-pointer ${!notification.lu ? 'bg-slate-50' : ''}`}
     >
       <div className="flex items-start gap-3">
         <span className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${dot[notification.type] ?? 'bg-gray-400'}`} />
@@ -285,7 +285,7 @@ function NotificationItem({ notification, onRead }: { notification: Notification
             })}
           </p>
         </div>
-        {!notification.lu && <span className="w-2 h-2 rounded-full bg-coplio-green flex-shrink-0 mt-1.5" />}
+        {!notification.lu && <span className="w-2 h-2 rounded-full bg-[#111827] flex-shrink-0 mt-1.5" />}
       </div>
     </div>
   )

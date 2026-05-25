@@ -53,7 +53,7 @@ export async function exportPDF({ title, subtitle, columns, rows, filename }: PD
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
   // ─── Header ───
-  doc.setFillColor(15, 110, 86) // coplio-green
+  doc.setFillColor(17, 24, 39) // anthracite
   doc.rect(0, 0, 210, 18, 'F')
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(11)

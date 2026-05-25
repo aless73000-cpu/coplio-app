@@ -37,7 +37,7 @@ export default function IAPage() {
     <div className="max-w-5xl space-y-6 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold text-coplio-text flex items-center gap-2">
-          <Sparkles className="w-6 h-6 text-coplio-green" />Assistant IA
+          <Sparkles className="w-6 h-6 text-[#111827]" />Assistant IA
         </h1>
         <p className="text-muted-foreground text-sm mt-0.5">
           Rédaction, analyse, chat et détection d&apos;anomalies

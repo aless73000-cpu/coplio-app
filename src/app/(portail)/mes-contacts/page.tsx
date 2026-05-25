@@ -18,7 +18,7 @@ function ContactLine({ icon: Icon, label, value, href }: {
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{label}</p>
         {href ? (
-          <a href={href} className="text-sm font-medium text-coplio-green hover:underline truncate block">
+          <a href={href} className="text-sm font-medium text-[#111827] hover:underline truncate block">
             {value}
           </a>
         ) : (
@@ -111,8 +111,8 @@ export default async function MesContacts() {
       {/* Syndic */}
       <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-border flex items-center gap-3">
-          <div className="w-8 h-8 bg-coplio-green-light rounded-lg flex items-center justify-center">
-            <Building2 className="w-4 h-4 text-coplio-green" />
+          <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+            <Building2 className="w-4 h-4 text-[#111827]" />
           </div>
           <h2 className="font-semibold text-coplio-text">Votre syndic</h2>
         </div>
@@ -131,12 +131,12 @@ export default async function MesContacts() {
                   <span className="text-xs text-muted-foreground font-normal ml-2">Gestionnaire</span>
                 </p>
                 {gestionnaire.email && (
-                  <a href={`mailto:${gestionnaire.email}`} className="flex items-center gap-1.5 text-xs text-coplio-green hover:underline">
+                  <a href={`mailto:${gestionnaire.email}`} className="flex items-center gap-1.5 text-xs text-[#111827] hover:underline">
                     <Mail className="w-3 h-3" />{gestionnaire.email}
                   </a>
                 )}
                 {gestionnaire.telephone && (
-                  <a href={`tel:${gestionnaire.telephone}`} className="flex items-center gap-1.5 text-xs text-coplio-green hover:underline">
+                  <a href={`tel:${gestionnaire.telephone}`} className="flex items-center gap-1.5 text-xs text-[#111827] hover:underline">
                     <Phone className="w-3 h-3" />{gestionnaire.telephone}
                   </a>
                 )}
@@ -251,12 +251,12 @@ export default async function MesContacts() {
                   </div>
                   <div className="flex items-center gap-3 mt-0.5">
                     {membre.telephone && (
-                      <a href={`tel:${membre.telephone}`} className="flex items-center gap-1 text-xs text-coplio-green hover:underline">
+                      <a href={`tel:${membre.telephone}`} className="flex items-center gap-1 text-xs text-[#111827] hover:underline">
                         <Phone className="w-3 h-3" />{membre.telephone}
                       </a>
                     )}
                     {membre.email && (
-                      <a href={`mailto:${membre.email}`} className="flex items-center gap-1 text-xs text-coplio-green hover:underline">
+                      <a href={`mailto:${membre.email}`} className="flex items-center gap-1 text-xs text-[#111827] hover:underline">
                         <Mail className="w-3 h-3" />{membre.email}
                       </a>
                     )}
@@ -302,12 +302,12 @@ export default async function MesContacts() {
                       )}
                       <div className="flex items-center gap-3 mt-1">
                         {p.telephone && (
-                          <a href={`tel:${p.telephone}`} className="flex items-center gap-1 text-xs text-coplio-green hover:underline">
+                          <a href={`tel:${p.telephone}`} className="flex items-center gap-1 text-xs text-[#111827] hover:underline">
                             <Phone className="w-3 h-3" />{p.telephone}
                           </a>
                         )}
                         {p.email && (
-                          <a href={`mailto:${p.email}`} className="flex items-center gap-1 text-xs text-coplio-green hover:underline">
+                          <a href={`mailto:${p.email}`} className="flex items-center gap-1 text-xs text-[#111827] hover:underline">
                             <Mail className="w-3 h-3" />{p.email}
                           </a>
                         )}

@@ -20,7 +20,7 @@ export function PayerButton({ appelId }: { appelId: string }) {
     <button
       onClick={handlePayer}
       disabled={loading}
-      className="flex items-center gap-1 text-xs text-coplio-green font-medium hover:text-coplio-green/80 transition-colors disabled:opacity-60"
+      className="flex items-center gap-1 text-xs text-[#111827] font-medium hover:text-[#111827]/80 transition-colors disabled:opacity-60"
     >
       {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
       Marquer payé

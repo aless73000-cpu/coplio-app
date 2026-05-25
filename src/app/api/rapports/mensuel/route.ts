@@ -78,7 +78,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   const cabinetNom = (profile.cabinet as { nom?: string } | null)?.nom ?? 'Cabinet'
 
   // Header
-  doc.setFillColor(34, 197, 94) // coplio-green
+  doc.setFillColor(17, 24, 39) 
   doc.rect(0, 0, 210, 28, 'F')
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(18)

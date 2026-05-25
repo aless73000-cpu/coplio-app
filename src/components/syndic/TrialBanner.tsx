@@ -62,11 +62,11 @@ export function TrialBanner({ trialEndsAt, plan }: TrialBannerProps) {
       className={`rounded-xl border px-4 py-3 flex items-center justify-between gap-4 ${
         isUrgent
           ? 'border-amber-200 bg-amber-50'
-          : 'border-coplio-green/20 bg-coplio-green-light/40'
+          : 'border-[#111827]/20 bg-slate-100/40'
       }`}
     >
       <div className="flex items-center gap-3">
-        <Zap className={`w-4 h-4 flex-shrink-0 ${isUrgent ? 'text-amber-500' : 'text-coplio-green'}`} />
+        <Zap className={`w-4 h-4 flex-shrink-0 ${isUrgent ? 'text-amber-500' : 'text-[#111827]'}`} />
         <p className={`text-sm font-medium ${isUrgent ? 'text-amber-800' : 'text-coplio-text'}`}>
           {isUrgent
             ? `⚠️ Essai gratuit : il vous reste ${daysLeft} jour${daysLeft > 1 ? 's' : ''}`
@@ -79,7 +79,7 @@ export function TrialBanner({ trialEndsAt, plan }: TrialBannerProps) {
           className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
             isUrgent
               ? 'bg-amber-500 text-white hover:bg-amber-600'
-              : 'bg-coplio-green text-white hover:bg-coplio-green/90'
+              : 'bg-[#111827] text-white hover:bg-[#111827]/90'
           }`}
         >
           {isUrgent ? 'Souscrire maintenant' : 'Voir les plans'}
