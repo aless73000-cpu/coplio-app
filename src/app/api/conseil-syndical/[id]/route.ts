@@ -10,6 +10,7 @@ export const DELETE = withErrorHandler(async (_: Request, { params }: { params: 
   const { data: profile } = await supabase
     .from('profiles')
     .select('cabinet_id')
+    .eq('id', user.id)
     .single()
   if (!profile?.cabinet_id) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
 

@@ -31,7 +31,8 @@ interface RoleManagerProps {
 export function RoleManager({
   prenom, nom, email, telephone, coproprietes, currentMemberships, portailActif = false,
 }: RoleManagerProps) {
-  const [selectedCopro, setSelectedCopro] = useState(coproprietes[0]?.id ?? '')
+  const firstCopro = coproprietes[0]?.id ?? ''
+  const [selectedCopro, setSelectedCopro] = useState(firstCopro)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -55,7 +56,10 @@ export function RoleManager({
   }
 
   async function handleSave() {
-    if (!selectedCopro) return
+    if (!selectedCopro) {
+      setError('Aucune copropriété sélectionnée')
+      return
+    }
     setSaving(true)
     setSaved(false)
     setError(null)
@@ -65,7 +69,12 @@ export function RoleManager({
         if (current) {
           // Déjà dans le conseil → si le rôle a changé, supprimer et recréer
           if (current.role !== roleChoice) {
-            await fetch(`/api/conseil-syndical/${current.conseil_id}`, { method: 'DELETE' })
+            const delRes = await fetch(`/api/conseil-syndical/${current.conseil_id}`, { method: 'DELETE' })
+            if (!delRes.ok) {
+              const body = await delRes.json().catch(() => ({}))
+              setError(body.error ?? 'Erreur lors de la suppression')
+              return
+            }
             const res = await fetch('/api/conseil-syndical', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -77,11 +86,14 @@ export function RoleManager({
                 role: roleChoice,
               }),
             })
-            if (!res.ok) { setError('Erreur lors de la mise à jour'); return }
+            if (!res.ok) {
+              const body = await res.json().catch(() => ({}))
+              setError(body.error ?? 'Erreur lors de la mise à jour')
+              return
+            }
             const data = await res.json()
-            // Update local state
             const idx = currentMemberships.findIndex(m => m.copropriete_id === selectedCopro)
-            if (idx !== -1) { currentMemberships[idx] = { copropriete_id: selectedCopro, conseil_id: data.id, role: roleChoice } }
+            if (idx !== -1) currentMemberships[idx] = { copropriete_id: selectedCopro, conseil_id: data.id, role: roleChoice }
           }
           // Même rôle → rien à faire
         } else {
@@ -97,7 +109,11 @@ export function RoleManager({
               role: roleChoice,
             }),
           })
-          if (!res.ok) { setError('Erreur lors de la nomination'); return }
+          if (!res.ok) {
+            const body = await res.json().catch(() => ({}))
+            setError(body.error ?? 'Erreur lors de la nomination')
+            return
+          }
           const data = await res.json()
           currentMemberships.push({ copropriete_id: selectedCopro, conseil_id: data.id, role: roleChoice })
         }
@@ -105,19 +121,43 @@ export function RoleManager({
         // Standard → retirer du conseil si présent
         if (current) {
           const res = await fetch(`/api/conseil-syndical/${current.conseil_id}`, { method: 'DELETE' })
-          if (!res.ok) { setError('Erreur lors de la suppression'); return }
+          if (!res.ok) {
+            const body = await res.json().catch(() => ({}))
+            setError(body.error ?? 'Erreur lors de la suppression')
+            return
+          }
           const idx = currentMemberships.findIndex(m => m.copropriete_id === selectedCopro)
           if (idx !== -1) currentMemberships.splice(idx, 1)
         }
       }
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erreur inattendue')
     } finally {
       setSaving(false)
     }
   }
 
   const currentRole = CONSEIL_ROLES.find(r => r.value === roleChoice)
+
+  // ── Cas sans copropriété ──────────────────────────────────────
+  if (coproprietes.length === 0) {
+    return (
+      <div className="coplio-card">
+        <div className="flex items-center gap-2 mb-2">
+          <Crown className="w-4 h-4 text-muted-foreground" />
+          <h2 className="font-semibold text-coplio-text text-sm">Rôle dans le portail</h2>
+        </div>
+        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50 border border-amber-200">
+          <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-800">
+            Ce copropriétaire n&apos;est lié à aucune copropriété. Assignez-lui d&apos;abord un lot pour pouvoir définir son rôle.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="coplio-card space-y-5">
