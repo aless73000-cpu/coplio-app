@@ -23,51 +23,61 @@ const schema = z.object({
 })
 
 export const POST = withErrorHandler(async (request: Request) => {
-  try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const body = await request.json()
-    const parsed = schema.safeParse(body)
-    if (!parsed.success) {
-      return NextResponse.json({ error: 'Données invalides', details: parsed.error.flatten() }, { status: 400 })
-    }
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('cabinet_id')
+    .eq('id', user.id)
+    .single()
+  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 403 })
 
-    const admin = createAdminClient()
-
-    const appelsData = parsed.data.appels.map((appel) => ({
-      ...appel,
-      montant_paye: 0,
-      nb_relances: 0,
-    }))
-
-    const { data, error } = await admin
-      .from('appels_charges')
-      .insert(appelsData)
-      .select()
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-    // Envoyer des emails aux copropriétaires concernés (non bloquant)
-    sendNotificationsCharges(admin, parsed.data.appels).catch(err => captureException(err, { context: 'appels-charges-notify' }))
-
-    // Récupérer le cabinet_id via le profil (non bloquant)
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (profile?.cabinet_id) {
-      await logAction(admin, {
-        cabinet_id: profile.cabinet_id, user_id: user.id,
-        action: 'create', entite: 'appel_charges',
-        entite_nom: parsed.data.appels[0]?.libelle,
-        metadata: { count: data?.length ?? 0 },
-      })
-    }
-
-    return NextResponse.json({ data, count: data?.length ?? 0 })
-  } catch (err) {
-    captureException(err, { context: 'appels-charges-post' })
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+  const body = await request.json()
+  const parsed = schema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Données invalides', details: parsed.error.flatten() }, { status: 400 })
   }
+
+  const admin = createAdminClient()
+
+  // SEC-01 : vérifier que toutes les copropriete_id appartiennent au cabinet de l'utilisateur
+  const coproprieteIds = Array.from(new Set(parsed.data.appels.map(a => a.copropriete_id)))
+  const { data: coprosVerif } = await admin
+    .from('coproprietes')
+    .select('id')
+    .in('id', coproprieteIds)
+    .eq('cabinet_id', profile.cabinet_id)
+
+  if ((coprosVerif?.length ?? 0) !== coproprieteIds.length) {
+    return NextResponse.json({ error: 'Copropriété non autorisée' }, { status: 403 })
+  }
+
+  const appelsData = parsed.data.appels.map((appel) => ({
+    ...appel,
+    montant_paye: 0,
+    nb_relances: 0,
+  }))
+
+  const { data, error } = await admin
+    .from('appels_charges')
+    .insert(appelsData)
+    .select()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Envoyer des emails aux copropriétaires concernés (non bloquant)
+  sendNotificationsCharges(admin, parsed.data.appels).catch(err => captureException(err, { context: 'appels-charges-notify' }))
+
+  await logAction(admin, {
+    cabinet_id: profile.cabinet_id, user_id: user.id,
+    action: 'create', entite: 'appel_charges',
+    entite_nom: parsed.data.appels[0]?.libelle,
+    metadata: { count: data?.length ?? 0 },
+  })
+
+  return NextResponse.json({ data, count: data?.length ?? 0 })
 })
 
 async function sendNotificationsCharges(

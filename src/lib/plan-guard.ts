@@ -33,6 +33,12 @@ export async function checkQuota(
     return { allowed: false, current: 0, max: 0, plan: 'unknown', upgradeRequired: true }
   }
 
+  // BIZ-01 : abonnement annulé ou expiré → bloquer immédiatement
+  const BLOCKED_STATUSES = ['canceled', 'incomplete_expired']
+  if (BLOCKED_STATUSES.includes(cabinet.subscription_status ?? '')) {
+    return { allowed: false, current: 0, max: 0, plan: cabinet.plan ?? 'unknown', upgradeRequired: true }
+  }
+
   // Trial expiré → bloquer
   if (cabinet.subscription_status === 'trialing' && cabinet.trial_ends_at) {
     if (new Date(cabinet.trial_ends_at) < new Date()) {
