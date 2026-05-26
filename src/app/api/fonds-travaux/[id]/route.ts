@@ -43,13 +43,14 @@ async function verifyFondsOwnership(supabase: Awaited<ReturnType<typeof createCl
   return (data.copropriete as unknown as { cabinet_id: string } | null)?.cabinet_id === cabinetId
 }
 
-export const PATCH = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
+export const PATCH = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     const { user, cabinetId, supabase } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
 
-    const owns = await verifyFondsOwnership(supabase, params.id, cabinetId)
+    const owns = await verifyFondsOwnership(supabase, id, cabinetId)
     if (!owns) return NextResponse.json({ error: 'Non trouvé ou accès refusé' }, { status: 404 })
 
     const body = await request.json()
@@ -59,7 +60,7 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
     const { data, error } = await supabase
       .from('fonds_travaux')
       .update({ ...parsed.data, updated_at: new Date().toISOString() })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -71,14 +72,15 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
   }
 })
 
-export const POST = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
+export const POST = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     // Add mouvement
     const { user, cabinetId, supabase } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
 
-    const owns = await verifyFondsOwnership(supabase, params.id, cabinetId)
+    const owns = await verifyFondsOwnership(supabase, id, cabinetId)
     if (!owns) return NextResponse.json({ error: 'Non trouvé ou accès refusé' }, { status: 404 })
 
     const body = await request.json()
@@ -89,16 +91,16 @@ export const POST = withErrorHandler(async (request: Request, { params }: { para
 
     const { data: mouvement, error: mErr } = await supabase
       .from('fonds_travaux_mouvements')
-      .insert({ fonds_travaux_id: params.id, type_mouvement: type, montant, libelle, date_mouvement: date_mouvement ?? new Date().toISOString().split('T')[0] })
+      .insert({ fonds_travaux_id: id, type_mouvement: type, montant, libelle, date_mouvement: date_mouvement ?? new Date().toISOString().split('T')[0] })
       .select()
       .single()
 
     if (mErr) return NextResponse.json({ error: mErr.message }, { status: 500 })
 
     // Update solde
-    const { data: ft } = await supabase.from('fonds_travaux').select('solde_actuel').eq('id', params.id).single()
+    const { data: ft } = await supabase.from('fonds_travaux').select('solde_actuel').eq('id', id).single()
     const delta = type === 'retrait' ? -Math.abs(montant) : Math.abs(montant)
-    await supabase.from('fonds_travaux').update({ solde_actuel: (ft?.solde_actuel ?? 0) + delta }).eq('id', params.id)
+    await supabase.from('fonds_travaux').update({ solde_actuel: (ft?.solde_actuel ?? 0) + delta }).eq('id', id)
 
     return NextResponse.json(mouvement)
   } catch (err) {
@@ -107,16 +109,17 @@ export const POST = withErrorHandler(async (request: Request, { params }: { para
   }
 })
 
-export const DELETE = withErrorHandler(async (_: Request, { params }: { params: { id: string } }) => {
+export const DELETE = withErrorHandler(async (_: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     const { user, cabinetId, supabase } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
 
-    const owns = await verifyFondsOwnership(supabase, params.id, cabinetId)
+    const owns = await verifyFondsOwnership(supabase, id, cabinetId)
     if (!owns) return NextResponse.json({ error: 'Non trouvé ou accès refusé' }, { status: 404 })
 
-    const { error } = await supabase.from('fonds_travaux').delete().eq('id', params.id)
+    const { error } = await supabase.from('fonds_travaux').delete().eq('id', id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ ok: true })
   } catch (err) {

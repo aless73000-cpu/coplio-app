@@ -16,7 +16,8 @@ async function getCallerCabinetId() {
   return { user, cabinetId: profile?.cabinet_id ?? null, supabase }
 }
 
-export const GET = withErrorHandler(async (_request: Request, { params }: { params: { id: string } }) => {
+export const GET = withErrorHandler(async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     const { user, cabinetId } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -26,7 +27,7 @@ export const GET = withErrorHandler(async (_request: Request, { params }: { para
     const { data, error } = await admin
       .from('coproprietaires')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('cabinet_id', cabinetId) // isolation cabinet
       .single()
 
@@ -46,7 +47,8 @@ const schema = z.object({
   notes_internes: z.string().optional(),
 })
 
-export const PUT = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
+export const PUT = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     const { user, cabinetId } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -63,7 +65,7 @@ export const PUT = withErrorHandler(async (request: Request, { params }: { param
     const { data: existing } = await admin
       .from('coproprietaires')
       .select('id, cabinet_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('cabinet_id', cabinetId) // isolation cabinet
       .single()
 
@@ -72,7 +74,7 @@ export const PUT = withErrorHandler(async (request: Request, { params }: { param
     const { data, error } = await admin
       .from('coproprietaires')
       .update({ ...rest, ...(email ? { email } : { email: null }) })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -83,7 +85,7 @@ export const PUT = withErrorHandler(async (request: Request, { params }: { param
       await admin
         .from('coproprietaires')
         .update({ notes_internes: notes_internes || null } as { notes_internes: string | null })
-        .eq('id', params.id)
+        .eq('id', id)
         .then(() => { /* ignore error if column missing */ })
     }
 
@@ -93,7 +95,8 @@ export const PUT = withErrorHandler(async (request: Request, { params }: { param
   }
 })
 
-export const DELETE = withErrorHandler(async (_request: Request, { params }: { params: { id: string } }) => {
+export const DELETE = withErrorHandler(async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     const { user, cabinetId } = await getCallerCabinetId()
     if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -105,16 +108,16 @@ export const DELETE = withErrorHandler(async (_request: Request, { params }: { p
     const { data: existing } = await admin
       .from('coproprietaires')
       .select('id, cabinet_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('cabinet_id', cabinetId) // isolation cabinet
       .single()
 
     if (!existing) return NextResponse.json({ error: 'Non trouvé ou accès refusé' }, { status: 404 })
 
     // Supprimer les assignations de lots d'abord
-    await admin.from('coproprietaire_lots').delete().eq('coproprietaire_id', params.id)
+    await admin.from('coproprietaire_lots').delete().eq('coproprietaire_id', id)
     // Supprimer le copropriétaire
-    const { error } = await admin.from('coproprietaires').delete().eq('id', params.id)
+    const { error } = await admin.from('coproprietaires').delete().eq('id', id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })
   } catch {

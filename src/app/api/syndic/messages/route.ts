@@ -12,56 +12,48 @@ async function getCabinetId() {
 }
 
 export const GET = withErrorHandler(async (req: Request) => {
-  try {
-    const ctx = await getCabinetId()
-    if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const ctx = await getCabinetId()
+  if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const { searchParams } = new URL(req.url)
-    const type = searchParams.get('type') ?? 'support'
+  const { searchParams } = new URL(req.url)
+  const type = searchParams.get('type') ?? 'support'
 
-    const admin = createAdminClient()
+  const admin = createAdminClient()
 
-    if (type === 'support') {
-      const { data, error } = await admin
-        .from('admin_support_messages')
-        .select('*')
-        .eq('cabinet_id', ctx.cabinet_id ?? '')
-        .order('created_at', { ascending: true })
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-      return NextResponse.json(data ?? [])
-    }
-
-    return NextResponse.json([])
-  } catch {
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+  if (type === 'support') {
+    const { data, error } = await admin
+      .from('admin_support_messages')
+      .select('*')
+      .eq('cabinet_id', ctx.cabinet_id ?? '')
+      .order('created_at', { ascending: true })
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(data ?? [])
   }
+
+  return NextResponse.json([])
 })
 
 const schema = z.object({ contenu: z.string().min(1) })
 
 export const POST = withErrorHandler(async (req: Request) => {
-  try {
-    const ctx = await getCabinetId()
-    if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const ctx = await getCabinetId()
+  if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const body = await req.json()
-    const parsed = schema.safeParse(body)
-    if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
+  const body = await req.json()
+  const parsed = schema.safeParse(body)
+  if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
-    const admin = createAdminClient()
-    const { data, error } = await admin
-      .from('admin_support_messages')
-      .insert({
-        cabinet_id: ctx.cabinet_id,
-        sender_type: 'client',
-        sender_email: ctx.user.email ?? '',
-        contenu: parsed.data.contenu,
-      })
-      .select().single()
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('admin_support_messages')
+    .insert({
+      cabinet_id: ctx.cabinet_id,
+      sender_type: 'client',
+      sender_email: ctx.user.email ?? '',
+      contenu: parsed.data.contenu,
+    })
+    .select().single()
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json(data)
-  } catch {
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
-  }
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data)
 })

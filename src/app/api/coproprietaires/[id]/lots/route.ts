@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { withErrorHandler } from '@/lib/api-handler'
 
-export const GET = withErrorHandler(async (_request: Request, { params }: { params: { id: string } }) => {
+export const GET = withErrorHandler(async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -13,7 +14,7 @@ export const GET = withErrorHandler(async (_request: Request, { params }: { para
     const { data, error } = await admin
       .from('coproprietaire_lots')
       .select('lot_id')
-      .eq('coproprietaire_id', params.id)
+      .eq('coproprietaire_id', id)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json((data ?? []).map((r: { lot_id: string }) => r.lot_id))
@@ -24,7 +25,8 @@ export const GET = withErrorHandler(async (_request: Request, { params }: { para
 
 const schema = z.object({ lot_ids: z.array(z.string().uuid()) })
 
-export const PUT = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
+export const PUT = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -35,10 +37,10 @@ export const PUT = withErrorHandler(async (request: Request, { params }: { param
     if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
     const admin = createAdminClient()
-    await admin.from('coproprietaire_lots').delete().eq('coproprietaire_id', params.id)
+    await admin.from('coproprietaire_lots').delete().eq('coproprietaire_id', id)
 
     if (parsed.data.lot_ids.length > 0) {
-      const rows = parsed.data.lot_ids.map((lot_id) => ({ coproprietaire_id: params.id, lot_id }))
+      const rows = parsed.data.lot_ids.map((lot_id) => ({ coproprietaire_id: id, lot_id }))
       const { error } = await admin.from('coproprietaire_lots').insert(rows)
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     }
@@ -48,7 +50,7 @@ export const PUT = withErrorHandler(async (request: Request, { params }: { param
     const { data: copro } = await admin
       .from('coproprietaires')
       .select('profile_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (copro?.profile_id) {

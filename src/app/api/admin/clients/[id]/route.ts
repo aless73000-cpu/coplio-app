@@ -5,15 +5,16 @@ import { withErrorHandler } from '@/lib/api-handler'
 import { requireAdmin } from '@/lib/admin-guard'
 import { captureException } from '@/lib/monitoring'
 
-export const GET = withErrorHandler(async (req: Request, { params }: { params: { id: string } }) => {
+export const GET = withErrorHandler(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     const check = await requireAdmin(req)
     if (check instanceof NextResponse) return check
 
     const admin = createAdminClient()
     const [cabinetRes, profilesRes] = await Promise.all([
-      admin.from('cabinets').select('*').eq('id', params.id).single(),
-      admin.from('profiles').select('id, prenom, nom, email, role, created_at').eq('cabinet_id', params.id),
+      admin.from('cabinets').select('*').eq('id', id).single(),
+      admin.from('profiles').select('id, prenom, nom, email, role, created_at').eq('cabinet_id', id),
     ])
 
     if (cabinetRes.error || !cabinetRes.data) return NextResponse.json({ error: 'Non trouvé' }, { status: 404 })
@@ -29,7 +30,8 @@ const updateSchema = z.object({
   subscription_status: z.enum(['active', 'trialing', 'past_due', 'canceled', 'incomplete']).optional(),
 })
 
-export const PATCH = withErrorHandler(async (req: Request, { params }: { params: { id: string } }) => {
+export const PATCH = withErrorHandler(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     const check = await requireAdmin(req)
     if (check instanceof NextResponse) return check
@@ -39,7 +41,7 @@ export const PATCH = withErrorHandler(async (req: Request, { params }: { params:
     if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
     const admin = createAdminClient()
-    const { data, error } = await admin.from('cabinets').update(parsed.data).eq('id', params.id).select().single()
+    const { data, error } = await admin.from('cabinets').update(parsed.data).eq('id', id).select().single()
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data)
   } catch (err) {
@@ -48,13 +50,14 @@ export const PATCH = withErrorHandler(async (req: Request, { params }: { params:
   }
 })
 
-export const DELETE = withErrorHandler(async (req: Request, { params }: { params: { id: string } }) => {
+export const DELETE = withErrorHandler(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     const check = await requireAdmin(req)
     if (check instanceof NextResponse) return check
 
     const admin = createAdminClient()
-    const { error } = await admin.from('cabinets').delete().eq('id', params.id)
+    const { error } = await admin.from('cabinets').delete().eq('id', id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ ok: true })
   } catch (err) {

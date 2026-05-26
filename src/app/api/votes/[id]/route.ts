@@ -12,8 +12,9 @@ const patchSchema = z.object({
 
 export const GET = withErrorHandler(async (
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -21,7 +22,7 @@ export const GET = withErrorHandler(async (
   const { data, error } = await supabase
     .from('votes')
     .select('*, options:vote_options(*), reponses:vote_reponses(id, option_id, coproprietaire_id)')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (error || !data) return NextResponse.json({ error: 'Vote introuvable' }, { status: 404 })
@@ -30,8 +31,9 @@ export const GET = withErrorHandler(async (
 
 export const PATCH = withErrorHandler(async (
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -43,7 +45,7 @@ export const PATCH = withErrorHandler(async (
   const { data, error } = await supabase
     .from('votes')
     .update(parsed.data)
-    .eq('id', params.id)
+    .eq('id', id)
     .select()
     .single()
 
@@ -53,12 +55,13 @@ export const PATCH = withErrorHandler(async (
 
 export const DELETE = withErrorHandler(async (
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
-  await supabase.from('votes').delete().eq('id', params.id)
+  await supabase.from('votes').delete().eq('id', id)
   return NextResponse.json({ ok: true })
 })

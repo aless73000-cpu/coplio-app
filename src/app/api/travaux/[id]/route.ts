@@ -33,7 +33,8 @@ async function getCallerInfo() {
   return { user, cabinetId: profile?.cabinet_id ?? null, supabase }
 }
 
-export const GET = withErrorHandler(async (_request: Request, { params }: { params: { id: string } }) => {
+export const GET = withErrorHandler(async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   const { user, cabinetId, supabase } = await getCallerInfo()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
@@ -41,7 +42,7 @@ export const GET = withErrorHandler(async (_request: Request, { params }: { para
   const { data, error } = await supabase
     .from('travaux')
     .select('*, prestataire:prestataires(id, nom, telephone), etapes:travaux_etapes(*)')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('cabinet_id', cabinetId) // isolation cabinet
     .single()
 
@@ -49,7 +50,8 @@ export const GET = withErrorHandler(async (_request: Request, { params }: { para
   return NextResponse.json(data)
 })
 
-export const PATCH = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
+export const PATCH = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   const { user, cabinetId, supabase } = await getCallerInfo()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
@@ -65,12 +67,12 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
     const { data: travail } = await supabase
       .from('travaux')
       .select('id')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('cabinet_id', cabinetId)
       .single()
     if (!travail) return NextResponse.json({ error: 'Non trouvé ou accès refusé' }, { status: 404 })
 
-    await supabase.from('travaux_etapes').insert({ ...parsed.data, travail_id: params.id, created_by: user.id })
+    await supabase.from('travaux_etapes').insert({ ...parsed.data, travail_id: id, created_by: user.id })
   }
 
   // Mettre à jour le travail
@@ -82,21 +84,22 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
     await supabase
       .from('travaux')
       .update({ ...parsed.data, updated_at: new Date().toISOString() })
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('cabinet_id', cabinetId) // isolation cabinet
   }
 
   const { data } = await supabase
     .from('travaux')
     .select('*, prestataire:prestataires(id, nom, telephone), etapes:travaux_etapes(*)')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('cabinet_id', cabinetId) // isolation cabinet
     .single()
 
   return NextResponse.json(data)
 })
 
-export const DELETE = withErrorHandler(async (_request: Request, { params }: { params: { id: string } }) => {
+export const DELETE = withErrorHandler(async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   const { user, cabinetId, supabase } = await getCallerInfo()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   if (!cabinetId) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
@@ -104,7 +107,7 @@ export const DELETE = withErrorHandler(async (_request: Request, { params }: { p
   const { error } = await supabase
     .from('travaux')
     .delete()
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('cabinet_id', cabinetId) // isolation cabinet
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

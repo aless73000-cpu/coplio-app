@@ -2,7 +2,8 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { withErrorHandler } from '@/lib/api-handler'
 
-export const DELETE = withErrorHandler(async (_: Request, { params }: { params: { id: string } }) => {
+export const DELETE = withErrorHandler(async (_: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   // Authentification via client normal
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -20,7 +21,7 @@ export const DELETE = withErrorHandler(async (_: Request, { params }: { params: 
   const { data: membre } = await admin
     .from('conseil_syndical')
     .select('id, copropriete:coproprietes(cabinet_id)')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!membre) return NextResponse.json({ error: 'Non trouvé' }, { status: 404 })
@@ -30,7 +31,7 @@ export const DELETE = withErrorHandler(async (_: Request, { params }: { params: 
   }
 
   // Suppression via admin
-  const { error } = await admin.from('conseil_syndical').delete().eq('id', params.id)
+  const { error } = await admin.from('conseil_syndical').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 })

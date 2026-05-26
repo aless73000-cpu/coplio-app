@@ -9,8 +9,9 @@ const schema = z.object({
 
 export const POST = withErrorHandler(async (
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -31,7 +32,7 @@ export const POST = withErrorHandler(async (
   const { data: vote } = await supabase
     .from('votes')
     .select('id, statut, date_fin')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!vote) return NextResponse.json({ error: 'Vote introuvable' }, { status: 404 })
@@ -42,7 +43,7 @@ export const POST = withErrorHandler(async (
   const { data: existing } = await admin
     .from('vote_reponses')
     .select('id')
-    .eq('vote_id', params.id)
+    .eq('vote_id', id)
     .eq('coproprietaire_id', coproprietaireId)
     .single()
 
@@ -53,7 +54,7 @@ export const POST = withErrorHandler(async (
   if (!parsed.success) return NextResponse.json({ error: 'Option invalide' }, { status: 400 })
 
   const { error } = await admin.from('vote_reponses').insert({
-    vote_id: params.id,
+    vote_id: id,
     option_id: parsed.data.option_id,
     coproprietaire_id: coproprietaireId, // ← vrai ID coproprietaires, pas auth.uid()
   })

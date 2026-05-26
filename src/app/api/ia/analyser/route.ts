@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
 
 export const POST = withErrorHandler(async (request: Request) => {
   const supabase = await createClient()
@@ -75,6 +76,7 @@ Réponds en français avec des sections claires, des bullet points. Sois précis
     const text = result.response.text()
     return NextResponse.json({ analyse: text, nom_fichier: file.name })
   } catch (err: unknown) {
+    captureException(err, { context: 'ia-analyser-gemini' })
     const msg = err instanceof Error ? err.message : 'Erreur IA inconnue'
     return NextResponse.json({ error: msg }, { status: 500 })
   }

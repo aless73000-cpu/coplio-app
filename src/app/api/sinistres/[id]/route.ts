@@ -7,7 +7,8 @@ type SinistreUpdate = Database['public']['Tables']['sinistres']['Update']
 
 const ALLOWED_FIELDS = ['compagnie_assurance', 'numero_declaration_assurance', 'montant_sinistre', 'montant_indemnise', 'description', 'titre'] as const
 
-export const PATCH = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
+export const PATCH = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -31,7 +32,7 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
   const { data: existing } = await admin
     .from('sinistres')
     .select('id, cabinet_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!existing || existing.cabinet_id !== profile.cabinet_id) {
@@ -41,7 +42,7 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
   const { data, error } = await admin
     .from('sinistres')
     .update(update as SinistreUpdate)
-    .eq('id', params.id)
+    .eq('id', id)
     .select()
     .single()
 

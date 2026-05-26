@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { rateLimit } from '@/lib/rate-limit'
 import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
 
 export const POST = withErrorHandler(async (request: Request) => {
   const supabase = await createClient()
@@ -78,6 +79,7 @@ ${coproprieteCtx}`
 
     return NextResponse.json({ message: text })
   } catch (err: unknown) {
+    captureException(err, { context: 'ia-chat-gemini' })
     const msg = err instanceof Error ? err.message : 'Erreur IA inconnue'
     return NextResponse.json({ error: msg }, { status: 500 })
   }

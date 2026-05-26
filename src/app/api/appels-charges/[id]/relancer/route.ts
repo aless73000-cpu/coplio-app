@@ -5,7 +5,8 @@ import { withErrorHandler } from '@/lib/api-handler'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { captureException } from '@/lib/monitoring'
 
-export const POST = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
+export const POST = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -47,7 +48,7 @@ export const POST = withErrorHandler(async (request: Request, { params }: { para
           )
         )
       `)
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (!appel) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
@@ -71,7 +72,7 @@ export const POST = withErrorHandler(async (request: Request, { params }: { para
     await admin.from('appels_charges').update({
       nb_relances: nouveauNbRelances,
       derniere_relance_at: new Date().toISOString(),
-    }).eq('id', params.id)
+    }).eq('id', id)
 
     // ── Envoi de l'email de relance ─────────────────────────────
     // Niveau : 1 (amical), 2 (ferme), 3 (mise en demeure)

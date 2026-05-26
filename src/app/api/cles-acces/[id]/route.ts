@@ -22,7 +22,8 @@ async function getProfile(supabase: Awaited<ReturnType<typeof createClient>>) {
   return profile
 }
 
-export const PATCH = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
+export const PATCH = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -38,7 +39,7 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
     const { data, error } = await supabase
       .from('cles_acces')
       .update(parsed.data)
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('cabinet_id', profile.cabinet_id) // isolation cabinet
       .select('*, detenteur:profiles(id, prenom, nom)')
       .single()
@@ -52,7 +53,8 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
   }
 })
 
-export const DELETE = withErrorHandler(async (_request: Request, { params }: { params: { id: string } }) => {
+export const DELETE = withErrorHandler(async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -64,7 +66,7 @@ export const DELETE = withErrorHandler(async (_request: Request, { params }: { p
     const { error } = await supabase
       .from('cles_acces')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('cabinet_id', profile.cabinet_id) // isolation cabinet
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })

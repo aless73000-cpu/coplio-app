@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { withErrorHandler } from '@/lib/api-handler'
 
-export const GET = withErrorHandler(async () => {
+export const GET = withErrorHandler(async (request: Request) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -11,16 +11,22 @@ export const GET = withErrorHandler(async () => {
   const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
   if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
 
+  const { searchParams } = new URL(request.url)
+  const page = Math.max(0, parseInt(searchParams.get('page') ?? '0', 10) || 0)
+  const perPage = Math.min(200, Math.max(1, parseInt(searchParams.get('per_page') ?? '200', 10) || 200))
+  const from = page * perPage
+  const to = from + perPage - 1
+
   const admin = createAdminClient()
-  const { data, error } = await admin
+  const { data, error, count } = await admin
     .from('coproprietaires')
-    .select('id, prenom, nom, email')
+    .select('id, prenom, nom, email', { count: 'exact' })
     .eq('cabinet_id', profile.cabinet_id)
     .order('nom')
-    .limit(5000)
+    .range(from, to)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data ?? [])
+  return NextResponse.json({ data: data ?? [], total: count ?? 0, page, perPage })
 })
 
 const schema = z.object({
@@ -32,33 +38,29 @@ const schema = z.object({
 })
 
 export const POST = withErrorHandler(async (request: Request) => {
-  try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
+  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
 
-    const body = await request.json()
-    const parsed = schema.safeParse(body)
-    if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
+  const body = await request.json()
+  const parsed = schema.safeParse(body)
+  if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
-    const { email, ...rest } = parsed.data
-    const admin = createAdminClient()
-    const { data, error } = await admin
-      .from('coproprietaires')
-      .insert({
-        ...rest,
-        ...(email ? { email } : {}),
-        cabinet_id: profile.cabinet_id,
-      })
-      .select()
-      .single()
+  const { email, ...rest } = parsed.data
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('coproprietaires')
+    .insert({
+      ...rest,
+      ...(email ? { email } : {}),
+      cabinet_id: profile.cabinet_id,
+    })
+    .select()
+    .single()
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json(data)
-  } catch {
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
-  }
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data)
 })

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { z } from 'zod'
 import { withErrorHandler } from '@/lib/api-handler'
+import { captureException } from '@/lib/monitoring'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 const schema = z.object({
@@ -176,6 +177,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     const text = result.response.text()
     return NextResponse.json({ texte: text })
   } catch (err: unknown) {
+    captureException(err, { context: 'ia-rediger-gemini' })
     const msg = err instanceof Error ? err.message : 'Erreur IA inconnue'
     return NextResponse.json({ error: msg }, { status: 500 })
   }

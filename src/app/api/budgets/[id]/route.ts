@@ -19,8 +19,9 @@ const updateSchema = z.object({
 
 export const GET = withErrorHandler(async (
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -28,7 +29,7 @@ export const GET = withErrorHandler(async (
   const { data, error } = await supabase
     .from('budgets')
     .select('*, lignes:budget_lignes(*)')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (error || !data) return NextResponse.json({ error: 'Budget introuvable' }, { status: 404 })
@@ -37,8 +38,9 @@ export const GET = withErrorHandler(async (
 
 export const PATCH = withErrorHandler(async (
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -53,14 +55,14 @@ export const PATCH = withErrorHandler(async (
     await supabase
       .from('budgets')
       .update({ ...budgetFields, updated_at: new Date().toISOString() })
-      .eq('id', params.id)
+      .eq('id', id)
   }
 
   if (lignes) {
-    await supabase.from('budget_lignes').delete().eq('budget_id', params.id)
+    await supabase.from('budget_lignes').delete().eq('budget_id', id)
     if (lignes.length > 0) {
       await supabase.from('budget_lignes').insert(
-        lignes.map((l, i) => ({ ...l, budget_id: params.id, ordre: i }))
+        lignes.map((l, i) => ({ ...l, budget_id: id, ordre: i }))
       )
     }
   }
@@ -68,7 +70,7 @@ export const PATCH = withErrorHandler(async (
   const { data } = await supabase
     .from('budgets')
     .select('*, lignes:budget_lignes(*)')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   return NextResponse.json(data)
@@ -76,12 +78,13 @@ export const PATCH = withErrorHandler(async (
 
 export const DELETE = withErrorHandler(async (
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
-  await supabase.from('budgets').delete().eq('id', params.id)
+  await supabase.from('budgets').delete().eq('id', id)
   return NextResponse.json({ ok: true })
 })
