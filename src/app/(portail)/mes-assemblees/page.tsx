@@ -26,14 +26,6 @@ async function voterResolution(formData: FormData) {
   const valeur = formData.get('valeur') as VoteValue
   if (!resolutionId || !valeur) return
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('lot_id, lot:lots(tantiemes)')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile?.lot_id) return
-
   // Résoudre coproprietaires.id depuis profile_id
   const admin = createAdminClient()
   const { data: copro } = await admin
@@ -44,19 +36,39 @@ async function voterResolution(formData: FormData) {
 
   if (!copro) return
 
-  const tantiemes = (profile.lot as { tantiemes?: number } | null)?.tantiemes ?? 0
+  // Récupérer la copropriété concernée par cette résolution
+  const { data: resolution } = await admin
+    .from('ag_resolutions')
+    .select('ag_id, assemblees_generales(copropriete_id)')
+    .eq('id', resolutionId)
+    .single()
 
-  // Upsert : si déjà voté, on met à jour
+  const coproprieteId = (resolution?.assemblees_generales as { copropriete_id?: string } | null)?.copropriete_id
+  if (!coproprieteId) return
+
+  // Art. 22 : les tantièmes du vote = SOMME de tous les lots actifs du copropriétaire
+  // dans cette copropriété (multi-lots possible)
+  const { data: lotsActifs } = await admin
+    .from('v_lots_actifs')
+    .select('tantiemes')
+    .eq('coproprietaire_id', copro.id)
+    .eq('copropriete_id', coproprieteId)
+
+  const tantiemes = (lotsActifs ?? []).reduce((sum, l) => sum + (l.tantiemes ?? 0), 0)
+  if (tantiemes === 0) return // Ce copropriétaire n'a aucun lot actif dans cette copropriété
+
+  // Upsert : si déjà voté, on met à jour (conflit sur la nouvelle contrainte UNIQUE)
   await admin.from('ag_votes').upsert({
     resolution_id: resolutionId,
     coproprietaire_id: copro.id,
-    lot_id: profile.lot_id,
+    lot_id: null, // nullable depuis Sprint 1 — vote par copropriétaire, pas par lot
     valeur,
     tantiemes,
     vote_a: new Date().toISOString(),
   }, { onConflict: 'resolution_id,coproprietaire_id' })
 
   // Recalculer les compteurs sur ag_resolutions à partir de tous les votes
+  // Note Sprint 2 : le champ `adoptee` sera calculé par le MajorityEngine
   const { data: tousVotes } = await admin
     .from('ag_votes')
     .select('valeur, tantiemes')

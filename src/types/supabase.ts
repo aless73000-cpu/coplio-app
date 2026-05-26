@@ -129,7 +129,7 @@ export type Database = {
           coproprietaire_id: string
           id: string
           ip_address: unknown
-          lot_id: string
+          lot_id: string | null  // nullable depuis Sprint 1 : vote par coproprietaire, pas par lot
           resolution_id: string
           tantiemes: number
           valeur: Database["public"]["Enums"]["vote_value"]
@@ -139,7 +139,7 @@ export type Database = {
           coproprietaire_id: string
           id?: string
           ip_address?: unknown
-          lot_id: string
+          lot_id?: string | null
           resolution_id: string
           tantiemes: number
           valeur: Database["public"]["Enums"]["vote_value"]
@@ -149,7 +149,7 @@ export type Database = {
           coproprietaire_id?: string
           id?: string
           ip_address?: unknown
-          lot_id?: string
+          lot_id?: string | null
           resolution_id?: string
           tantiemes?: number
           valeur?: Database["public"]["Enums"]["vote_value"]
@@ -418,6 +418,7 @@ export type Database = {
         Row: {
           budget_id: string
           categorie: string
+          cle_repartition: string  // Décret 1967 art. 10 — défaut: 'tantiemes_generaux'
           commentaire: string | null
           created_at: string
           id: string
@@ -429,6 +430,7 @@ export type Database = {
         Insert: {
           budget_id: string
           categorie?: string
+          cle_repartition?: string
           commentaire?: string | null
           created_at?: string
           id?: string
@@ -440,6 +442,7 @@ export type Database = {
         Update: {
           budget_id?: string
           categorie?: string
+          cle_repartition?: string
           commentaire?: string | null
           created_at?: string
           id?: string
@@ -835,17 +838,26 @@ export type Database = {
         Row: {
           coproprietaire_id: string
           date_acquisition: string | null
+          date_fin: string | null
           lot_id: string
+          motif_fin: string | null
+          notes: string | null
         }
         Insert: {
           coproprietaire_id: string
           date_acquisition?: string | null
+          date_fin?: string | null
           lot_id: string
+          motif_fin?: string | null
+          notes?: string | null
         }
         Update: {
           coproprietaire_id?: string
           date_acquisition?: string | null
+          date_fin?: string | null
           lot_id?: string
+          motif_fin?: string | null
+          notes?: string | null
         }
         Relationships: [
           {
@@ -1796,6 +1808,71 @@ export type Database = {
           },
         ]
       }
+      pouvoirs: {
+        Row: {
+          ag_id: string
+          created_at: string
+          created_by: string | null
+          date_signature: string | null
+          document_id: string | null
+          id: string
+          mandant_id: string
+          mandataire_id: string
+          notes: string | null
+        }
+        Insert: {
+          ag_id: string
+          created_at?: string
+          created_by?: string | null
+          date_signature?: string | null
+          document_id?: string | null
+          id?: string
+          mandant_id: string
+          mandataire_id: string
+          notes?: string | null
+        }
+        Update: {
+          ag_id?: string
+          created_at?: string
+          created_by?: string | null
+          date_signature?: string | null
+          document_id?: string | null
+          id?: string
+          mandant_id?: string
+          mandataire_id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pouvoirs_ag_id_fkey"
+            columns: ["ag_id"]
+            isOneToOne: false
+            referencedRelation: "assemblees_generales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pouvoirs_mandant_id_fkey"
+            columns: ["mandant_id"]
+            isOneToOne: false
+            referencedRelation: "coproprietaires"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pouvoirs_mandataire_id_fkey"
+            columns: ["mandataire_id"]
+            isOneToOne: false
+            referencedRelation: "coproprietaires"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pouvoirs_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prospects: {
         Row: {
           adresse: string | null
@@ -2591,7 +2668,34 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_lots_actifs: {
+        Row: {
+          coproprietaire_id: string
+          copropriete_id: string
+          date_acquisition: string | null
+          lot_id: string
+          lot_numero: string
+          lot_type: Database["public"]["Enums"]["lot_type"] | null
+          surface: number | null
+          tantiemes: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coproprietaire_lots_coproprietaire_id_fkey"
+            columns: ["coproprietaire_id"]
+            isOneToOne: false
+            referencedRelation: "coproprietaires"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coproprietaire_lots_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       get_user_cabinet_id: { Args: never; Returns: string }

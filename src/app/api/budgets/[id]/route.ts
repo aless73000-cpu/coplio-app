@@ -3,9 +3,22 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { withErrorHandler } from '@/lib/api-handler'
 
+const CLE_REPARTITION = [
+  'tantiemes_generaux',
+  'tantiemes_speciaux',
+  'tantièmes_ascenseur',
+  'tantièmes_parkings',
+  'tantièmes_caves',
+  'charges_eau',
+  'charges_chauffage',
+  'autre_cle',
+] as const
+
 const ligneSchema = z.object({
   poste: z.string().min(1),
   categorie: z.enum(['charges_generales', 'entretien', 'travaux', 'assurances', 'honoraires', 'reserves', 'autre']),
+  // Décret 1967 art. 10 : clé de répartition obligatoire pour ventilation légale des charges
+  cle_repartition: z.enum(CLE_REPARTITION).default('tantiemes_generaux'),
   montant_previsionnel: z.number().min(0),
   montant_reel: z.number().min(0).optional(),
   commentaire: z.string().optional(),
