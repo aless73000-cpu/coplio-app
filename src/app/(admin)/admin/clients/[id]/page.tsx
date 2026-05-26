@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, User, Mail, Loader2, Trash2, Ban, CheckCircle } from 'lucide-react'
 
+import { PLAN_PRICES } from '@/types'
+
 const PLAN_OPTIONS = ['trial', 'starter', 'pro', 'expert'] as const
 const PLAN_LABELS: Record<string, string> = { trial: 'Essai', starter: 'Starter', pro: 'Pro', expert: 'Expert' }
-const PLAN_PRICES: Record<string, number> = { trial: 0, starter: 79, pro: 149, expert: 299 }
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   active: { label: 'Actif', color: 'bg-green-100 text-green-700' },
   trialing: { label: 'Essai', color: 'bg-blue-100 text-blue-700' },

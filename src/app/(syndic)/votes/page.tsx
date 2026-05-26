@@ -49,6 +49,7 @@ export default function VotesPage() {
   const [votes, setVotes] = useState<VoteItem[]>([])
   const [coproprietes, setCoproprietes] = useState<Copropriete[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [filtre, setFiltre] = useState<Filtre>('tous')
@@ -65,18 +66,25 @@ export default function VotesPage() {
 
   const load = useCallback(async () => {
     setLoading(true)
-    const [votesRes, coprosRes] = await Promise.all([
-      fetch('/api/votes'),
-      fetch('/api/coproprietes'),
-    ])
-    const votesData = await votesRes.json()
-    const coprosData = await coprosRes.json()
-    setVotes(Array.isArray(votesData) ? votesData : [])
-    const copros = Array.isArray(coprosData) ? coprosData : (coprosData?.data ?? [])
-    setCoproprietes(copros)
-    // Forme fonctionnelle pour ne pas dépendre de coproprieteId dans les deps
-    setCoproprieteId(prev => prev || copros[0]?.id || '')
-    setLoading(false)
+    setLoadError('')
+    try {
+      const [votesRes, coprosRes] = await Promise.all([
+        fetch('/api/votes'),
+        fetch('/api/coproprietes'),
+      ])
+      if (!votesRes.ok) throw new Error(`Erreur chargement votes (${votesRes.status})`)
+      if (!coprosRes.ok) throw new Error(`Erreur chargement copropriétés (${coprosRes.status})`)
+      const votesData = await votesRes.json()
+      const coprosData = await coprosRes.json()
+      setVotes(Array.isArray(votesData) ? votesData : [])
+      const copros = Array.isArray(coprosData) ? coprosData : (coprosData?.data ?? [])
+      setCoproprietes(copros)
+      setCoproprieteId(prev => prev || copros[0]?.id || '')
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Erreur de chargement')
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => { load() }, [load])
@@ -157,6 +165,12 @@ export default function VotesPage() {
           Nouveau vote
         </button>
       </div>
+
+      {loadError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+          {loadError}
+        </div>
+      )}
 
       {/* Formulaire création */}
       {showForm && (

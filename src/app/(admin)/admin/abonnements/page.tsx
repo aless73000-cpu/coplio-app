@@ -2,9 +2,9 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { formatEuro } from '@/lib/utils'
+import { PLAN_PRICES } from '@/types'
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase())
-const PLAN_PRICES: Record<string, number> = { trial: 0, starter: 79, pro: 149, expert: 299 }
 const PLAN_LABELS: Record<string, string> = { trial: 'Essai', starter: 'Starter', pro: 'Pro', expert: 'Expert' }
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   active: { label: 'Actif', color: 'bg-green-100 text-green-700' },

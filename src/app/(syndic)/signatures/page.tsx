@@ -36,6 +36,7 @@ export default function SignaturesPage() {
   const [items, setItems] = useState<SignatureItem[]>([])
   const [coproprietes, setCoproprietes] = useState<Copropriete[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ nom: '', type_document: 'pv_ag', copropriete_id: '', fichier_url: '' })
   const [signataires, setSignataires] = useState<Signataire[]>([{ ...emptySignataire }])
@@ -45,16 +46,21 @@ export default function SignaturesPage() {
 
   const load = useCallback(async () => {
     setLoading(true)
+    setLoadError('')
     try {
       const [sRes, cRes, cfgRes] = await Promise.all([
         fetch('/api/signatures'),
         fetch('/api/coproprietes'),
         fetch('/api/signatures/config'),
       ])
+      if (!sRes.ok) throw new Error(`Erreur chargement signatures (${sRes.status})`)
+      if (!cRes.ok) throw new Error(`Erreur chargement copropriétés (${cRes.status})`)
       const [sData, cData, cfgData] = await Promise.all([sRes.json(), cRes.json(), cfgRes.json()])
       setItems(Array.isArray(sData) ? sData : [])
       setCoproprietes(Array.isArray(cData) ? cData : [])
       setHasDocuseal(cfgData.docuseal_configured === true)
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Erreur de chargement')
     } finally {
       setLoading(false)
     }
@@ -99,6 +105,12 @@ export default function SignaturesPage() {
       </div>
 
       <DocTabs />
+
+      {loadError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+          {loadError}
+        </div>
+      )}
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">

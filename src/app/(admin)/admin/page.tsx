@@ -2,16 +2,10 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Users, TrendingUp, CreditCard, AlertTriangle } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
+import { PLAN_PRICES } from '@/types'
 import Link from 'next/link'
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase())
-
-const PLAN_PRICES: Record<string, number> = {
-  starter: 79,
-  pro: 149,
-  expert: 299,
-  trial: 0,
-}
 
 const PLAN_LABELS: Record<string, string> = {
   trial: 'Essai',

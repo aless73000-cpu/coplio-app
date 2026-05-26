@@ -89,17 +89,21 @@ export const GET = withErrorHandler(async (request: Request) => {
       )
       if (!palier) { totalSkipped++; continue }
 
-      // Ne pas renvoyer si déjà relancé dans les 25 derniers jours
-      if (appel.derniere_relance_at) {
-        const derniereRelance = new Date(appel.derniere_relance_at)
-        const joursDepuisRelance = Math.floor(
-          (today.getTime() - derniereRelance.getTime()) / (1000 * 60 * 60 * 24)
-        )
-        if (joursDepuisRelance < 25) { totalSkipped++; continue }
-      }
+      // Verrouillage optimiste : UPDATE atomique avec toutes les conditions.
+      // Si une autre instance du cron a déjà traité ce rang, l'UPDATE retourne 0 lignes.
+      const cutoffDate = new Date(today.getTime() - 25 * 24 * 60 * 60 * 1000).toISOString()
+      const { data: claimed } = await admin
+        .from('appels_charges')
+        .update({
+          nb_relances: palier.niveau,
+          derniere_relance_at: new Date().toISOString(),
+        })
+        .eq('id', appel.id)
+        .lt('nb_relances', palier.niveau)
+        .or(`derniere_relance_at.is.null,derniere_relance_at.lt.${cutoffDate}`)
+        .select('id')
 
-      // Ne pas envoyer un niveau inférieur à ce qui a déjà été envoyé
-      if ((appel.nb_relances ?? 0) >= palier.niveau) { totalSkipped++; continue }
+      if (!claimed?.length) { totalSkipped++; continue }
 
       // Trouver le copropriétaire lié au lot
       const { data: ownerProfile } = await admin
@@ -137,15 +141,6 @@ export const GET = withErrorHandler(async (request: Request) => {
       )
 
       if (result.success) {
-        // Mettre à jour le compteur
-        await admin
-          .from('appels_charges')
-          .update({
-            nb_relances: palier.niveau,
-            derniere_relance_at: new Date().toISOString(),
-          })
-          .eq('id', appel.id)
-
         totalSent++
       } else {
         totalFailed++

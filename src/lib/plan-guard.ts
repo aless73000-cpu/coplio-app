@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { PLAN_LIMITS } from '@/lib/stripe'
 
-export type QuotaResource = 'lots' | 'gestionnaires'
+export type QuotaResource = 'lots' | 'gestionnaires' | 'coproprietes'
 
 export interface QuotaResult {
   allowed: boolean
@@ -74,6 +74,20 @@ export async function checkQuota(
       .select('id', { count: 'exact', head: true })
       .eq('cabinet_id', cabinetId)
       .in('role', ['owner', 'manager'])
+
+    const current = count ?? 0
+    const allowed = current + adding <= max
+
+    return { allowed, current, max, plan: cabinet.plan ?? 'unknown', upgradeRequired: !allowed }
+  }
+
+  if (resource === 'coproprietes') {
+    const max = limits.max_coproprietes
+
+    const { count } = await admin
+      .from('coproprietes')
+      .select('id', { count: 'exact', head: true })
+      .eq('cabinet_id', cabinetId)
 
     const current = count ?? 0
     const allowed = current + adding <= max

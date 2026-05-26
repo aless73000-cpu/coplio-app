@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
 import { withErrorHandler } from '@/lib/api-handler'
 
-export const GET = withErrorHandler(async () => {
+export const GET = withErrorHandler(async (request: Request) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -18,12 +18,25 @@ export const GET = withErrorHandler(async () => {
     const coproprieteIds = (coproprietes ?? []).map((c: { id: string }) => c.id)
     if (coproprieteIds.length === 0) return NextResponse.json([])
 
-    const { data, error } = await admin
-      .from('lots')
-      .select('id, numero, type, copropriete:coproprietes(id, nom)')
-      .in('copropriete_id', coproprieteIds)
-      .order('numero')
+    const url = new URL(request.url)
+    const coproprieteId = url.searchParams.get('copropriete_id')
 
+    let query = admin
+      .from('lots')
+      .select('id, numero, etage, type, tantiemes, copropriete:coproprietes(id, nom)')
+      .order('numero')
+      .limit(2000)
+
+    if (coproprieteId) {
+      if (!coproprieteIds.includes(coproprieteId)) {
+        return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+      }
+      query = query.eq('copropriete_id', coproprieteId)
+    } else {
+      query = query.in('copropriete_id', coproprieteIds)
+    }
+
+    const { data, error } = await query
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data ?? [])
   } catch {

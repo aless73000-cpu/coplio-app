@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { withErrorHandler } from '@/lib/api-handler'
 import { logAction } from '@/lib/audit'
+import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
 
 export const GET = withErrorHandler(async () => {
   const supabase = await createClient()
@@ -17,6 +18,7 @@ export const GET = withErrorHandler(async () => {
     .select('id, nom, adresse, ville, nb_lots')
     .eq('cabinet_id', profile.cabinet_id)
     .order('nom')
+    .limit(1000)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data ?? [])
@@ -48,6 +50,10 @@ export const POST = withErrorHandler(async (request: Request) => {
     if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
     const admin = createAdminClient()
+
+    const quota = await checkQuota(profile.cabinet_id, 'coproprietes')
+    if (!quota.allowed) return quotaExceededResponse(quota)
+
     const { data, error } = await admin.from('coproprietes').insert({
       ...parsed.data,
       cabinet_id: profile.cabinet_id,

@@ -7,7 +7,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Loader2 } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 
 const schema = z.object({
   titre: z.string().min(3, 'Titre requis'),
@@ -37,10 +36,9 @@ function NewSinistreForm() {
   })
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.from('coproprietes').select('id, nom').order('nom').then(({ data }) => {
-      if (data) setCoproprietes(data)
-    })
+    fetch('/api/coproprietes')
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setCoproprietes(data) })
   }, [])
 
   async function onSubmit(values: FormValues) {

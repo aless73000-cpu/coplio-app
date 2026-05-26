@@ -2,7 +2,6 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { toast } from 'sonner'
-import { createClient } from '@/lib/supabase/client'
 import {
   Upload, FileSpreadsheet, Download, CheckCircle2, AlertTriangle,
   Loader2, ChevronDown, X, ArrowRight, Building2, Layers, Users,
@@ -30,10 +29,9 @@ export default function ImporterPage() {
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.from('coproprietes').select('id, nom, ville').order('nom').then(({ data }) => {
-      if (data) setCoproprietes(data as Copropriete[])
-    })
+    fetch('/api/coproprietes')
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setCoproprietes(data as Copropriete[]) })
   }, [])
 
   const handleFile = useCallback((f: File) => {

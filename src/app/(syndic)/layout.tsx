@@ -36,7 +36,7 @@ export default async function SyndicLayout({
     .single()
 
   if (!profile || profile.role === 'owner_resident') {
-    redirect('/mes-charges')
+    redirect('/accueil')
   }
 
   if (!profile.cabinet_id) {

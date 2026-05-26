@@ -16,12 +16,7 @@ export function getStripe(): Stripe {
   return _stripe
 }
 
-// Backward-compatible named export used in existing route files
-export const stripe = new Proxy({} as Stripe, {
-  get(_target, prop) {
-    return (getStripe() as unknown as Record<string | symbol, unknown>)[prop]
-  },
-})
+export const stripe = getStripe()
 
 export const STRIPE_PRICES = {
   starter: process.env.STRIPE_PRICE_STARTER ?? '',
@@ -34,10 +29,10 @@ export const STRIPE_PRICES = {
 // et à la landing page (/src/app/page.tsx). Toute modification ici
 // doit être répercutée dans les deux autres fichiers.
 export const PLAN_LIMITS = {
-  trial:   { max_gestionnaires: 1, max_lots: 50 },   // limité intentionnellement pendant l'essai
-  starter: { max_gestionnaires: 1, max_lots: 75 },   // aligné landing + PLANS_CONFIG
-  pro:     { max_gestionnaires: 5, max_lots: 400 },  // aligné landing + PLANS_CONFIG
-  expert:  { max_gestionnaires: 999, max_lots: 999 },
+  trial:   { max_gestionnaires: 1, max_lots: 50,  max_coproprietes: 3   },
+  starter: { max_gestionnaires: 1, max_lots: 75,  max_coproprietes: 10  },
+  pro:     { max_gestionnaires: 5, max_lots: 400, max_coproprietes: 50  },
+  expert:  { max_gestionnaires: 999, max_lots: 999, max_coproprietes: 999 },
 }
 
 export type PlanKey = keyof typeof PLAN_LIMITS

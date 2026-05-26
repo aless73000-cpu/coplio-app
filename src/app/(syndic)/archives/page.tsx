@@ -29,6 +29,7 @@ export default function ArchivesPage() {
   const [archives, setArchives] = useState<ArchiveItem[]>([])
   const [coproprietes, setCoproprietes] = useState<Copropriete[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [uploading, setUploading] = useState(false)
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
@@ -42,11 +43,16 @@ export default function ArchivesPage() {
 
   const load = useCallback(async () => {
     setLoading(true)
+    setLoadError('')
     try {
       const [aRes, cRes] = await Promise.all([fetch('/api/archives'), fetch('/api/coproprietes')])
+      if (!aRes.ok) throw new Error(`Erreur chargement archives (${aRes.status})`)
+      if (!cRes.ok) throw new Error(`Erreur chargement copropriétés (${cRes.status})`)
       const [aData, cData] = await Promise.all([aRes.json(), cRes.json()])
       setArchives(Array.isArray(aData) ? aData : [])
       setCoproprietes(Array.isArray(cData) ? cData : [])
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Erreur de chargement')
     } finally {
       setLoading(false)
     }
@@ -117,6 +123,12 @@ export default function ArchivesPage() {
       </div>
 
       <DocTabs />
+
+      {loadError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+          {loadError}
+        </div>
+      )}
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">

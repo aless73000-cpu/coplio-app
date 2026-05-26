@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Loader2, Calculator, ChevronDown, ChevronUp } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 
 const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
   focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent
@@ -45,30 +44,22 @@ export default function NewAppelChargesPage() {
 
   // Load copropriétés
   useEffect(() => {
-    const supabase = createClient()
-    supabase
-      .from('coproprietes')
-      .select('id, nom')
-      .order('nom')
-      .then(({ data }) => { if (data) setCoproprietes(data) })
+    fetch('/api/coproprietes')
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setCoproprietes(data) })
   }, [])
 
   // Load lots when copropriété changes
   useEffect(() => {
     if (!coproprieteId) { setLots([]); return }
     setLoadingLots(true)
-    const supabase = createClient()
-    supabase
-      .from('lots')
-      .select('id, numero, etage, type, tantiemes')
-      .eq('copropriete_id', coproprieteId)
-      .order('numero')
-      .then(({ data }) => {
-        if (data) {
-          setLots(data as unknown as typeof lots)
-          // Sélectionner tous les lots par défaut
+    fetch(`/api/lots?copropriete_id=${coproprieteId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setLots(data as Lot[])
           const sel: Record<string, boolean> = {}
-          data.forEach((l) => { sel[l.id] = true })
+          data.forEach((l: Lot) => { sel[l.id] = true })
           setLotsSelectionnes(sel)
         }
         setLoadingLots(false)

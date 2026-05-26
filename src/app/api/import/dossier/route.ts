@@ -1,6 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import ExcelJS from 'exceljs'
+import { captureException } from '@/lib/monitoring'
 
 const LOT_TYPES = ['appartement', 'maison', 'local_commercial', 'parking', 'cave', 'autre'] as const
 type LotType = typeof LOT_TYPES[number]
@@ -276,7 +277,7 @@ export async function POST(request: Request) {
       errors,
     })
   } catch (err) {
-    console.error(err)
+    captureException(err, { context: 'import-dossier' })
     return NextResponse.json({ error: "Erreur lors de l'import" }, { status: 500 })
   }
 }

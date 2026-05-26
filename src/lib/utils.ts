@@ -84,6 +84,29 @@ export function truncate(str: string, maxLength: number): string {
   return str.slice(0, maxLength) + '...'
 }
 
+/**
+ * Fire-and-forget with exponential back-off retry.
+ * Runs in background without blocking the caller.
+ * On final failure the error is passed to `onFailure` (e.g. captureException).
+ */
+export function fireAndForget(
+  fn: () => Promise<unknown>,
+  { attempts = 3, onFailure }: { attempts?: number; onFailure?: (err: unknown) => void } = {}
+): void {
+  ;(async () => {
+    for (let i = 0; i < attempts; i++) {
+      try { await fn(); return }
+      catch (err) {
+        if (i < attempts - 1) {
+          await new Promise(r => setTimeout(r, 1000 * (i + 1)))
+        } else {
+          onFailure?.(err)
+        }
+      }
+    }
+  })()
+}
+
 // Calcule le taux de recouvrement en %
 export function calculTauxRecouvrement(
   montantDu: number,

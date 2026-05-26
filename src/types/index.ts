@@ -472,6 +472,13 @@ export const PLANS_CONFIG = {
   }
 } as const
 
+export const PLAN_PRICES: Record<string, number> = {
+  trial:   0,
+  starter: PLANS_CONFIG.starter.price,
+  pro:     PLANS_CONFIG.pro.price,
+  expert:  PLANS_CONFIG.expert.price,
+}
+
 // Labels français
 export const SINISTRE_STATUS_LABELS: Record<SinistreStatus, string> = {
   signale: 'Signalé',

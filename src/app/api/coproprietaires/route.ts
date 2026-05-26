@@ -17,6 +17,7 @@ export const GET = withErrorHandler(async () => {
     .select('id, prenom, nom, email')
     .eq('cabinet_id', profile.cabinet_id)
     .order('nom')
+    .limit(5000)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data ?? [])

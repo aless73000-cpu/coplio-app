@@ -119,7 +119,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   // 1. Vérifier la signature
   const valid = await verifySignature(payload, request.headers)
   if (!valid) {
-    console.error('[Resend Webhook] Signature invalide — requête rejetée')
+    captureException(new Error('Resend webhook signature invalide'), { context: 'resend-webhook' })
     return NextResponse.json({ error: 'Signature invalide' }, { status: 401 })
   }
 

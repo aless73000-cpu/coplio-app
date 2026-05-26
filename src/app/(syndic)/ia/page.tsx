@@ -23,8 +23,8 @@ export default function IAPage() {
   const [tab,           setTab]           = useState<TabKey>('rediger')
   const [coproprieteId, setCoproprieteId] = useState('')
 
-  const { data: copropietesData } = useApi<Copropriete[]>('/api/coproprietes')
-  const coproprietes = copropietesData ?? []
+  const { data: coproprietesData } = useApi<Copropriete[]>('/api/coproprietes')
+  const coproprietes = coproprietesData ?? []
 
   // Set default copropriete once data loads
   useEffect(() => {
