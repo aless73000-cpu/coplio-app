@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Archive, Upload, Loader2, FileText, Trash2, Download, Search, Calendar, Shield } from 'lucide-react'
+import { Archive, Upload, Loader2, FileText, Trash2, Download, Search, Calendar, Shield, AlertTriangle } from 'lucide-react'
+import { toast } from 'sonner'
 import { formatDate } from '@/lib/utils'
 import { DocTabs } from '@/components/syndic/DocTabs'
 
@@ -36,6 +37,8 @@ export default function ArchivesPage() {
   const [uploadForm, setUploadForm] = useState({ nom: '', type: 'pv_ag', copropriete_id: '', date_document: '' })
   const [showUpload, setShowUpload] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -72,11 +75,20 @@ export default function ArchivesPage() {
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm('Supprimer cet archivage ? (vérification rétention légale)')) return
+  async function handleDeleteConfirm() {
+    if (!deleteConfirmId) return
+    const id = deleteConfirmId
+    setDeleting(true)
     const res = await fetch(`/api/archives/${id}`, { method: 'DELETE' })
-    if (res.ok) setArchives(prev => prev.filter(a => a.id !== id))
-    else { const d = await res.json(); alert(d.error) }
+    setDeleting(false)
+    setDeleteConfirmId(null)
+    if (res.ok) {
+      setArchives(prev => prev.filter(a => a.id !== id))
+      toast.success('Document supprimé')
+    } else {
+      const d = await res.json()
+      toast.error(d.error ?? 'Erreur lors de la suppression')
+    }
   }
 
   const filtered = archives.filter(a => {
@@ -143,7 +155,7 @@ export default function ArchivesPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-coplio-text mb-1.5">Nom *</label>
-                <input value={uploadForm.nom} onChange={e => setUploadForm(f => ({ ...f, nom: e.target.value }))} required
+                <input value={uploadForm.nom} onChange={e => setUploadForm(f => ({ ...f, nom: e.target.value }))} required autoFocus
                   className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20" />
               </div>
               <div>
@@ -226,13 +238,51 @@ export default function ArchivesPage() {
                   className="p-1.5 text-muted-foreground hover:text-[#374151] transition-colors">
                   <Download className="w-4 h-4" />
                 </a>
-                <button onClick={() => handleDelete(a.id)} className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors">
+                <button onClick={() => setDeleteConfirmId(a.id)} className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors" title="Supprimer">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Modale de confirmation de suppression */}
+      {deleteConfirmId && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={() => setDeleteConfirmId(null)} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 animate-fade-in">
+              <div className="flex items-start gap-3 mb-4">
+                <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-coplio-red" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-coplio-text">Supprimer ce document archivé ?</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Cette action est <strong>irréversible</strong>. Le document sera définitivement effacé du stockage légal.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="px-4 py-2 text-sm font-medium text-coplio-text bg-coplio-bg rounded-lg hover:bg-border transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  disabled={deleting}
+                  className="px-4 py-2 text-sm font-medium text-white bg-coplio-red rounded-lg hover:bg-coplio-red/90 transition-colors disabled:opacity-60 flex items-center gap-2"
+                >
+                  {deleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  Supprimer définitivement
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   )

@@ -5,12 +5,44 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
-import { Home, Building2, User, Check, Loader2, ChevronRight } from 'lucide-react'
+import { Home, Building2, User, Check, Loader2, ChevronRight, Zap } from 'lucide-react'
+import { PLANS_CONFIG } from '@/types'
 
 const steps = [
   { id: 1, title: 'Votre profil', icon: User },
   { id: 2, title: 'Votre cabinet', icon: Building2 },
-  { id: 3, title: 'Prêt à démarrer', icon: Check },
+  { id: 3, title: 'Votre plan', icon: Zap },
+  { id: 4, title: 'Prêt !', icon: Check },
+]
+
+const PLAN_OPTIONS = [
+  {
+    key: 'starter',
+    name: PLANS_CONFIG.starter.name,
+    price: PLANS_CONFIG.starter.price,
+    highlight: 'Idéal pour démarrer',
+    features: ['1 gestionnaire', 'Jusqu\'à 75 lots', 'Portail inclus'],
+    popular: false,
+    href: '/facturation?plan=starter',
+  },
+  {
+    key: 'pro',
+    name: PLANS_CONFIG.pro.name,
+    price: PLANS_CONFIG.pro.price,
+    highlight: 'Le plus populaire',
+    features: ['Jusqu\'à 5 gestionnaires', '400 lots', 'Votes en ligne & relances'],
+    popular: true,
+    href: '/facturation?plan=pro',
+  },
+  {
+    key: 'expert',
+    name: PLANS_CONFIG.expert.name,
+    price: PLANS_CONFIG.expert.price,
+    highlight: 'Grands cabinets',
+    features: ['Illimité', 'API & portail brandé', 'Support prioritaire'],
+    popular: false,
+    href: '/facturation?plan=expert',
+  },
 ]
 
 const step1Schema = z.object({
@@ -95,7 +127,7 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Une erreur est survenue.')
 
-      setCurrentStep(3)
+      setCurrentStep(3) // → sélection du plan
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue.')
     } finally {
@@ -296,8 +328,61 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
           </>
         )}
 
-        {/* Étape 3 — Succès */}
+        {/* Étape 3 — Sélection du plan */}
         {currentStep === 3 && (
+          <div>
+            <h2 className="text-xl font-bold text-coplio-text mb-1">Choisissez votre plan</h2>
+            <p className="text-muted-foreground text-sm mb-6">
+              Vous êtes en essai gratuit 14 jours — vous pouvez aussi décider plus tard.
+            </p>
+
+            <div className="space-y-3 mb-6">
+              {PLAN_OPTIONS.map((plan) => (
+                <a
+                  key={plan.key}
+                  href={plan.href}
+                  className={`block rounded-xl border p-4 transition-all hover:shadow-md ${
+                    plan.popular
+                      ? 'border-[#374151] bg-slate-50 ring-1 ring-[#374151]/20'
+                      : 'border-border hover:border-[#374151]/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-coplio-text text-sm">{plan.name}</span>
+                      {plan.popular && (
+                        <span className="text-[10px] font-bold bg-[#374151] text-white px-2 py-0.5 rounded-full uppercase tracking-wide">
+                          Populaire
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-sm font-bold text-coplio-text">
+                      {plan.price}€<span className="text-xs font-normal text-muted-foreground">/mois</span>
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-2">{plan.highlight}</p>
+                  <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                    {plan.features.map((f) => (
+                      <span key={f} className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Check className="w-3 h-3 text-[#374151]" />{f}
+                      </span>
+                    ))}
+                  </div>
+                </a>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setCurrentStep(4)}
+              className="w-full text-sm text-muted-foreground hover:text-coplio-text transition-colors underline-offset-2 hover:underline"
+            >
+              Continuer avec l&apos;essai gratuit →
+            </button>
+          </div>
+        )}
+
+        {/* Étape 4 — Succès */}
+        {currentStep === 4 && (
           <div className="text-center py-2">
             {/* Badge succès animé */}
             <div className="relative w-20 h-20 mx-auto mb-5">

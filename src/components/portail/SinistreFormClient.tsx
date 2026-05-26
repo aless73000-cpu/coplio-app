@@ -63,6 +63,7 @@ export function SinistreFormClient({ action }: Props) {
           <select
             name="type"
             required
+            autoFocus
             value={draft.type}
             onChange={e => setField('type', e.target.value)}
             className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent"

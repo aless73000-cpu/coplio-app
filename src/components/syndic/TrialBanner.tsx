@@ -17,8 +17,23 @@ export function TrialBanner({ trialEndsAt, plan }: TrialBannerProps) {
 
   useEffect(() => {
     setMounted(true)
-    setDismissed(localStorage.getItem(DISMISS_KEY) === '1')
-  }, [])
+
+    // Calculer les jours restants maintenant pour décider du dismiss
+    let dl: number | null = null
+    if (trialEndsAt) {
+      const end = new Date(trialEndsAt)
+      dl = Math.max(0, Math.ceil((end.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    }
+
+    // À J-3 ou moins : forcer la réaffichage et supprimer le dismiss stocké
+    // (le bouton × n'apparaît d'ailleurs plus en mode urgent)
+    if (dl !== null && dl <= 3) {
+      localStorage.removeItem(DISMISS_KEY)
+      setDismissed(false)
+    } else {
+      setDismissed(localStorage.getItem(DISMISS_KEY) === '1')
+    }
+  }, [trialEndsAt])
 
   // Seulement pour les comptes en trial
   if (plan !== 'trial') return null

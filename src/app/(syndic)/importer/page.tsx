@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import {
   Upload, FileSpreadsheet, Download, CheckCircle2, AlertTriangle,
@@ -37,7 +38,7 @@ export default function ImporterPage() {
 
   const handleFile = useCallback((f: File) => {
     if (!f.name.endsWith('.xlsx') && !f.name.endsWith('.xls')) {
-      alert('Format non supporté. Veuillez utiliser le fichier Excel (.xlsx) téléchargé depuis le modèle.')
+      toast.error('Format non supporté. Veuillez utiliser le fichier Excel (.xlsx) téléchargé depuis le modèle.')
       return
     }
     setFile(f)

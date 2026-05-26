@@ -132,6 +132,61 @@ export default function TarifsPage() {
             ))}
           </div>
 
+          {/* Tableau comparatif */}
+          <div className="mt-20">
+            <h2 className="text-2xl font-bold text-[#1C1C1A] text-center mb-2 tracking-tight">
+              Comparez les plans
+            </h2>
+            <p className="text-gray-400 text-sm text-center mb-10">Toutes les fonctionnalités, plan par plan</p>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    <th className="text-left pb-4 text-gray-400 font-normal w-1/2">Fonctionnalité</th>
+                    {plans.map(p => (
+                      <th key={p.key} className={`text-center pb-4 font-semibold ${p.key === POPULAR_PLAN_KEY ? 'text-[#374151]' : 'text-gray-500'}`}>
+                        {p.name}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {([
+                    { label: 'Gestionnaires', values: ['1', 'Jusqu\'à 5', 'Illimités'] },
+                    { label: 'Lots gérés', values: ['75 lots', '400 lots', 'Illimités'] },
+                    { label: 'Portail copropriétaire', values: [true, true, true] },
+                    { label: 'GED illimitée', values: [true, true, true] },
+                    { label: 'Suivi sinistres', values: [true, true, true] },
+                    { label: 'Appels de charges', values: [true, true, true] },
+                    { label: 'Vote en ligne AG', values: [false, true, true] },
+                    { label: 'Relances automatiques', values: [false, true, true] },
+                    { label: 'Rapports avancés', values: [false, true, true] },
+                    { label: 'Archivage légal 10 ans', values: [false, true, true] },
+                    { label: 'API accès', values: [false, false, true] },
+                    { label: 'Portail brandé', values: [false, false, true] },
+                    { label: 'Support prioritaire', values: [false, false, true] },
+                  ] as { label: string; values: (boolean | string)[] }[]).map(({ label, values }) => (
+                    <tr key={label} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="py-3.5 text-gray-700 font-medium">{label}</td>
+                      {values.map((v, i) => (
+                        <td key={i} className="py-3.5 text-center">
+                          {typeof v === 'boolean' ? (
+                            v
+                              ? <Check className="w-4 h-4 text-[#374151] mx-auto" />
+                              : <span className="block w-4 h-0.5 bg-gray-200 mx-auto rounded" />
+                          ) : (
+                            <span className="text-gray-700 font-medium">{v}</span>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           {/* Garantie */}
           <p className="text-center text-sm text-gray-400 mt-12">
             Résiliation en 1 clic · Données exportables à tout moment · Hébergement 🇪🇺 RGPD

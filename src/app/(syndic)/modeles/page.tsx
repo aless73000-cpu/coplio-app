@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import {
   FileText, Download, Loader2, ChevronRight, Mail,
@@ -487,10 +488,11 @@ type FieldDef = {
   options?: readonly string[]
 }
 
-function Field({ field, value, onChange }: {
+function Field({ field, value, onChange, coproprietes = [] }: {
   field: FieldDef
   value: string
   onChange: (v: string) => void
+  coproprietes?: { id: string; nom: string }[]
 }) {
   const cls = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
     focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent
@@ -520,6 +522,27 @@ function Field({ field, value, onChange }: {
       </div>
     )
   }
+  // Champ coproprieteNom : datalist pour autocomplete depuis les copros chargées
+  if (field.key === 'coproprieteNom' && coproprietes.length > 0) {
+    const listId = 'coproprietes-list'
+    return (
+      <div>
+        <label className="block text-sm font-medium text-coplio-text mb-1.5">{field.label}</label>
+        <input
+          type="text"
+          list={listId}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder}
+          className={cls}
+        />
+        <datalist id={listId}>
+          {coproprietes.map((c) => <option key={c.id} value={c.nom} />)}
+        </datalist>
+      </div>
+    )
+  }
+
   return (
     <div>
       <label className="block text-sm font-medium text-coplio-text mb-1.5">{field.label}</label>
@@ -540,10 +563,12 @@ function TemplateCard({
   template,
   cabinetInfo,
   logoData,
+  coproprietes = [],
 }: {
   template: typeof TEMPLATES[number]
   cabinetInfo: CabinetInfo | null
   logoData: { data: string; mime: string } | null
+  coproprietes?: { id: string; nom: string }[]
 }) {
   const [expanded, setExpanded] = useState(false)
   const [values, setValues] = useState<Record<string, string>>({})
@@ -569,7 +594,7 @@ function TemplateCard({
       await generatePDF(template.id, values, logoData)
     } catch (err) {
       import('@/lib/monitoring').then(({ captureException }) => captureException(err))
-      alert('Erreur lors de la génération du PDF')
+      toast.error('Erreur lors de la génération du PDF')
     } finally {
       setGenerating(false)
     }
@@ -605,6 +630,7 @@ function TemplateCard({
                     field={field}
                     value={values[field.key] ?? (field.type === 'select' && field.options ? field.options[0] : '')}
                     onChange={(v) => setValues((prev) => ({ ...prev, [field.key]: v }))}
+                    coproprietes={coproprietes}
                   />
                 </div>
               )
@@ -636,6 +662,7 @@ function TemplateCard({
 export default function ModelesPage() {
   const [cabinetInfo, setCabinetInfo] = useState<CabinetInfo | null>(null)
   const [logoData, setLogoData] = useState<{ data: string; mime: string } | null>(null)
+  const [coproprietes, setCoproprietes] = useState<{ id: string; nom: string }[]>([])
 
   useEffect(() => {
     async function loadCabinet() {
@@ -651,26 +678,25 @@ export default function ModelesPage() {
 
       if (!profile?.cabinet_id) return
 
-      const { data: cabinet } = await supabase
-        .from('cabinets')
-        .select('nom, adresse, logo_url')
-        .eq('id', profile.cabinet_id)
-        .single()
+      const [{ data: cabinet }, { data: copros }] = await Promise.all([
+        supabase.from('cabinets').select('nom, adresse, logo_url').eq('id', profile.cabinet_id).single(),
+        supabase.from('coproprietes').select('id, nom').eq('cabinet_id', profile.cabinet_id).order('nom'),
+      ])
 
-      if (!cabinet) return
-
-      const info: CabinetInfo = {
-        nom: cabinet.nom ?? '',
-        adresse: cabinet.adresse ?? '',
-        logo_url: cabinet.logo_url ?? null,
+      if (cabinet) {
+        const info: CabinetInfo = {
+          nom: cabinet.nom ?? '',
+          adresse: cabinet.adresse ?? '',
+          logo_url: cabinet.logo_url ?? null,
+        }
+        setCabinetInfo(info)
+        if (cabinet.logo_url) {
+          const b64 = await urlToBase64(cabinet.logo_url)
+          if (b64) setLogoData(b64)
+        }
       }
-      setCabinetInfo(info)
 
-      // Load logo as base64 if available
-      if (cabinet.logo_url) {
-        const b64 = await urlToBase64(cabinet.logo_url)
-        if (b64) setLogoData(b64)
-      }
+      if (copros) setCoproprietes(copros as { id: string; nom: string }[])
     }
 
     loadCabinet()
@@ -715,6 +741,7 @@ export default function ModelesPage() {
             template={template}
             cabinetInfo={cabinetInfo}
             logoData={logoData}
+            coproprietes={coproprietes}
           />
         ))}
       </div>
