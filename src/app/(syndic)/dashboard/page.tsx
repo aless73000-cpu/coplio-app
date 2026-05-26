@@ -24,27 +24,25 @@ export default async function DashboardPage({
   const cabinetId = profile.cabinet_id
   const cabinet = profile.cabinet as { nom?: string; trial_ends_at?: string | null; plan?: string | null } | null
 
-  // Charger copropriétés d'abord (nécessaire pour les impayés)
-  const { data: coproprietes } = await supabase
-    .from('coproprietes')
-    .select('*')
-    .eq('cabinet_id', cabinetId)
-    .order('created_at', { ascending: false })
-
-  const coproprieteIds = (coproprietes ?? []).map((c) => c.id)
-
   const oneYearAgo = new Date()
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
 
+  // ── Phase 1 : copropriétés + requêtes indépendantes en parallèle ─────────
+  // sinistres, agProchaines, nbCoproprietaires, nbPortailActif, agRecentes
+  // n'ont pas besoin de coproprieteIds (filtrent sur cabinet_id).
   const [
+    { data: coproprietes },
     { data: sinistres },
     { data: agProchaines },
-    { data: impayes },
     { count: nbCoproprietairesTotal },
     { count: nbPortailActif },
     { data: agRecentes },
-    { count: nbLotsOccupes },
   ] = await Promise.all([
+    supabase
+      .from('coproprietes')
+      .select('*')
+      .eq('cabinet_id', cabinetId)
+      .order('created_at', { ascending: false }),
     supabase
       .from('sinistres')
       .select('*, copropriete:coproprietes(nom)')
@@ -60,32 +58,35 @@ export default async function DashboardPage({
       .gte('date_ag', new Date().toISOString())
       .order('date_ag', { ascending: true })
       .limit(3),
+    supabase
+      .from('coproprietaires')
+      .select('id', { count: 'exact', head: true })
+      .eq('cabinet_id', cabinetId),
+    supabase
+      .from('coproprietaires')
+      .select('id', { count: 'exact', head: true })
+      .eq('cabinet_id', cabinetId)
+      .eq('portail_actif', true),
+    supabase
+      .from('assemblees_generales')
+      .select('copropriete_id, date_ag')
+      .eq('cabinet_id', cabinetId)
+      .eq('status', 'terminee')
+      .gte('date_ag', oneYearAgo.toISOString()),
+  ])
+
+  const coproprieteIds = (coproprietes ?? []).map((c) => c.id)
+
+  // ── Phase 2 : requêtes dépendantes de coproprieteIds ────────────────────
+  const [
+    { data: impayes },
+    { count: nbLotsOccupes },
+  ] = await Promise.all([
     coproprieteIds.length > 0
       ? supabase
           .from('appels_charges')
           .select('copropriete_id, montant, montant_paye, paye, date_echeance')
           .in('copropriete_id', coproprieteIds)
-      : Promise.resolve({ data: [] }),
-    coproprieteIds.length > 0
-      ? supabase
-          .from('coproprietaires')
-          .select('id', { count: 'exact', head: true })
-          .eq('cabinet_id', cabinetId)
-      : Promise.resolve({ count: 0 }),
-    coproprieteIds.length > 0
-      ? supabase
-          .from('coproprietaires')
-          .select('id', { count: 'exact', head: true })
-          .eq('cabinet_id', cabinetId)
-          .eq('portail_actif', true)
-      : Promise.resolve({ count: 0 }),
-    coproprieteIds.length > 0
-      ? supabase
-          .from('assemblees_generales')
-          .select('copropriete_id, date_ag')
-          .eq('cabinet_id', cabinetId)
-          .eq('status', 'terminee')
-          .gte('date_ag', oneYearAgo.toISOString())
       : Promise.resolve({ data: [] }),
     coproprieteIds.length > 0
       ? supabase
