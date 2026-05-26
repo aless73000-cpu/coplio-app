@@ -1,6 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import ExcelJS from 'exceljs'
+import { withErrorHandler } from '@/lib/api-handler'
 import { captureException } from '@/lib/monitoring'
 
 const LOT_TYPES = ['appartement', 'maison', 'local_commercial', 'parking', 'cave', 'autre'] as const
@@ -98,7 +99,7 @@ function detectSheets(wb: ExcelJS.Workbook): {
   return { lotsSheet, coprosSheet }
 }
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -280,4 +281,4 @@ export async function POST(request: Request) {
     captureException(err, { context: 'import-dossier' })
     return NextResponse.json({ error: "Erreur lors de l'import" }, { status: 500 })
   }
-}
+})

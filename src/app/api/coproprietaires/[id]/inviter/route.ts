@@ -3,23 +3,13 @@ import { NextResponse } from 'next/server'
 import { Email } from '@/lib/email'
 import { captureException } from '@/lib/monitoring'
 import { logAction } from '@/lib/audit'
+import { withErrorHandler } from '@/lib/api-handler'
+import { generateTempPassword } from '@/lib/passwords'
 
-/** Génère un mot de passe temporaire de 12 caractères sans ambiguïtés (0/O/1/I/l) */
-function generateTempPassword(): string {
-  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
-  const lower = 'abcdefghjkmnpqrstuvwxyz'
-  const digits = '23456789'
-  const all = upper + lower + digits
-  const pick = (set: string) => set[Math.floor(Math.random() * set.length)]
-  const required = [pick(upper), pick(upper), pick(lower), pick(lower), pick(digits), pick(digits)]
-  const extra = Array.from({ length: 6 }, () => pick(all))
-  return [...required, ...extra].sort(() => Math.random() - 0.5).join('')
-}
-
-export async function POST(
+export const POST = withErrorHandler(async (
   _request: Request,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -74,7 +64,7 @@ export async function POST(
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
     const portailUrl = `${appUrl}/portail`
 
-    // Générer le mot de passe temporaire
+    // Générer le mot de passe temporaire (CSPRNG)
     const tempPassword = generateTempPassword()
 
     // Créer ou mettre à jour l'utilisateur Supabase Auth
@@ -91,7 +81,7 @@ export async function POST(
         return NextResponse.json({ error: 'Erreur mise à jour utilisateur' }, { status: 500 })
       }
     } else {
-      // Chercher si un compte existe déjà avec cet email via la table profiles (plus efficace que listUsers)
+      // Chercher si un compte existe déjà avec cet email
       const { data: existingProfile } = await admin
         .from('profiles')
         .select('id')
@@ -182,4 +172,4 @@ export async function POST(
     captureException(err, { context: 'coproprietaires-inviter' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

@@ -198,6 +198,7 @@ export function AgResolutionsManager({ agId, initialResolutions, canEdit }: Prop
                         disabled={deleting === res.id}
                         className="p-1 text-muted-foreground hover:text-coplio-red transition-colors"
                         title="Supprimer"
+                        aria-label="Supprimer la résolution"
                       >
                         {deleting === res.id
                           ? <Loader2 className="w-3.5 h-3.5 animate-spin" />

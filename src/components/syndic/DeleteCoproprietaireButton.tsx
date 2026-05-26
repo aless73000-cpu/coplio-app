@@ -31,7 +31,7 @@ export function DeleteCoproprietaireButton({ id, nom }: { id: string; nom: strin
           disabled={deleting}
           className="flex items-center gap-1.5 bg-red-500 text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-60"
         >
-          {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+          {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />}
           Confirmer
         </button>
         <button

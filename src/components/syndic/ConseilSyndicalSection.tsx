@@ -140,6 +140,7 @@ export function ConseilSyndicalSection({
                   disabled={removingId === m.id}
                   className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0"
                   title="Retirer du conseil"
+                  aria-label="Retirer du conseil syndical"
                 >
                   {removingId === m.id
                     ? <Loader2 className="w-3.5 h-3.5 animate-spin" />

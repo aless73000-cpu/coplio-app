@@ -70,6 +70,7 @@ export function AgPVSection({ agId, pvNom, pvUrl }: Props) {
             disabled={removing}
             className="text-muted-foreground hover:text-coplio-red transition-colors"
             title="Supprimer"
+            aria-label="Supprimer le PV"
           >
             {removing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
           </button>

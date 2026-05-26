@@ -64,6 +64,7 @@ export function DocumentActions({ documentId, typeMime }: { documentId: string; 
         disabled={loading !== null}
         className="p-1.5 rounded-md hover:bg-slate-100 text-muted-foreground hover:text-[#374151] transition-colors disabled:opacity-50"
         title="Télécharger"
+        aria-label="Télécharger le document"
       >
         {loading === 'download' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
       </button>

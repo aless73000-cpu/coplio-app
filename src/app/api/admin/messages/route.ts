@@ -1,21 +1,15 @@
-import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { withErrorHandler } from '@/lib/api-handler'
-
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase())
-
-async function checkAdmin() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  return user && ADMIN_EMAILS.includes(user.email?.toLowerCase() ?? '') ? user : null
-}
+import { requireAdmin } from '@/lib/admin-guard'
+import { captureException } from '@/lib/monitoring'
 
 // GET - récupérer les messages (support ou interne)
 export const GET = withErrorHandler(async (req: Request) => {
   try {
-    const user = await checkAdmin()
-    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+    const check = await requireAdmin(req)
+    if (check instanceof NextResponse) return check
 
     const { searchParams } = new URL(req.url)
     const type = searchParams.get('type') ?? 'support' // 'support' ou 'interne'
@@ -43,7 +37,8 @@ export const GET = withErrorHandler(async (req: Request) => {
     const { data, error } = await query
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data ?? [])
-  } catch {
+  } catch (err) {
+    captureException(err, { context: 'admin-messages-get' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 })
@@ -57,8 +52,8 @@ const schema = z.object({
 // POST - envoyer un message
 export const POST = withErrorHandler(async (req: Request) => {
   try {
-    const user = await checkAdmin()
-    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+    const check = await requireAdmin(req)
+    if (check instanceof NextResponse) return check
 
     const body = await req.json()
     const parsed = schema.safeParse(body)
@@ -69,7 +64,7 @@ export const POST = withErrorHandler(async (req: Request) => {
     if (parsed.data.type === 'interne') {
       const { data, error } = await admin
         .from('admin_internal_messages')
-        .insert({ sender_email: user.email ?? '', contenu: parsed.data.contenu })
+        .insert({ sender_email: check.email ?? '', contenu: parsed.data.contenu })
         .select().single()
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
       return NextResponse.json(data)
@@ -80,7 +75,7 @@ export const POST = withErrorHandler(async (req: Request) => {
       .insert({
         cabinet_id: parsed.data.cabinet_id,
         sender_type: 'admin',
-        sender_email: user.email ?? '',
+        sender_email: check.email ?? '',
         contenu: parsed.data.contenu,
       })
       .select().single()
@@ -108,7 +103,8 @@ export const POST = withErrorHandler(async (req: Request) => {
     }
 
     return NextResponse.json(data)
-  } catch {
+  } catch (err) {
+    captureException(err, { context: 'admin-messages-post' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 })

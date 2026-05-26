@@ -281,7 +281,7 @@ export function CoproprietesClient({ coproprietes }: Props) {
                             className="text-xs border border-border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#374151]/20">
                             {STATUT_PIPELINE.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
                           </select>
-                          <button onClick={() => handleDelete(p.id)} className="p-1 text-muted-foreground hover:text-coplio-red transition-colors">
+                          <button onClick={() => handleDelete(p.id)} className="p-1 text-muted-foreground hover:text-coplio-red transition-colors" aria-label="Supprimer le prospect">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>

@@ -218,6 +218,7 @@ export function EquipeClient({ currentUserId, isOwner, quota }: Props) {
                     disabled={removingId === m.id}
                     className="p-1.5 rounded-lg hover:bg-red-50 text-muted-foreground hover:text-red-600 transition-colors flex-shrink-0"
                     title="Retirer du cabinet"
+                    aria-label={`Retirer ${m.prenom ?? ''} ${m.nom ?? ''} du cabinet`.trim()}
                   >
                     {removingId === m.id
                       ? <Loader2 className="w-4 h-4 animate-spin" />
