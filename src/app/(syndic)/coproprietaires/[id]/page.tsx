@@ -329,6 +329,7 @@ export default async function CopropriétairePage({ params }: { params: { id: st
         nom={copropriétaire.nom}
         email={copropriétaire.email ?? null}
         telephone={copropriétaire.telephone ?? null}
+        portailActif={!!copropriétaire.portail_actif}
         coproprietes={coproprietes}
         currentMemberships={memberships.map(m => ({
           copropriete_id: m.copropriete_id,

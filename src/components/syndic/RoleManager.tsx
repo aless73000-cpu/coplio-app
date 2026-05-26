@@ -4,7 +4,7 @@ import { useState } from 'react'
 import {
   User, Crown, CheckCircle2, Loader2,
   FileText, CreditCard, MessageCircle, Building2,
-  TrendingUp, Wrench, CalendarDays, ChevronDown,
+  TrendingUp, Wrench, CalendarDays, ChevronDown, AlertTriangle,
 } from 'lucide-react'
 
 const CONSEIL_ROLES = [
@@ -23,12 +23,13 @@ interface RoleManagerProps {
   email: string | null
   telephone: string | null
   coproprietes: Copropriete[]
+  portailActif?: boolean
   // Membership actuel par copropriété : { copropriete_id, conseil_id, role }
   currentMemberships: { copropriete_id: string; conseil_id: string; role: string }[]
 }
 
 export function RoleManager({
-  prenom, nom, email, telephone, coproprietes, currentMemberships,
+  prenom, nom, email, telephone, coproprietes, currentMemberships, portailActif = false,
 }: RoleManagerProps) {
   const [selectedCopro, setSelectedCopro] = useState(coproprietes[0]?.id ?? '')
   const [saving, setSaving] = useState(false)
@@ -250,6 +251,19 @@ export function RoleManager({
                 {r.label}
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Warning portail inactif quand conseil */}
+      {planChoice === 'conseil' && !portailActif && (
+        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50 border border-amber-200">
+          <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs font-semibold text-amber-800">Portail inactif</p>
+            <p className="text-xs text-amber-700/80 mt-0.5">
+              Ce copropriétaire n&apos;a pas encore activé son portail. L&apos;accès Conseil syndical ne sera effectif qu&apos;après son inscription.
+            </p>
           </div>
         </div>
       )}

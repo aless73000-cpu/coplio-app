@@ -190,6 +190,56 @@ export default async function DashboardPage({
     })
   }
 
+  // Impayés depuis plus de 60 jours
+  const sixtyDaysAgo = new Date()
+  sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60)
+  const impayes60 = allAppels.filter(
+    (a) => !a.paye && a.date_echeance && new Date(a.date_echeance) < sixtyDaysAgo
+  )
+  if (impayes60.length > 0) {
+    const montant60 = impayes60.reduce((s, a) => s + (a.montant - a.montant_paye), 0)
+    const m = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(montant60)
+    smartAlerts.push({
+      id: 'impayes-60j',
+      severity: 'warning',
+      message: `${impayes60.length} impayé${impayes60.length > 1 ? 's' : ''} en retard depuis plus de 60 jours (${m})`,
+      href: '/impayes',
+      cta: 'Lancer des relances',
+    })
+  }
+
+  // AG prochaine dans moins de 15 jours
+  const in15Days = new Date()
+  in15Days.setDate(in15Days.getDate() + 15)
+  const agUrgentes = (agProchaines ?? []).filter(
+    (ag: { date_ag: string }) => new Date(ag.date_ag) <= in15Days
+  )
+  if (agUrgentes.length > 0) {
+    smartAlerts.push({
+      id: 'ag-urgente',
+      severity: 'warning',
+      message: `${agUrgentes.length} AG ${agUrgentes.length > 1 ? 'ont lieu' : 'a lieu'} dans moins de 15 jours`,
+      href: '/assemblees',
+      cta: 'Préparer',
+    })
+  }
+
+  // Sinistres ouverts depuis plus de 30 jours
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  const sinistresAnciens = (sinistres ?? []).filter(
+    (s: { created_at?: string | null }) => s.created_at && new Date(s.created_at) < thirtyDaysAgo
+  )
+  if (sinistresAnciens.length > 0) {
+    smartAlerts.push({
+      id: 'sinistres-anciens',
+      severity: 'warning',
+      message: `${sinistresAnciens.length} sinistre${sinistresAnciens.length > 1 ? 's' : ''} ouvert${sinistresAnciens.length > 1 ? 's' : ''} depuis plus de 30 jours`,
+      href: '/sinistres',
+      cta: 'Gérer',
+    })
+  }
+
   // ─── Données graphiques ────────────────────────────────────
   const tauxData = (coproprietes ?? [])
     .slice(0, 6)

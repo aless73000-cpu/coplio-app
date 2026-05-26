@@ -4,12 +4,13 @@ import Link from 'next/link'
 import {
   FileText, Wrench, MessageCircle,
   AlertTriangle, CheckCircle2,
-  Landmark, UserX, Calendar,
+  Landmark, UserX, Calendar, User,
   Bell, CreditCard, ArrowRight,
   CalendarDays, Vote, ChevronRight, Crown,
 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { AppelCharges, Document, Sinistre, Notification } from '@/types'
+import { Sparkles } from 'lucide-react'
 
 const CONSEIL_ROLE_LABELS: Record<string, string> = {
   president: 'Président du conseil syndical',
@@ -202,6 +203,12 @@ export default async function AccueilPage() {
   feedItems.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   const recentFeed = feedItems.slice(0, 6)
 
+  // ── Welcome screen : profil récent (< 7 jours) sans activité ──
+  const profileAge = profile?.created_at
+    ? (Date.now() - new Date(profile.created_at).getTime()) / 86400000
+    : 999
+  const isNewUser = profileAge < 7 && recentFeed.length === 0 && (appels ?? []).length === 0
+
   return (
     <div className="max-w-2xl mx-auto space-y-5 py-2">
 
@@ -218,6 +225,41 @@ export default async function AccueilPage() {
           </p>
         )}
       </div>
+
+      {/* ── Welcome screen premier login ── */}
+      {isNewUser && (
+        <div className="rounded-2xl border overflow-hidden shadow-sm"
+          style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', borderColor: '#1e3a5f' }}>
+          <div className="px-5 py-5">
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(255,255,255,0.12)' }}>
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-base font-bold text-white">Bienvenue sur votre portail !</p>
+                <p className="text-sm text-white/60 mt-1 leading-relaxed">
+                  Votre espace est prêt. Dès que votre syndic aura configuré vos informations, vous retrouverez ici vos charges, documents, et les actualités de votre copropriété.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <Link href="/mes-messages"
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                style={{ background: 'rgba(255,255,255,0.12)', color: 'white' }}>
+                <MessageCircle className="w-4 h-4 flex-shrink-0" />
+                <span>Contacter le syndic</span>
+              </Link>
+              <Link href="/mon-compte"
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)' }}>
+                <User className="w-4 h-4 flex-shrink-0" />
+                <span>Mon compte</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Badge Conseil syndical ── */}
       {conseilEntry && (
@@ -275,6 +317,18 @@ export default async function AccueilPage() {
       </div>
 
       {/* ── Fonds de travaux ── */}
+      {!isNewUser && !fondsTravaux && coproprieteId && (
+        <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border bg-white border-slate-200 shadow-sm">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: '#f1f5f9' }}>
+            <Landmark className="w-5 h-5 text-slate-400" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 font-medium">Fonds de travaux ALUR</p>
+            <p className="text-sm text-slate-400 mt-0.5">Données non disponibles — contactez votre syndic</p>
+          </div>
+        </div>
+      )}
       {fondsTravaux && (
         <div className="bg-white rounded-2xl border border-slate-200 px-5 py-4 shadow-sm">
           <div className="flex items-center justify-between gap-4">
