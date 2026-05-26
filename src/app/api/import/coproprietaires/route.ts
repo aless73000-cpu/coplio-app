@@ -33,6 +33,9 @@ export async function POST(request: NextRequest) {
     if (!rows?.length || !copropriete_id) {
       return NextResponse.json({ error: 'Données manquantes' }, { status: 400 })
     }
+    if (rows.length > 500) {
+      return NextResponse.json({ error: 'Maximum 500 lignes par import' }, { status: 400 })
+    }
 
     // Verify copropriete belongs to cabinet
     const { data: copro } = await supabase
