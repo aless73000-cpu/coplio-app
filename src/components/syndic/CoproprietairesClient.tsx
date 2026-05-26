@@ -46,21 +46,16 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
   async function handleExportExcel() {
     setExporting(true)
     try {
-      const { utils, writeFile } = await import('xlsx')
-      const rows = filtered.map(c => ({
-        Prénom: c.prenom,
-        Nom: c.nom,
-        Email: c.email ?? '',
-        Téléphone: c.telephone ?? '',
-        'Portail actif': c.portail_actif ? 'Oui' : 'Non',
-        'Invitation envoyée': c.invitation_envoyee_at
-          ? new Date(c.invitation_envoyee_at).toLocaleDateString('fr-FR')
-          : '',
-      }))
-      const ws = utils.json_to_sheet(rows)
-      const wb = utils.book_new()
-      utils.book_append_sheet(wb, ws, 'Copropriétaires')
-      writeFile(wb, `coproprietaires_${new Date().toISOString().slice(0, 10)}.xlsx`)
+      // Export généré côté serveur (exceljs) — plus de dépendance xlsx dans le bundle client
+      const res = await fetch('/api/coproprietaires/export')
+      if (!res.ok) throw new Error('Erreur lors de la génération du fichier')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `coproprietaires_${new Date().toISOString().slice(0, 10)}.xlsx`
+      link.click()
+      URL.revokeObjectURL(url)
     } finally {
       setExporting(false)
     }

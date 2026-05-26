@@ -27,6 +27,10 @@ const nextConfig = {
     optimizePackageImports: [
       'lucide-react',
       'recharts',
+      // framer-motion : utilisé uniquement dans DashboardCanvas (Reorder + motion).
+      // Optimisation tree-shaking pour ne charger que { Reorder, motion }.
+      // Remplacement complet par @dnd-kit/core (~20KB vs 45KB) à planifier ultérieurement.
+      'framer-motion',
       '@radix-ui/react-accordion',
       '@radix-ui/react-alert-dialog',
       '@radix-ui/react-dialog',

@@ -1,6 +1,6 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
 import { withErrorHandler } from '@/lib/api-handler'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
@@ -18,6 +18,21 @@ function normalizeLotType(raw: string): LotType {
   if (s.startsWith('park') || s.startsWith('garage')) return 'parking'
   if (s.startsWith('cave') || s.startsWith('sous')) return 'cave'
   return 'autre'
+}
+
+/** Convertit une feuille ExcelJS en tableau d'objets (même format que xlsx.sheet_to_json) */
+function sheetToJson(ws: ExcelJS.Worksheet): Record<string, unknown>[] {
+  const headerRow = ws.getRow(1).values as (string | undefined)[]
+  const headers = headerRow.slice(1)
+  const result: Record<string, unknown>[] = []
+  ws.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return
+    const vals = row.values as unknown[]
+    const obj: Record<string, unknown> = {}
+    headers.forEach((h, i) => { if (h) obj[h] = vals[i + 1] ?? '' })
+    result.push(obj)
+  })
+  return result
 }
 
 export const POST = withErrorHandler(async (request: Request) => {
@@ -54,7 +69,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       .single()
     if (!copropriete) return NextResponse.json({ error: 'Copropriété introuvable' }, { status: 404 })
 
-    // Vérification quota (on parse d'abord pour compter les lignes valides)
+    // Vérification quota
     const quota = await checkQuota(profile.cabinet_id, 'lots', 1)
     if (!quota.allowed) return quotaExceededResponse(quota)
 
@@ -65,11 +80,15 @@ export const POST = withErrorHandler(async (request: Request) => {
       .eq('copropriete_id', copropriete_id)
     const existingNumeros = new Set((existingLots ?? []).map((l: { numero: string }) => l.numero.toLowerCase()))
 
-    // Parse Excel
+    // Parse Excel avec ExcelJS
     const arrayBuffer = await file.arrayBuffer()
-    const wb = XLSX.read(arrayBuffer, { type: 'array' })
-    const sheet = wb.Sheets['Lots'] || wb.Sheets[wb.SheetNames[0]]
-    const rows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(sheet, { defval: '' })
+    const wb = new ExcelJS.Workbook()
+    await wb.xlsx.load(arrayBuffer)
+    const sheet = wb.getWorksheet('Lots') ?? wb.worksheets[0]
+
+    if (!sheet) return NextResponse.json({ error: 'Feuille "Lots" introuvable dans le fichier.' }, { status: 400 })
+
+    const rows = sheetToJson(sheet)
 
     const toInsert: {
       copropriete_id: string

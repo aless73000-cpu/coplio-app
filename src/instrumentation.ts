@@ -1,27 +1,63 @@
+// ─── Variables obligatoires selon l'environnement ────────────
+//
+// Note MAINT-04 — Crons Vercel :
+//   relances-impayes : maxDuration=120s → requiert le plan Vercel Pro (max 300s).
+//   trial-ending     : maxDuration=60s  → compatible Pro. Sur Hobby (max 10s) les deux timeout.
+//   Vérifier le plan Vercel avant la mise en production.
+
+// Production : toutes ces variables sont requises.
+// Développement : on log un warning sans bloquer le démarrage.
+const REQUIRED_PROD: string[] = [
+  'CRON_SECRET',
+  'STRIPE_SECRET_KEY',
+  'STRIPE_WEBHOOK_SECRET',
+  'UPSTASH_REDIS_REST_URL',
+  'UPSTASH_REDIS_REST_TOKEN',
+  'GLITCHTIP_DSN',
+  'RESEND_API_KEY',
+  'GEMINI_API_KEY',
+  'TWILIO_ACCOUNT_SID',
+  'TWILIO_AUTH_TOKEN',
+  'TWILIO_FROM_NUMBER',
+]
+
+// En dev, ces variables sont utiles mais optionnelles (fallbacks en place).
+// On avertit si elles manquent pour ne pas avoir de surprises en prod.
+const RECOMMENDED_DEV: string[] = [
+  'STRIPE_SECRET_KEY',
+  'STRIPE_WEBHOOK_SECRET',
+  'RESEND_API_KEY',
+]
+
 export async function register() {
-  if (process.env.NODE_ENV !== 'production') return
+  const isProd = process.env.NODE_ENV === 'production'
+  const isDev = process.env.NODE_ENV === 'development'
 
-  const missing: string[] = []
+  // ── Production : vérification stricte ─────────────────────
+  if (isProd) {
+    const missing = REQUIRED_PROD.filter(k => !process.env[k])
 
-  if (!process.env.CRON_SECRET) missing.push('CRON_SECRET')
-  if (!process.env.STRIPE_SECRET_KEY) missing.push('STRIPE_SECRET_KEY')
-  if (!process.env.STRIPE_WEBHOOK_SECRET) missing.push('STRIPE_WEBHOOK_SECRET')
-  if (!process.env.UPSTASH_REDIS_REST_URL) missing.push('UPSTASH_REDIS_REST_URL')
-  if (!process.env.UPSTASH_REDIS_REST_TOKEN) missing.push('UPSTASH_REDIS_REST_TOKEN')
-  if (!process.env.GLITCHTIP_DSN) missing.push('GLITCHTIP_DSN')
-  if (!process.env.RESEND_API_KEY) missing.push('RESEND_API_KEY')
-  if (!process.env.GEMINI_API_KEY) missing.push('GEMINI_API_KEY')
-  if (!process.env.TWILIO_ACCOUNT_SID) missing.push('TWILIO_ACCOUNT_SID')
-  if (!process.env.TWILIO_AUTH_TOKEN) missing.push('TWILIO_AUTH_TOKEN')
-  if (!process.env.TWILIO_FROM_NUMBER) missing.push('TWILIO_FROM_NUMBER')
+    if (missing.length > 0) {
+      const msg = `[Coplio] ⚠️ Variables d'environnement manquantes en production : ${missing.join(', ')}`
+      console.error(msg)
 
-  if (missing.length > 0) {
-    const msg = `[Coplio] ⚠️ Variables d'environnement manquantes en production : ${missing.join(', ')}`
-    console.error(msg)
+      if (process.env.GLITCHTIP_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN) {
+        const { captureMessage } = await import('@sentry/nextjs')
+        captureMessage(msg, 'warning')
+      }
+    }
+  }
 
-    if (process.env.GLITCHTIP_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN) {
-      const { captureMessage } = await import('@sentry/nextjs')
-      captureMessage(msg, 'warning')
+  // ── Développement : avertissement souple ─────────────────
+  if (isDev) {
+    const missingInDev = RECOMMENDED_DEV.filter(k => !process.env[k])
+
+    if (missingInDev.length > 0) {
+      console.warn(
+        `[Coplio] ⚠️  Dev — variables recommandées manquantes : ${missingInDev.join(', ')}\n` +
+        `         Certaines fonctionnalités (Stripe, emails) ne fonctionneront pas.\n` +
+        `         Copiez .env.example → .env.local et renseignez ces valeurs.`
+      )
     }
   }
 }
