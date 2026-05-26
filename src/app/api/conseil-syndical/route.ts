@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { withErrorHandler } from '@/lib/api-handler'
@@ -31,7 +31,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   const coproprieteId = searchParams.get('copropriete_id')
   if (!coproprieteId) return NextResponse.json({ error: 'copropriete_id requis' }, { status: 400 })
 
-  // Verify copropriete belongs to caller's cabinet
+  // Vérifier que la copropriété appartient au cabinet de l'utilisateur
   const { data: copro } = await supabase
     .from('coproprietes')
     .select('id')
@@ -41,7 +41,9 @@ export const GET = withErrorHandler(async (request: Request) => {
 
   if (!copro) return NextResponse.json({ error: 'Copropriété introuvable ou accès refusé' }, { status: 403 })
 
-  const { data, error } = await supabase
+  // Lecture via admin pour contourner les RLS en lecture
+  const admin = createAdminClient()
+  const { data, error } = await admin
     .from('conseil_syndical')
     .select('*')
     .eq('copropriete_id', coproprieteId)
@@ -52,6 +54,7 @@ export const GET = withErrorHandler(async (request: Request) => {
 })
 
 export const POST = withErrorHandler(async (request: Request) => {
+  // Authentification via client normal
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -67,7 +70,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const parsed = postSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: 'Données invalides', details: parsed.error.flatten() }, { status: 400 })
 
-  // Verify copropriete belongs to caller's cabinet
+  // Vérifier que la copropriété appartient bien à ce cabinet
   const { data: copro } = await supabase
     .from('coproprietes')
     .select('id')
@@ -77,8 +80,10 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   if (!copro) return NextResponse.json({ error: 'Copropriété introuvable ou accès refusé' }, { status: 403 })
 
+  // Écriture via admin pour contourner les RLS
+  const admin = createAdminClient()
   const { copropriete_id, prenom, nom, email, telephone, role, lot_numero, date_debut, date_fin } = parsed.data
-  const { data, error } = await supabase
+  const { data, error } = await admin
     .from('conseil_syndical')
     .insert({ copropriete_id, prenom, nom, email, telephone, role: role ?? 'membre', lot_numero, date_debut, date_fin })
     .select()
