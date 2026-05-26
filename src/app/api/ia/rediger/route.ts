@@ -141,7 +141,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
-  const limit = await rateLimit(`ia-rediger:${user.id}`, { max: 20, windowMs: 60_000 })
+  const limit = await rateLimit(`ia-rediger:${user.id}`, { max: 20, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   const body = await request.json()

@@ -72,11 +72,37 @@ export const GET = withErrorHandler(async (request: Request) => {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  const appelsList = appels ?? []
+
+  // Pré-charger profiles et cabinets en 2 requêtes (évite N+1 : 3 req/appel → 1 req/appel)
+  const lotIds = Array.from(new Set(appelsList.map(a => a.lot_id).filter(Boolean))) as string[]
+  const cabinetIds = Array.from(new Set(
+    appelsList
+      .map(a => (a.copropriete as unknown as { cabinet_id: string } | null)?.cabinet_id)
+      .filter(Boolean)
+  )) as string[]
+
+  const [{ data: profilesData }, { data: cabinetsData }] = await Promise.all([
+    lotIds.length > 0
+      ? admin.from('profiles').select('prenom, nom, email, lot_id').in('lot_id', lotIds).eq('role', 'owner_resident')
+      : Promise.resolve({ data: [] }),
+    cabinetIds.length > 0
+      ? admin.from('cabinets').select('id, nom').in('id', cabinetIds)
+      : Promise.resolve({ data: [] }),
+  ])
+
+  const profileByLot = new Map(
+    (profilesData ?? []).map(p => [p.lot_id as string, p])
+  )
+  const cabinetById = new Map(
+    (cabinetsData ?? []).map(c => [c.id as string, c.nom as string])
+  )
+
   let totalSent = 0
   let totalSkipped = 0
   let totalFailed = 0
 
-  for (const appel of appels ?? []) {
+  for (const appel of appelsList) {
     try {
       const echeance = new Date(appel.date_echeance)
       const joursDepuisEcheance = Math.floor(
@@ -105,23 +131,12 @@ export const GET = withErrorHandler(async (request: Request) => {
 
       if (!claimed?.length) { totalSkipped++; continue }
 
-      // Trouver le copropriétaire lié au lot
-      const { data: ownerProfile } = await admin
-        .from('profiles')
-        .select('prenom, nom, email')
-        .eq('lot_id', appel.lot_id)
-        .eq('role', 'owner_resident')
-        .single()
-
+      // Lookup O(1) depuis les Maps pré-chargées
+      const ownerProfile = profileByLot.get(appel.lot_id ?? '')
       if (!ownerProfile?.email) { totalSkipped++; continue }
 
-      // Trouver le cabinet pour son nom
       const copropriete = appel.copropriete as unknown as { id: string; nom: string; cabinet_id: string } | null
-      const { data: cabinet } = await admin
-        .from('cabinets')
-        .select('nom')
-        .eq('id', copropriete?.cabinet_id ?? '')
-        .single()
+      const cabinetNom = cabinetById.get(copropriete?.cabinet_id ?? '') ?? 'Votre syndic'
 
       const montantDu = appel.montant - (appel.montant_paye ?? 0)
 
@@ -131,7 +146,7 @@ export const GET = withErrorHandler(async (request: Request) => {
           nom: ownerProfile.nom ?? '',
           montant: formatEuro(montantDu),
           dateEcheance: formatDate(appel.date_echeance),
-          cabinetNom: cabinet?.nom ?? 'Votre syndic',
+          cabinetNom: cabinetNom,
           nomCopropriete: copropriete?.nom ?? 'votre résidence',
           numeroLot: (appel.lot as unknown as { numero: string } | null)?.numero ?? '',
           niveau: palier.niveau,

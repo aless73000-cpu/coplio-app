@@ -12,7 +12,7 @@ export const GET = withErrorHandler(async () => {
   const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
   if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 404 })
 
-  const limit = await rateLimit(`ia-analyse:${user.id}`, { max: 10, windowMs: 60_000 })
+  const limit = await rateLimit(`ia-analyse:${user.id}`, { max: 10, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   const apiKey = process.env.GEMINI_API_KEY

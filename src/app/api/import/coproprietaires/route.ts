@@ -52,6 +52,19 @@ export async function POST(request: NextRequest) {
 
     const lotMap = new Map(lots?.map((l) => [l.numero.toLowerCase(), l.id]) ?? [])
 
+    // Pré-charger tous les emails existants en une seule requête (évite N+1)
+    const emailsToCheck = rows
+      .map(r => r.email?.trim().toLowerCase())
+      .filter((e): e is string => Boolean(e))
+    const { data: existingCopros } = emailsToCheck.length > 0
+      ? await supabase
+          .from('coproprietaires')
+          .select('email')
+          .eq('cabinet_id', profile.cabinet_id)
+          .in('email', emailsToCheck)
+      : { data: [] }
+    const existingEmails = new Set(existingCopros?.map(c => c.email) ?? [])
+
     const results: { ok: number; errors: { row: number; message: string }[] } = { ok: 0, errors: [] }
 
     for (let i = 0; i < rows.length; i++) {
@@ -63,16 +76,9 @@ export async function POST(request: NextRequest) {
         continue
       }
 
-      // Check if copropriétaire already exists (by email)
+      // Check doublons email via le Set pré-chargé (O(1), 0 requête)
       if (row.email?.trim()) {
-        const { data: existing } = await supabase
-          .from('coproprietaires')
-          .select('id')
-          .eq('cabinet_id', profile.cabinet_id)
-          .eq('email', row.email.trim().toLowerCase())
-          .single()
-
-        if (existing) {
+        if (existingEmails.has(row.email.trim().toLowerCase())) {
           results.errors.push({ row: rowNum, message: `Email ${row.email} déjà enregistré` })
           continue
         }

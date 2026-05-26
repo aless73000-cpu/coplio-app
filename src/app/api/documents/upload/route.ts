@@ -32,6 +32,20 @@ export const POST = withErrorHandler(async (request: Request) => {
     if (!file) return NextResponse.json({ error: 'Fichier manquant' }, { status: 400 })
     if (!nom) return NextResponse.json({ error: 'Nom manquant' }, { status: 400 })
 
+    const MAX_SIZE = 50 * 1024 * 1024 // 50 MB
+    const ALLOWED_TYPES = [
+      'application/pdf',
+      'image/jpeg', 'image/png', 'image/webp',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel',
+      'text/plain', 'text/csv',
+    ]
+    if (file.size > MAX_SIZE)
+      return NextResponse.json({ error: 'Fichier trop grand (max 50 MB)' }, { status: 400 })
+    if (!ALLOWED_TYPES.includes(file.type))
+      return NextResponse.json({ error: 'Type de fichier non autorisé' }, { status: 400 })
+
     const admin = createAdminClient()
 
     // Upload vers Supabase Storage avec le client admin (service_role)
