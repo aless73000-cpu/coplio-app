@@ -32,6 +32,8 @@ const PLAN_HREF: Record<string, string> = {
   expert: 'mailto:contact@coplio.fr',
 }
 
+const POPULAR_PLAN_KEY = 'pro'
+
 export default function TarifsPage() {
   const plans = Object.entries(PLANS_CONFIG).map(([key, plan]) => ({
     key,
@@ -45,11 +47,22 @@ export default function TarifsPage() {
       <SoftwareApplicationJsonLd />
 
       <div className="min-h-screen bg-white">
+        {/* Back bar — mobile only */}
+        <div className="sticky top-0 z-10 md:hidden flex items-center gap-2 px-4 py-3 bg-white/90 backdrop-blur border-b border-gray-100">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[#374151]"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Accueil
+          </Link>
+        </div>
+
         {/* Header */}
         <div className="max-w-5xl mx-auto px-6 pt-10 pb-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#374151] transition-colors mb-8"
+            className="hidden md:inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#374151] transition-colors mb-8"
           >
             <ArrowLeft className="w-4 h-4" />
             Retour à l&apos;accueil
@@ -74,12 +87,12 @@ export default function TarifsPage() {
             {plans.map((plan) => (
               <div
                 key={plan.key}
-                className={`rounded-2xl border p-8 flex flex-col ${'popular' in plan && plan.popular
+                className={`rounded-2xl border p-8 flex flex-col ${plan.key === POPULAR_PLAN_KEY
                   ? 'border-[#374151] shadow-lg shadow-[#374151]/10 relative'
                   : 'border-gray-200'
                 }`}
               >
-                {'popular' in plan && plan.popular && (
+                {plan.key === POPULAR_PLAN_KEY && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                     <span className="bg-[#374151] text-white text-[11px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">
                       Le plus populaire
@@ -108,7 +121,7 @@ export default function TarifsPage() {
 
                 <a
                   href={plan.href}
-                  className={`w-full py-3 rounded-xl text-sm font-semibold text-center transition-colors ${'popular' in plan && plan.popular
+                  className={`w-full py-3 rounded-xl text-sm font-semibold text-center transition-colors ${plan.key === POPULAR_PLAN_KEY
                     ? 'bg-[#374151] text-white hover:bg-[#374151]/90'
                     : 'bg-gray-100 text-[#1C1C1A] hover:bg-gray-200'
                   }`}

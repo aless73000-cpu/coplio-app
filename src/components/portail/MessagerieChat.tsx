@@ -176,16 +176,24 @@ export function MessagerieChat({ userId, conversationId: initialConvId, onConver
 
       {/* Input */}
       <div className="px-4 py-3 border-t border-border bg-white">
-        <form onSubmit={handleSend} className="flex gap-2">
-          <input
-            type="text"
+        <form onSubmit={handleSend} className="flex gap-2 items-end">
+          <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(e) } }}
+            onKeyDown={e => {
+              // Ctrl+Enter ou Cmd+Enter uniquement — évite les envois accidentels sur clavier mobile
+              if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault()
+                handleSend(e as unknown as React.FormEvent)
+              }
+            }}
             placeholder="Écrivez votre message…"
             autoComplete="off"
-            className="flex-1 px-4 py-3 bg-coplio-bg border border-border rounded-xl text-sm
-                       focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent"
+            rows={1}
+            className="flex-1 px-4 py-2.5 bg-coplio-bg border border-border rounded-xl text-sm
+                       focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent
+                       resize-none max-h-32 leading-5"
+            style={{ overflowY: 'auto' }}
           />
           <button
             type="submit"

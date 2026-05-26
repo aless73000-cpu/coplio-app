@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
 import Link from 'next/link'
 
 const registerSchema = z.object({
@@ -25,6 +25,22 @@ const registerSchema = z.object({
 
 type RegisterValues = z.infer<typeof registerSchema>
 
+function passwordStrength(pwd: string): { score: number; label: string; color: string } {
+  let score = 0
+  if (pwd.length >= 8) score++
+  if (/[A-Z]/.test(pwd)) score++
+  if (/[0-9]/.test(pwd)) score++
+  if (/[^A-Za-z0-9]/.test(pwd)) score++
+  const map = [
+    { label: '', color: '' },
+    { label: 'Faible', color: 'bg-red-400' },
+    { label: 'Moyen', color: 'bg-amber-400' },
+    { label: 'Bien', color: 'bg-blue-400' },
+    { label: 'Fort', color: 'bg-green-500' },
+  ]
+  return { score, ...map[score] }
+}
+
 export function RegisterForm() {
   const router = useRouter()
   const [serverError, setServerError] = useState('')
@@ -32,10 +48,15 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    watch,
+    formState: { errors, isSubmitting, touchedFields },
   } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
+    mode: 'onChange',
   })
+
+  const passwordValue = watch('password') ?? ''
+  const strength = passwordStrength(passwordValue)
 
   async function onSubmit(values: RegisterValues) {
     setServerError('')
@@ -53,7 +74,6 @@ export function RegisterForm() {
       return
     }
 
-    // Connexion automatique après inscription
     const { createClient } = await import('@/lib/supabase/client')
     const supabase = createClient()
     const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -62,7 +82,6 @@ export function RegisterForm() {
     })
 
     if (signInError) {
-      // Compte créé mais email non confirmé → informer l'utilisateur
       router.push(
         `/login?message=${encodeURIComponent('Un email de confirmation vous a été envoyé. Cliquez sur le lien pour activer votre compte.')}`
       )
@@ -72,9 +91,14 @@ export function RegisterForm() {
     router.push('/onboarding')
   }
 
-  const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-    focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent
-    placeholder:text-gray-400 transition-shadow`
+  function fieldClass(name: keyof RegisterValues) {
+    const hasError = !!errors[name]
+    const isTouched = !!touchedFields[name]
+    const isValid = isTouched && !hasError
+    return `w-full px-3 py-2.5 text-sm bg-white border rounded-lg
+      focus:outline-none focus:ring-2 focus:border-transparent placeholder:text-gray-400 transition-all
+      ${hasError && isTouched ? 'border-red-400 focus:ring-red-200' : isValid ? 'border-green-400 focus:ring-green-100' : 'border-border focus:ring-[#374151]/20'}`
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -87,55 +111,92 @@ export function RegisterForm() {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-sm font-medium text-coplio-text mb-1.5">Prénom</label>
-          <input {...register('prenom')} className={inputClass} placeholder="Jean" />
-          {errors.prenom && <p className="mt-1 text-xs text-coplio-red">{errors.prenom.message}</p>}
+          <input {...register('prenom')} className={fieldClass('prenom')} placeholder="Jean" />
+          {errors.prenom && touchedFields.prenom && (
+            <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+              <XCircle className="w-3 h-3" />{errors.prenom.message}
+            </p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-coplio-text mb-1.5">Nom</label>
-          <input {...register('nom')} className={inputClass} placeholder="Dupont" />
-          {errors.nom && <p className="mt-1 text-xs text-coplio-red">{errors.nom.message}</p>}
+          <input {...register('nom')} className={fieldClass('nom')} placeholder="Dupont" />
+          {errors.nom && touchedFields.nom && (
+            <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+              <XCircle className="w-3 h-3" />{errors.nom.message}
+            </p>
+          )}
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-coplio-text mb-1.5">
-          Nom de votre cabinet
-        </label>
-        <input
-          {...register('nomCabinet')}
-          className={inputClass}
-          placeholder="Cabinet Immobilier Dupont"
-        />
-        {errors.nomCabinet && (
-          <p className="mt-1 text-xs text-coplio-red">{errors.nomCabinet.message}</p>
+        <label className="block text-sm font-medium text-coplio-text mb-1.5">Nom de votre cabinet</label>
+        <input {...register('nomCabinet')} className={fieldClass('nomCabinet')} placeholder="Cabinet Immobilier Dupont" />
+        {errors.nomCabinet && touchedFields.nomCabinet && (
+          <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+            <XCircle className="w-3 h-3" />{errors.nomCabinet.message}
+          </p>
+        )}
+        {!errors.nomCabinet && touchedFields.nomCabinet && (
+          <p className="mt-1 text-xs text-green-600 flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3" />Cabinet enregistré
+          </p>
         )}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-coplio-text mb-1.5">
-          Email professionnel
-        </label>
-        <input
-          type="email"
-          {...register('email')}
-          className={inputClass}
-          placeholder="vous@cabinet.fr"
-        />
-        {errors.email && <p className="mt-1 text-xs text-coplio-red">{errors.email.message}</p>}
+        <label className="block text-sm font-medium text-coplio-text mb-1.5">Email professionnel</label>
+        <input type="email" {...register('email')} className={fieldClass('email')} placeholder="vous@cabinet.fr" />
+        {errors.email && touchedFields.email && (
+          <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+            <XCircle className="w-3 h-3" />{errors.email.message}
+          </p>
+        )}
+        {!errors.email && touchedFields.email && (
+          <p className="mt-1 text-xs text-green-600 flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3" />Email valide
+          </p>
+        )}
       </div>
 
       <div>
         <label className="block text-sm font-medium text-coplio-text mb-1.5">Mot de passe</label>
-        <input
-          type="password"
-          {...register('password')}
-          className={inputClass}
-          placeholder="••••••••"
-        />
-        {errors.password && (
-          <p className="mt-1 text-xs text-coplio-red">{errors.password.message}</p>
+        <input type="password" {...register('password')} className={fieldClass('password')} placeholder="••••••••" />
+
+        {/* Indicateur de force */}
+        {passwordValue.length > 0 && (
+          <div className="mt-2 space-y-1">
+            <div className="flex gap-1">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                    i <= strength.score ? strength.color : 'bg-gray-200'
+                  }`}
+                />
+              ))}
+            </div>
+            {strength.label && (
+              <p className={`text-xs font-medium ${
+                strength.score <= 1 ? 'text-red-500' :
+                strength.score === 2 ? 'text-amber-500' :
+                strength.score === 3 ? 'text-blue-500' : 'text-green-600'
+              }`}>
+                {strength.label}
+                {strength.score < 3 && (
+                  <span className="text-muted-foreground font-normal ml-1">
+                    · {!passwordValue.match(/[A-Z]/) ? 'ajoutez une majuscule' : !passwordValue.match(/[0-9]/) ? 'ajoutez un chiffre' : 'ajoutez un symbole'}
+                  </span>
+                )}
+              </p>
+            )}
+          </div>
         )}
-        <p className="mt-1 text-xs text-muted-foreground">8 caractères minimum, 1 majuscule, 1 chiffre</p>
+        {errors.password && touchedFields.password && !passwordValue.length && (
+          <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+            <XCircle className="w-3 h-3" />{errors.password.message}
+          </p>
+        )}
       </div>
 
       <div className="flex items-start gap-3">
@@ -153,7 +214,9 @@ export function RegisterForm() {
         </label>
       </div>
       {errors.accepteCGU && (
-        <p className="text-xs text-coplio-red -mt-2">{errors.accepteCGU.message as string}</p>
+        <p className="text-xs text-red-500 -mt-2 flex items-center gap-1">
+          <XCircle className="w-3 h-3" />{errors.accepteCGU.message as string}
+        </p>
       )}
 
       <button

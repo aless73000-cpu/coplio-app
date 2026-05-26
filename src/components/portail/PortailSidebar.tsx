@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import {
   Home, FileText, CreditCard, Building2,
   MessageCircle, User, LogOut, Bell,
-  CalendarDays, Wrench, Vote, ChevronRight, Crown,
+  CalendarDays, Wrench, Vote, ChevronRight, Crown, BookUser,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
@@ -30,6 +30,7 @@ const NAV_ITEMS = [
   { href: '/mes-travaux',    label: 'Travaux',       icon: Wrench,        matches: ['/mes-travaux'] },
   { href: '/mes-votes',      label: 'Votes',         icon: Vote,          matches: ['/mes-votes'] },
   { href: '/mes-messages',   label: 'Messages',      icon: MessageCircle, matches: ['/mes-messages'] },
+  { href: '/mes-contacts',   label: 'Annuaire',      icon: BookUser,      matches: ['/mes-contacts'] },
 ]
 
 export function PortailSidebar({

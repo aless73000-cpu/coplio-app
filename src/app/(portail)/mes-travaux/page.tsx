@@ -3,13 +3,14 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import {
-  Wrench, CheckCircle2, Plus, X, AlertTriangle, Clock, Send,
+  Wrench, CheckCircle2, Plus, X, AlertTriangle, Clock,
   HardHat, Shield, Euro, Vote,
 } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
 import type { Sinistre, SinistreStatus } from '@/types'
 import { SINISTRE_STATUS_LABELS } from '@/types'
 import { MesVotesClient } from '@/components/portail/MesVotesClient'
+import { SinistreFormClient } from '@/components/portail/SinistreFormClient'
 
 const STEP_ORDER: SinistreStatus[] = [
   'signale', 'assurance_declaree', 'expertise', 'travaux', 'cloture',
@@ -210,6 +211,27 @@ export default async function MesTravaux({
   const clotures = (sinistres ?? []).filter((s) => s.status === 'cloture')
   const votesOuverts = votes ?? []
 
+  // Récupérer les photos de tous les sinistres en une seule requête
+  const sinistreIds = (sinistres ?? []).map((s) => s.id)
+  const { data: photosDocs } = sinistreIds.length > 0
+    ? await admin
+        .from('documents')
+        .select('id, sinistre_id, storage_path, storage_bucket, nom')
+        .in('sinistre_id', sinistreIds)
+        .eq('categorie', 'sinistre')
+        .eq('visible_coproprietaires', true)
+        .order('created_at', { ascending: true })
+    : { data: [] }
+
+  // Map sinistre_id → photos avec URLs publiques
+  const photosBySinistre: Record<string, string[]> = {}
+  for (const doc of (photosDocs ?? [])) {
+    if (!doc.sinistre_id || !doc.storage_path) continue
+    const { data: urlData } = admin.storage.from(doc.storage_bucket ?? 'documents').getPublicUrl(doc.storage_path)
+    if (!photosBySinistre[doc.sinistre_id]) photosBySinistre[doc.sinistre_id] = []
+    photosBySinistre[doc.sinistre_id].push(urlData.publicUrl)
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
@@ -310,92 +332,7 @@ export default async function MesTravaux({
                 </a>
               </div>
 
-              <form action={signalerProbleme} method="POST" encType="multipart/form-data">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-coplio-text mb-1.5">
-                      Type de problème <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      name="type"
-                      required
-                      className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent"
-                    >
-                      <option value="">Sélectionnez...</option>
-                      {TYPE_OPTIONS.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-coplio-text mb-1.5">
-                      Titre court <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="titre"
-                      required
-                      placeholder="Ex : Fuite sous l'évier de la cuisine"
-                      className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-coplio-text mb-1.5">
-                    Description détaillée <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    name="description"
-                    required
-                    rows={4}
-                    placeholder="Décrivez le problème : depuis quand, localisation précise, impact sur votre logement..."
-                    className="w-full px-3 py-2.5 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent resize-none"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-coplio-text mb-1.5">
-                    Photos <span className="text-xs text-muted-foreground font-normal">(facultatif · max 5 photos · JPG, PNG, HEIC)</span>
-                  </label>
-                  <input
-                    type="file"
-                    name="photos"
-                    multiple
-                    accept="image/*,.heic,.heif"
-                    className="w-full text-sm text-muted-foreground file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-[#374151] hover:file:bg-[#374151]/20 transition-colors cursor-pointer"
-                  />
-                </div>
-
-                <div className="flex items-center gap-3 mb-5 p-3 bg-coplio-red-bg rounded-xl border border-coplio-red/20">
-                  <input
-                    type="checkbox"
-                    id="urgence"
-                    name="urgence"
-                    className="w-4 h-4 accent-coplio-red"
-                  />
-                  <label htmlFor="urgence" className="flex items-center gap-2 text-sm text-coplio-text cursor-pointer">
-                    <AlertTriangle className="w-4 h-4 text-coplio-red" />
-                    <span>
-                      <strong className="text-coplio-red">Urgence</strong> — Ce problème nécessite une intervention immédiate
-                    </span>
-                  </label>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <button
-                    type="submit"
-                    className="flex items-center gap-2 bg-[#374151] text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-[#374151]/90 transition-colors"
-                  >
-                    <Send className="w-4 h-4" />
-                    Envoyer au syndic
-                  </button>
-                  <a href="/mes-travaux" className="text-sm text-muted-foreground hover:text-coplio-text transition-colors">
-                    Annuler
-                  </a>
-                </div>
-              </form>
+              <SinistreFormClient action={signalerProbleme} />
             </div>
           )}
 
@@ -426,7 +363,7 @@ export default async function MesTravaux({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {enCours.map((sinistre) => (
-                  <SinistreCard key={sinistre.id} sinistre={sinistre} />
+                  <SinistreCard key={sinistre.id} sinistre={sinistre} photos={photosBySinistre[sinistre.id] ?? []} />
                 ))}
               </div>
             </div>
@@ -442,7 +379,7 @@ export default async function MesTravaux({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {clotures.map((sinistre) => (
-                  <SinistreCard key={sinistre.id} sinistre={sinistre} />
+                  <SinistreCard key={sinistre.id} sinistre={sinistre} photos={photosBySinistre[sinistre.id] ?? []} />
                 ))}
               </div>
             </div>
@@ -518,7 +455,7 @@ export default async function MesTravaux({
 }
 
 /* ── Carte sinistre ─────────────────────────────────────────── */
-function SinistreCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom: string } | null } }) {
+function SinistreCard({ sinistre, photos = [] }: { sinistre: Sinistre & { copropriete?: { nom: string } | null }; photos?: string[] }) {
   const stepIndex = STEP_ORDER.indexOf((sinistre.status ?? 'signale') as SinistreStatus)
   const progress = Math.round(((stepIndex + 1) / STEP_ORDER.length) * 100)
   const isClosed = sinistre.status === 'cloture'
@@ -615,7 +552,28 @@ function SinistreCard({ sinistre }: { sinistre: Sinistre & { copropriete?: { nom
         </div>
       )}
 
-      <div className={`${hasAssurance ? 'mt-2' : 'mt-3 pt-3 border-t border-border'}`}>
+      {/* Photos */}
+      {photos.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-border">
+          <p className="text-xs font-medium text-muted-foreground mb-2">
+            {photos.length} photo{photos.length > 1 ? 's' : ''} jointe{photos.length > 1 ? 's' : ''}
+          </p>
+          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+            {photos.map((url, i) => (
+              <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={url}
+                  alt={`Photo ${i + 1}`}
+                  className="w-16 h-16 object-cover rounded-xl border border-border hover:opacity-80 transition-opacity"
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className={`${hasAssurance || photos.length > 0 ? 'mt-2' : 'mt-3 pt-3 border-t border-border'}`}>
         <p className="text-xs text-muted-foreground">
           Déclaré le {sinistre.date_sinistre ? formatDate(sinistre.date_sinistre) : '—'}
           {isClosed && sinistre.date_cloture && ` · Clôturé le ${formatDate(sinistre.date_cloture)}`}

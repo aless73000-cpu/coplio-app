@@ -6,7 +6,7 @@ import {
   AlertTriangle, CheckCircle2,
   Landmark, UserX, Calendar, User,
   Bell, CreditCard, ArrowRight,
-  CalendarDays, Vote, ChevronRight, Crown,
+  CalendarDays, Vote, ChevronRight, Crown, BookUser,
 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { AppelCharges, Document, Sinistre, Notification } from '@/types'
@@ -37,6 +37,7 @@ const SHORTCUTS = [
   { href: '/mes-travaux',    label: 'Travaux',       icon: Wrench,       color: '#fce7f3', iconColor: '#be185d' },
   { href: '/mes-votes',      label: 'Votes',         icon: Vote,         color: '#ede9fe', iconColor: '#7c3aed' },
   { href: '/mes-messages',   label: 'Messages',      icon: MessageCircle,color: '#f1f5f9', iconColor: '#475569' },
+  { href: '/mes-contacts',   label: 'Annuaire',      icon: BookUser,     color: '#ecfdf5', iconColor: '#059669' },
 ]
 
 export default async function AccueilPage() {

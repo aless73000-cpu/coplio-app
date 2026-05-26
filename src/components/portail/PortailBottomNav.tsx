@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   Home, CreditCard, FileText, MessageCircle, User,
-  Wrench, Vote, CalendarDays, MoreHorizontal, Crown, X,
+  Wrench, Vote, CalendarDays, MoreHorizontal, Crown, X, BookUser,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
@@ -25,6 +25,7 @@ const MORE_ITEMS = [
   { href: '/mes-assemblees', label: 'Assemblées', icon: CalendarDays, matches: ['/mes-assemblees'] },
   { href: '/mes-travaux',    label: 'Travaux',    icon: Wrench,       matches: ['/mes-travaux'] },
   { href: '/mes-votes',      label: 'Votes',      icon: Vote,         matches: ['/mes-votes'] },
+  { href: '/mes-contacts',   label: 'Annuaire',   icon: BookUser,     matches: ['/mes-contacts'] },
   { href: '/mon-compte',     label: 'Mon compte', icon: User,         matches: ['/mon-compte'] },
 ]
 
