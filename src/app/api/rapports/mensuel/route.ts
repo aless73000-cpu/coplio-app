@@ -23,6 +23,13 @@ export const GET = withErrorHandler(async (request: Request) => {
 
   const url = new URL(request.url)
   const moisParam = url.searchParams.get('mois') // format: YYYY-MM
+
+  // Validation stricte pour éviter des dates NaN (ex: "toto-xx")
+  const MOIS_REGEX = /^\d{4}-(0[1-9]|1[0-2])$/
+  if (moisParam && !MOIS_REGEX.test(moisParam)) {
+    return NextResponse.json({ error: 'Format mois invalide (attendu : YYYY-MM)' }, { status: 400 })
+  }
+
   const now = new Date()
   const [year, month] = moisParam
     ? moisParam.split('-').map(Number)

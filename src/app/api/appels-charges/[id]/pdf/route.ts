@@ -13,8 +13,9 @@ function date(s: string) {
 
 export const GET = withErrorHandler(async (
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
+  const { id: paramId } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -36,7 +37,7 @@ export const GET = withErrorHandler(async (
       ),
       copropriete:coproprietes(id, nom, adresse, code_postal, ville, cabinet_id)
     `)
-    .eq('id', params.id)
+    .eq('id', paramId)
     .single()
 
   if (!appel) return NextResponse.json({ error: 'Appel introuvable' }, { status: 404 })
@@ -101,7 +102,7 @@ export const GET = withErrorHandler(async (
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(100, 100, 100)
-  doc.text(`Référence : ${params.id.slice(0, 8).toUpperCase()}`, pageW / 2, 75, { align: 'center' })
+  doc.text(`Référence : ${paramId.slice(0, 8).toUpperCase()}`, pageW / 2, 75, { align: 'center' })
 
   // Infos copropriété + lot
   doc.setFontSize(10)
@@ -179,7 +180,7 @@ export const GET = withErrorHandler(async (
   )
 
   const buffer = Buffer.from(doc.output('arraybuffer'))
-  const filename = `avis_appel_charges_lot${lot?.numero ?? 'X'}_${params.id.slice(0, 8)}.pdf`
+  const filename = `avis_appel_charges_lot${lot?.numero ?? 'X'}_${paramId.slice(0, 8)}.pdf`
 
   return new Response(buffer, {
     headers: {

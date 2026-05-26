@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { captureException } from '@/lib/monitoring'
 import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
+import { withErrorHandler } from '@/lib/api-handler'
 
-export async function POST(request: NextRequest) {
+export const POST = withErrorHandler(async (request: NextRequest) => {
   const ip = getIP(request)
   const limit = await rateLimit(`import-copros:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
@@ -123,4 +124,4 @@ export async function POST(request: NextRequest) {
     captureException(err, { context: 'import-coproprietaires' })
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
-}
+})

@@ -50,6 +50,9 @@ export const GET = withErrorHandler(async (request: Request) => {
       : dateEcheance // fallback si non renseigné
     const copropNom = lot?.copropriete?.nom?.substring(0, 20) ?? 'COPROPRIETE'
     const lotNum = lot?.numero ?? '?'
+    // BIZ-02 : la norme FEC exige des codes compte numériques (411XXXXXX).
+    // On extrait uniquement les chiffres du numéro de lot pour le code 411.
+    const lotNumDigits = lotNum.replace(/\D/g, '').padStart(6, '0') || '000000'
     const ecrLib = `APPEL CHARGES LOT ${lotNum}`.substring(0, 32)
     const montant = (appel.montant as number).toFixed(2)
     const montantPaye = (appel.montant_paye as number ?? 0).toFixed(2)
@@ -57,7 +60,7 @@ export const GET = withErrorHandler(async (request: Request) => {
     // Ligne débit : compte copropriétaire (411)
     rows.push([
       'VE', 'VENTES', String(ecritureNum).padStart(6, '0'), dateEcheance,
-      `411${lotNum.padStart(6, '0')}`, `COPRO ${lotNum}`, '', '',
+      `411${lotNumDigits}`, `COPRO ${lotNum}`, '', '',
       `AC${String(ecritureNum).padStart(6, '0')}`, dateEcheance,
       ecrLib, montant, '0.00', '', '', '', montant, 'EUR'
     ].join('|'))
@@ -82,7 +85,7 @@ export const GET = withErrorHandler(async (request: Request) => {
       ].join('|'))
       rows.push([
         'BQ', 'BANQUE', String(ecritureNum).padStart(6, '0'), datePaiement,
-        `411${lotNum.padStart(6, '0')}`, `COPRO ${lotNum}`, '', '',
+        `411${lotNumDigits}`, `COPRO ${lotNum}`, '', '',
         `PAY${String(ecritureNum).padStart(6, '0')}`, datePaiement,
         `PAIEMENT LOT ${lotNum}`, '0.00', montantPaye, '', '', '', montantPaye, 'EUR'
       ].join('|'))

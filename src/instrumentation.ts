@@ -42,7 +42,7 @@ export async function register() {
       console.error(msg)
 
       if (process.env.GLITCHTIP_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN) {
-        const { captureMessage } = await import('@sentry/nextjs')
+        const { captureMessage } = await import('@/lib/monitoring')
         captureMessage(msg, 'warning')
       }
     }

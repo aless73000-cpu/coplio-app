@@ -1,8 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { withErrorHandler } from '@/lib/api-handler'
+import { rateLimit, getIP, rateLimitResponse } from '@/lib/rate-limit'
 
 export const POST = withErrorHandler(async (request: Request) => {
+  const ip = getIP(request)
+  const limit = await rateLimit(`push-sub:${ip}`, { max: 10, windowMs: 60_000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
