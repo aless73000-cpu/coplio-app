@@ -23,6 +23,7 @@ import Nav            from '@/components/landing/Nav'
 import { StickyBanner } from '@/components/landing/StickyBanner'
 import Hero           from '@/components/landing/Hero'
 import TrustBar       from '@/components/landing/TrustBar'
+import DemoSection    from '@/components/landing/DemoSection'
 import BentoFeatures  from '@/components/landing/BentoFeatures'
 import HowItWorks     from '@/components/landing/HowItWorks'
 import ProblemSolution from '@/components/landing/ProblemSolution'
@@ -77,6 +78,7 @@ export default function LandingPage() {
         <StickyBanner />
         <Hero />
         <TrustBar />
+        <DemoSection />
         <FeaturesShowcase />
         <BentoFeatures />
         <HowItWorks />

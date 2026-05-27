@@ -117,22 +117,19 @@ export default function Nav() {
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          <Link href="/portail" className={`text-sm transition-colors ${scrolled ? 'text-slate-400 hover:text-[#374151]' : 'text-white/40 hover:text-white/70'}`}>
-            Espace copropriétaire
-          </Link>
-          <Link href="/login" className={`text-sm transition-colors ${scrolled ? 'text-slate-400 hover:text-[#374151]' : 'text-white/40 hover:text-white/70'}`}>
+          <Link href="/login" className={`text-sm transition-colors ${scrolled ? 'text-slate-400 hover:text-[#374151]' : 'text-white/35 hover:text-white/60'}`}>
             Se connecter
           </Link>
           <Link
             href="/register"
-            className={`flex items-center gap-1.5 text-sm font-semibold px-5 py-2.5 rounded-full transition-all ${
+            className={`flex items-center gap-1.5 text-sm font-semibold px-5 py-2.5 rounded-full transition-all hover:-translate-y-0.5 ${
               scrolled
-                ? 'bg-[#374151] text-white hover:bg-[#4B5563]'
-                : 'bg-white text-[#374151] hover:bg-slate-100'
+                ? 'bg-[#374151] text-white hover:bg-[#4B5563] shadow-lg shadow-[#374151]/20'
+                : 'bg-white text-[#374151] hover:bg-slate-100 shadow-lg shadow-black/30'
             }`}
             style={{ letterSpacing: '-0.01em' }}
           >
-            Essai gratuit 14j <ArrowRight className="w-3.5 h-3.5" />
+            Essayer gratuitement <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 

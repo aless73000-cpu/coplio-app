@@ -105,7 +105,7 @@ export default function Hero() {
           <div className="flex h-[260px] sm:h-[340px] overflow-hidden">
             {/* Sidebar */}
             <div
-              className="w-[160px] p-3 flex flex-col gap-1 flex-shrink-0 border-r border-white/[0.04]"
+              className="hidden sm:flex w-[160px] p-3 flex-col gap-1 flex-shrink-0 border-r border-white/[0.04]"
               style={{ background: '#1C1F26' }}
             >
               <div className="flex items-center gap-2 px-2 py-2 mb-3">
