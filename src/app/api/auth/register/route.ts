@@ -34,12 +34,15 @@ export const POST = withErrorHandler(async (request: Request) => {
   // 1. Générer le lien de confirmation et créer l'utilisateur en une seule opération.
   //    generateLink crée le compte SANS le confirmer (email_confirm implicitement false)
   //    et retourne un action_link à envoyer au propriétaire.
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
+
   const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
     type: 'signup',
     email,
     password,
     options: {
       data: { prenom, nom, nom_cabinet: nomCabinet, role: 'owner' },
+      redirectTo: `${appUrl}/auth/callback`,
     },
   })
 
