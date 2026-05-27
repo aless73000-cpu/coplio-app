@@ -1372,6 +1372,47 @@ export type Database = {
           },
         ]
       }
+      exercices: {
+        Row: {
+          annee: number
+          copropriete_id: string
+          created_at: string
+          date_cloture: string | null
+          date_debut: string
+          date_fin: string
+          id: string
+          statut: string
+        }
+        Insert: {
+          annee: number
+          copropriete_id: string
+          created_at?: string
+          date_cloture?: string | null
+          date_debut?: string
+          date_fin?: string
+          id?: string
+          statut?: string
+        }
+        Update: {
+          annee?: number
+          copropriete_id?: string
+          created_at?: string
+          date_cloture?: string | null
+          date_debut?: string
+          date_fin?: string
+          id?: string
+          statut?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercices_copropriete_id_fkey"
+            columns: ["copropriete_id"]
+            isOneToOne: false
+            referencedRelation: "coproprietes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fonds_travaux: {
         Row: {
           annee: number
@@ -1380,10 +1421,12 @@ export type Database = {
           cotisation_annuelle: number | null
           created_at: string | null
           id: string
+          lot_id: string | null
           notes: string | null
           objectif_5ans: number | null
           solde_actuel: number | null
           updated_at: string | null
+          vendeur_historique: unknown[] | null
         }
         Insert: {
           annee: number
@@ -1392,10 +1435,12 @@ export type Database = {
           cotisation_annuelle?: number | null
           created_at?: string | null
           id?: string
+          lot_id?: string | null
           notes?: string | null
           objectif_5ans?: number | null
           solde_actuel?: number | null
           updated_at?: string | null
+          vendeur_historique?: unknown[] | null
         }
         Update: {
           annee?: number
@@ -1404,12 +1449,22 @@ export type Database = {
           cotisation_annuelle?: number | null
           created_at?: string | null
           id?: string
+          lot_id?: string | null
           notes?: string | null
           objectif_5ans?: number | null
           solde_actuel?: number | null
           updated_at?: string | null
+          vendeur_historique?: unknown[] | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fonds_travaux_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "lots"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       fonds_travaux_mouvements: {
         Row: {
@@ -1988,6 +2043,80 @@ export type Database = {
             columns: ["copropriete_id"]
             isOneToOne: true
             referencedRelation: "coproprietes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      regularisations: {
+        Row: {
+          coproprietaire_id: string | null
+          created_at: string
+          detail_par_cle: unknown | null
+          exercice_id: string
+          id: string
+          lot_id: string
+          montant_provisionnel: number
+          montant_reel: number
+          notifie_at: string | null
+          prorata_fraction: number | null
+          prorata_jours: number | null
+          regle_at: string | null
+          solde: number | null
+          statut: string
+          updated_at: string
+        }
+        Insert: {
+          coproprietaire_id?: string | null
+          created_at?: string
+          detail_par_cle?: unknown | null
+          exercice_id: string
+          id?: string
+          lot_id: string
+          montant_provisionnel?: number
+          montant_reel?: number
+          notifie_at?: string | null
+          prorata_fraction?: number | null
+          prorata_jours?: number | null
+          regle_at?: string | null
+          statut?: string
+          updated_at?: string
+        }
+        Update: {
+          coproprietaire_id?: string | null
+          created_at?: string
+          detail_par_cle?: unknown | null
+          exercice_id?: string
+          id?: string
+          lot_id?: string
+          montant_provisionnel?: number
+          montant_reel?: number
+          notifie_at?: string | null
+          prorata_fraction?: number | null
+          prorata_jours?: number | null
+          regle_at?: string | null
+          statut?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "regularisations_exercice_id_fkey"
+            columns: ["exercice_id"]
+            isOneToOne: false
+            referencedRelation: "exercices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "regularisations_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "lots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "regularisations_coproprietaire_id_fkey"
+            columns: ["coproprietaire_id"]
+            isOneToOne: false
+            referencedRelation: "coproprietaires"
             referencedColumns: ["id"]
           },
         ]
@@ -2668,6 +2797,27 @@ export type Database = {
       }
     }
     Views: {
+      v_fonds_travaux_par_lot: {
+        Row: {
+          annee: number
+          compte_bancaire: string | null
+          copropriete_id: string
+          coproprietaire_id: string | null
+          coproprietaire_nom: string | null
+          coproprietaire_prenom: string | null
+          cotisation_annuelle: number | null
+          created_at: string | null
+          id: string
+          lot_id: string | null
+          lot_numero: string | null
+          lot_type: Database["public"]["Enums"]["lot_type"] | null
+          objectif_5ans: number | null
+          solde_actuel: number | null
+          tantiemes: number | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
       v_lots_actifs: {
         Row: {
           coproprietaire_id: string
@@ -2695,6 +2845,52 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      v_regularisations_soldes: {
+        Row: {
+          annee: number
+          complement: number | null
+          copropriete_id: string
+          copropriete_nom: string
+          coproprietaire_id: string | null
+          coproprietaire_nom: string | null
+          coproprietaire_prenom: string | null
+          exercice_id: string
+          id: string
+          lot_id: string
+          lot_numero: string
+          montant_provisionnel: number
+          montant_reel: number
+          prorata_fraction: number | null
+          solde: number | null
+          statut: string
+          type_solde: string | null
+        }
+        Relationships: []
+      }
+      v_resultats_ag: {
+        Row: {
+          ag_id: string
+          ag_status: Database["public"]["Enums"]["ag_status"] | null
+          adoptee: boolean | null
+          copropriete_id: string
+          copropriete_nom: string
+          date_ag: string
+          ordre: number
+          passerelle_25_1: boolean | null
+          resolution_id: string
+          tantiemes_contre: number | null
+          tantiemes_pour: number | null
+          tantiemes_presents: number | null
+          "tantièmes_totaux": number | null
+          titre: string
+          type_vote: string
+          voix_abstention: number | null
+          voix_contre: number | null
+          voix_pour: number | null
+          vote_raison: string | null
+        }
+        Relationships: []
       }
     }
     Functions: {

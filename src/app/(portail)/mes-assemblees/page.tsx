@@ -7,6 +7,8 @@ import { formatDate } from '@/lib/utils'
 import type { AssembleeGenerale, AgResolution, AgVote, VoteValue } from '@/types'
 import { VOTE_TYPE_LABELS } from '@/types'
 import { getSignedDocumentUrl } from '@/lib/storage'
+import { calculateMajority } from '@/lib/majority-engine'
+import type { VoteType } from '@/lib/majority-engine'
 
 const AG_STATUS_LABELS: Record<string, { label: string; color: string }> = {
   planifiee:               { label: 'Planifiée',             color: 'bg-blue-50 text-blue-600' },
@@ -67,8 +69,32 @@ async function voterResolution(formData: FormData) {
     vote_a: new Date().toISOString(),
   }, { onConflict: 'resolution_id,coproprietaire_id' })
 
-  // Recalculer les compteurs sur ag_resolutions à partir de tous les votes
-  // Note Sprint 2 : le champ `adoptee` sera calculé par le MajorityEngine
+  // Charger la résolution + AG pour le MajorityEngine (query séparée pour éviter ParserError sur colonne accentuée)
+  const { data: resolutionData } = await admin
+    .from('ag_resolutions')
+    .select('type_vote, ag_id')
+    .eq('id', resolutionId)
+    .single()
+
+  // Charger l'AG séparément
+  const { data: agData } = resolutionData?.ag_id
+    ? await admin
+        .from('assemblees_generales')
+        .select('tantiemes_presents, copropriete_id')
+        .eq('id', resolutionData.ag_id)
+        .single()
+    : { data: null }
+
+  // Charger la copropriété séparément (colonne accentuée non parseable en nested join)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: coproprieteData } = agData?.copropriete_id
+    ? await (admin.from('coproprietes') as any)
+        .select('"tantièmes_totaux", nb_copropriétaires')
+        .eq('id', agData.copropriete_id)
+        .single()
+    : { data: null }
+
+  // Recalculer les compteurs depuis tous les votes (source de vérité)
   const { data: tousVotes } = await admin
     .from('ag_votes')
     .select('valeur, tantiemes')
@@ -90,9 +116,24 @@ async function voterResolution(formData: FormData) {
     { voix_pour: 0, voix_contre: 0, voix_abstention: 0, tantiemes_pour: 0, tantiemes_contre: 0 }
   )
 
+  // Calculer adoptee avec le MajorityEngine (Art. 24 / 25 / 25-1 / 26)
+  const majorityResult = calculateMajority({
+    type_vote:                    (resolutionData?.type_vote ?? 'art_24') as VoteType,
+    tantiemes_pour:               compteurs.tantiemes_pour,
+    tantiemes_contre:             compteurs.tantiemes_contre,
+    voix_pour:                    compteurs.voix_pour,
+    voix_contre:                  compteurs.voix_contre,
+    voix_abstention:              compteurs.voix_abstention,
+    tantiemes_presents:           agData?.tantiemes_presents ?? 0,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    tantiemes_totaux_copropriete: (coproprieteData as any)?.['tantièmes_totaux'] ?? 10000,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    nombre_coproprietaires:       (coproprieteData as any)?.nb_copropriétaires ?? 0,
+  })
+
   await admin
     .from('ag_resolutions')
-    .update(compteurs)
+    .update({ ...compteurs, adoptee: majorityResult.adoptee })
     .eq('id', resolutionId)
 
   redirect('/mes-assemblees')
