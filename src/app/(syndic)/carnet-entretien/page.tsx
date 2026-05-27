@@ -187,7 +187,7 @@ export default function CarnetEntretienPage() {
       fetch('/api/prestataires').then(r => r.json()),
     ])
     setEntrees(e)
-    setCoproprietes(Array.isArray(c) ? c : (c.coproprietes ?? []))
+    setCoproprietes(Array.isArray(c) ? c : (c.data ?? []))
     setPrestataires(p)
     setLoading(false)
   }

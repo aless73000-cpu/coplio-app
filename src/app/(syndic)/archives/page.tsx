@@ -50,7 +50,7 @@ export default function ArchivesPage() {
       if (!cRes.ok) throw new Error(`Erreur chargement copropriétés (${cRes.status})`)
       const [aData, cData] = await Promise.all([aRes.json(), cRes.json()])
       setArchives(Array.isArray(aData) ? aData : [])
-      setCoproprietes(Array.isArray(cData) ? cData : [])
+      setCoproprietes(Array.isArray(cData) ? cData : (cData?.data ?? []))
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : 'Erreur de chargement')
     } finally {

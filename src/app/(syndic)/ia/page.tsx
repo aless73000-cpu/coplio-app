@@ -23,8 +23,12 @@ export default function IAPage() {
   const [tab,           setTab]           = useState<TabKey>('rediger')
   const [coproprieteId, setCoproprieteId] = useState('')
 
-  const { data: coproprietesData } = useApi<Copropriete[]>('/api/coproprietes')
-  const coproprietes = coproprietesData ?? []
+  const { data: coproprietesData } = useApi<Copropriete[] | { data: Copropriete[] }>('/api/coproprietes')
+  const coproprietes: Copropriete[] = Array.isArray(coproprietesData)
+    ? coproprietesData
+    : Array.isArray((coproprietesData as { data?: Copropriete[] } | null)?.data)
+      ? (coproprietesData as { data: Copropriete[] }).data
+      : []
 
   // Set default copropriete once data loads
   useEffect(() => {

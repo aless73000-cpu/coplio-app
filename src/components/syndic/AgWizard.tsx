@@ -476,7 +476,7 @@ export function AgWizard() {
   useEffect(() => {
     fetch('/api/coproprietes')
       .then(r => r.json())
-      .then(d => setCoproprietes(Array.isArray(d) ? d : (d.coproprietes ?? [])))
+      .then(d => setCoproprietes(Array.isArray(d) ? d : (d.data ?? [])))
   }, [])
 
   function handleStep1(values: Step1Values) {

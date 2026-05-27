@@ -40,7 +40,7 @@ export default function RelancesConfigPage() {
 
   useEffect(() => {
     fetch('/api/coproprietes').then(r => r.json()).then(d => {
-      const list = Array.isArray(d) ? d : (d.coproprietes ?? [])
+      const list = Array.isArray(d) ? d : (d.data ?? [])
       setCoproprietes(list)
       if (list.length > 0) setSelected(list[0].id)
     })
