@@ -44,6 +44,7 @@ import {
 import { useDashboardPrefs, ALL_WIDGETS } from '@/hooks/useDashboardPrefs'
 import type { WidgetPref } from '@/hooks/useDashboardPrefs'
 import type { Copropriete } from '@/types'
+import { ConformiteLegale } from '@/components/syndic/ConformiteLegale'
 import { toast } from 'sonner'
 
 // ─── Types ────────────────────────────────────────────────────
@@ -75,11 +76,16 @@ export interface DashboardData {
   tauxData: { nom: string; taux: number; impayes: number }[]
   statutData: { aJour: number; attention: number; urgent: number }
   coproprietesCritiques: Copropriete[]
+  allCoproprietes?: Copropriete[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sinistres: any[] | null
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   agProchaines: any[] | null
   hasAppels: boolean
+  conformiteData?: {
+    agRecentes: { copropriete_id: string; date_ag: string; status: string }[]
+    fondsTravaux: { copropriete_id: string; annee: number | null }[]
+  }
 }
 
 // ─── Widget metadata ──────────────────────────────────────────
@@ -102,6 +108,7 @@ const WIDGET_LABELS: Record<string, string> = {
   sinistres:           'Sinistres en cours',
   ag:                  'AG à venir',
   actions_rapides:     'Actions rapides',
+  conformite_legale:   'Conformité légale',
 }
 
 const WIDGET_ICONS: Record<string, React.ElementType> = {
@@ -113,7 +120,7 @@ const WIDGET_ICONS: Record<string, React.ElementType> = {
   alertes_intelligentes: AlertTriangle, graphiques_finances: TrendingUp,
   graphiques_copros: PieChart, performance: BarChart2,
   alertes_coproprietes: Building2, sinistres: AlertTriangle,
-  ag: CalendarDays, actions_rapides: Zap,
+  ag: CalendarDays, actions_rapides: Zap, conformite_legale: CheckCircle2,
 }
 
 // KPIs individuels → regroupement automatique en grille dans le rendu normal
@@ -325,6 +332,17 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
             </div>
           </div>
         )
+      case 'conformite_legale': {
+        if (!data.conformiteData) return null
+        const copros = data.allCoproprietes ?? data.coproprietesCritiques
+        return (
+          <ConformiteLegale
+            coproprietes={copros}
+            agRecentes={data.conformiteData.agRecentes}
+            fondsTravaux={data.conformiteData.fondsTravaux}
+          />
+        )
+      }
       default:
         return null
     }

@@ -6,7 +6,7 @@ import {
   AlertTriangle, CheckCircle2,
   Landmark, UserX, Calendar, User,
   Bell, CreditCard, ArrowRight,
-  CalendarDays, Vote, ChevronRight, Crown, BookUser,
+  CalendarDays, Vote, ChevronRight, Crown, BookUser, Zap,
 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { AppelCharges, Document, Sinistre, Notification } from '@/types'
@@ -280,6 +280,21 @@ export default async function AccueilPage() {
           </div>
         </div>
       )}
+
+      {/* ── Signalement Express ── */}
+      <Link
+        href="/signaler"
+        className="flex items-center gap-4 bg-slate-900 rounded-2xl px-5 py-4 text-white hover:bg-slate-800 transition-all group shadow-sm"
+      >
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-white/15">
+          <Zap className="w-5 h-5 text-white" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold">Signaler un problème</p>
+          <p className="text-xs text-white/60 mt-0.5">Photo + description → votre syndic est alerté instantanément</p>
+        </div>
+        <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white/70 transition-colors flex-shrink-0" />
+      </Link>
 
       {/* ── Bandeau statut charges ── */}
       <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border"

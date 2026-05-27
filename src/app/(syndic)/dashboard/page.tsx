@@ -69,7 +69,7 @@ export default async function DashboardPage({
       .eq('portail_actif', true),
     supabase
       .from('assemblees_generales')
-      .select('copropriete_id, date_ag')
+      .select('copropriete_id, date_ag, status')
       .eq('cabinet_id', cabinetId)
       .eq('status', 'terminee')
       .gte('date_ag', oneYearAgo.toISOString()),
@@ -81,6 +81,7 @@ export default async function DashboardPage({
   const [
     { data: impayes },
     { count: nbLotsOccupes },
+    { data: fondsTravaux },
   ] = await Promise.all([
     coproprieteIds.length > 0
       ? supabase
@@ -95,6 +96,13 @@ export default async function DashboardPage({
           .in('copropriete_id', coproprieteIds)
           .not('coproprietaire_id', 'is', null)
       : Promise.resolve({ count: 0 }),
+    coproprieteIds.length > 0
+      ? supabase
+          .from('fonds_travaux')
+          .select('copropriete_id, annee')
+          .in('copropriete_id', coproprieteIds)
+          .order('annee', { ascending: false })
+      : Promise.resolve({ data: [] }),
   ])
 
   const allAppels = (impayes ?? []) as {
@@ -309,9 +317,14 @@ export default async function DashboardPage({
     tauxData,
     statutData,
     coproprietesCritiques: coproprietesCritiques as Copropriete[],
+    allCoproprietes: (coproprietes ?? []) as Copropriete[],
     sinistres:   sinistres ?? null,
     agProchaines: agProchaines ?? null,
     hasAppels:   allAppels.length > 0,
+    conformiteData: {
+      agRecentes: (agRecentes ?? []) as { copropriete_id: string; date_ag: string; status: string }[],
+      fondsTravaux: (fondsTravaux ?? []) as { copropriete_id: string; annee: number | null }[],
+    },
   }
 
   return <DashboardCanvas data={dashboardData} autoEdit={searchParams.edit === 'true'} />

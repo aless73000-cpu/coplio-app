@@ -32,6 +32,7 @@ export const ALL_WIDGETS: WidgetDef[] = [
   { id: 'sinistres',             label: 'Sinistres en cours',       description: 'Derniers sinistres déclarés non clôturés' },
   { id: 'ag',                    label: 'AG à venir',               description: 'Prochaines assemblées générales planifiées' },
   { id: 'actions_rapides',       label: 'Actions rapides',          description: 'Raccourcis vers les actions les plus fréquentes' },
+  { id: 'conformite_legale',     label: 'Conformité légale',        description: 'Échéances légales ALUR par copropriété (AG annuelle, comptes, fonds travaux)' },
 ]
 
 // v2 : KPIs devenus individuels (v1 avait kpis_1 / kpis_2)
