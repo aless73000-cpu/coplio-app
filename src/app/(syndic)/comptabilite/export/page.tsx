@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ChevronLeft, Download, FileText, Shield, AlertCircle } from 'lucide-react'
 import { ExportFecButton } from './_components/ExportFecButton'
 import { ExportBalanceButton } from './_components/ExportBalanceButton'
+import { ExportReleveButton } from './_components/ExportReleveButton'
 
 export default async function ExportPage({
   searchParams,
@@ -145,6 +146,41 @@ export default async function ExportPage({
                           exerciceId={ex.id}
                           annee={ex.annee}
                           copropNom={copropNom}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                    <AlertCircle className="w-4 h-4" />
+                    Aucun exercice disponible.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Relevé annuel de charges */}
+          <div className="coplio-card">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                <FileText className="w-5 h-5 text-purple-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-coplio-text">Relevé annuel de charges (CSV)</h3>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Synthèse des appels de charges par lot — à remettre aux copropriétaires en annexe AG.
+                </p>
+                {exercices && exercices.length > 0 ? (
+                  <div className="mt-4 space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">Choisir un exercice :</p>
+                    <div className="flex flex-wrap gap-2">
+                      {exercices.map(ex => (
+                        <ExportReleveButton
+                          key={ex.id}
+                          coproprieteId={selectedId!}
+                          exerciceId={ex.id}
+                          annee={ex.annee}
                         />
                       ))}
                     </div>

@@ -70,6 +70,10 @@ export const POST = withErrorHandler(async (request: Request) => {
   // Envoyer des emails aux copropriétaires concernés (non bloquant)
   sendNotificationsCharges(admin, parsed.data.appels).catch(err => captureException(err, { context: 'appels-charges-notify' }))
 
+  // ─── Générer les écritures comptables (non bloquant) ─────────
+  genererEcrituresAppels(admin, parsed.data.appels, user.id).catch(() => {})
+  // ─────────────────────────────────────────────────────────────
+
   await logAction(admin, {
     cabinet_id: profile.cabinet_id, user_id: user.id,
     action: 'create', entite: 'appel_charges',
@@ -127,6 +131,98 @@ async function sendNotificationsCharges(
         numeroLot: lot.numero,
         portailUrl: `${appUrl}/mes-charges`,
       }, profile.email)
+    }
+  }
+}
+
+/**
+ * Génère automatiquement les écritures comptables pour chaque appel de charges créé.
+ * Schéma : Débit 410 (Copropriétaires – charges à recevoir) / Crédit 701 (Produits des charges)
+ * Si le journal OD ou les comptes n'existent pas → silencieux (pas bloquant)
+ */
+async function genererEcrituresAppels(
+  admin: ReturnType<typeof import('@/lib/supabase/server').createAdminClient>,
+  appels: z.infer<typeof appelSchema>[],
+  userId: string,
+) {
+  // Grouper par copropriété pour minimiser les requêtes
+  const parCopro = appels.reduce((acc, a) => {
+    if (!acc[a.copropriete_id]) acc[a.copropriete_id] = []
+    acc[a.copropriete_id].push(a)
+    return acc
+  }, {} as Record<string, typeof appels>)
+
+  for (const [coproprieteId, appellsCopro] of Object.entries(parCopro)) {
+    // Journal OD (opérations diverses)
+    const { data: journalOD } = await admin
+      .from('journaux')
+      .select('id')
+      .eq('copropriete_id', coproprieteId)
+      .eq('type_journal', 'od')
+      .eq('actif', true)
+      .limit(1)
+      .single()
+
+    if (!journalOD) continue
+
+    // Exercice en cours
+    const { data: exercice } = await admin
+      .from('exercices')
+      .select('id')
+      .eq('copropriete_id', coproprieteId)
+      .eq('statut', 'en_cours')
+      .order('annee', { ascending: false })
+      .limit(1)
+      .single()
+
+    // Comptes : 410 (créances) + 701 (produits)
+    const { data: comptes } = await admin
+      .from('comptes_comptables')
+      .select('id, numero')
+      .is('cabinet_id', null)
+      .or('numero.like.410%,numero.like.701%')
+      .eq('type_compte', 'detail')
+
+    const compte410 = (comptes ?? []).find(c => c.numero.startsWith('410'))
+    const compte701 = (comptes ?? []).find(c => c.numero.startsWith('701'))
+
+    if (!compte410 || !compte701) continue
+
+    for (const appel of appellsCopro) {
+      const { data: ecriture } = await admin
+        .from('ecritures_comptables')
+        .insert({
+          copropriete_id: coproprieteId,
+          journal_id:     journalOD.id,
+          exercice_id:    exercice?.id ?? null,
+          date_ecriture:  appel.date_appel,
+          libelle:        `Appel de charges — ${appel.libelle}`,
+          statut:         'valide',
+          created_by:     userId,
+        })
+        .select('id')
+        .single()
+
+      if (!ecriture) continue
+
+      await admin.from('lignes_ecriture').insert([
+        {
+          ecriture_id: ecriture.id,
+          compte_id:   compte410.id,
+          debit:       appel.montant,
+          credit:      0,
+          libelle:     appel.libelle,
+          ordre:       0,
+        },
+        {
+          ecriture_id: ecriture.id,
+          compte_id:   compte701.id,
+          debit:       0,
+          credit:      appel.montant,
+          libelle:     appel.libelle,
+          ordre:       1,
+        },
+      ])
     }
   }
 }
