@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 }
 
 import Nav            from '@/components/landing/Nav'
+import { StickyBanner } from '@/components/landing/StickyBanner'
 import Hero           from '@/components/landing/Hero'
 import TrustBar       from '@/components/landing/TrustBar'
 import BentoFeatures  from '@/components/landing/BentoFeatures'
@@ -73,6 +74,7 @@ export default function LandingPage() {
       <div className="min-h-screen bg-white antialiased text-[#1D1D1F]">
         {/* Animations définies dans globals.css — suppression du inline <style> (meilleur LCP) */}
         <Nav />
+        <StickyBanner />
         <Hero />
         <TrustBar />
         <FeaturesShowcase />

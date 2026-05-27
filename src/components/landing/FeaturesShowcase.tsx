@@ -372,12 +372,21 @@ const FEATURES_DATA = [
 
 export default function FeaturesShowcase() {
   const [activeTab, setActiveTab] = useState(0)
+  const [paused, setPaused] = useState(false)
 
   useEffect(() => {
     const handler = (e: Event) => setActiveTab((e as CustomEvent<number>).detail)
     window.addEventListener('featureTabChange', handler)
     return () => window.removeEventListener('featureTabChange', handler)
   }, [])
+
+  useEffect(() => {
+    if (paused) return
+    const interval = setInterval(() => {
+      setActiveTab((t) => (t + 1) % FEATURES_DATA.length)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [paused])
 
   const feature = FEATURES_DATA[activeTab]
   const PreviewComponent = feature.Preview
@@ -386,21 +395,28 @@ export default function FeaturesShowcase() {
     <section id="fonctionnalites" className="py-24 bg-white scroll-mt-[66px]">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-12">
-          <span className="text-[11px] font-bold text-[#374151] uppercase tracking-[0.18em]">Découvrez chaque module</span>
-          <h2 className="text-4xl font-bold text-[#1D1D1F] mt-3 mb-4 tracking-tight">
-            Une fonctionnalité pour chaque besoin
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.18em]">Découvrez chaque module</span>
+          <h2
+            className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#1D1D1F] mt-3 mb-4"
+            style={{ letterSpacing: '-0.03em', lineHeight: 1.08 }}
+          >
+            Une fonctionnalité<br />pour chaque besoin
           </h2>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto">
-            Cliquez sur un module pour explorer ce qu&apos;il vous apporte au quotidien.
+          <p className="text-slate-400 text-lg max-w-xl mx-auto">
+            Explorez chaque module au quotidien.
           </p>
         </div>
 
         {/* Tab bar — scrollable on mobile */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-hide">
+        <div
+          className="flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-hide"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
           {FEATURES_DATA.map(({ icon: Icon, label }, idx) => (
             <button
               key={label}
-              onClick={() => setActiveTab(idx)}
+              onClick={() => { setActiveTab(idx); setPaused(true) }}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-semibold whitespace-nowrap transition-all flex-shrink-0 ${
                 activeTab === idx
                   ? 'bg-[#374151] text-white shadow-md shadow-[#374151]/20'
@@ -418,6 +434,8 @@ export default function FeaturesShowcase() {
           key={activeTab}
           className="grid md:grid-cols-2 gap-6 md:gap-8 bg-[#F5F5F7] rounded-3xl p-5 sm:p-8 border border-gray-100"
           style={{ animation: 'fadeUp .35s ease both' }}
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
         >
           {/* Left — description */}
           <div className="flex flex-col justify-center">

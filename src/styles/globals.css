@@ -157,6 +157,18 @@
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
   }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(16px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes growUp {
+    from { transform: scaleY(0); }
+    to   { transform: scaleY(1); }
+  }
 
   .float-a { animation: floatY 4s ease-in-out infinite; }
   .float-b { animation: floatY 5s ease-in-out infinite; animation-delay: .9s; }

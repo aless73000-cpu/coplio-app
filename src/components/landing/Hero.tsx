@@ -1,9 +1,22 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, CheckCircle2, Building2, Bell } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ArrowRight, CheckCircle2, Building2, Bell, AlertTriangle } from 'lucide-react'
+
+const BAR_HEIGHTS = [55, 68, 72, 81, 78, 94]
+const BAR_MONTHS  = ['Nov', 'Déc', 'Jan', 'Fév', 'Mar', 'Avr']
 
 export default function Hero() {
+  const [barsReady, setBarsReady] = useState(false)
+  const [notifVisible, setNotifVisible] = useState(false)
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setBarsReady(true), 400)
+    const t2 = setTimeout(() => setNotifVisible(true), 1600)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [])
+
   return (
     <section
       className="relative min-h-screen flex flex-col items-center justify-center pt-[66px] overflow-hidden"
@@ -28,8 +41,8 @@ export default function Hero() {
           className="text-5xl sm:text-6xl lg:text-[80px] font-bold text-white mb-6"
           style={{ letterSpacing: '-0.04em', lineHeight: 1.03 }}
         >
-          La gestion de<br />copropriété,<br />
-          <span style={{ color: 'rgba(255,255,255,0.28)' }}>enfin simple</span>
+          Gérez plus.<br />Administrez moins.<br />
+          <span style={{ color: 'rgba(255,255,255,0.28)' }}>Pour les syndics indépendants.</span>
         </h1>
 
         {/* Subtitle */}
@@ -89,7 +102,7 @@ export default function Hero() {
           </div>
 
           {/* Dashboard */}
-          <div className="flex h-[260px] sm:h-[320px] overflow-hidden">
+          <div className="flex h-[260px] sm:h-[340px] overflow-hidden">
             {/* Sidebar */}
             <div
               className="w-[160px] p-3 flex flex-col gap-1 flex-shrink-0 border-r border-white/[0.04]"
@@ -112,7 +125,21 @@ export default function Hero() {
             </div>
 
             {/* Main */}
-            <div className="flex-1 p-5 space-y-3 overflow-hidden bg-[#F8F9FA]">
+            <div className="flex-1 p-5 space-y-3 overflow-hidden bg-[#F8F9FA] relative">
+              {/* Notification slide-in */}
+              {notifVisible && (
+                <div
+                  className="absolute top-3 right-3 bg-white rounded-xl shadow-lg border border-slate-100 px-3 py-2 flex items-start gap-2 z-10 max-w-[200px]"
+                  style={{ animation: 'slideInRight 0.4s cubic-bezier(0.25,0.46,0.45,0.94) both' }}
+                >
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-[10px] font-semibold text-slate-700">Impayé détecté</div>
+                    <div className="text-[9px] text-slate-400">M. Dubois · Lot B04</div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center justify-between">
                 <div className="text-xs font-semibold text-[#374151]">Bonjour, Jean 👋</div>
                 <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
@@ -120,6 +147,7 @@ export default function Hero() {
                   <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
                 </div>
               </div>
+
               <div className="grid grid-cols-4 gap-2">
                 {[
                   { v: '12',    l: 'Copropriétés', c: '#374151', bg: '#F1F5F9' },
@@ -133,22 +161,30 @@ export default function Hero() {
                   </div>
                 ))}
               </div>
+
+              {/* Animated bar chart */}
               <div className="bg-white rounded-xl p-3 shadow-sm">
-                <div className="text-[10px] text-slate-400 font-medium mb-2">Recouvrement — 6 derniers mois</div>
-                <div className="flex items-end gap-1 h-12">
-                  {[55, 68, 72, 81, 78, 94].map((h, i) => (
-                    <div key={i} className="flex-1 rounded-sm transition-all" style={{
-                      height: `${h}%`,
-                      background: i === 5 ? '#334155' : i === 4 ? '#64748B' : '#E2E8F0',
-                    }} />
+                <div className="text-[10px] text-slate-400 font-medium mb-2">Recouvrement — 6 mois</div>
+                <div className="flex items-end gap-1 h-12" style={{ transformOrigin: 'bottom' }}>
+                  {BAR_HEIGHTS.map((h, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 rounded-sm transition-all duration-700"
+                      style={{
+                        height: barsReady ? `${h}%` : '4%',
+                        transitionDelay: `${i * 80}ms`,
+                        background: i === 5 ? '#334155' : i === 4 ? '#64748B' : '#E2E8F0',
+                      }}
+                    />
                   ))}
                 </div>
                 <div className="flex justify-between mt-1.5">
-                  {['Nov', 'Déc', 'Jan', 'Fév', 'Mar', 'Avr'].map(m => (
+                  {BAR_MONTHS.map(m => (
                     <span key={m} className="text-[8px] text-slate-300">{m}</span>
                   ))}
                 </div>
               </div>
+
               <div className="bg-white rounded-xl p-2.5 shadow-sm border border-slate-100">
                 <div className="text-[10px] text-slate-400 font-medium mb-1.5">Prochaines AG</div>
                 {[
