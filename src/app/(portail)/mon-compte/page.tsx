@@ -5,9 +5,10 @@ import { redirect } from 'next/navigation'
 import {
   User, Mail, Phone, Home, Building2, Shield,
   Hash, Save, CheckCircle2, AlertTriangle, LogOut,
-  MessageCircle,
+  MessageCircle, Bell,
 } from 'lucide-react'
 import { LOT_TYPE_LABELS } from '@/types'
+import { PushNotifToggle } from '@/components/portail/PushNotifToggle'
 
 async function updateProfile(formData: FormData) {
   'use server'
@@ -325,6 +326,15 @@ export default async function MonComptePage({
           </div>
         </div>
       )}
+
+      {/* ─── Section: Notifications ─── */}
+      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="px-4 py-3.5 border-b border-border flex items-center gap-2">
+          <Bell className="w-4 h-4 text-muted-foreground" />
+          <h2 className="font-semibold text-coplio-text">Notifications</h2>
+        </div>
+        <PushNotifToggle />
+      </div>
 
       {/* ─── Section: Sécurité ─── */}
       <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">

@@ -5,6 +5,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { withErrorHandler } from '@/lib/api-handler'
+import { notifyCoproprietaire } from '@/lib/notify'
 
 async function getContext() {
   const supabase = await createClient()
@@ -86,23 +87,22 @@ export const POST = withErrorHandler(async (req: Request, { params }: { params: 
     .update({ derniere_activite: new Date().toISOString() })
     .eq('id', id)
 
-  // Push notification aux autres membres du cabinet (non bloquant)
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
-  fetch(`${appUrl}/api/push/send`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.CRON_SECRET ?? ''}`,
-    },
-    body: JSON.stringify({
-      cabinetId: ctx.cabinet_id,
-      payload: {
-        title: 'Nouveau message',
-        body: parsed.data.contenu.slice(0, 80),
-        url: `/messages`,
-      },
-    }),
-  }).catch(() => {})
+  // Notifier le copropriétaire (in-app + push + email, non-bloquant)
+  if (conv.coproprietaire_id) {
+    const { data: syndicProfile } = await admin
+      .from('profiles')
+      .select('prenom, nom')
+      .eq('id', ctx.user.id)
+      .single()
+    const expediteurNom = syndicProfile
+      ? `${syndicProfile.prenom ?? ''} ${syndicProfile.nom ?? ''}`.trim()
+      : undefined
+    notifyCoproprietaire({
+      coproprietaireId: conv.coproprietaire_id,
+      messagePreview: parsed.data.contenu.slice(0, 200),
+      expediteurNom: expediteurNom || undefined,
+    })
+  }
 
   return NextResponse.json(message, { status: 201 })
 })
