@@ -46,7 +46,10 @@ export default function NewAppelChargesPage() {
   useEffect(() => {
     fetch('/api/coproprietes')
       .then(r => r.json())
-      .then(data => { if (Array.isArray(data)) setCoproprietes(data) })
+      .then(data => {
+        if (Array.isArray(data)) setCoproprietes(data)
+        else if (Array.isArray(data?.data)) setCoproprietes(data.data)
+      })
   }, [])
 
   // Load lots when copropriété changes

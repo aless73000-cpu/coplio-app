@@ -31,7 +31,10 @@ export default function ImporterPage() {
   useEffect(() => {
     fetch('/api/coproprietes')
       .then(r => r.json())
-      .then(data => { if (Array.isArray(data)) setCoproprietes(data as Copropriete[]) })
+      .then(data => {
+        if (Array.isArray(data)) setCoproprietes(data as Copropriete[])
+        else if (Array.isArray(data?.data)) setCoproprietes(data.data as Copropriete[])
+      })
   }, [])
 
   const handleFile = useCallback((f: File) => {
