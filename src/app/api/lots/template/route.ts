@@ -1,8 +1,13 @@
+import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import ExcelJS from 'exceljs'
 import { withErrorHandler } from '@/lib/api-handler'
 
 export const GET = withErrorHandler(async () => {
+  // Auth : accès réservé aux utilisateurs connectés
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
   const wb = new ExcelJS.Workbook()
 
   // ── Feuille Lots ──────────────────────────────────────────

@@ -69,16 +69,17 @@ export const POST = withErrorHandler(async (request: Request) => {
       .single()
     if (!copropriete) return NextResponse.json({ error: 'Copropriété introuvable' }, { status: 404 })
 
-    // Vérification quota
-    const quota = await checkQuota(profile.cabinet_id, 'lots', 1)
-    if (!quota.allowed) return quotaExceededResponse(quota)
-
     // Fetch existing lot numbers to detect duplicates
     const { data: existingLots } = await admin
       .from('lots')
       .select('numero')
       .eq('copropriete_id', copropriete_id)
     const existingNumeros = new Set((existingLots ?? []).map((l: { numero: string }) => l.numero.toLowerCase()))
+
+    // Limite taille fichier : 5 Mo
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: 'Fichier trop grand (max 5 Mo)' }, { status: 400 })
+    }
 
     // Parse Excel avec ExcelJS
     const arrayBuffer = await file.arrayBuffer()
@@ -134,6 +135,12 @@ export const POST = withErrorHandler(async (request: Request) => {
 
     if (toInsert.length === 0 && errors.length === 0 && skipped.length === 0) {
       return NextResponse.json({ error: 'Aucune ligne valide trouvée dans le fichier.' }, { status: 400 })
+    }
+
+    // Vérification quota sur le nombre RÉEL de lots à insérer (pas 1)
+    if (toInsert.length > 0) {
+      const quota = await checkQuota(profile.cabinet_id, 'lots', toInsert.length)
+      if (!quota.allowed) return quotaExceededResponse(quota)
     }
 
     let lotsCreated = 0
