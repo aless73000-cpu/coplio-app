@@ -38,11 +38,11 @@ CREATE INDEX IF NOT EXISTS idx_fonds_travaux_lot_id
 -- Note : modifier le CHECK constraint nécessite de recréer la contrainte.
 
 ALTER TABLE fonds_travaux_mouvements
-  DROP CONSTRAINT IF EXISTS fonds_travaux_mouvements_type_check;
+  DROP CONSTRAINT IF EXISTS fonds_travaux_mouvements_type_mouvement_check;
 
 ALTER TABLE fonds_travaux_mouvements
-  ADD CONSTRAINT fonds_travaux_mouvements_type_check
-    CHECK (type IN ('cotisation', 'retrait', 'interet', 'transfert_mutation', 'autre'));
+  ADD CONSTRAINT fonds_travaux_mouvements_type_mouvement_check
+    CHECK (type_mouvement IN ('cotisation', 'retrait', 'interet', 'transfert_mutation', 'autre'));
 
 -- ─── 4. Colonne transfert lors d'une mutation ─────────────────────
 -- Permet de tracer explicitement le transfert fonds de travaux vendeur → acheteur

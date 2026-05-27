@@ -46,3 +46,4 @@ autopush.log
 autopush.test.tmp
 .env*.local
 .env.test.local
+.env*

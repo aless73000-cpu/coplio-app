@@ -1372,6 +1372,96 @@ export type Database = {
           },
         ]
       }
+      comptes_comptables: {
+        Row: {
+          actif: boolean
+          cabinet_id: string | null
+          classe: number
+          copropriete_id: string | null
+          created_at: string
+          id: string
+          libelle: string
+          numero: string
+          sens_normal: string
+          type_compte: string
+        }
+        Insert: {
+          actif?: boolean
+          cabinet_id?: string | null
+          classe: number
+          copropriete_id?: string | null
+          created_at?: string
+          id?: string
+          libelle: string
+          numero: string
+          sens_normal?: string
+          type_compte?: string
+        }
+        Update: {
+          actif?: boolean
+          cabinet_id?: string | null
+          classe?: number
+          copropriete_id?: string | null
+          created_at?: string
+          id?: string
+          libelle?: string
+          numero?: string
+          sens_normal?: string
+          type_compte?: string
+        }
+        Relationships: []
+      }
+      ecritures_comptables: {
+        Row: {
+          copropriete_id: string
+          created_at: string
+          created_by: string | null
+          date_ecriture: string
+          exercice_id: string | null
+          facture_id: string | null
+          id: string
+          journal_id: string
+          libelle: string
+          numero_piece: string | null
+          reference: string | null
+          releve_id: string | null
+          statut: string
+          updated_at: string
+        }
+        Insert: {
+          copropriete_id: string
+          created_at?: string
+          created_by?: string | null
+          date_ecriture: string
+          exercice_id?: string | null
+          facture_id?: string | null
+          id?: string
+          journal_id: string
+          libelle: string
+          numero_piece?: string | null
+          reference?: string | null
+          releve_id?: string | null
+          statut?: string
+          updated_at?: string
+        }
+        Update: {
+          copropriete_id?: string
+          created_at?: string
+          created_by?: string | null
+          date_ecriture?: string
+          exercice_id?: string | null
+          facture_id?: string | null
+          id?: string
+          journal_id?: string
+          libelle?: string
+          numero_piece?: string | null
+          reference?: string | null
+          releve_id?: string | null
+          statut?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       exercices: {
         Row: {
           annee: number
@@ -1493,6 +1583,141 @@ export type Database = {
           libelle?: string | null
           montant?: number
           type_mouvement?: string
+        }
+        Relationships: []
+      }
+      fournisseurs: {
+        Row: {
+          actif: boolean
+          adresse: string | null
+          cabinet_id: string
+          code_postal: string | null
+          compte_comptable: string
+          created_at: string
+          delai_paiement: number
+          email: string | null
+          id: string
+          mode_paiement: string
+          nom: string
+          notes: string | null
+          siret: string | null
+          telephone: string | null
+          tva_intra: string | null
+          updated_at: string
+          ville: string | null
+        }
+        Insert: {
+          actif?: boolean
+          adresse?: string | null
+          cabinet_id: string
+          code_postal?: string | null
+          compte_comptable?: string
+          created_at?: string
+          delai_paiement?: number
+          email?: string | null
+          id?: string
+          mode_paiement?: string
+          nom: string
+          notes?: string | null
+          siret?: string | null
+          telephone?: string | null
+          tva_intra?: string | null
+          updated_at?: string
+          ville?: string | null
+        }
+        Update: {
+          actif?: boolean
+          adresse?: string | null
+          cabinet_id?: string
+          code_postal?: string | null
+          compte_comptable?: string
+          created_at?: string
+          delai_paiement?: number
+          email?: string | null
+          id?: string
+          mode_paiement?: string
+          nom?: string
+          notes?: string | null
+          siret?: string | null
+          telephone?: string | null
+          tva_intra?: string | null
+          updated_at?: string
+          ville?: string | null
+        }
+        Relationships: []
+      }
+      journaux: {
+        Row: {
+          actif: boolean
+          code: string
+          compte_contrepartie: string | null
+          copropriete_id: string
+          created_at: string
+          id: string
+          libelle: string
+          type_journal: string
+        }
+        Insert: {
+          actif?: boolean
+          code: string
+          compte_contrepartie?: string | null
+          copropriete_id: string
+          created_at?: string
+          id?: string
+          libelle: string
+          type_journal?: string
+        }
+        Update: {
+          actif?: boolean
+          code?: string
+          compte_contrepartie?: string | null
+          copropriete_id?: string
+          created_at?: string
+          id?: string
+          libelle?: string
+          type_journal?: string
+        }
+        Relationships: []
+      }
+      lignes_ecriture: {
+        Row: {
+          compte_id: string
+          coproprietaire_id: string | null
+          created_at: string
+          credit: number
+          debit: number
+          ecriture_id: string
+          id: string
+          lettrage: string | null
+          libelle: string | null
+          lot_id: string | null
+          ordre: number
+        }
+        Insert: {
+          compte_id: string
+          coproprietaire_id?: string | null
+          created_at?: string
+          credit?: number
+          debit?: number
+          ecriture_id: string
+          id?: string
+          lettrage?: string | null
+          libelle?: string | null
+          lot_id?: string | null
+          ordre?: number
+        }
+        Update: {
+          compte_id?: string
+          coproprietaire_id?: string | null
+          created_at?: string
+          credit?: number
+          debit?: number
+          ecriture_id?: string
+          id?: string
+          lettrage?: string | null
+          libelle?: string | null
+          lot_id?: string | null
+          ordre?: number
         }
         Relationships: []
       }
@@ -2797,6 +3022,23 @@ export type Database = {
       }
     }
     Views: {
+      v_balance_comptes: {
+        Row: {
+          classe: number | null
+          compte_id: string | null
+          compte_libelle: string | null
+          compte_numero: string | null
+          copropriete_id: string | null
+          exercice_annee: number | null
+          exercice_id: string | null
+          sens_normal: string | null
+          solde_crediteur: number | null
+          solde_debiteur: number | null
+          total_credit: number | null
+          total_debit: number | null
+        }
+        Relationships: []
+      }
       v_fonds_travaux_par_lot: {
         Row: {
           annee: number
@@ -2845,6 +3087,32 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      v_grand_livre: {
+        Row: {
+          classe: number | null
+          compte_libelle: string | null
+          compte_numero: string | null
+          copropriete_id: string | null
+          credit: number | null
+          date_ecriture: string | null
+          debit: number | null
+          ecriture_id: string | null
+          exercice_annee: number | null
+          exercice_id: string | null
+          journal_code: string | null
+          journal_libelle: string | null
+          lettrage: string | null
+          libelle_ecriture: string | null
+          libelle_ligne: string | null
+          ligne_id: string | null
+          mouvement_net: number | null
+          numero_piece: string | null
+          statut: string | null
+          compte_id: string | null
+          ordre: number | null
+        }
+        Relationships: []
       }
       v_regularisations_soldes: {
         Row: {

@@ -25,10 +25,14 @@
 -- ─────────────────────────────────────────────────────────────────
 
 ALTER TABLE coproprietaire_lots
-  ADD COLUMN IF NOT EXISTS date_fin    DATE,
-  ADD COLUMN IF NOT EXISTS motif_fin   TEXT
-    CHECK (motif_fin IN ('vente', 'succession', 'donation', 'saisie', 'autre')),
-  ADD COLUMN IF NOT EXISTS notes       TEXT;
+  ADD COLUMN IF NOT EXISTS date_fin DATE;
+
+ALTER TABLE coproprietaire_lots
+  ADD COLUMN IF NOT EXISTS motif_fin TEXT
+    CHECK (motif_fin IN ('vente', 'succession', 'donation', 'saisie', 'autre'));
+
+ALTER TABLE coproprietaire_lots
+  ADD COLUMN IF NOT EXISTS notes TEXT;
 
 -- Contrainte : date_fin doit être postérieure à date_acquisition
 ALTER TABLE coproprietaire_lots
@@ -269,7 +273,7 @@ BEGIN
     ), 0);
 
     -- Tantièmes totaux de la copropriété
-    SELECT c."tantièmes_totaux" INTO v_tantiemes_totaux
+    SELECT c.tantiemes_totaux INTO v_tantiemes_totaux
     FROM coproprietes c
     WHERE c.id = v_copropriete_id;
 

@@ -10,6 +10,7 @@ import {
   Sparkles,
   Calendar,
   Bell,
+  BookOpen,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -97,6 +98,13 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     href: '/agenda',
     icon: Calendar,
     description: 'Planning de vos interventions et réunions',
+  },
+  {
+    id: 'comptabilite',
+    label: 'Comptabilité',
+    href: '/comptabilite',
+    icon: BookOpen,
+    description: 'Écritures, factures, grand livre et rapports comptables',
   },
   {
     id: 'ia',

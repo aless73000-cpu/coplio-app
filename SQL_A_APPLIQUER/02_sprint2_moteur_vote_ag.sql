@@ -57,7 +57,7 @@ SELECT
   ag.status         AS ag_status,
   c.id              AS copropriete_id,
   c.nom             AS copropriete_nom,
-  c."tantièmes_totaux"
+  c.tantiemes_totaux
 FROM ag_resolutions r
 JOIN assemblees_generales ag ON ag.id = r.ag_id
 JOIN coproprietes c           ON c.id = ag.copropriete_id;

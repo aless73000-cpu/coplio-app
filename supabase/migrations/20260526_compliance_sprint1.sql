@@ -269,7 +269,7 @@ BEGIN
     ), 0);
 
     -- Tantièmes totaux de la copropriété
-    SELECT c."tantièmes_totaux" INTO v_tantiemes_totaux
+    SELECT c.tantiemes_totaux INTO v_tantiemes_totaux
     FROM coproprietes c
     WHERE c.id = v_copropriete_id;
 
