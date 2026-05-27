@@ -1646,6 +1646,123 @@ export type Database = {
         }
         Relationships: []
       }
+      comptes_bancaires: {
+        Row: {
+          id: string
+          copropriete_id: string
+          compte_id: string | null
+          libelle: string
+          iban: string | null
+          bic: string | null
+          banque: string | null
+          solde_initial: number
+          actif: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          copropriete_id: string
+          compte_id?: string | null
+          libelle: string
+          iban?: string | null
+          bic?: string | null
+          banque?: string | null
+          solde_initial?: number
+          actif?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          copropriete_id?: string
+          compte_id?: string | null
+          libelle?: string
+          iban?: string | null
+          bic?: string | null
+          banque?: string | null
+          solde_initial?: number
+          actif?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      releves_bancaires: {
+        Row: {
+          id: string
+          compte_bancaire_id: string
+          copropriete_id: string
+          date_debut: string
+          date_fin: string
+          solde_debut: number
+          solde_fin: number
+          statut: string
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          compte_bancaire_id: string
+          copropriete_id: string
+          date_debut: string
+          date_fin: string
+          solde_debut?: number
+          solde_fin?: number
+          statut?: string
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          compte_bancaire_id?: string
+          copropriete_id?: string
+          date_debut?: string
+          date_fin?: string
+          solde_debut?: number
+          solde_fin?: number
+          statut?: string
+          created_by?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      lignes_releve: {
+        Row: {
+          id: string
+          releve_id: string
+          date_operation: string
+          date_valeur: string | null
+          libelle: string
+          reference: string | null
+          montant: number
+          ecriture_id: string | null
+          statut_lettrage: string
+          ordre: number
+        }
+        Insert: {
+          id?: string
+          releve_id: string
+          date_operation: string
+          date_valeur?: string | null
+          libelle: string
+          reference?: string | null
+          montant: number
+          ecriture_id?: string | null
+          statut_lettrage?: string
+          ordre?: number
+        }
+        Update: {
+          id?: string
+          releve_id?: string
+          date_operation?: string
+          date_valeur?: string | null
+          libelle?: string
+          reference?: string | null
+          montant?: number
+          ecriture_id?: string | null
+          statut_lettrage?: string
+          ordre?: number
+        }
+        Relationships: []
+      }
       factures: {
         Row: {
           id: string
@@ -3178,6 +3295,29 @@ export type Database = {
       }
     }
     Views: {
+      v_rapprochement: {
+        Row: {
+          id: string | null
+          releve_id: string | null
+          date_operation: string | null
+          date_valeur: string | null
+          libelle: string | null
+          reference: string | null
+          montant: number | null
+          statut_lettrage: string | null
+          ecriture_id: string | null
+          ordre: number | null
+          date_ecriture: string | null
+          libelle_ecriture: string | null
+          statut_ecriture: string | null
+          journal_code: string | null
+          compte_bancaire_id: string | null
+          date_debut: string | null
+          date_fin: string | null
+          copropriete_id: string | null
+        }
+        Relationships: []
+      }
       v_balance_comptes: {
         Row: {
           classe: number | null

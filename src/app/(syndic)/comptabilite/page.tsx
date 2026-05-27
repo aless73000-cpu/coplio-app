@@ -106,9 +106,9 @@ export default async function ComptabilitePage({
       href: `/comptabilite/rapprochement${selectedId ? `?copropriete=${selectedId}` : ''}`,
       icon: TrendingUp,
       label: 'Rapprochement bancaire',
-      description: 'Import relevé et lettrage automatique',
-      badge: 'Bientôt',
-      badgeColor: 'bg-slate-100 text-slate-500',
+      description: 'Import relevé et lettrage des écritures',
+      badge: null,
+      badgeColor: '',
     },
     {
       href: `/comptabilite/export${selectedId ? `?copropriete=${selectedId}` : ''}`,
