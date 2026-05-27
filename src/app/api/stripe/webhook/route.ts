@@ -94,6 +94,20 @@ function formatDate(unixTs: number): string {
 // ─── Webhook handler ──────────────────────────────────────────
 
 export const POST = withErrorHandler(async (request: Request) => {
+  // I-01 : guard explicite — si la variable manque, on refuse immédiatement
+  // plutôt que de laisser constructEvent() exploser avec une erreur cryptique.
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+  if (!webhookSecret) {
+    captureException(
+      new Error('[Stripe] STRIPE_WEBHOOK_SECRET absent — webhook non opérationnel'),
+      { context: 'stripe-webhook-missing-secret' }
+    )
+    return NextResponse.json(
+      { error: 'Webhook non configuré (variable manquante)' },
+      { status: 503 }
+    )
+  }
+
   const body = await request.text()
   const signature = request.headers.get('stripe-signature')
 
@@ -104,11 +118,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   let event: Stripe.Event
 
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    )
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
   } catch (err) {
     captureException(err, { context: 'stripe-webhook-signature' })
     return NextResponse.json({ error: 'Signature invalide' }, { status: 400 })
@@ -219,7 +229,19 @@ export const POST = withErrorHandler(async (request: Request) => {
         const cabinetId = sub.metadata?.cabinet_id
 
         if (cabinetId) {
-          const plan = sub.metadata?.plan || 'starter'
+          // I-04 : si plan absent du metadata, on log un warning au lieu de silencieusement
+          // rétrograder le client en 'starter' — peut arriver sur des mutations Stripe automatiques.
+          if (!sub.metadata?.plan) {
+            const { captureMessage } = await import('@/lib/monitoring')
+            captureMessage(
+              `[Stripe] ${event.type} sans metadata.plan — cabinet ${cabinetId} NON modifié (évite downgrade silencieux)`,
+              'warning',
+              { subscription_id: sub.id, cabinet_id: cabinetId, event_type: event.type }
+            )
+            break
+          }
+
+          const plan = sub.metadata.plan
           const limits = PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS] ?? PLAN_LIMITS.starter
 
           await supabase
