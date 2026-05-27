@@ -12,6 +12,9 @@ import {
   AlertCircle,
   CheckCircle2,
   Receipt,
+  BookMarked,
+  CalendarDays,
+  Building2,
 } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
 
@@ -115,6 +118,30 @@ export default async function ComptabilitePage({
       icon: Download,
       label: 'Export FEC & CSV',
       description: 'FEC DGFiP, balance, annexes comptables',
+      badge: null,
+      badgeColor: '',
+    },
+    {
+      href: `/comptabilite/journaux${selectedId ? `?copropriete=${selectedId}` : ''}`,
+      icon: BookMarked,
+      label: 'Journaux',
+      description: 'Achats, Banque, OD — configuration',
+      badge: null,
+      badgeColor: '',
+    },
+    {
+      href: `/comptabilite/exercices${selectedId ? `?copropriete=${selectedId}` : ''}`,
+      icon: CalendarDays,
+      label: 'Exercices',
+      description: 'Créer et clôturer les exercices comptables',
+      badge: null,
+      badgeColor: '',
+    },
+    {
+      href: `/comptabilite/fournisseurs${selectedId ? `?copropriete=${selectedId}` : ''}`,
+      icon: Building2,
+      label: 'Fournisseurs',
+      description: 'Tiers, artisans, prestataires',
       badge: null,
       badgeColor: '',
     },

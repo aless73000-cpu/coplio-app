@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, Scale, Download } from 'lucide-react'
+import { ChevronLeft, Scale } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
+import { ExportBalanceButton } from '@/app/(syndic)/comptabilite/export/_components/ExportBalanceButton'
 
 const CLASSE_LABELS: Record<number, string> = {
   1: 'Capitaux',
@@ -87,11 +88,13 @@ export default async function BalancePage({
             </p>
           </div>
         </div>
-        {balance && balance.length > 0 && (
-          <button className="flex items-center gap-2 btn-secondary text-xs">
-            <Download className="w-3.5 h-3.5" />
-            Exporter
-          </button>
+        {balance && balance.length > 0 && selectedExercice && (
+          <ExportBalanceButton
+            coproprieteId={selectedId!}
+            exerciceId={selectedExercice}
+            annee={exercices?.find(e => e.id === selectedExercice)?.annee ?? 0}
+            copropNom=""
+          />
         )}
       </div>
 

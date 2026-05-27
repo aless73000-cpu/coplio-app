@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, FileText, Download } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
+import { ExportGrandLivreButton } from './_components/ExportGrandLivreButton'
 
 const PAGE_SIZE = 100
 
@@ -112,11 +113,13 @@ export default async function GrandLivrePage({
             )}
           </div>
         </div>
-        {lignes && lignes.length > 0 && (
-          <button className="flex items-center gap-2 btn-secondary text-xs flex-shrink-0">
-            <Download className="w-3.5 h-3.5" />
-            Exporter
-          </button>
+        {lignes && lignes.length > 0 && selectedExercice && selectedCompte && (
+          <ExportGrandLivreButton
+            coproprieteId={selectedId!}
+            exerciceId={selectedExercice}
+            compteNumero={compteInfo?.compte_numero ?? ''}
+            compteLibelle={compteInfo?.compte_libelle ?? ''}
+          />
         )}
       </div>
 
