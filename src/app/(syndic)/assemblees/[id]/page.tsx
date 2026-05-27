@@ -8,6 +8,7 @@ import { ExportAGButton } from '@/components/syndic/ExportAGButton'
 import { AgStatutButtons } from '@/components/syndic/AgStatutButtons'
 import { AgResolutionsManager } from '@/components/syndic/AgResolutionsManager'
 import { AgPVSection } from '@/components/syndic/AgPVSection'
+import { AgIAPVButton } from '@/components/syndic/AgIAPVButton'
 import { getSignedDocumentUrl } from '@/lib/storage'
 import type { AgStatus } from '@/types'
 
@@ -185,6 +186,9 @@ export default async function AssembléePage({ params }: { params: { id: string 
           {/* PV */}
           <div className="coplio-card">
             <AgPVSection agId={ag.id} pvNom={pvNom} pvUrl={pvUrl} />
+            {ag.status === 'terminee' && (
+              <AgIAPVButton agId={ag.id} />
+            )}
           </div>
 
           {/* Changer statut */}
