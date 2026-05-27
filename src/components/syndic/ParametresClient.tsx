@@ -287,8 +287,8 @@ export function ParametresClient({ profile }: Props) {
       {/* Mon Tableau de bord */}
       <DashboardPrefsSection userId={profile.id} />
 
-      {/* Migration base de données */}
-      <MigrationSection />
+      {/* Migration base de données — visible uniquement pour les owners (dev/admin) */}
+      {profile.role === 'owner' && <MigrationSection />}
 
       {/* Notifications */}
       <section className="coplio-card">
