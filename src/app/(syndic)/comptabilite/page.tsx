@@ -113,10 +113,10 @@ export default async function ComptabilitePage({
     {
       href: `/comptabilite/export${selectedId ? `?copropriete=${selectedId}` : ''}`,
       icon: Download,
-      label: 'Export FEC',
-      description: 'Fichier des Écritures Comptables (DGFiP)',
-      badge: 'Bientôt',
-      badgeColor: 'bg-slate-100 text-slate-500',
+      label: 'Export FEC & CSV',
+      description: 'FEC DGFiP, balance, annexes comptables',
+      badge: null,
+      badgeColor: '',
     },
   ]
 
