@@ -11,6 +11,7 @@ import {
   Calendar,
   Bell,
   BookOpen,
+  Wrench,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -105,6 +106,13 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     href: '/comptabilite',
     icon: BookOpen,
     description: 'Écritures, factures, grand livre et rapports comptables',
+  },
+  {
+    id: 'prestataires',
+    label: 'Prestataires',
+    href: '/prestataires',
+    icon: Wrench,
+    description: 'Artisans, entreprises et intervenants de vos copropriétés',
   },
   {
     id: 'ia',
