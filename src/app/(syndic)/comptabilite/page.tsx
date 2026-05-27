@@ -11,6 +11,7 @@ import {
   ChevronRight,
   AlertCircle,
   CheckCircle2,
+  Receipt,
 } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
 
@@ -95,11 +96,11 @@ export default async function ComptabilitePage({
     },
     {
       href: `/comptabilite/factures${selectedId ? `?copropriete=${selectedId}` : ''}`,
-      icon: FileText,
+      icon: Receipt,
       label: 'Factures fournisseurs',
       description: 'Cycle devis → facture → paiement',
-      badge: 'Bientôt',
-      badgeColor: 'bg-slate-100 text-slate-500',
+      badge: null,
+      badgeColor: '',
     },
     {
       href: `/comptabilite/rapprochement${selectedId ? `?copropriete=${selectedId}` : ''}`,

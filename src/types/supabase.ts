@@ -1646,6 +1646,162 @@ export type Database = {
         }
         Relationships: []
       }
+      factures: {
+        Row: {
+          id: string
+          copropriete_id: string
+          fournisseur_id: string | null
+          exercice_id: string | null
+          numero_facture: string | null
+          numero_interne: string | null
+          type_document: string
+          date_document: string
+          date_echeance: string | null
+          date_reception: string | null
+          montant_ht: number
+          taux_tva: number
+          montant_tva: number
+          montant_ttc: number
+          compte_charge_id: string | null
+          ecriture_id: string | null
+          statut: string
+          libelle: string
+          notes: string | null
+          fichier_url: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          copropriete_id: string
+          fournisseur_id?: string | null
+          exercice_id?: string | null
+          numero_facture?: string | null
+          numero_interne?: string | null
+          type_document?: string
+          date_document: string
+          date_echeance?: string | null
+          date_reception?: string | null
+          montant_ht?: number
+          taux_tva?: number
+          montant_tva?: number
+          montant_ttc?: number
+          compte_charge_id?: string | null
+          ecriture_id?: string | null
+          statut?: string
+          libelle: string
+          notes?: string | null
+          fichier_url?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          copropriete_id?: string
+          fournisseur_id?: string | null
+          exercice_id?: string | null
+          numero_facture?: string | null
+          numero_interne?: string | null
+          type_document?: string
+          date_document?: string
+          date_echeance?: string | null
+          date_reception?: string | null
+          montant_ht?: number
+          taux_tva?: number
+          montant_tva?: number
+          montant_ttc?: number
+          compte_charge_id?: string | null
+          ecriture_id?: string | null
+          statut?: string
+          libelle?: string
+          notes?: string | null
+          fichier_url?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lignes_facture: {
+        Row: {
+          id: string
+          facture_id: string
+          description: string
+          quantite: number
+          prix_unitaire_ht: number
+          taux_tva: number
+          montant_ht: number
+          montant_tva: number
+          montant_ttc: number
+          compte_charge_id: string | null
+          ordre: number
+        }
+        Insert: {
+          id?: string
+          facture_id: string
+          description: string
+          quantite?: number
+          prix_unitaire_ht?: number
+          taux_tva?: number
+          montant_ht?: number
+          montant_tva?: number
+          montant_ttc?: number
+          compte_charge_id?: string | null
+          ordre?: number
+        }
+        Update: {
+          id?: string
+          facture_id?: string
+          description?: string
+          quantite?: number
+          prix_unitaire_ht?: number
+          taux_tva?: number
+          montant_ht?: number
+          montant_tva?: number
+          montant_ttc?: number
+          compte_charge_id?: string | null
+          ordre?: number
+        }
+        Relationships: []
+      }
+      paiements_facture: {
+        Row: {
+          id: string
+          facture_id: string
+          date_paiement: string
+          montant: number
+          mode_paiement: string
+          reference: string | null
+          ecriture_id: string | null
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          facture_id: string
+          date_paiement: string
+          montant: number
+          mode_paiement?: string
+          reference?: string | null
+          ecriture_id?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          facture_id?: string
+          date_paiement?: string
+          montant?: number
+          mode_paiement?: string
+          reference?: string | null
+          ecriture_id?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       journaux: {
         Row: {
           actif: boolean
