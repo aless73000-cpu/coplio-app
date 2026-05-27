@@ -14,7 +14,6 @@ import {
   Receipt,
   BookMarked,
   CalendarDays,
-  Building2,
 } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
 
@@ -134,14 +133,6 @@ export default async function ComptabilitePage({
       icon: CalendarDays,
       label: 'Exercices',
       description: 'Créer et clôturer les exercices comptables',
-      badge: null,
-      badgeColor: '',
-    },
-    {
-      href: `/comptabilite/fournisseurs${selectedId ? `?copropriete=${selectedId}` : ''}`,
-      icon: Building2,
-      label: 'Fournisseurs',
-      description: 'Tiers, artisans, prestataires',
       badge: null,
       badgeColor: '',
     },

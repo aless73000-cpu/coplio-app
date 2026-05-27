@@ -33,9 +33,8 @@ export async function GET(request: NextRequest) {
   let query = supabase
     .from('appels_charges')
     .select(`
-      id, libelle, montant, montant_paye, date_appel, date_echeance, date_paiement, paye,
-      lot:lots(numero, tantiemes),
-      coproprietaire:profiles(prenom, nom, email)
+      id, lot_id, libelle, montant, montant_paye, date_appel, date_echeance, date_paiement, paye,
+      lot:lots(numero, tantiemes)
     `)
     .eq('copropriete_id', coproprieteId)
     .gte('date_appel', exercice.date_debut)
@@ -48,6 +47,21 @@ export async function GET(request: NextRequest) {
 
   if (!appels || appels.length === 0) {
     return NextResponse.json({ error: 'Aucun appel de charges sur cet exercice' }, { status: 404 })
+  }
+
+  // Récupérer les copropriétaires par lot_id (profiles liés via lot_id)
+  const lotIds = Array.from(new Set(appels.map(a => a.lot_id).filter(Boolean)))
+  const { data: profilesParLot } = lotIds.length
+    ? await supabase
+        .from('profiles')
+        .select('lot_id, prenom, nom, email')
+        .in('lot_id', lotIds)
+        .eq('role', 'owner_resident')
+    : { data: [] }
+
+  const profileMap: Record<string, { prenom: string | null; nom: string | null; email: string | null }> = {}
+  for (const p of profilesParLot ?? []) {
+    if (p.lot_id) profileMap[p.lot_id] = { prenom: p.prenom, nom: p.nom, email: p.email }
   }
 
   const escape = (s: string | null | number | undefined): string => {
@@ -86,10 +100,11 @@ export async function GET(request: NextRequest) {
   const rows = (appels as any[]).map(a => {
     const montant = a.montant ?? 0
     const paye = a.montant_paye ?? 0
+    const proprio = a.lot_id ? profileMap[a.lot_id] : null
     return [
       escape(a.lot?.numero),
       escape(a.lot?.tantiemes),
-      escape(a.coproprietaire ? `${a.coproprietaire.prenom ?? ''} ${a.coproprietaire.nom ?? ''}`.trim() : ''),
+      escape(proprio ? `${proprio.prenom ?? ''} ${proprio.nom ?? ''}`.trim() : ''),
       escape(fmtDate(a.date_appel)),
       escape(a.libelle),
       fmt(montant),

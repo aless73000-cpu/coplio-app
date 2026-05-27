@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, Plus, Receipt, AlertCircle, Clock } from 'lucide-react'
+import { ChevronLeft, Plus, Receipt, AlertCircle, Clock, Building2 } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
 
 const STATUT_CONFIG: Record<string, { label: string; color: string }> = {
@@ -120,13 +120,22 @@ export default async function FacturesPage({
           </div>
         </div>
         {selectedId && (
-          <Link
-            href={`/comptabilite/factures/new?copropriete=${selectedId}`}
-            className="flex items-center gap-2 bg-[#374151] text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#374151]/90 transition-colors flex-shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Nouvelle facture</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/comptabilite/fournisseurs"
+              className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground border border-border px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors flex-shrink-0"
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Fournisseurs</span>
+            </Link>
+            <Link
+              href={`/comptabilite/factures/new?copropriete=${selectedId}`}
+              className="flex items-center gap-2 bg-[#374151] text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#374151]/90 transition-colors flex-shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Nouvelle facture</span>
+            </Link>
+          </div>
         )}
       </div>
 

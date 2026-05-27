@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Plus, Trash2, Loader2, Building2, Pencil, X, Check } from 'lucide-react'
 
@@ -207,8 +207,8 @@ export function FournisseursManager({
             </thead>
             <tbody>
               {fournisseurs.map(f => (
-                <>
-                  <tr key={f.id} className={`border-b border-border last:border-0 transition-colors ${editId === f.id ? 'bg-blue-50/30' : 'hover:bg-slate-50'}`}>
+                <Fragment key={f.id}>
+                  <tr className={`border-b border-border last:border-0 transition-colors ${editId === f.id ? 'bg-blue-50/30' : 'hover:bg-slate-50'}`}>
                     <td className="py-3 px-5">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -240,7 +240,7 @@ export function FournisseursManager({
                     </td>
                   </tr>
                   {editId === f.id && (
-                    <tr key={f.id + '_edit'} className="border-b border-border bg-blue-50/20">
+                    <tr className="border-b border-border bg-blue-50/20">
                       <td colSpan={5} className="px-5 py-4">
                         <form onSubmit={sauvegarder} className="space-y-4">
                           <FormFields />
@@ -260,7 +260,7 @@ export function FournisseursManager({
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               ))}
             </tbody>
           </table>
