@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { LayoutDashboard, Users, TrendingUp, CreditCard, LogOut, ShieldCheck, MessageSquare } from 'lucide-react'
+import { LayoutDashboard, Users, TrendingUp, CreditCard, LogOut, ShieldCheck, MessageSquare, Database } from 'lucide-react'
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase())
 
@@ -11,6 +11,7 @@ const NAV = [
   { href: '/admin/clients', label: 'Clients', icon: Users },
   { href: '/admin/abonnements', label: 'Abonnements', icon: CreditCard },
   { href: '/admin/messages', label: 'Messages', icon: MessageSquare },
+  { href: '/admin/migrations', label: 'Migrations DB', icon: Database },
 ]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -141,10 +141,17 @@ export default function PrestatairesPage() {
   const [search, setSearch] = useState('')
 
   async function load() {
-    const res = await fetch('/api/prestataires')
-    const data = await res.json()
-    setPrestataires(Array.isArray(data) ? data : [])
-    setLoading(false)
+    try {
+      const res = await fetch('/api/prestataires')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      setPrestataires(Array.isArray(data) ? data : [])
+    } catch {
+      // En cas d'erreur réseau, on laisse la liste vide
+      setPrestataires([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { load() }, [])

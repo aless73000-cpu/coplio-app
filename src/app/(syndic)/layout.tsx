@@ -48,6 +48,7 @@ export default async function SyndicLayout({
     { data: cabinet },
     { data: notifications },
     { count: unreadMessages },
+    { count: urgentSinistres },
   ] = await Promise.all([
     supabase
       .from('cabinets')
@@ -56,16 +57,21 @@ export default async function SyndicLayout({
       .single(),
     supabase
       .from('notifications')
-      .select('*')
+      .select('id, user_id, type, titre, message, lien, lu, lu_at, created_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(20),
     supabase
       .from('notifications')
-      .select('*', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .eq('lu', false)
       .eq('lien', '/messages'),
+    supabase
+      .from('sinistres')
+      .select('id', { count: 'exact', head: true })
+      .eq('cabinet_id', profile.cabinet_id)
+      .eq('status', 'urgence'),
   ])
 
   if (!cabinet) {
@@ -77,7 +83,7 @@ export default async function SyndicLayout({
       <SessionGuard loginPath="/login" />
       {/* Sidebar desktop — cachée sur mobile */}
       <div className="hidden md:flex">
-        <Sidebar profile={profile as Profile} cabinet={cabinet as Cabinet} unreadMessages={unreadMessages ?? 0} />
+        <Sidebar profile={profile as Profile} cabinet={cabinet as Cabinet} unreadMessages={unreadMessages ?? 0} urgentSinistres={urgentSinistres ?? 0} />
       </div>
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <Header
@@ -88,6 +94,7 @@ export default async function SyndicLayout({
               profile={profile as Profile}
               cabinet={cabinet as Cabinet}
               unreadMessages={unreadMessages ?? 0}
+              urgentSinistres={urgentSinistres ?? 0}
             />
           }
         />
