@@ -16,6 +16,13 @@ export default async function ReleveDetailPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('cabinet_id')
+    .eq('id', user.id)
+    .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
+
   const { data: releve } = await supabase
     .from('releves_bancaires')
     .select('*, compte:comptes_bancaires(libelle, banque, iban)')
@@ -23,6 +30,15 @@ export default async function ReleveDetailPage({
     .single()
 
   if (!releve) notFound()
+
+  // Vérifier que la copropriété du relevé appartient à ce cabinet
+  const { data: coproprieteCheck } = await supabase
+    .from('coproprietes')
+    .select('id')
+    .eq('id', releve.copropriete_id)
+    .eq('cabinet_id', profile.cabinet_id)
+    .single()
+  if (!coproprieteCheck) notFound()
 
   const selectedId = searchParams.copropriete ?? releve.copropriete_id
 

@@ -15,6 +15,12 @@ export async function GET(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
+  // Isolation cabinet
+  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
+  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+  const { data: copropCheck } = await supabase.from('coproprietes').select('id').eq('id', coproprieteId).eq('cabinet_id', profile.cabinet_id).single()
+  if (!copropCheck) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+
   let query = supabase
     .from('v_grand_livre')
     .select('*')
