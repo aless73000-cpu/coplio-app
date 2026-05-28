@@ -1,29 +1,22 @@
 'use client'
 
-import { useState } from 'react'
-import { CheckCircle2, Loader2 } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 
 export function PayerButton({ appelId }: { appelId: string }) {
-  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  async function handlePayer() {
-    if (!confirm('Marquer cet appel de charges comme payé ?')) return
-    setLoading(true)
-    await fetch(`/api/appels-charges/${appelId}/payer`, { method: 'PATCH' })
-    setLoading(false)
-    router.refresh()
-  }
-
   return (
-    <button
-      onClick={handlePayer}
-      disabled={loading}
-      className="flex items-center gap-1 text-xs text-[#374151] font-medium hover:text-[#374151]/80 transition-colors disabled:opacity-60"
-    >
-      {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-      Marquer payé
-    </button>
+    <ConfirmButton
+      label={<><CheckCircle2 className="w-3.5 h-3.5" />Marquer payé</>}
+      message="Marquer comme payé ?"
+      confirmLabel="Oui, payé"
+      className="flex items-center gap-1 text-xs text-[#374151] font-medium hover:text-[#374151]/80 transition-colors"
+      onConfirm={async () => {
+        await fetch(`/api/appels-charges/${appelId}/payer`, { method: 'PATCH' })
+        router.refresh()
+      }}
+    />
   )
 }

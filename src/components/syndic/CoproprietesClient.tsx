@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Building2, MapPin, Home, AlertTriangle, CreditCard, Map, List, Plus, Wand2, FileSpreadsheet, Loader2, Trash2, Target, TrendingUp, Phone, Mail } from 'lucide-react'
+import { Building2, MapPin, Home, AlertTriangle, CreditCard, Map, List, Plus, Wand2, FileSpreadsheet, Trash2, Target, TrendingUp, Phone, Mail, Loader2 } from 'lucide-react'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 import { formatEuro } from '@/lib/utils'
 import type { Copropriete } from '@/types'
 
@@ -81,7 +82,6 @@ export function CoproprietesClient({ coproprietes }: Props) {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Supprimer ce prospect ?')) return
     await fetch(`/api/prospects/${id}`, { method: 'DELETE' })
     setProspects(prev => prev.filter(p => p.id !== id))
   }
@@ -281,9 +281,13 @@ export function CoproprietesClient({ coproprietes }: Props) {
                             className="text-xs border border-border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#374151]/20">
                             {STATUT_PIPELINE.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
                           </select>
-                          <button onClick={() => handleDelete(p.id)} className="p-1 text-muted-foreground hover:text-coplio-red transition-colors" aria-label="Supprimer le prospect">
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <ConfirmButton
+                            label={<Trash2 className="w-3.5 h-3.5" />}
+                            message="Supprimer ?"
+                            confirmLabel="Supprimer"
+                            className="p-1 text-muted-foreground hover:text-coplio-red transition-colors"
+                            onConfirm={() => handleDelete(p.id)}
+                          />
                         </div>
                       </div>
                     ))}

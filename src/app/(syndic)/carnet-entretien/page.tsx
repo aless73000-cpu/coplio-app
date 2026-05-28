@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Plus, BookOpen, Wrench, Loader2, X, CalendarDays, Euro, CheckCircle2, Clock, AlertTriangle, Pencil } from 'lucide-react'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 
 interface Prestataire { id: string; nom: string; metier?: string }
 interface Copropriete { id: string; nom: string }
@@ -223,7 +224,6 @@ export default function CarnetEntretienPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Supprimer cette entrée ?')) return
     await fetch(`/api/carnet-entretien/${id}`, { method: 'DELETE' })
     load()
   }
@@ -349,10 +349,13 @@ export default function CarnetEntretienPage() {
                       <CheckCircle2 className="w-3.5 h-3.5" />
                     </button>
                   )}
-                  <button onClick={() => handleDelete(e.id)}
-                    className="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-muted-foreground hover:text-red-500">
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+                  <ConfirmButton
+                    label={<X className="w-3.5 h-3.5" />}
+                    message="Supprimer cette entrée ?"
+                    confirmLabel="Supprimer"
+                    className="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-muted-foreground hover:text-red-500"
+                    onConfirm={() => handleDelete(e.id)}
+                  />
                 </div>
               </div>
             </div>

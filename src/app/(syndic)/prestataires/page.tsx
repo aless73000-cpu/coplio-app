@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Plus, Wrench, Phone, Mail, Star, Pencil, Trash2, Loader2, X, Building2 } from 'lucide-react'
-
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 interface Prestataire {
   id: string
   nom: string
@@ -172,7 +172,7 @@ export default function PrestatairesPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Supprimer ce prestataire ?')) return
+
     setDeleting(id)
     await fetch(`/api/prestataires/${id}`, { method: 'DELETE' })
     setDeleting(null)
@@ -232,10 +232,7 @@ export default function PrestatairesPage() {
                     className="p-1.5 hover:bg-coplio-bg rounded-lg transition-colors text-muted-foreground hover:text-coplio-text">
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
-                  <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id}
-                    className="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-muted-foreground hover:text-red-500">
-                    {deleting === p.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                  </button>
+                  <ConfirmButton label={deleting === p.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />} message="Supprimer ce prestataire ?" confirmLabel="Supprimer" className="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-muted-foreground hover:text-red-500" disabled={deleting === p.id} onConfirm={() => handleDelete(p.id)} />
                 </div>
               </div>
 

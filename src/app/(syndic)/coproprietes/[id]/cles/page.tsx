@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Plus, Key, Badge, Lock, Radio, Loader2, Trash2, Check, RotateCcw } from 'lucide-react'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 import { formatDate } from '@/lib/utils'
 
 const TYPES = [
@@ -65,7 +66,7 @@ export default function ClesPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Supprimer cet accès ?')) return
+
     await fetch(`/api/cles-acces/${id}`, { method: 'DELETE' })
     setItems(prev => prev.filter(i => i.id !== id))
   }
@@ -200,9 +201,7 @@ export default function ClesPage() {
                     }`}>
                     {item.retourne ? <><RotateCcw className="w-3.5 h-3.5" />Redonner</> : <><Check className="w-3.5 h-3.5" />Retourné</>}
                   </button>
-                  <button onClick={() => handleDelete(item.id)} className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <ConfirmButton label={<Trash2 className="w-4 h-4" />} message="Supprimer cet accès ?" confirmLabel="Supprimer" className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors" onConfirm={() => handleDelete(item.id)} />
                 </div>
               </div>
             )

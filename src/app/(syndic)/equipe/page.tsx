@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Users, Mail, Trash2, Loader2, CheckCircle2, Crown, UserPlus, AlertTriangle, Link as LinkIcon, Building2, Plus } from 'lucide-react'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 import Link from 'next/link'
 
 interface Membre {
@@ -90,7 +91,7 @@ export default function EquipePage() {
   }
 
   async function handleRemoveConseil(id: string) {
-    if (!confirm('Retirer ce membre du conseil ?')) return
+
     await fetch(`/api/conseil-syndical/${id}`, { method: 'DELETE' })
     setConseilMembres(prev => prev.filter(m => m.id !== id))
   }
@@ -124,7 +125,7 @@ export default function EquipePage() {
   }
 
   async function handleRemove(memberId: string) {
-    if (!confirm('Retirer ce gestionnaire de votre cabinet ?')) return
+
     setRemovingId(memberId)
     try {
       await fetch('/api/equipe', {
@@ -235,9 +236,7 @@ export default function EquipePage() {
                         </p>
                       )}
                     </div>
-                    <button onClick={() => handleRemoveConseil(m.id)} className="p-2 rounded-lg hover:bg-red-50 text-muted-foreground hover:text-red-500 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <ConfirmButton label={<Trash2 className="w-4 h-4" />} message="Retirer ce membre ?" confirmLabel="Retirer" className="p-2 rounded-lg hover:bg-red-50 text-muted-foreground hover:text-red-500 transition-colors" onConfirm={() => handleRemoveConseil(m.id)} />
                   </div>
                 ))}
               </div>
@@ -295,16 +294,7 @@ export default function EquipePage() {
                   </p>
                 </div>
                 {isOwner && m.role !== 'owner' && (
-                  <button
-                    onClick={() => handleRemove(m.id)}
-                    disabled={removingId === m.id}
-                    className="p-2 rounded-lg hover:bg-red-50 text-muted-foreground hover:text-red-500 transition-colors"
-                    title="Retirer"
-                  >
-                    {removingId === m.id
-                      ? <Loader2 className="w-4 h-4 animate-spin" />
-                      : <Trash2 className="w-4 h-4" />}
-                  </button>
+                  <ConfirmButton label={removingId === m.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} message="Retirer ce gestionnaire ?" confirmLabel="Retirer" disabled={removingId === m.id} className="p-2 rounded-lg hover:bg-red-50 text-muted-foreground hover:text-red-500 transition-colors" onConfirm={() => handleRemove(m.id)} />
                 )}
               </div>
             ))}

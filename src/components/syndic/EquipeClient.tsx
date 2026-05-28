@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Users, UserPlus, Loader2, Trash2, Crown, CheckCircle2, AlertCircle, Zap } from 'lucide-react'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 import type { QuotaResult } from '@/lib/plan-guard'
 
 interface Member {
@@ -69,7 +70,6 @@ export function EquipeClient({ currentUserId, isOwner, quota }: Props) {
   }
 
   async function handleRemove(id: string) {
-    if (!confirm('Retirer ce gestionnaire du cabinet ?')) return
     setRemovingId(id)
     await fetch(`/api/gestionnaires/${id}`, { method: 'DELETE' })
     setRemovingId(null)
@@ -213,18 +213,14 @@ export function EquipeClient({ currentUserId, isOwner, quota }: Props) {
                   {m.role === 'owner' ? 'Propriétaire' : 'Gestionnaire'}
                 </span>
                 {isOwner && m.id !== currentUserId && m.role !== 'owner' && (
-                  <button
-                    onClick={() => handleRemove(m.id)}
-                    disabled={removingId === m.id}
+                  <ConfirmButton
+                    label={removingId === m.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                    message={`Retirer ${m.prenom ?? ''} ${m.nom ?? ''} ?`}
+                    confirmLabel="Retirer"
                     className="p-1.5 rounded-lg hover:bg-red-50 text-muted-foreground hover:text-red-600 transition-colors flex-shrink-0"
-                    title="Retirer du cabinet"
-                    aria-label={`Retirer ${m.prenom ?? ''} ${m.nom ?? ''} du cabinet`.trim()}
-                  >
-                    {removingId === m.id
-                      ? <Loader2 className="w-4 h-4 animate-spin" />
-                      : <Trash2 className="w-4 h-4" />
-                    }
-                  </button>
+                    disabled={removingId === m.id}
+                    onConfirm={() => handleRemove(m.id)}
+                  />
                 )}
               </div>
             ))}

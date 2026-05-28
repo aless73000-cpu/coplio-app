@@ -1,4 +1,5 @@
 'use client'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 
 import { useState, useEffect, useCallback } from 'react'
 import {
@@ -133,7 +134,7 @@ export default function VotesPage() {
   }
 
   async function handleDelete(voteId: string) {
-    if (!confirm('Supprimer ce vote ?')) return
+
     await fetch(`/api/votes/${voteId}`, { method: 'DELETE' })
     setVotes(prev => prev.filter(v => v.id !== voteId))
   }
@@ -367,10 +368,7 @@ export default function VotesPage() {
                         Ouvrir
                       </button>
                     )}
-                    <button onClick={() => handleDelete(vote.id)}
-                      className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <ConfirmButton label={<Trash2 className="w-4 h-4" />} message="Supprimer ce vote ?" confirmLabel="Supprimer" className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors" onConfirm={() => handleDelete(vote.id)} />
                     <button onClick={() => setExpandedId(isExpanded ? null : vote.id)}
                       className="p-1.5 text-muted-foreground hover:text-coplio-text transition-colors">
                       {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}

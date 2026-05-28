@@ -1,4 +1,5 @@
 'use client'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
@@ -96,7 +97,7 @@ export default function CarnetEntretienPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Supprimer cet entretien ?')) return
+
     await fetch(`/api/entretiens/${id}`, { method: 'DELETE' })
     setEntretiens(prev => prev.filter(e => e.id !== id))
   }
@@ -260,9 +261,7 @@ export default function CarnetEntretienPage() {
                         ✓ Réalisé
                       </button>
                     )}
-                    <button onClick={() => handleDelete(e.id)} className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <ConfirmButton label={<Trash2 className="w-4 h-4" />} message="Supprimer cet entretien ?" confirmLabel="Supprimer" className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors" onConfirm={() => handleDelete(e.id)} />
                     {e.description && (
                       <button onClick={() => setExpandedId(isExpanded ? null : e.id)} className="p-1.5 text-muted-foreground hover:text-coplio-text transition-colors">
                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}

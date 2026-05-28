@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Loader2, CheckCircle2, Trash2 } from 'lucide-react'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 import { createClient } from '@/lib/supabase/client'
 
 const LOT_TYPES = [
@@ -76,7 +77,7 @@ export default function EditLotPage() {
   }
 
   async function handleDelete() {
-    if (!confirm('Supprimer ce lot définitivement ?')) return
+
     setDeleting(true)
     await fetch(`/api/lots/${id}`, { method: 'DELETE' })
     router.push(coproprieteId ? `/coproprietes/${coproprieteId}/lots` : '/coproprietes')
@@ -171,14 +172,14 @@ export default function EditLotPage() {
       </div>
 
       <div className="flex gap-3 mt-5">
-        <button
-          onClick={handleDelete}
+        <ConfirmButton
+          label={<>{deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} Supprimer</>}
+          message="Supprimer ce lot définitivement ?"
+          confirmLabel="Supprimer"
           disabled={deleting}
           className="flex items-center gap-2 px-4 py-2.5 border border-red-200 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors disabled:opacity-50"
-        >
-          {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-          Supprimer
-        </button>
+          onConfirm={handleDelete}
+        />
         <div className="flex-1 flex gap-3">
           <Link
             href={`/lots/${id}`}

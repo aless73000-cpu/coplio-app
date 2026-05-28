@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Plus, Shield, Loader2, Trash2, AlertTriangle, CheckCircle2, Clock, Edit2, Check, X } from 'lucide-react'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 import { formatDate } from '@/lib/utils'
 
 const OBLIGATIONS_DEFAULT = [
@@ -88,7 +89,7 @@ export default function ObligationsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Supprimer ?')) return
+
     await fetch(`/api/obligations-legales/${id}`, { method: 'DELETE' })
     setItems(prev => prev.filter(i => i.id !== id))
   }
@@ -212,9 +213,7 @@ export default function ObligationsPage() {
                     <button onClick={() => startEdit(item)} className="p-1.5 text-muted-foreground hover:text-[#374151] transition-colors">
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => handleDelete(item.id)} className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    <ConfirmButton label={<Trash2 className="w-3.5 h-3.5" />} message="Supprimer ?" confirmLabel="Supprimer" className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors" onConfirm={() => handleDelete(item.id)} />
                   </div>
                 )
               })}

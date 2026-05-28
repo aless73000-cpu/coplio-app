@@ -1,4 +1,5 @@
 'use client'
+import { ConfirmButton } from '@/components/ui/ConfirmButton'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
@@ -114,7 +115,7 @@ export default function TravauxPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Supprimer ce chantier ?')) return
+
     await fetch(`/api/travaux/${id}`, { method: 'DELETE' })
     setTravaux(prev => prev.filter(t => t.id !== id))
   }
@@ -251,9 +252,7 @@ export default function TravauxPage() {
                         → {STATUTS.find(s => s.value === nextStatut)?.label}
                       </button>
                     )}
-                    <button onClick={() => handleDelete(t.id)} className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    <ConfirmButton label={<Trash2 className="w-3.5 h-3.5" />} message="Supprimer ce chantier ?" confirmLabel="Supprimer" className="p-1.5 text-muted-foreground hover:text-coplio-red transition-colors" onConfirm={() => handleDelete(t.id)} />
                     <button onClick={() => setExpandedId(isExpanded ? null : t.id)} className="p-1.5 text-muted-foreground hover:text-coplio-text transition-colors">
                       {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>
