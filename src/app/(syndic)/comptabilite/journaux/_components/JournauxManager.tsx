@@ -14,19 +14,18 @@ interface Journal {
 }
 
 const TYPE_LABELS: Record<string, string> = {
-  achat:    'Achats',
-  vente:    'Ventes',
-  banque:   'Banque',
-  od:       'Opérations diverses',
-  paie:     'Paie',
-  caisse:   'Caisse',
+  achats:              'Achats',
+  banque:              'Banque',
+  caisse:              'Caisse',
+  operations_diverses: 'Opérations diverses',
+  a_nouveau:           'À-nouveaux',
 }
 
 const JOURNAUX_DEFAUT = [
-  { code: 'AC', libelle: 'Achats',               type_journal: 'achat'  },
-  { code: 'BQ', libelle: 'Banque',               type_journal: 'banque' },
-  { code: 'OD', libelle: 'Opérations diverses',  type_journal: 'od'     },
-  { code: 'RG', libelle: 'Régularisations',      type_journal: 'od'     },
+  { code: 'AC', libelle: 'Achats',               type_journal: 'achats'              },
+  { code: 'BQ', libelle: 'Banque',               type_journal: 'banque'              },
+  { code: 'OD', libelle: 'Opérations diverses',  type_journal: 'operations_diverses' },
+  { code: 'RG', libelle: 'Régularisations',      type_journal: 'operations_diverses' },
 ]
 
 export function JournauxManager({ coproprieteId, journaux: initial }: {
@@ -37,7 +36,7 @@ export function JournauxManager({ coproprieteId, journaux: initial }: {
   const [journaux, setJournaux] = useState<Journal[]>(initial)
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState<string | null>(null)
-  const [form, setForm] = useState({ code: '', libelle: '', type_journal: 'od' })
+  const [form, setForm] = useState({ code: '', libelle: '', type_journal: 'operations_diverses' })
   const [error, setError] = useState<string | null>(null)
 
   async function creerJournal(e: React.FormEvent) {
@@ -97,7 +96,7 @@ export function JournauxManager({ coproprieteId, journaux: initial }: {
       {/* Actions rapides */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {journaux.length} journal{journaux.length !== 1 ? 'ux' : ''}
+          {journaux.length} {journaux.length !== 1 ? 'journaux' : 'journal'}
         </p>
         <div className="flex gap-2">
           {journaux.length === 0 && (

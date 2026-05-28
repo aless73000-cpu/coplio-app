@@ -103,6 +103,7 @@ export default async function MesVotesPage() {
           <MesVotesClient
             userId={coproprietaireId}
             votes={closedVotes as Parameters<typeof MesVotesClient>[0]['votes']}
+            readOnly
           />
         </section>
       )}

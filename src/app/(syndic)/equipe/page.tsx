@@ -60,7 +60,10 @@ export default function EquipePage() {
       .finally(() => setLoading(false))
     fetch('/api/coproprietes')
       .then(r => r.json())
-      .then(d => { if (Array.isArray(d)) { setCoproprietes(d); if (d[0]) setSelectedCopro(d[0].id) } })
+      .then(d => {
+        const list: Copropriete[] = Array.isArray(d) ? d : (Array.isArray(d?.data) ? d.data : [])
+        if (list.length > 0) { setCoproprietes(list); setSelectedCopro(list[0].id) }
+      })
       .catch(() => {})
   }, [])
 

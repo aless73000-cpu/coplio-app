@@ -24,6 +24,7 @@ export function formatDate(
     day: 'numeric',
     month: 'long',
     year: 'numeric',
+    timeZone: 'Europe/Paris',
     ...options,
   })
 }
@@ -34,6 +35,7 @@ export function formatDateShort(date: string | Date): string {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
+    timeZone: 'Europe/Paris',
   })
 }
 
@@ -45,6 +47,7 @@ export function formatDateTime(date: string | Date): string {
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: 'Europe/Paris',
   })
 }
 

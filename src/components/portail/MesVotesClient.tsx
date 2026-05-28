@@ -28,9 +28,10 @@ interface VoteItem {
 interface Props {
   userId: string
   votes: VoteItem[]
+  readOnly?: boolean
 }
 
-export function MesVotesClient({ userId, votes: initialVotes }: Props) {
+export function MesVotesClient({ userId, votes: initialVotes, readOnly = false }: Props) {
   const [votes, setVotes] = useState(initialVotes)
   const [voting, setVoting] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -106,7 +107,7 @@ export function MesVotesClient({ userId, votes: initialVotes }: Props) {
                 const count = vote.reponses.filter(r => r.option_id === option.id).length
                 const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0
                 const isMyChoice = myReponse?.option_id === option.id
-                const canVote = !hasVoted && !isExpired
+                const canVote = !hasVoted && !isExpired && !readOnly
 
                 return (
                   <div key={option.id}>

@@ -128,11 +128,11 @@ function AgCard({ ag }: { ag: AgWithJoins }) {
     >
       {/* Date */}
       <div className="w-14 h-14 bg-slate-100 rounded-xl flex flex-col items-center justify-center flex-shrink-0">
-        <span className="text-[#374151] font-bold text-lg leading-none">{date.getDate()}</span>
+        <span className="text-[#374151] font-bold text-lg leading-none">{date.toLocaleString('fr-FR', { day: 'numeric', timeZone: 'Europe/Paris' })}</span>
         <span className="text-[#374151]/70 text-xs uppercase">
-          {date.toLocaleDateString('fr-FR', { month: 'short' })}
+          {date.toLocaleDateString('fr-FR', { month: 'short', timeZone: 'Europe/Paris' })}
         </span>
-        <span className="text-[#374151]/50 text-[10px]">{date.getFullYear()}</span>
+        <span className="text-[#374151]/50 text-[10px]">{date.toLocaleString('fr-FR', { year: 'numeric', timeZone: 'Europe/Paris' })}</span>
       </div>
 
       <div className="flex-1 min-w-0">
@@ -149,7 +149,7 @@ function AgCard({ ag }: { ag: AgWithJoins }) {
         <div className="flex flex-wrap items-center gap-3 mt-2">
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
             <Clock className="w-3 h-3" />
-            {date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+            {date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' })}
           </span>
 
           {ag.est_visio ? (

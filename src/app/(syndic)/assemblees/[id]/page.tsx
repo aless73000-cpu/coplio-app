@@ -119,7 +119,7 @@ export default async function AssembléePage({ params }: { params: { id: string 
                   {formatDate(ag.date_ag)}
                 </dd>
                 <dd className="text-muted-foreground text-xs mt-0.5 ml-5">
-                  {date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                  {date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' })}
                 </dd>
               </div>
 
