@@ -42,7 +42,7 @@ export default function SignaturesPage() {
   const [signataires, setSignataires] = useState<Signataire[]>([{ ...emptySignataire }])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [hasDocuseal, setHasDocuseal] = useState(false)
+  const [hasYousign, setHasYousign] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -58,7 +58,7 @@ export default function SignaturesPage() {
       const [sData, cData, cfgData] = await Promise.all([sRes.json(), cRes.json(), cfgRes.json()])
       setItems(Array.isArray(sData) ? sData : [])
       setCoproprietes(Array.isArray(cData) ? cData : [])
-      setHasDocuseal(cfgData.docuseal_configured === true)
+      setHasYousign(cfgData.yousign_configured === true)
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : 'Erreur de chargement')
     } finally {
@@ -96,7 +96,7 @@ export default function SignaturesPage() {
           <h1 className="text-2xl font-bold text-coplio-text flex items-center gap-2">
             <PenLine className="w-6 h-6 text-[#374151]" />Signatures électroniques
           </h1>
-          <p className="text-muted-foreground text-sm mt-0.5">PV d&apos;AG, mandats, devis — conformes eIDAS via DocuSeal</p>
+          <p className="text-muted-foreground text-sm mt-0.5">PV d&apos;AG, mandats, devis — conformes eIDAS via YouSign</p>
         </div>
         <button onClick={() => setShowForm(v => !v)}
           className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors">
@@ -128,18 +128,17 @@ export default function SignaturesPage() {
         </div>
       </div>
 
-      {/* Info DocuSeal — affiché uniquement si non configuré */}
-      {!hasDocuseal && (
-        <div className="coplio-card bg-blue-50 border-blue-200">
+      {/* Bannière YouSign — affiché tant que non configuré */}
+      {!hasYousign && (
+        <div className="coplio-card bg-amber-50 border-amber-200">
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <PenLine className="w-4 h-4 text-blue-600" />
+            <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Clock className="w-4 h-4 text-amber-600" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-blue-800">Intégration DocuSeal non configurée</p>
-              <p className="text-xs text-blue-600 mt-0.5">
-                Pour activer les signatures électroniques, ajoutez <code className="bg-blue-100 px-1 rounded">DOCUSEAL_API_KEY</code> dans vos variables d&apos;environnement.
-                Créez un compte gratuit sur <strong>docuseal.com</strong> (50 docs/mois gratuits).
+              <p className="text-sm font-semibold text-amber-800">Signatures électroniques — bientôt disponible</p>
+              <p className="text-xs text-amber-700 mt-0.5">
+                L&apos;intégration <strong>YouSign</strong> est en cours d&apos;activation. Vous pouvez dès maintenant créer des demandes en brouillon — elles seront envoyées automatiquement dès l&apos;activation.
               </p>
             </div>
           </div>
@@ -210,7 +209,7 @@ export default function SignaturesPage() {
               <button type="submit" disabled={saving}
                 className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#374151]/90 disabled:opacity-60">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenLine className="w-4 h-4" />}
-                {hasDocuseal ? 'Envoyer pour signature' : 'Créer (brouillon)'}
+                {hasYousign ? 'Envoyer pour signature' : 'Créer (brouillon)'}
               </button>
               <button type="button" onClick={() => setShowForm(false)} className="text-sm text-muted-foreground px-4 py-2 rounded-lg border border-border">Annuler</button>
             </div>

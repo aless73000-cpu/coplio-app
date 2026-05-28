@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createTemplateFromUrl, createSubmission, isConfigured as docusealConfigured } from '@/lib/docuseal'
 import { withErrorHandler } from '@/lib/api-handler'
 
 const schema = z.object({
@@ -52,22 +51,10 @@ export const POST = withErrorHandler(async (request: Request) => {
   const parsed = schema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 })
 
-  let docusealSubmissionId: string | null = null
-  let lienSignature: string | null = null
-  let statut = 'brouillon'
-
-  // Créer la demande DocuSeal si clé disponible et PDF fourni
-  if (docusealConfigured() && parsed.data.fichier_url) {
-    try {
-      const templateId = await createTemplateFromUrl(parsed.data.nom, parsed.data.fichier_url)
-      const submission = await createSubmission(templateId, parsed.data.signataires)
-      docusealSubmissionId = String(submission.submissionId)
-      lienSignature = submission.signers[0]?.signingUrl ?? null
-      statut = 'en_attente'
-    } catch {
-      // DocuSeal indisponible — on sauvegarde en brouillon
-    }
-  }
+  // YouSign non encore configuré — toutes les demandes sont sauvegardées en brouillon
+  // L'intégration YouSign sera branchée ici quand YOUSIGN_API_KEY sera disponible
+  const statut = 'brouillon'
+  const lienSignature: string | null = null
 
   const { data, error } = await supabase
     .from('signatures')
@@ -76,7 +63,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       copropriete_id: parsed.data.copropriete_id ?? null,
       nom: parsed.data.nom,
       type_document: parsed.data.type_document,
-      yousign_request_id: docusealSubmissionId,
+      yousign_request_id: null,
       statut,
       signataires: parsed.data.signataires,
       fichier_url: parsed.data.fichier_url ?? null,
