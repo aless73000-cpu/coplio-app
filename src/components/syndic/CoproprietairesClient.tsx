@@ -20,6 +20,7 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
   const [invitingAll, setInvitingAll] = useState(false)
   const [inviteResult, setInviteResult] = useState<{ sent: number; skipped: number; failed: number } | null>(null)
   const [exporting, setExporting] = useState(false)
+  const [confirmInviteAll, setConfirmInviteAll] = useState(false)
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim()
@@ -61,8 +62,8 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
     }
   }
 
-  async function handleInviterTous() {
-    if (!window.confirm(`Envoyer une invitation à ${aInviter} copropriétaire${aInviter > 1 ? 's' : ''} sans portail actif ?`)) return
+  async function handleInviterTousConfirmed() {
+    setConfirmInviteAll(false)
     setInvitingAll(true)
     setInviteResult(null)
     try {
@@ -111,8 +112,8 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
 
         {aInviter > 0 && (
           <button
-            onClick={handleInviterTous}
-            disabled={invitingAll}
+            onClick={() => setConfirmInviteAll(true)}
+            disabled={invitingAll || confirmInviteAll}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-[#374151] text-white rounded-lg hover:bg-[#374151]/90 transition-colors disabled:opacity-60"
           >
             {invitingAll
@@ -123,6 +124,30 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
           </button>
         )}
       </div>
+
+      {/* Confirmation envoi groupé */}
+      {confirmInviteAll && (
+        <div className="mb-4 px-4 py-3 rounded-xl text-sm flex items-center gap-3 bg-slate-50 border border-[#374151]/20 text-[#374151]">
+          <Send className="w-4 h-4 flex-shrink-0" />
+          <span className="flex-1">
+            Envoyer une invitation à <strong>{aInviter}</strong> copropriétaire{aInviter > 1 ? 's' : ''} sans portail actif ?
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleInviterTousConfirmed}
+              className="px-3 py-1.5 text-xs font-medium bg-[#374151] text-white rounded-lg hover:bg-[#374151]/90 transition-colors"
+            >
+              Confirmer
+            </button>
+            <button
+              onClick={() => setConfirmInviteAll(false)}
+              className="px-3 py-1.5 text-xs font-medium border border-border bg-white text-coplio-text rounded-lg hover:bg-coplio-bg transition-colors"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Résultat envoi groupé */}
       {inviteResult && (

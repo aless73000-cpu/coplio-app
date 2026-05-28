@@ -45,9 +45,9 @@ export default async function AgendaPage() {
 
     supabase
       .from('sinistres')
-      .select('id, titre, date_sinistre, status, copropriete:coproprietes(nom)')
+      .select('id, titre, date_sinistre, created_at, status, copropriete:coproprietes(nom)')
       .in('copropriete_id', coproprieteIds.length > 0 ? coproprieteIds : ['none'])
-      .neq('status', 'cloture').order('date_sinistre', { ascending: false }).limit(10),
+      .neq('status', 'cloture').order('created_at', { ascending: false }).limit(10),
 
     supabase
       .from('profiles')
@@ -78,7 +78,7 @@ export default async function AgendaPage() {
     ...(sinistres.data ?? []).map((s) => ({
       id: s.id, type: 'sinistre' as const, titre: s.titre,
       sous_titre: (s.copropriete as { nom: string } | null)?.nom,
-      date: s.date_sinistre, lien: `/sinistres/${s.id}`, statut: s.status,
+      date: s.date_sinistre ?? s.created_at, lien: `/sinistres/${s.id}`, statut: s.status,
     })),
   ]
 

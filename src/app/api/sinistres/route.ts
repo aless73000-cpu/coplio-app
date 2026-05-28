@@ -33,6 +33,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       cabinet_id: profile.cabinet_id,
       reference: ref,
       gestionnaire_id: user.id,
+      date_sinistre: new Date().toISOString(),
     }).select().single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
