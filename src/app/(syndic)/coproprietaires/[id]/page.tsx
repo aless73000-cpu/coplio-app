@@ -16,13 +16,21 @@ export default async function CopropriétairePage({ params }: { params: { id: st
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('cabinet_id')
+    .eq('id', user.id)
+    .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
+
   const admin = createAdminClient()
 
-  // Fiche copropriétaire
+  // Fiche copropriétaire — vérification cabinet_id incluse
   const { data: copropriétaire } = await admin
     .from('coproprietaires')
     .select('*')
     .eq('id', params.id)
+    .eq('cabinet_id', profile.cabinet_id)
     .single()
 
   if (!copropriétaire) notFound()

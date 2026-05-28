@@ -20,7 +20,7 @@ export const DELETE = withErrorHandler(async (_request: Request, { params }: { p
   // Vérifier rétention légale ET appartenance au cabinet en une seule requête
   const { data: archive } = await admin
     .from('archives')
-    .select('retention_jusqu_au, cabinet_id')
+    .select('retention_jusqu_au, cabinet_id, fichier_url')
     .eq('id', id)
     .single()
 
@@ -32,6 +32,18 @@ export const DELETE = withErrorHandler(async (_request: Request, { params }: { p
     return NextResponse.json({
       error: `Document sous rétention légale jusqu'au ${new Date(archive.retention_jusqu_au).toLocaleDateString('fr-FR')}`,
     }, { status: 403 })
+  }
+
+  // Supprimer le fichier du stockage avant la ligne DB
+  if (archive.fichier_url) {
+    try {
+      const url = new URL(archive.fichier_url)
+      const prefix = '/storage/v1/object/public/documents/'
+      if (url.pathname.startsWith(prefix)) {
+        const storagePath = decodeURIComponent(url.pathname.slice(prefix.length))
+        await admin.storage.from('documents').remove([storagePath])
+      }
+    } catch { /* non bloquant — on supprime la ligne DB dans tous les cas */ }
   }
 
   const { error } = await admin.from('archives').delete().eq('id', id)

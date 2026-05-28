@@ -50,7 +50,7 @@ export default async function DocumentsPage({
       if (searchParams.copropriete) {
         q = q.eq('copropriete_id', searchParams.copropriete)
       }
-      return q
+      return q.limit(1000)
     })(),
     supabase
       .from('coproprietes')

@@ -11,19 +11,31 @@ export default async function LotPage({ params }: { params: { id: string } }) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('cabinet_id')
+    .eq('id', user.id)
+    .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
+
   const { data: lot } = await supabase
     .from('lots')
-    .select('*, copropriete:coproprietes(id, nom, adresse)')
+    .select('*, copropriete:coproprietes(id, nom, adresse, cabinet_id)')
     .eq('id', params.id)
     .single()
 
   if (!lot) notFound()
+
+  // Vérifier que le lot appartient à ce cabinet (via sa copropriété)
+  const copropCabinetId = (lot.copropriete as { cabinet_id?: string } | null)?.cabinet_id
+  if (copropCabinetId && copropCabinetId !== profile.cabinet_id) notFound()
 
   // Copropriétaires liés à ce lot
   const { data: occupants } = await supabase
     .from('profiles')
     .select('id, prenom, nom, email, telephone, role, created_at')
     .eq('lot_id', params.id)
+    .eq('cabinet_id', profile.cabinet_id)
 
   // Appels de charges de ce lot
   const { data: appels } = await supabase

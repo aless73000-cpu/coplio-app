@@ -20,10 +20,18 @@ export default async function SinistrePage({ params }: { params: { id: string } 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('cabinet_id')
+    .eq('id', user.id)
+    .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
+
   const { data: sinistre } = await supabase
     .from('sinistres')
     .select('*, copropriete:coproprietes(id, nom, adresse), declarant:profiles(prenom, nom)')
     .eq('id', params.id)
+    .eq('cabinet_id', profile.cabinet_id)
     .single()
 
   if (!sinistre) notFound()

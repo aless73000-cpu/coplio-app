@@ -32,6 +32,13 @@ export default async function FactureDetailPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('cabinet_id')
+    .eq('id', user.id)
+    .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
+
   // Facture
   const { data: facture } = await supabase
     .from('factures')
@@ -40,6 +47,15 @@ export default async function FactureDetailPage({
     .single()
 
   if (!facture) notFound()
+
+  // Vérifier que la copropriété de la facture appartient à ce cabinet
+  const { data: coproprieteCheck } = await supabase
+    .from('coproprietes')
+    .select('id')
+    .eq('id', facture.copropriete_id)
+    .eq('cabinet_id', profile.cabinet_id)
+    .single()
+  if (!coproprieteCheck) notFound()
 
   const selectedId = searchParams.copropriete ?? facture.copropriete_id
 

@@ -25,10 +25,18 @@ export default async function AssembléePage({ params }: { params: { id: string 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('cabinet_id')
+    .eq('id', user.id)
+    .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
+
   const { data: ag } = await supabase
     .from('assemblees_generales')
     .select('*, copropriete:coproprietes(id, nom, adresse), resolutions:ag_resolutions(*)')
     .eq('id', params.id)
+    .eq('cabinet_id', profile.cabinet_id)
     .single()
 
   if (!ag) notFound()

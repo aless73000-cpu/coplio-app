@@ -30,11 +30,14 @@ export default async function SinistresPage({
     .eq('id', user.id)
     .single()
 
+  if (!profile?.cabinet_id) redirect('/onboarding')
+
   let query = supabase
     .from('sinistres')
     .select('*, copropriete:coproprietes(nom, ville)')
-    .eq('cabinet_id', profile?.cabinet_id ?? '')
+    .eq('cabinet_id', profile.cabinet_id)
     .order('created_at', { ascending: false })
+    .limit(500)
 
   if (searchParams.status && searchParams.status !== 'all') {
     query = query.eq('status', searchParams.status as 'signale' | 'assurance_declaree' | 'urgence' | 'expertise' | 'travaux' | 'cloture')

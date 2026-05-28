@@ -28,6 +28,8 @@ export default async function ImpayésPage() {
 
   const coproprieteIds = (coproprietes ?? []).map((c) => c.id)
 
+  if (!profile?.cabinet_id) redirect('/onboarding')
+
   const { data: impayes } = await supabase
     .from('appels_charges')
     .select(`
@@ -39,6 +41,7 @@ export default async function ImpayésPage() {
     .eq('paye', false)
     .lt('date_echeance', new Date().toISOString())
     .order('date_echeance', { ascending: true })
+    .limit(1000)
 
   const total = (impayes ?? []).reduce(
     (s: number, a) => s + (a.montant - (a.montant_paye ?? 0)),

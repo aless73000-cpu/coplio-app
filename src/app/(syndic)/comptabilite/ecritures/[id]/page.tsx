@@ -22,6 +22,13 @@ export default async function EcritureDetailPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('cabinet_id')
+    .eq('id', user.id)
+    .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
+
   const { data: ecriture } = await supabase
     .from('ecritures_comptables')
     .select('*, journal:journaux(code, libelle)')
@@ -29,6 +36,15 @@ export default async function EcritureDetailPage({
     .single()
 
   if (!ecriture) notFound()
+
+  // Vérifier que la copropriété de l'écriture appartient à ce cabinet
+  const { data: coproprieteCheck } = await supabase
+    .from('coproprietes')
+    .select('id')
+    .eq('id', ecriture.copropriete_id)
+    .eq('cabinet_id', profile.cabinet_id)
+    .single()
+  if (!coproprieteCheck) notFound()
 
   const selectedId = searchParams.copropriete ?? ecriture.copropriete_id
 

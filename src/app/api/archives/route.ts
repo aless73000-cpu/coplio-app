@@ -25,7 +25,7 @@ export const GET = withErrorHandler(async (request: Request) => {
     if (coproprieteId) query = query.eq('copropriete_id', coproprieteId)
     if (type) query = query.eq('type', type)
 
-    const { data, error } = await query
+    const { data, error } = await query.limit(500)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data ?? [])
   } catch (err) {

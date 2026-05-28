@@ -61,17 +61,31 @@ export default async function AppelsChargesPage({
     query = query.eq('paye', false)
   }
 
-  const { data: appels, count } = await query.range(from, to)
+  // Requêtes parallèles : affichage paginé + stats globales (sans filtre statut ni pagination)
+  let statsQuery = supabase
+    .from('appels_charges')
+    .select('paye, montant, montant_paye, date_echeance')
+    .in('copropriete_id', coproprieteIds.length > 0 ? coproprieteIds : ['none'])
+  if (searchParams.copropriete) {
+    statsQuery = statsQuery.eq('copropriete_id', searchParams.copropriete)
+  }
+
+  const [{ data: appels, count }, { data: statsData }] = await Promise.all([
+    query.range(from, to),
+    statsQuery,
+  ])
+
   const totalCount = count ?? 0
   const totalPages = Math.ceil(totalCount / PAGE_SIZE)
+  const now = new Date()
 
   const stats = {
     total: totalCount,
-    payes: (appels ?? []).filter((a) => a.paye).length,
-    enRetard: (appels ?? []).filter(
-      (a) => !a.paye && new Date(a.date_echeance) < new Date()
+    payes: (statsData ?? []).filter((a) => a.paye).length,
+    enRetard: (statsData ?? []).filter(
+      (a) => !a.paye && new Date(a.date_echeance) < now
     ).length,
-    montantDu: (appels ?? []).reduce(
+    montantDu: (statsData ?? []).reduce(
       (s, a) => (!a.paye ? s + (a.montant - (a.montant_paye ?? 0)) : s),
       0
     ),
