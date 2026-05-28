@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import dynamic from 'next/dynamic'
 import { SoftwareApplicationJsonLd } from '@/components/seo/JsonLd'
+import { createAdminClient } from '@/lib/supabase/server'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
 
@@ -68,7 +69,19 @@ const FeaturesShowcase = dynamic(
   { ssr: false, loading: FeaturesShowcaseFallback }
 )
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  // Nombre réel d'abonnés payants (non-trial) pour l'offre fondateur
+  let founderTaken = 47 // fallback statique si la requête échoue
+  try {
+    const admin = createAdminClient()
+    const { count } = await admin
+      .from('cabinets')
+      .select('id', { count: 'exact', head: true })
+      .not('plan', 'eq', 'trial')
+      .not('subscription_status', 'in', '("canceled","incomplete_expired")')
+    if (count !== null) founderTaken = Math.min(count, 50)
+  } catch { /* non bloquant */ }
+
   return (
     <>
       <SoftwareApplicationJsonLd />
@@ -83,7 +96,7 @@ export default function LandingPage() {
         <BentoFeatures />
         <HowItWorks />
         <ProblemSolution />
-        <Tarifs />
+        <Tarifs founderTaken={founderTaken} />
         <QuiSommesNous />
         <FAQ />
         <CtaFinal />

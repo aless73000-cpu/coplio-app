@@ -26,10 +26,10 @@ const PLAN_META: Record<string, { desc: string; badge: string | null; cta: strin
   },
 }
 
-const TAKEN = 47
 const TOTAL = 50
 
-export default function Tarifs() {
+export default function Tarifs({ founderTaken = 47 }: { founderTaken?: number }) {
+  const TAKEN = Math.min(founderTaken, TOTAL)
   const plans = Object.entries(PLANS_CONFIG).map(([key, plan]) => ({
     key,
     ...plan,

@@ -23,6 +23,7 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
     const { data: profile } = await supabase
       .from('profiles')
       .select('cabinet_id')
+      .eq('id', user.id)
       .single()
     if (!profile?.cabinet_id) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
 
@@ -57,6 +58,7 @@ export const DELETE = withErrorHandler(async (_request: Request, { params }: { p
     const { data: profile } = await supabase
       .from('profiles')
       .select('cabinet_id')
+      .eq('id', user.id)
       .single()
     if (!profile?.cabinet_id) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
 

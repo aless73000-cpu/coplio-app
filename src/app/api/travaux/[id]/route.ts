@@ -28,6 +28,7 @@ async function getCallerInfo() {
   const { data: profile } = await supabase
     .from('profiles')
     .select('cabinet_id')
+    .eq('id', user.id)
     .single()
 
   return { user, cabinetId: profile?.cabinet_id ?? null, supabase }

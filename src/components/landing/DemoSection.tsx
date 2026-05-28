@@ -23,7 +23,7 @@ export default function DemoSection() {
             Une interface pensée<br />pour gagner du temps
           </h2>
           <p className="text-lg text-slate-400 max-w-lg mx-auto">
-            Explorez chaque module interactivement — sans inscription.
+            Un aperçu de l&apos;interface — découvrez les modules en 30 secondes.
           </p>
         </Reveal>
 

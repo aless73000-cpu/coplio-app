@@ -14,10 +14,11 @@ const patchSchema = z.object({
   retourne: z.boolean().optional(),
 })
 
-async function getProfile(supabase: Awaited<ReturnType<typeof createClient>>) {
+async function getProfile(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
   const { data: profile } = await supabase
     .from('profiles')
     .select('cabinet_id')
+    .eq('id', userId)
     .single()
   return profile
 }
@@ -29,7 +30,7 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
-    const profile = await getProfile(supabase)
+    const profile = await getProfile(supabase, user.id)
     if (!profile?.cabinet_id) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
 
     const body = await request.json()
@@ -60,7 +61,7 @@ export const DELETE = withErrorHandler(async (_request: Request, { params }: { p
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
-    const profile = await getProfile(supabase)
+    const profile = await getProfile(supabase, user.id)
     if (!profile?.cabinet_id) return NextResponse.json({ error: 'Profil introuvable' }, { status: 403 })
 
     const { error } = await supabase

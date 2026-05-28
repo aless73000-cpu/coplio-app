@@ -444,6 +444,9 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
           dialog[open] { display: flex; flex-direction: column; }
         `}</style>
 
+        {/* Contenu monté uniquement en mode édition actif — évite le rendu inutile des charts */}
+        {editMode && <>
+
         {/* Barre du haut */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -674,6 +677,8 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
             })}
           </Reorder.Group>
         </div>
+
+        </> /* fin du bloc editMode */}
       </dialog>
     </>
   )

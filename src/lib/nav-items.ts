@@ -12,6 +12,9 @@ import {
   Bell,
   BookOpen,
   Wrench,
+  Vote,
+  Settings2,
+  Archive,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -120,6 +123,27 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     href: '/ia',
     icon: Sparkles,
     description: 'Rédaction assistée par intelligence artificielle',
+  },
+  {
+    id: 'votes',
+    label: 'Votes en ligne',
+    href: '/votes',
+    icon: Vote,
+    description: 'Scrutins en ligne pour les copropriétaires',
+  },
+  {
+    id: 'relances-config',
+    label: 'Config. relances',
+    href: '/relances-config',
+    icon: Settings2,
+    description: 'Paramétrer les relances automatiques',
+  },
+  {
+    id: 'archives',
+    label: 'Archives',
+    href: '/archives',
+    icon: Archive,
+    description: 'Accéder aux données archivées',
   },
 ]
 
