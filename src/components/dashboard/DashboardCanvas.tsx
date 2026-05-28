@@ -165,7 +165,7 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
     'kpi_coproprietaires', 'kpi_portail', 'kpi_ag', 'kpi_recouvrement',
     'alertes_intelligentes', 'graphiques_finances',
     'graphiques_copros', 'performance', 'alertes_coproprietes',
-    'sinistres', 'ag', 'actions_rapides',
+    'sinistres', 'ag', 'conformite_legale', 'actions_rapides',
   ]
 
   const orderedIds = hydrated ? widgets.map((w) => w.id) : DEFAULT_ORDER
