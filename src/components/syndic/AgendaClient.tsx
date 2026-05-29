@@ -335,7 +335,8 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
                 {items.map(({ id, date, isCustom, data }) => {
                   const d = new Date(date)
                   const isToday = d.toDateString() === new Date().toDateString()
-                  const isSoon = d.getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000
+                  const isSoon = d.getTime() > Date.now() && d.getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000
+                  const isDateOnly = d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0
 
                   if (!isCustom) {
                     const ev = data as SystemEvent
@@ -358,7 +359,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
                           </div>
                           <div className="flex items-center gap-3 mt-0.5">
                             {ev.sous_titre && <span className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="w-3 h-3" />{ev.sous_titre}</span>}
-                            <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+                            {!isDateOnly && <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>}
                             <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${color}`}>{label}</span>
                           </div>
                         </div>
@@ -389,7 +390,7 @@ export function AgendaClient({ systemEvents, customEvents: initialCustom, coprop
                           <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${color}`}>{typeConfig?.label ?? ev.type}</span>
                         </div>
                         <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-                          <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+                          {!isDateOnly && <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>}
                           {ev.lieu && <span className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="w-3 h-3" />{ev.lieu}</span>}
                           {ev.copropriete && <span className="text-xs text-muted-foreground">{ev.copropriete.nom}</span>}
                           {ev.assignee && <span className="text-xs text-muted-foreground flex items-center gap-1"><User className="w-3 h-3" />{ev.assignee.prenom} {ev.assignee.nom}</span>}

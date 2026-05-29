@@ -114,6 +114,7 @@ export default async function MonLogementPage() {
 
   const copro = lot.copropriete
   const solde = lot.solde_compte ?? 0
+  const montantImpaye = lot.montant_impaye ?? 0
   const soldePositif = solde >= 0
 
   return (
@@ -148,11 +149,15 @@ export default async function MonLogementPage() {
           </div>
           {/* Badge solde */}
           <div className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold ${
-            soldePositif ? 'bg-green-400/20 text-green-300' : 'bg-red-400/20 text-red-300'
+            !soldePositif ? 'bg-red-400/20 text-red-300' :
+            montantImpaye > 0 ? 'bg-amber-400/20 text-amber-300' :
+            'bg-green-400/20 text-green-300'
           }`}>
-            {soldePositif
-              ? <><CheckCircle2 className="w-3.5 h-3.5" /> À jour</>
-              : <><AlertTriangle className="w-3.5 h-3.5" /> Impayé</>
+            {!soldePositif
+              ? <><AlertTriangle className="w-3.5 h-3.5" /> Impayé</>
+              : montantImpaye > 0
+                ? <><AlertTriangle className="w-3.5 h-3.5" /> En attente</>
+                : <><CheckCircle2 className="w-3.5 h-3.5" /> À jour</>
             }
           </div>
         </div>
@@ -180,7 +185,12 @@ export default async function MonLogementPage() {
                   {solde >= 0 ? '+' : ''}{solde.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                 </p>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  {soldePositif ? 'Votre compte est à jour' : 'Solde débiteur — contactez votre syndic'}
+                  {!soldePositif
+                    ? 'Solde débiteur — contactez votre syndic'
+                    : montantImpaye > 0
+                      ? `${montantImpaye.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} en attente de paiement`
+                      : 'Votre compte est à jour'
+                  }
                 </p>
               </div>
             </div>

@@ -42,17 +42,21 @@ export default async function ImpayésPage() {
     `)
     .in('copropriete_id', coproprieteIds.length > 0 ? coproprieteIds : ['none'])
     .eq('paye', false)
-    .lt('date_echeance', new Date().toISOString())
     .order('date_echeance', { ascending: true })
     .limit(1000)
 
+  const now = new Date()
   const total = (impayes ?? []).reduce(
     (s: number, a) => s + (a.montant - (a.montant_paye ?? 0)),
     0
   )
 
   const categories = {
-    recent: (impayes ?? []).filter((a) => getOverdueDays(a.date_echeance) < 30),
+    avenir: (impayes ?? []).filter((a) => new Date(a.date_echeance) >= now),
+    recent: (impayes ?? []).filter((a) => {
+      const d = getOverdueDays(a.date_echeance)
+      return d > 0 && d < 30
+    }),
     moyen: (impayes ?? []).filter((a) => {
       const d = getOverdueDays(a.date_echeance)
       return d >= 30 && d < 90
@@ -76,8 +80,14 @@ export default async function ImpayésPage() {
       </div>
 
       {/* Résumé par catégorie */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
+          {
+            label: 'À venir',
+            count: categories.avenir.length,
+            montant: categories.avenir.reduce((s: number, a) => s + (a.montant - (a.montant_paye ?? 0)), 0),
+            color: 'blue',
+          },
           {
             label: '< 30 jours',
             count: categories.recent.length,
@@ -97,9 +107,17 @@ export default async function ImpayésPage() {
             color: 'red',
           },
         ].map(({ label, count, montant, color }) => (
-          <div key={label} className={`coplio-card border-l-4 ${color === 'red' ? 'border-l-coplio-red' : 'border-l-coplio-amber'}`}>
+          <div key={label} className={`coplio-card border-l-4 ${
+            color === 'red' ? 'border-l-coplio-red' :
+            color === 'blue' ? 'border-l-blue-400' :
+            'border-l-coplio-amber'
+          }`}>
             <p className="text-xs text-muted-foreground font-medium">{label}</p>
-            <p className={`text-xl font-bold mt-1 ${color === 'red' ? 'text-coplio-red' : 'text-coplio-amber'}`}>
+            <p className={`text-xl font-bold mt-1 ${
+              color === 'red' ? 'text-coplio-red' :
+              color === 'blue' ? 'text-blue-600' :
+              'text-coplio-amber'
+            }`}>
               {count}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">{formatEuro(montant)}</p>

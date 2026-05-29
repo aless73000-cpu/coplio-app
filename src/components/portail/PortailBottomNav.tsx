@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   Home, CreditCard, FileText, MessageCircle, User,
-  Wrench, Vote, CalendarDays, MoreHorizontal, Crown, X, BookUser,
+  Wrench, Vote, CalendarDays, MoreHorizontal, Crown, X, BookUser, Bell, PenLine,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
@@ -25,8 +25,11 @@ const MORE_ITEMS = [
   { href: '/mes-assemblees', label: 'Assemblées', icon: CalendarDays, matches: ['/mes-assemblees'] },
   { href: '/mes-travaux',    label: 'Travaux',    icon: Wrench,       matches: ['/mes-travaux'] },
   { href: '/mes-votes',      label: 'Votes',      icon: Vote,         matches: ['/mes-votes'] },
-  { href: '/mes-contacts',   label: 'Annuaire',   icon: BookUser,     matches: ['/mes-contacts'] },
-  { href: '/mon-compte',     label: 'Mon compte', icon: User,         matches: ['/mon-compte'] },
+  { href: '/mes-contacts',      label: 'Annuaire',      icon: BookUser,     matches: ['/mes-contacts'] },
+  { href: '/mon-calendrier',    label: 'Calendrier',    icon: CalendarDays, matches: ['/mon-calendrier'] },
+  { href: '/mes-notifications', label: 'Notifications', icon: Bell,         matches: ['/mes-notifications'] },
+  { href: '/mes-signatures',    label: 'Signatures',    icon: PenLine,      matches: ['/mes-signatures'] },
+  { href: '/mon-compte',        label: 'Mon compte',    icon: User,         matches: ['/mon-compte'] },
 ]
 
 export function PortailBottomNav({ unreadMessages = 0, isConseil = false }: PortailBottomNavProps) {

@@ -133,7 +133,11 @@ export function SinistreCard({
 
       <div className={`${hasAssurance || photos.length > 0 ? 'mt-2' : 'mt-3 pt-3 border-t border-border'}`}>
         <p className="text-xs text-muted-foreground">
-          Déclaré le {sinistre.date_sinistre ? formatDate(sinistre.date_sinistre) : '—'}
+          Déclaré le {sinistre.date_sinistre
+            ? formatDate(sinistre.date_sinistre)
+            : sinistre.created_at
+              ? formatDate(sinistre.created_at)
+              : '—'}
           {isClosed && sinistre.date_cloture && ` · Clôturé le ${formatDate(sinistre.date_cloture)}`}
         </p>
       </div>

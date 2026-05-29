@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: 'Connexion' }
 export default function LoginPage({
   searchParams,
 }: {
-  searchParams: { redirectTo?: string; error?: string; message?: string }
+  searchParams: { redirectTo?: string; error?: string; message?: string; mfa_required?: string }
 }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50">
@@ -43,7 +43,7 @@ export default function LoginPage({
           </div>
         )}
 
-        <LoginForm redirectTo={searchParams.redirectTo} />
+        <LoginForm redirectTo={searchParams.redirectTo} mfaRequired={searchParams.mfa_required === '1'} />
       </div>
 
       <div className="mt-6 space-y-2 text-center">

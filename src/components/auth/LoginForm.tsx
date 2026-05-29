@@ -6,7 +6,6 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { Eye, EyeOff, Loader2, ShieldCheck } from 'lucide-react'
 
 const loginSchema = z.object({
@@ -18,11 +17,11 @@ type LoginValues = z.infer<typeof loginSchema>
 
 interface LoginFormProps {
   redirectTo?: string
+  mfaRequired?: boolean
 }
 
-export function LoginForm({ redirectTo }: LoginFormProps) {
+export function LoginForm({ redirectTo, mfaRequired }: LoginFormProps) {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState('')
   const [persist, setPersist] = useState(false)
@@ -42,7 +41,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
 
   // Cas middleware AAL2 : l'utilisateur est déjà connecté (AAL1) mais doit compléter la 2FA
   useEffect(() => {
-    if (searchParams?.get('mfa_required') !== '1') return
+    if (!mfaRequired) return
     async function initMfaChallenge() {
       const supabase = createClient()
       const { data: factorsData } = await supabase.auth.mfa.listFactors()
@@ -54,7 +53,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
       }
     }
     initMfaChallenge()
-  }, [searchParams])
+  }, [mfaRequired])
 
   const {
     register,
