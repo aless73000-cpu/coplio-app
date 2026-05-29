@@ -4,7 +4,7 @@ import { Home, FileText, CreditCard, Wrench, MessageCircle, ArrowLeft } from 'lu
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Espace copropriétaire — Coplio',
+  title: 'Espace copropriétaire',
 }
 
 const FEATURES = [
