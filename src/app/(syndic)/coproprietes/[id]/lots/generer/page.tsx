@@ -161,12 +161,12 @@ export default function GenererLotsPage() {
           >
             Nouvelle génération
           </button>
-          <button
-            onClick={() => router.push(`/coproprietes/${coproprieteId}/lots`)}
-            className="flex-1 bg-[#374151] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#374151]/90 transition-colors text-sm"
+          <Link
+            href={`/coproprietes/${coproprieteId}/lots`}
+            className="flex-1 text-center bg-[#374151] text-white font-medium py-2.5 px-4 rounded-lg hover:bg-[#374151]/90 transition-colors text-sm"
           >
             Voir les lots
-          </button>
+          </Link>
         </div>
       </div>
     )

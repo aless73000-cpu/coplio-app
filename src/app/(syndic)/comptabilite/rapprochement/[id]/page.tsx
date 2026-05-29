@@ -28,7 +28,7 @@ export default async function ReleveDetailPage({
 
   const { data: releve } = await supabase
     .from('releves_bancaires')
-    .select('*, compte:comptes_bancaires(libelle, banque, iban)')
+    .select('*, compte:comptes_bancaires(libelle, banque, iban, copropriete_id)')
     .eq('id', params.id)
     .single()
 

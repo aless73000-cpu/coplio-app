@@ -137,14 +137,15 @@ export function ConformiteLegale({ coproprietes, agRecentes, fondsTravaux }: Pro
     }
 
     // ── 4. Carnet d'entretien ─────────────────────────────────
-    const carnetDue = new Date(now.getFullYear(), now.getMonth() + 6, 1)
-    if (daysUntil(carnetDue) < 90) {
+    const carnetDue = new Date(currentYear, 11, 31) // Dec 31 de l'année en cours
+    const carnetDays = daysUntil(carnetDue)
+    if (carnetDays < 180) { // visible à partir de ~juillet
       items.push({
         id:          `carnet-${copro.id}`,
         label:       'Carnet d\'entretien à jour',
-        description: 'Mise à jour des informations de maintenance',
+        description: 'Mettre à jour les informations de maintenance avant la fin d\'année',
         deadline:    carnetDue,
-        status:      'warning',
+        status:      getDeadlineStatus(carnetDays),
         icon:        BookOpen,
         href:        `/coproprietes/${copro.id}/entretien`,
         coproNom:    copro.nom,

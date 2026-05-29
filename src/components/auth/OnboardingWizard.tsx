@@ -401,8 +401,8 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
             </p>
 
             {/* CTA principal */}
-            <a
-              href="/coproprietes/new"
+            <button
+              onClick={() => router.push('/coproprietes/new')}
               className="flex items-center justify-center gap-2 w-full bg-[#374151] text-white
                          font-semibold py-3 px-4 rounded-xl hover:bg-[#374151]/90 transition-colors
                          text-sm mb-3"
@@ -410,7 +410,7 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
               <Building2 className="w-4 h-4" />
               Créer ma première copropriété
               <ChevronRight className="w-4 h-4" />
-            </a>
+            </button>
 
             {/* Sous-actions */}
             <div className="grid grid-cols-2 gap-2 mb-6">
@@ -418,15 +418,15 @@ export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWiza
                 { emoji: '👥', label: 'Inviter des copropriétaires', href: '/coproprietaires/new' },
                 { emoji: '📄', label: 'Importer des données', href: '/importer' },
               ].map(({ emoji, label, href }) => (
-                <a
+                <button
                   key={href}
-                  href={href}
+                  onClick={() => router.push(href)}
                   className="flex items-center gap-2 text-xs text-coplio-text bg-coplio-bg
-                             p-2.5 rounded-lg hover:bg-border transition-colors"
+                             p-2.5 rounded-lg hover:bg-border transition-colors text-left"
                 >
                   <span>{emoji}</span>
                   <span>{label}</span>
-                </a>
+                </button>
               ))}
             </div>
 

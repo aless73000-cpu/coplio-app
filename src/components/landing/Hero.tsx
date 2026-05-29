@@ -117,7 +117,7 @@ export default function Hero() {
               {['Tableau de bord', 'Copropriétés', 'Copropriétaires', 'Appels charges', 'Documents', 'Sinistres'].map((item, i) => (
                 <div
                   key={item}
-                  className={`px-2 py-1.5 rounded-lg text-[11px] ${i === 0 ? 'bg-white/10 text-white/80 font-medium' : 'text-white/22'}`}
+                  className={`px-2 py-1.5 rounded-lg text-[11px] ${i === 0 ? 'bg-white/10 text-white/80 font-medium' : 'text-white/20'}`}
                 >
                   {item}
                 </div>
@@ -141,7 +141,7 @@ export default function Hero() {
               )}
 
               <div className="flex items-center justify-between">
-                <div className="text-xs font-semibold text-[#374151]">Bonjour, Jean 👋</div>
+                <div className="text-xs font-semibold text-[#374151]">Bonjour 👋</div>
                 <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
                   <Bell className="w-3 h-3" />
                   <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
