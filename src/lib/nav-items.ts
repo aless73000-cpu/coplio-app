@@ -112,6 +112,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     href: '/comptabilite',
     icon: BookOpen,
     description: 'Écritures, factures, grand livre et rapports comptables',
+    alwaysPinned: true,
   },
   {
     id: 'prestataires',

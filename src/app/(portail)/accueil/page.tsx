@@ -336,18 +336,6 @@ export default async function AccueilPage() {
       </div>
 
       {/* ── Fonds de travaux ── */}
-      {!isNewUser && !fondsTravaux && coproprieteId && (
-        <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border bg-white border-slate-200 shadow-sm">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: '#f1f5f9' }}>
-            <Landmark className="w-5 h-5 text-slate-400" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 font-medium">Fonds de travaux ALUR</p>
-            <p className="text-sm text-slate-400 mt-0.5">Données non disponibles — contactez votre syndic</p>
-          </div>
-        </div>
-      )}
       {fondsTravaux && (
         <div className="bg-white rounded-2xl border border-slate-200 px-5 py-4 shadow-sm">
           <div className="flex items-center justify-between gap-4">

@@ -17,20 +17,27 @@ export function Reveal({ children, delay = 0, className, style }: Props) {
     const el = ref.current
     if (!el) return
     el.style.opacity = '0'
-    el.style.transform = 'translateY(22px)'
-    el.style.transition = `opacity 0.75s cubic-bezier(0.25,0.46,0.45,0.94) ${delay}ms, transform 0.75s cubic-bezier(0.25,0.46,0.45,0.94) ${delay}ms`
+    el.style.transform = 'translateY(16px)'
+    el.style.transition = `opacity 0.5s cubic-bezier(0.25,0.46,0.45,0.94) ${delay}ms, transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94) ${delay}ms`
+
+    const show = () => {
+      el.style.opacity = '1'
+      el.style.transform = 'translateY(0)'
+      io.unobserve(el)
+      clearTimeout(fallback)
+    }
+
+    // Fallback : affiche l'élément après 1.5s même si IntersectionObserver ne se déclenche pas
+    const fallback = setTimeout(show, 1500)
+
     const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.style.opacity = '1'
-          el.style.transform = 'translateY(0)'
-          io.unobserve(el)
-        }
-      },
-      { threshold: 0.1 }
+      ([entry]) => { if (entry.isIntersecting) show() },
+      // threshold 0 = déclenche dès qu'un pixel entre dans le viewport
+      // rootMargin positif en bas = pré-déclenche avant que l'élément soit visible
+      { threshold: 0, rootMargin: '0px 0px 60px 0px' }
     )
     io.observe(el)
-    return () => io.disconnect()
+    return () => { io.disconnect(); clearTimeout(fallback) }
   }, [delay])
 
   return (
