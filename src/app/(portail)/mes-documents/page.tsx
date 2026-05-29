@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { FolderOpen } from 'lucide-react'
+
+export const metadata: Metadata = { title: 'Mes documents' }
 import type { Document } from '@/types'
 import { MesDocumentsClient } from './MesDocumentsClient'
 

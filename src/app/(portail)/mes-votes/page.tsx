@@ -1,7 +1,10 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Vote, CheckCircle2 } from 'lucide-react'
+
+export const metadata: Metadata = { title: 'Votes en ligne' }
 import { MesVotesClient } from '@/components/portail/MesVotesClient'
 
 export default async function MesVotesPage() {

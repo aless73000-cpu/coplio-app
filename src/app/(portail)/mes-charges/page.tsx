@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { CheckCircle2, AlertTriangle, Clock, CreditCard, Building2, ArrowRight } from 'lucide-react'
+
+export const metadata: Metadata = { title: 'Mes charges' }
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { AppelCharges } from '@/types'
 import { DownloadChargesPDF } from '@/components/portail/DownloadChargesPDF'

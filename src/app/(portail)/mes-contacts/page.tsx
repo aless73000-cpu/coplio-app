@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import {
@@ -5,6 +6,8 @@ import {
   Building2, User, AlertTriangle, Calendar,
 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+
+export const metadata: Metadata = { title: 'Annuaire' }
 
 function ContactLine({ icon: Icon, label, value, href }: {
   icon: React.ComponentType<{ className?: string }>

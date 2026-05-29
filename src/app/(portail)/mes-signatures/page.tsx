@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
@@ -7,6 +8,8 @@ import {
 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { getSignedDocumentUrl } from '@/lib/storage'
+
+export const metadata: Metadata = { title: 'Signatures électroniques' }
 
 const AG_STATUS_LABELS: Record<string, string> = {
   planifiee: 'Planifiée',

@@ -1,7 +1,10 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Bell, Info, AlertTriangle, CheckCircle2, ChevronRight, BellOff } from 'lucide-react'
 import Link from 'next/link'
+
+export const metadata: Metadata = { title: 'Notifications' }
 import { MarkAllReadButton } from './MarkAllReadButton'
 import type { Notification, NotificationType } from '@/types'
 

@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { MessageriePortailWrapper } from '@/components/portail/MessageriePortailWrapper'
+
+export const metadata: Metadata = { title: 'Messagerie' }
 
 export default async function MesMessages() {
   const supabase = await createClient()

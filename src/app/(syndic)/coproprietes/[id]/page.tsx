@@ -88,9 +88,18 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
       .limit(3),
     supabase
       .from('appels_charges')
-      .select('montant, montant_paye, paye, date_echeance')
+      .select('montant, montant_paye, paye, date_echeance, lot_id')
       .eq('copropriete_id', copropriete.id),
   ])
+
+  // Solde dynamique par lot (montant payé - montant appelé)
+  const soldeParLot: Record<string, number> = {}
+  for (const a of appels ?? []) {
+    if (!a.lot_id) continue
+    const paye = a.montant_paye ?? 0
+    const du = a.montant - paye
+    soldeParLot[a.lot_id] = (soldeParLot[a.lot_id] ?? 0) - du
+  }
 
   // Stats de recouvrement
   const totalCharges = (appels ?? []).reduce((s, a) => s + a.montant, 0)
@@ -242,8 +251,8 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
                         <td className="py-2.5 text-muted-foreground capitalize">{lot.type}</td>
                         <td className="py-2.5 text-muted-foreground">{lot.surface ? `${lot.surface} m²` : '—'}</td>
                         <td className="py-2.5 text-right">{lot.tantiemes}</td>
-                        <td className={`py-2.5 text-right font-medium ${(lot.solde_compte ?? 0) < 0 ? 'text-coplio-red' : 'text-coplio-text'}`}>
-                          {formatEuro(lot.solde_compte ?? 0)}
+                        <td className={`py-2.5 text-right font-medium ${(soldeParLot[lot.id] ?? 0) < 0 ? 'text-coplio-red' : 'text-coplio-text'}`}>
+                          {formatEuro(soldeParLot[lot.id] ?? 0)}
                         </td>
                       </tr>
                     ))}

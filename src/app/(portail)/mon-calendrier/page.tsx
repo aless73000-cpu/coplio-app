@@ -1,7 +1,10 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Calendar, CreditCard, Wrench, Users, MapPin, AlertTriangle, CheckCircle2, Clock } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
+
+export const metadata: Metadata = { title: 'Calendrier' }
 
 type EventType = 'ag' | 'charge' | 'charge_retard' | 'sinistre'
 
