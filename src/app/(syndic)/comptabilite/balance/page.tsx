@@ -6,7 +6,7 @@ import { formatEuro } from '@/lib/utils'
 import { ExportBalanceButton } from '@/app/(syndic)/comptabilite/export/_components/ExportBalanceButton'
 
 
-export const metadata = { title: 'Balance comptable | Coplio' }
+export const metadata = { title: 'Balance comptable' }
 
 const CLASSE_LABELS: Record<number, string> = {
   1: 'Capitaux',

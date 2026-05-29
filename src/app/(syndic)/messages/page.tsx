@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { SyndicMessages } from '@/components/syndic/SyndicMessages'
 
 
-export const metadata = { title: 'Messages | Coplio' }
+export const metadata = { title: 'Messages' }
 
 export default async function MessagesPage() {
   const supabase = await createClient()

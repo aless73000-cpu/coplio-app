@@ -5,7 +5,7 @@ import { ChevronLeft } from 'lucide-react'
 import { EcritureForm } from '../_components/EcritureForm'
 
 
-export const metadata = { title: 'Nouvelle écriture | Coplio' }
+export const metadata = { title: 'Nouvelle écriture' }
 
 export default async function NouvelleEcriturePage({
   searchParams,

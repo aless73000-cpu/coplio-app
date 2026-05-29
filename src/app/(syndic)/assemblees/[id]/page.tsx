@@ -13,7 +13,7 @@ import { getSignedDocumentUrl } from '@/lib/storage'
 import type { AgStatus } from '@/types'
 
 
-export const metadata = { title: 'Détail assemblée | Coplio' }
+export const metadata = { title: 'Détail assemblée' }
 
 const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
   planifiee:             { label: 'Planifiée',             cls: 'bg-coplio-blue-bg text-coplio-blue' },

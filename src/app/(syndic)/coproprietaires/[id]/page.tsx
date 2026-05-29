@@ -12,7 +12,7 @@ import { DeleteCoproprietaireButton } from '@/components/syndic/DeleteCopropriet
 import { RoleManager } from '@/components/syndic/RoleManager'
 
 
-export const metadata = { title: 'Fiche copropriétaire | Coplio' }
+export const metadata = { title: 'Fiche copropriétaire' }
 
 export default async function CopropriétairePage({ params }: { params: { id: string } }) {
   const supabase = await createClient()

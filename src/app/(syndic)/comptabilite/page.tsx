@@ -18,7 +18,7 @@ import {
 import { formatEuro } from '@/lib/utils'
 
 
-export const metadata = { title: 'Comptabilité | Coplio' }
+export const metadata = { title: 'Comptabilité' }
 
 export default async function ComptabilitePage({
   searchParams,

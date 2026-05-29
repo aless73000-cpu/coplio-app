@@ -7,7 +7,7 @@ import { LOT_TYPE_LABELS } from '@/types'
 import type { AppelCharges } from '@/types'
 
 
-export const metadata = { title: 'Détail lot | Coplio' }
+export const metadata = { title: 'Détail lot' }
 
 export default async function LotPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()

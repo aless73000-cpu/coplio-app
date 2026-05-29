@@ -6,7 +6,7 @@ import { formatDate, formatEuro } from '@/lib/utils'
 import { RapprochementTable } from '../_components/RapprochementTable'
 
 
-export const metadata = { title: 'Rapprochement bancaire | Coplio' }
+export const metadata = { title: 'Rapprochement bancaire' }
 
 export default async function ReleveDetailPage({
   params,

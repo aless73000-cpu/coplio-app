@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { NotificationsClient } from '@/components/syndic/NotificationsClient'
 
 
-export const metadata = { title: 'Notifications | Coplio' }
+export const metadata = { title: 'Notifications' }
 
 export default async function NotificationsPage() {
   const supabase = await createClient()

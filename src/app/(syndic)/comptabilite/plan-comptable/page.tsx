@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { ChevronLeft, BookOpen, Search } from 'lucide-react'
 
 
-export const metadata = { title: 'Plan comptable | Coplio' }
+export const metadata = { title: 'Plan comptable' }
 
 const CLASSE_LABELS: Record<number, { label: string; color: string }> = {
   1: { label: 'Classe 1 — Capitaux',          color: 'bg-purple-50 text-purple-700 border-purple-100' },

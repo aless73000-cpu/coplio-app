@@ -7,7 +7,7 @@ import type { Sinistre, SinistreStatus } from '@/types'
 import { SINISTRE_STATUS_LABELS } from '@/types'
 
 
-export const metadata = { title: 'Sinistres | Coplio' }
+export const metadata = { title: 'Sinistres' }
 
 const STATUS_ORDER: SinistreStatus[] = [
   'signale',

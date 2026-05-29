@@ -6,7 +6,7 @@ import { formatDate, formatEuro } from '@/lib/utils'
 import { ExportGrandLivreButton } from './_components/ExportGrandLivreButton'
 
 
-export const metadata = { title: 'Grand livre | Coplio' }
+export const metadata = { title: 'Grand livre' }
 
 const PAGE_SIZE = 100
 

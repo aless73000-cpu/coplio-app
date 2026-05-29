@@ -13,7 +13,7 @@ import {
 import { formatDate, formatEuro } from '@/lib/utils'
 
 
-export const metadata = { title: 'Écritures | Coplio' }
+export const metadata = { title: 'Écritures' }
 
 const STATUT_CONFIG = {
   brouillon: { label: 'Brouillon', color: 'bg-amber-50 text-amber-700' },

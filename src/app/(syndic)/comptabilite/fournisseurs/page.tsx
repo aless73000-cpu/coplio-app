@@ -5,7 +5,7 @@ import { ChevronLeft, Plus, Building2 } from 'lucide-react'
 import { FournisseursManager } from './_components/FournisseursManager'
 
 
-export const metadata = { title: 'Fournisseurs | Coplio' }
+export const metadata = { title: 'Fournisseurs' }
 
 export default async function FournisseursPage({
   searchParams,

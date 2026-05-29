@@ -5,7 +5,7 @@ import { ChevronLeft } from 'lucide-react'
 import { JournauxManager } from './_components/JournauxManager'
 
 
-export const metadata = { title: 'Journaux | Coplio' }
+export const metadata = { title: 'Journaux' }
 
 export default async function JournauxPage({
   searchParams,

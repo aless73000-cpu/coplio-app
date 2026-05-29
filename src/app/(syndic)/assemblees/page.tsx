@@ -6,7 +6,7 @@ import { formatDateTime, getDaysUntil } from '@/lib/utils'
 import type { AssembleeGenerale } from '@/types'
 
 
-export const metadata = { title: 'Assemblées générales | Coplio' }
+export const metadata = { title: 'Assemblées générales' }
 
 const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
   planifiee: { label: 'Planifiée', cls: 'bg-coplio-blue-bg text-coplio-blue' },

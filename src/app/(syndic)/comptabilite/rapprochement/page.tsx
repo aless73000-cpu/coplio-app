@@ -6,7 +6,7 @@ import { formatDate, formatEuro } from '@/lib/utils'
 import { NouveauReleveButton } from './_components/NouveauReleveButton'
 
 
-export const metadata = { title: 'Rapprochement bancaire | Coplio' }
+export const metadata = { title: 'Rapprochement bancaire' }
 
 const STATUT_CONFIG: Record<string, { label: string; color: string }> = {
   en_cours:    { label: 'En cours',    color: 'bg-amber-50 text-amber-700' },

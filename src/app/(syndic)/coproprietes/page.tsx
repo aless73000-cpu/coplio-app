@@ -6,7 +6,7 @@ import type { Copropriete } from '@/types'
 import { CoproprietesClient } from '@/components/syndic/CoproprietesClient'
 
 
-export const metadata = { title: 'Copropriétés | Coplio' }
+export const metadata = { title: 'Copropriétés' }
 
 export default async function CopropriétésPage({
   searchParams,

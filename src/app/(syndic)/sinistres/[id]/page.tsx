@@ -7,7 +7,7 @@ import { SINISTRE_STATUS_LABELS } from '@/types'
 import { SinistreAssuranceForm } from '@/components/syndic/SinistreAssuranceForm'
 
 
-export const metadata = { title: 'Détail sinistre | Coplio' }
+export const metadata = { title: 'Détail sinistre' }
 
 const STATUS_STEPS = [
   { key: 'signale', label: 'Signalé', icon: AlertTriangle },

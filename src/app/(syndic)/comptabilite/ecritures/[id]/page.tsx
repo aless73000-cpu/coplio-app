@@ -6,7 +6,7 @@ import { formatDate, formatEuro } from '@/lib/utils'
 import { EcritureActions } from '../_components/EcritureActions'
 
 
-export const metadata = { title: 'Écriture comptable | Coplio' }
+export const metadata = { title: 'Écriture comptable' }
 
 const STATUT_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   brouillon: { label: 'Brouillon', color: 'bg-amber-50 text-amber-700 border-amber-100',  icon: AlertCircle },

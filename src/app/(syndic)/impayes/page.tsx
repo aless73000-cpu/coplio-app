@@ -6,7 +6,7 @@ import { ImpayesTable } from '@/components/syndic/ImpayesTable'
 import type { AppelCharges, Lot, Copropriete } from '@/types'
 
 
-export const metadata = { title: 'Impayés & Relances | Coplio' }
+export const metadata = { title: 'Impayés & Relances' }
 
 type AppelWithDetails = AppelCharges & {
   lot?: Lot & { numero: string }

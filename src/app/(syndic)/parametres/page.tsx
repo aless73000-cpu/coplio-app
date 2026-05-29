@@ -15,6 +15,7 @@ export default async function ParamètresPage() {
     .select('*, cabinet:cabinets(*)')
     .eq('id', user.id)
     .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
 
   return <ParametresClient profile={profile as unknown as Parameters<typeof ParametresClient>[0]['profile']} />
 }

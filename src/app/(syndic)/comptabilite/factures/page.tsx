@@ -5,7 +5,7 @@ import { ChevronLeft, Plus, Receipt, AlertCircle, Clock, Building2 } from 'lucid
 import { formatDate, formatEuro } from '@/lib/utils'
 
 
-export const metadata = { title: 'Factures | Coplio' }
+export const metadata = { title: 'Factures' }
 
 const STATUT_CONFIG: Record<string, { label: string; color: string }> = {
   recu:          { label: 'Reçue',        color: 'bg-blue-50 text-blue-700' },

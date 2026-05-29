@@ -27,7 +27,7 @@ import { formatEuro, formatDate } from '@/lib/utils'
 import type { Lot, Sinistre, Document } from '@/types'
 
 
-export const metadata = { title: 'Détail copropriété | Coplio' }
+export const metadata = { title: 'Détail copropriété' }
 
 interface PageProps {
   params: { id: string }

@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { VotesClient } from '@/components/syndic/VotesClient'
 
-export const metadata = { title: 'Votes en ligne | Coplio' }
+export const metadata = { title: 'Votes en ligne' }
 
 export default async function VotesPage() {
   const supabase = await createClient()
