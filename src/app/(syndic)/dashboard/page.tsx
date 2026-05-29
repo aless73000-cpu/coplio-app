@@ -4,6 +4,9 @@ import { DashboardCanvas } from '@/components/dashboard/DashboardCanvas'
 import type { DashboardData } from '@/components/dashboard/DashboardCanvas'
 import type { Copropriete } from '@/types'
 
+
+export const metadata = { title: 'Tableau de bord | Coplio' }
+
 export default async function DashboardPage({
   searchParams,
 }: {

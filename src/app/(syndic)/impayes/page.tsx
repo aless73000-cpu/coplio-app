@@ -5,6 +5,9 @@ import { formatEuro, getOverdueDays } from '@/lib/utils'
 import { ImpayesTable } from '@/components/syndic/ImpayesTable'
 import type { AppelCharges, Lot, Copropriete } from '@/types'
 
+
+export const metadata = { title: 'Impayés & Relances | Coplio' }
+
 type AppelWithDetails = AppelCharges & {
   lot?: Lot & { numero: string }
   copropriete?: Copropriete

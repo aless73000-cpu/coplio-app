@@ -12,6 +12,9 @@ import { AgIAPVButton } from '@/components/syndic/AgIAPVButton'
 import { getSignedDocumentUrl } from '@/lib/storage'
 import type { AgStatus } from '@/types'
 
+
+export const metadata = { title: 'Détail assemblée | Coplio' }
+
 const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
   planifiee:             { label: 'Planifiée',             cls: 'bg-coplio-blue-bg text-coplio-blue' },
   convocations_envoyees: { label: 'Convoquée',             cls: 'badge-attention' },

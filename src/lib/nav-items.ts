@@ -15,6 +15,9 @@ import {
   Vote,
   Settings2,
   Archive,
+  PenLine,
+  HardHat,
+  UserCog,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -145,6 +148,34 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Archive,
     description: 'Accéder aux données archivées',
   },
+  {
+    id: 'signatures',
+    label: 'Signatures',
+    href: '/signatures',
+    icon: PenLine,
+    description: 'Signatures électroniques de documents',
+  },
+  {
+    id: 'carnet-entretien',
+    label: 'Carnet d\'entretien',
+    href: '/carnet-entretien',
+    icon: HardHat,
+    description: 'Suivi de l\'entretien et des travaux',
+  },
+  {
+    id: 'equipe',
+    label: 'Équipe',
+    href: '/equipe',
+    icon: UserCog,
+    description: 'Membres et collaborateurs du cabinet',
+  },
+  {
+    id: 'notifications',
+    label: 'Notifications',
+    href: '/notifications',
+    icon: Bell,
+    description: 'Centre de notifications et alertes',
+  },
 ]
 
 /** IDs épinglés par défaut dans la nav principale */
@@ -156,4 +187,7 @@ export const DEFAULT_PINNED_IDS: string[] = [
   'messages',
   'sinistres',
   'documents',
+  'assemblees',
+  'impayes',
+  'comptabilite',
 ]

@@ -6,6 +6,9 @@ import { formatEuro } from '@/lib/utils'
 import { LOT_TYPE_LABELS } from '@/types'
 import type { Lot } from '@/types'
 
+
+export const metadata = { title: 'Lots | Coplio' }
+
 export default async function LotsPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

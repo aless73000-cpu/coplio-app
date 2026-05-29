@@ -5,6 +5,9 @@ import { Plus } from 'lucide-react'
 import type { Copropriete } from '@/types'
 import { CoproprietesClient } from '@/components/syndic/CoproprietesClient'
 
+
+export const metadata = { title: 'Copropriétés | Coplio' }
+
 export default async function CopropriétésPage({
   searchParams,
 }: {

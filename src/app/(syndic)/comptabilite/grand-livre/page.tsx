@@ -5,6 +5,9 @@ import { ChevronLeft, FileText, Download } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
 import { ExportGrandLivreButton } from './_components/ExportGrandLivreButton'
 
+
+export const metadata = { title: 'Grand livre | Coplio' }
+
 const PAGE_SIZE = 100
 
 export default async function GrandLivrePage({

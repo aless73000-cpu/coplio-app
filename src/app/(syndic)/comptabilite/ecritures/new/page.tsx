@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 import { EcritureForm } from '../_components/EcritureForm'
 
+
+export const metadata = { title: 'Nouvelle écriture | Coplio' }
+
 export default async function NouvelleEcriturePage({
   searchParams,
 }: {

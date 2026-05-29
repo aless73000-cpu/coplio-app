@@ -5,6 +5,9 @@ import { ChevronLeft, CheckCircle2, Lock, AlertCircle } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
 import { EcritureActions } from '../_components/EcritureActions'
 
+
+export const metadata = { title: 'Écriture comptable | Coplio' }
+
 const STATUT_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   brouillon: { label: 'Brouillon', color: 'bg-amber-50 text-amber-700 border-amber-100',  icon: AlertCircle },
   valide:    { label: 'Validée',   color: 'bg-emerald-50 text-emerald-700 border-emerald-100', icon: CheckCircle2 },

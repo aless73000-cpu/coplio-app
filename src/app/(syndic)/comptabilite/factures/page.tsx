@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { ChevronLeft, Plus, Receipt, AlertCircle, Clock, Building2 } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
 
+
+export const metadata = { title: 'Factures | Coplio' }
+
 const STATUT_CONFIG: Record<string, { label: string; color: string }> = {
   recu:          { label: 'Reçue',        color: 'bg-blue-50 text-blue-700' },
   valide:        { label: 'Validée',      color: 'bg-amber-50 text-amber-700' },

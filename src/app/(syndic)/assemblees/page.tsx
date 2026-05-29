@@ -5,6 +5,9 @@ import { CalendarDays, Plus, Clock, Video, MapPin, Vote } from 'lucide-react'
 import { formatDateTime, getDaysUntil } from '@/lib/utils'
 import type { AssembleeGenerale } from '@/types'
 
+
+export const metadata = { title: 'Assemblées générales | Coplio' }
+
 const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
   planifiee: { label: 'Planifiée', cls: 'bg-coplio-blue-bg text-coplio-blue' },
   convocations_envoyees: { label: 'Convoquée', cls: 'badge-attention' },

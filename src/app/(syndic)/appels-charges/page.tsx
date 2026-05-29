@@ -7,6 +7,9 @@ import { PayerButton } from '@/components/syndic/PayerButton'
 import { ExportAppelsButton } from '@/components/syndic/ExportAppelsButton'
 import type { AppelCharges, Lot, Copropriete } from '@/types'
 
+
+export const metadata = { title: 'Appels de charges | Coplio' }
+
 type AppelWithDetails = AppelCharges & {
   lot?: Pick<Lot, 'id' | 'numero' | 'etage'>
   copropriete?: Pick<Copropriete, 'id' | 'nom'>

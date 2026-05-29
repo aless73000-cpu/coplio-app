@@ -5,6 +5,9 @@ import { ChevronLeft, Landmark, Plus, CheckCircle2, Clock } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
 import { NouveauReleveButton } from './_components/NouveauReleveButton'
 
+
+export const metadata = { title: 'Rapprochement bancaire | Coplio' }
+
 const STATUT_CONFIG: Record<string, { label: string; color: string }> = {
   en_cours:    { label: 'En cours',    color: 'bg-amber-50 text-amber-700' },
   rapproche:   { label: 'Rapproché',   color: 'bg-blue-50 text-blue-700' },

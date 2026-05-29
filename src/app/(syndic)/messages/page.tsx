@@ -2,6 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { SyndicMessages } from '@/components/syndic/SyndicMessages'
 
+
+export const metadata = { title: 'Messages | Coplio' }
+
 export default async function MessagesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

@@ -5,6 +5,9 @@ import { ChevronLeft, Building2, Calendar, Hash, FileText, CreditCard } from 'lu
 import { formatDate, formatEuro } from '@/lib/utils'
 import { FactureActions } from '../_components/FactureActions'
 
+
+export const metadata = { title: 'Facture | Coplio' }
+
 const STATUT_CONFIG: Record<string, { label: string; color: string }> = {
   recu:          { label: 'Reçue',          color: 'bg-blue-50 text-blue-700 border-blue-100' },
   valide:        { label: 'Validée',        color: 'bg-amber-50 text-amber-700 border-amber-100' },

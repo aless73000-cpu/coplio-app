@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { Plus, Upload, UserCheck, UserX, Mail } from 'lucide-react'
 import { CoproprietairesClient } from '@/components/syndic/CoproprietairesClient'
 
+
+export const metadata = { title: 'Copropriétaires | Coplio' }
+
 export default async function CopropriétairesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

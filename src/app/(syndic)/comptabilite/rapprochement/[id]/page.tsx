@@ -5,6 +5,9 @@ import { ChevronLeft } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
 import { RapprochementTable } from '../_components/RapprochementTable'
 
+
+export const metadata = { title: 'Rapprochement bancaire | Coplio' }
+
 export default async function ReleveDetailPage({
   params,
   searchParams,

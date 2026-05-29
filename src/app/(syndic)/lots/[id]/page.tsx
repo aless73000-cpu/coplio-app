@@ -6,6 +6,9 @@ import { formatEuro, formatDate } from '@/lib/utils'
 import { LOT_TYPE_LABELS } from '@/types'
 import type { AppelCharges } from '@/types'
 
+
+export const metadata = { title: 'Détail lot | Coplio' }
+
 export default async function LotPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

@@ -17,6 +17,9 @@ import {
 } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
 
+
+export const metadata = { title: 'Comptabilité | Coplio' }
+
 export default async function ComptabilitePage({
   searchParams,
 }: {

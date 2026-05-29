@@ -5,6 +5,9 @@ import { ChevronLeft, Scale } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
 import { ExportBalanceButton } from '@/app/(syndic)/comptabilite/export/_components/ExportBalanceButton'
 
+
+export const metadata = { title: 'Balance comptable | Coplio' }
+
 const CLASSE_LABELS: Record<number, string> = {
   1: 'Capitaux',
   4: 'Tiers',

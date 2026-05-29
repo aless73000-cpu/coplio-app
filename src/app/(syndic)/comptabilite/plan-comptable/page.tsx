@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, BookOpen, Search } from 'lucide-react'
 
+
+export const metadata = { title: 'Plan comptable | Coplio' }
+
 const CLASSE_LABELS: Record<number, { label: string; color: string }> = {
   1: { label: 'Classe 1 — Capitaux',          color: 'bg-purple-50 text-purple-700 border-purple-100' },
   4: { label: 'Classe 4 — Comptes de tiers',  color: 'bg-blue-50 text-blue-700 border-blue-100' },

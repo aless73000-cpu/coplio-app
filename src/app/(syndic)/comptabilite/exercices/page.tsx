@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 import { ExercicesManager } from './_components/ExercicesManager'
 
+
+export const metadata = { title: 'Exercices comptables | Coplio' }
+
 export default async function ExercicesPage({
   searchParams,
 }: {

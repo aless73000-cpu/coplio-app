@@ -8,6 +8,9 @@ import type { Document, DocumentCategory } from '@/types'
 import { DocumentActions } from '@/components/syndic/DocumentActions'
 import { DocTabs } from '@/components/syndic/DocTabs'
 
+
+export const metadata = { title: 'Documents | Coplio' }
+
 const CATEGORY_ICONS: Record<DocumentCategory, string> = {
   pv_ag: '📋',
   budget: '💰',

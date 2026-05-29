@@ -12,6 +12,9 @@ import {
 } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
 
+
+export const metadata = { title: 'Écritures | Coplio' }
+
 const STATUT_CONFIG = {
   brouillon: { label: 'Brouillon', color: 'bg-amber-50 text-amber-700' },
   valide:    { label: 'Validée',   color: 'bg-slate-100 text-slate-600' },

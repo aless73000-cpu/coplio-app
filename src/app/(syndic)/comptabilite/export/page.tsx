@@ -6,6 +6,9 @@ import { ExportFecButton } from './_components/ExportFecButton'
 import { ExportBalanceButton } from './_components/ExportBalanceButton'
 import { ExportReleveButton } from './_components/ExportReleveButton'
 
+
+export const metadata = { title: 'Export comptable | Coplio' }
+
 export default async function ExportPage({
   searchParams,
 }: {

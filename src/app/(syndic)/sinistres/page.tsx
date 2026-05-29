@@ -6,6 +6,9 @@ import { formatDate } from '@/lib/utils'
 import type { Sinistre, SinistreStatus } from '@/types'
 import { SINISTRE_STATUS_LABELS } from '@/types'
 
+
+export const metadata = { title: 'Sinistres | Coplio' }
+
 const STATUS_ORDER: SinistreStatus[] = [
   'signale',
   'assurance_declaree',

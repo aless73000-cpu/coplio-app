@@ -6,6 +6,9 @@ import { formatDate, formatDateTime } from '@/lib/utils'
 import { SINISTRE_STATUS_LABELS } from '@/types'
 import { SinistreAssuranceForm } from '@/components/syndic/SinistreAssuranceForm'
 
+
+export const metadata = { title: 'Détail sinistre | Coplio' }
+
 const STATUS_STEPS = [
   { key: 'signale', label: 'Signalé', icon: AlertTriangle },
   { key: 'assurance_declaree', label: 'Assurance déclarée', icon: Shield },

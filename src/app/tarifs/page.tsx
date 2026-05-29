@@ -163,8 +163,8 @@ export default function TarifsPage() {
                     { label: 'Relances automatiques', values: [false, true, true] },
                     { label: 'Rapports avancés', values: [false, true, true] },
                     { label: 'Archivage légal 10 ans', values: [false, true, true] },
-                    { label: 'API accès', values: [false, false, true] },
-                    { label: 'Portail brandé', values: [false, false, true] },
+                    { label: 'API accès', values: [false, false, 'Bientôt'] },
+                    { label: 'Portail brandé', values: [false, false, 'Bientôt'] },
                     { label: 'Support prioritaire', values: [false, false, true] },
                   ] as { label: string; values: (boolean | string)[] }[]).map(({ label, values }) => (
                     <tr key={label} className="hover:bg-gray-50/50 transition-colors">
@@ -175,6 +175,8 @@ export default function TarifsPage() {
                             v
                               ? <Check className="w-4 h-4 text-[#374151] mx-auto" />
                               : <span className="block w-4 h-0.5 bg-gray-200 mx-auto rounded" />
+                          ) : v === 'Bientôt' ? (
+                            <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Bientôt</span>
                           ) : (
                             <span className="text-gray-700 font-medium">{v}</span>
                           )}

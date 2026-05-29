@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 import { FactureForm } from '../_components/FactureForm'
 
+
+export const metadata = { title: 'Nouvelle facture | Coplio' }
+
 export default async function NouvelleFacturePage({
   searchParams,
 }: {

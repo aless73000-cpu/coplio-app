@@ -133,6 +133,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
+  // Séparation portail / syndic : un copropriétaire qui tente d'accéder
+  // à une route syndic est redirigé vers son espace (/accueil)
+  const PORTAIL_PREFIXES = [
+    '/accueil', '/mes-', '/mon-', '/signaler', '/espace-conseil',
+  ]
+  const isPortailRoute = PORTAIL_PREFIXES.some(p => pathname.startsWith(p))
+
+  if (!isPortailRoute && !pathname.startsWith('/api/')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    if (profile?.role === 'owner_resident') {
+      return NextResponse.redirect(new URL('/accueil', request.url))
+    }
+  }
+
   return supabaseResponse
 }
 

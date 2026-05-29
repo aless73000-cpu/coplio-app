@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 import { JournauxManager } from './_components/JournauxManager'
 
+
+export const metadata = { title: 'Journaux | Coplio' }
+
 export default async function JournauxPage({
   searchParams,
 }: {

@@ -26,6 +26,9 @@ import {
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { Lot, Sinistre, Document } from '@/types'
 
+
+export const metadata = { title: 'Détail copropriété | Coplio' }
+
 interface PageProps {
   params: { id: string }
 }
@@ -297,7 +300,7 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
                 { label: 'Tantièmes totaux', value: `${ copropriete.tantiemes_totaux ?? '10 000' }` },
                 {
                   label: 'Année de construction',
-                  value: copropriete.annee_construction?.toString() ?? '—',
+                  value: copropriete.annee_construction ? copropriete.annee_construction.toString() : '—',
                 },
                 {
                   label: 'Surface totale',
