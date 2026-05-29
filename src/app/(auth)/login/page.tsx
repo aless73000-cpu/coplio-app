@@ -19,6 +19,7 @@ export default function LoginPage({
           <Building2 className="w-4 h-4 text-white" />
         </div>
         <span className="font-bold text-xl text-[#374151]" style={{ letterSpacing: '-0.02em' }}>Coplio</span>
+        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-500 border border-amber-200 tracking-wider leading-none">BETA</span>
       </Link>
 
       {/* Card */}

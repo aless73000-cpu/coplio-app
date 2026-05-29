@@ -114,6 +114,7 @@ export function Sidebar({
             <Building2 className="w-4 h-4 text-white/80" />
           </div>
           <span className="text-white font-semibold text-xl tracking-tight" style={{ letterSpacing: '-0.02em' }}>Coplio</span>
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 tracking-wider leading-none">BETA</span>
         </Link>
       </div>
 

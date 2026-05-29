@@ -68,6 +68,7 @@ export function PortailSidebar({
             <Home className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold text-base text-white tracking-tight">Coplio</span>
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 tracking-wider leading-none">BETA</span>
         </Link>
         <Link
           href="/mes-notifications"

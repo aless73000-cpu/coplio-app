@@ -60,6 +60,7 @@ export default function Nav() {
           <span className={`font-bold text-xl ${scrolled ? 'text-[#374151]' : 'text-white/80'}`} style={{ letterSpacing: '-0.02em' }}>
             Coplio
           </span>
+          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full tracking-wider leading-none ${scrolled ? 'bg-amber-50 text-amber-500 border border-amber-200' : 'bg-amber-400/20 text-amber-300'}`}>BETA</span>
         </Link>
 
         {/* Desktop nav */}

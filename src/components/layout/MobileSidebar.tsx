@@ -117,6 +117,7 @@ export function MobileSidebar({
               <Building2 className="w-4 h-4 text-white/80" />
             </div>
             <span className="text-white font-bold text-xl">Coplio</span>
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 tracking-wider leading-none">BETA</span>
           </div>
           <button
             onClick={() => setOpen(false)}
