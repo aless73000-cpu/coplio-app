@@ -21,11 +21,12 @@ export default async function GrandLivrePage({
     .select('cabinet_id')
     .eq('id', user.id)
     .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
 
   const { data: coprops } = await supabase
     .from('coproprietes')
     .select('id, nom')
-    .eq('cabinet_id', profile?.cabinet_id ?? '')
+    .eq('cabinet_id', profile.cabinet_id)
     .order('nom')
 
   const selectedId = searchParams.copropriete ?? (coprops ?? [])[0]?.id ?? null

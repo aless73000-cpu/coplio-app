@@ -40,12 +40,13 @@ export default async function CoproprieteDetailPage({ params }: PageProps) {
     .select('cabinet_id')
     .eq('id', user.id)
     .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
 
   const { data: copropriete } = await supabase
     .from('coproprietes')
     .select('*')
     .eq('id', params.id)
-    .eq('cabinet_id', profile?.cabinet_id ?? '')
+    .eq('cabinet_id', profile.cabinet_id)
     .single()
 
   if (!copropriete) notFound()

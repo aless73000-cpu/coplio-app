@@ -18,11 +18,12 @@ export default async function FournisseursPage({
     .select('cabinet_id')
     .eq('id', user.id)
     .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
 
   const { data: fournisseurs } = await supabase
     .from('fournisseurs')
     .select('id, nom, siret, email, telephone, ville, compte_comptable, actif, mode_paiement')
-    .eq('cabinet_id', profile?.cabinet_id ?? '')
+    .eq('cabinet_id', profile.cabinet_id)
     .order('nom')
 
   return (
@@ -45,7 +46,7 @@ export default async function FournisseursPage({
       </div>
 
       <FournisseursManager
-        cabinetId={profile?.cabinet_id ?? ''}
+        cabinetId={profile.cabinet_id}
         fournisseurs={fournisseurs ?? []}
       />
     </div>

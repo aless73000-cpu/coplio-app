@@ -23,11 +23,12 @@ export default async function AssembleesPage() {
     .select('cabinet_id')
     .eq('id', user.id)
     .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
 
   const { data: ags } = await supabase
     .from('assemblees_generales')
     .select('*, copropriete:coproprietes(nom), resolutions:ag_resolutions(count)')
-    .eq('cabinet_id', profile?.cabinet_id ?? '')
+    .eq('cabinet_id', profile.cabinet_id)
     .order('date_ag', { ascending: false })
 
   const aVenir = (ags ?? []).filter((ag) =>

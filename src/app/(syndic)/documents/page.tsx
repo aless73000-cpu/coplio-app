@@ -32,6 +32,7 @@ export default async function DocumentsPage({
     .select('cabinet_id')
     .eq('id', user.id)
     .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
 
   // Use admin client to bypass RLS on documents table (no SELECT policy)
   const admin = createAdminClient()
@@ -41,7 +42,7 @@ export default async function DocumentsPage({
       let q = admin
         .from('documents')
         .select('*, copropriete:coproprietes(nom)')
-        .eq('cabinet_id', profile?.cabinet_id ?? '')
+        .eq('cabinet_id', profile.cabinet_id)
         .order('created_at', { ascending: false })
 
       if (searchParams.categorie && searchParams.categorie !== 'all') {
@@ -55,7 +56,7 @@ export default async function DocumentsPage({
     supabase
       .from('coproprietes')
       .select('id, nom')
-      .eq('cabinet_id', profile?.cabinet_id ?? '')
+      .eq('cabinet_id', profile.cabinet_id)
       .order('nom'),
   ])
 

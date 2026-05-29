@@ -28,12 +28,13 @@ export default async function AppelsChargesPage({
     .select('cabinet_id')
     .eq('id', user.id)
     .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
 
   // Une seule requête coproprietes avec nom pour le filtre ET les IDs pour la clause IN
   const { data: coprops } = await supabase
     .from('coproprietes')
     .select('id, nom')
-    .eq('cabinet_id', profile?.cabinet_id ?? '')
+    .eq('cabinet_id', profile.cabinet_id)
     .order('nom')
 
   const coproprieteIds = (coprops ?? []).map((c) => c.id)

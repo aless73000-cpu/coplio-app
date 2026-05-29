@@ -23,13 +23,14 @@ export default async function FacturationPage({
     .select('cabinet_id, role')
     .eq('id', user.id)
     .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
 
   if (profile?.role !== 'owner') redirect('/dashboard')
 
   const { data: cabinet } = await supabase
     .from('cabinets')
     .select('*')
-    .eq('id', profile.cabinet_id ?? '')
+    .eq('id', profile.cabinet_id)
     .single()
 
   const currentPlan = cabinet?.plan ?? 'trial'

@@ -18,6 +18,7 @@ export default async function NouvelleFacturePage({
     .select('cabinet_id')
     .eq('id', user.id)
     .single()
+  if (!profile?.cabinet_id) redirect('/onboarding')
 
   const selectedId = searchParams.copropriete ?? null
 
@@ -25,7 +26,7 @@ export default async function NouvelleFacturePage({
   const { data: fournisseurs } = await supabase
     .from('fournisseurs')
     .select('id, nom, compte_comptable')
-    .eq('cabinet_id', profile?.cabinet_id ?? '')
+    .eq('cabinet_id', profile.cabinet_id)
     .eq('actif', true)
     .order('nom')
 
