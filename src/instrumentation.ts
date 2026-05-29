@@ -30,6 +30,14 @@ const RECOMMENDED_DEV: string[] = [
 ]
 
 export async function register() {
+  // ── Initialisation Sentry selon le runtime ────────────────
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    await import('../sentry.server.config')
+  }
+  if (process.env.NEXT_RUNTIME === 'edge') {
+    await import('../sentry.edge.config')
+  }
+
   const isProd = process.env.NODE_ENV === 'production'
   const isDev = process.env.NODE_ENV === 'development'
 

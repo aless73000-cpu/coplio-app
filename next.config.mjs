@@ -1,4 +1,5 @@
 import bundleAnalyzer from '@next/bundle-analyzer'
+import { withSentryConfig } from '@sentry/nextjs'
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
@@ -124,4 +125,19 @@ const nextConfig = {
   },
 }
 
-export default withBundleAnalyzer(nextConfig)
+const sentryConfig = {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+
+  // Désactive les source maps en upload si les vars ne sont pas définies
+  silent: !process.env.SENTRY_AUTH_TOKEN,
+
+  // Réduit la taille du bundle côté client
+  widenClientFileUpload: true,
+  hideSourceMaps: true,
+  disableLogger: true,
+  automaticVercelMonitors: true,
+}
+
+export default withSentryConfig(withBundleAnalyzer(nextConfig), sentryConfig)
