@@ -21,14 +21,14 @@ export default async function ImpayésPage() {
     .eq('id', user.id)
     .single()
 
+  if (!profile?.cabinet_id) redirect('/onboarding')
+
   const { data: coproprietes } = await supabase
     .from('coproprietes')
     .select('id')
-    .eq('cabinet_id', profile?.cabinet_id ?? '')
+    .eq('cabinet_id', profile.cabinet_id)
 
   const coproprieteIds = (coproprietes ?? []).map((c) => c.id)
-
-  if (!profile?.cabinet_id) redirect('/onboarding')
 
   const { data: impayes } = await supabase
     .from('appels_charges')

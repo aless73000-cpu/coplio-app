@@ -13,7 +13,7 @@ export default async function MesChargesPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('lot_id, prenom, nom, lot:lots(numero, etage, solde_compte, tantiemes, copropriete:coproprietes(id, nom, iban, banque))')
+    .select('lot_id, prenom, nom, lot:lots(numero, etage, tantiemes, copropriete:coproprietes(id, nom, iban, banque))')
     .eq('id', user.id)
     .single()
 
@@ -40,7 +40,6 @@ export default async function MesChargesPage() {
   const lot = profile.lot as {
     numero: string
     etage?: string
-    solde_compte?: number
     tantiemes?: number
     copropriete: { id: string; nom: string; iban?: string; banque?: string }
   } | null
@@ -59,7 +58,9 @@ export default async function MesChargesPage() {
   const appelsCetteAnnee = appelsList.filter(a => new Date(a.date_echeance).getFullYear() === currentYear)
   const totalAppele = appelsCetteAnnee.reduce((s, a) => s + a.montant, 0)
   const totalPaye = appelsCetteAnnee.reduce((s, a) => s + (a.montant_paye ?? 0), 0)
-  const soldeCompte = lot?.solde_compte ?? 0
+  // Solde calculé dynamiquement à partir des appels (montants payés - montants appelés)
+  // Positif = créditeur (a trop payé), négatif = débiteur (doit de l'argent)
+  const soldeCompte = appelsList.reduce((s, a) => s + (a.montant_paye ?? 0) - a.montant, 0)
 
   // Group by year
   const byYear = appelsList.reduce<Record<number, typeof appelsList>>((acc, a) => {
