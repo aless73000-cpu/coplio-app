@@ -112,9 +112,15 @@ export default async function MonLogementPage() {
     )
   }
 
+  // Calcul dynamique du solde depuis les appels de charges (source de vérité)
+  const { data: appelsCharges } = await supabase
+    .from('appels_charges')
+    .select('montant, montant_paye')
+    .eq('lot_id', lot.id)
+
   const copro = lot.copropriete
-  const solde = lot.solde_compte ?? 0
-  const montantImpaye = lot.montant_impaye ?? 0
+  const solde = (appelsCharges ?? []).reduce((s, a) => s + (a.montant_paye ?? 0) - a.montant, 0)
+  const montantImpaye = (appelsCharges ?? []).reduce((s, a) => s + Math.max(0, a.montant - (a.montant_paye ?? 0)), 0)
   const soldePositif = solde >= 0
 
   return (
@@ -212,7 +218,7 @@ export default async function MonLogementPage() {
             <InfoRow icon={MapPin} label="Adresse"
               value={[copro.adresse, copro.code_postal, copro.ville].filter(Boolean).join(', ')} />
           )}
-          {copro.annee_construction && (
+          {!!copro.annee_construction && (
             <InfoRow icon={Calendar} label="Année de construction" value={String(copro.annee_construction)} />
           )}
           {copro.nb_etages != null && (

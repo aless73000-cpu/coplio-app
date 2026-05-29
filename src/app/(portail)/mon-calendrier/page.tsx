@@ -323,7 +323,7 @@ function EventRow({ event, isToday }: { event: CalEvent; isToday: boolean }) {
         <div className="text-right flex-shrink-0">
           <p className="text-sm font-bold text-coplio-text flex items-center gap-1">
             <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-            {event.date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+            {event.date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' })}
           </p>
         </div>
       )}

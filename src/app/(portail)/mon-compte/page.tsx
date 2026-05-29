@@ -91,6 +91,12 @@ export default async function MonComptePage({
     }
   } | null
 
+  // Calcul dynamique du solde depuis les appels de charges (source de vérité)
+  const { data: appelsLot } = lot?.id
+    ? await supabase.from('appels_charges').select('montant, montant_paye').eq('lot_id', lot.id)
+    : { data: null }
+  const soldeCompte = (appelsLot ?? []).reduce((s, a) => s + (a.montant_paye ?? 0) - a.montant, 0)
+
   const saved = searchParams?.saved === '1'
   const pwdSaved = searchParams?.pwd_saved === '1'
   const pwdError = searchParams?.pwd_error
@@ -240,27 +246,25 @@ export default async function MonComptePage({
             </div>
 
             {/* Solde lot */}
-            {lot.solde_compte != null && (
-              <div className={`mt-3 flex items-center gap-3 p-4 rounded-xl border ${
-                lot.solde_compte >= 0
-                  ? 'bg-slate-100 border-[#374151]/20'
-                  : 'bg-coplio-red-bg border-coplio-red/20'
-              }`}>
-                {lot.solde_compte >= 0
-                  ? <CheckCircle2 className="w-5 h-5 text-[#374151] flex-shrink-0" />
-                  : <AlertTriangle className="w-5 h-5 text-coplio-red flex-shrink-0" />
-                }
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Solde compte lot</p>
-                  <p className={`font-bold text-lg ${lot.solde_compte >= 0 ? 'text-[#374151]' : 'text-coplio-red'}`}>
-                    {lot.solde_compte >= 0 ? '+' : ''}{lot.solde_compte.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {lot.solde_compte >= 0 ? 'Votre compte est à jour' : 'Solde débiteur — contactez votre syndic'}
-                  </p>
-                </div>
+            <div className={`mt-3 flex items-center gap-3 p-4 rounded-xl border ${
+              soldeCompte >= 0
+                ? 'bg-slate-100 border-[#374151]/20'
+                : 'bg-coplio-red-bg border-coplio-red/20'
+            }`}>
+              {soldeCompte >= 0
+                ? <CheckCircle2 className="w-5 h-5 text-[#374151] flex-shrink-0" />
+                : <AlertTriangle className="w-5 h-5 text-coplio-red flex-shrink-0" />
+              }
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Solde compte lot</p>
+                <p className={`font-bold text-lg ${soldeCompte >= 0 ? 'text-[#374151]' : 'text-coplio-red'}`}>
+                  {soldeCompte >= 0 ? '+' : ''}{soldeCompte.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {soldeCompte >= 0 ? 'Votre compte est à jour' : 'Solde débiteur — contactez votre syndic'}
+                </p>
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}

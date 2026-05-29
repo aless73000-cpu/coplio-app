@@ -270,7 +270,8 @@ export default async function MesAssemblees() {
                           <Clock className="w-3.5 h-3.5" />
                           {new Date(ag.date_ag).toLocaleDateString('fr-FR', {
                             weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-                          })} à {new Date(ag.date_ag).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                            timeZone: 'Europe/Paris',
+                          })} à {new Date(ag.date_ag).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' })}
                         </span>
                         {ag.lieu && (
                           <span className="flex items-center gap-1">

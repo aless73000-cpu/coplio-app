@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
-  title: { default: 'Tableau de bord — Coplio', template: '%s | Coplio' },
+  title: { default: 'Tableau de bord', template: '%s | Coplio' },
   robots: { index: false, follow: false },
 }
 import { Sidebar } from '@/components/layout/Sidebar'

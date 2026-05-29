@@ -7,7 +7,7 @@ import { NotificationHandler } from '@/components/portail/NotificationHandler'
 import { SessionGuard } from '@/components/auth/SessionGuard'
 
 export const metadata: Metadata = {
-  title: { default: 'Mon espace — Coplio', template: '%s | Coplio' },
+  title: { default: 'Mon espace', template: '%s | Coplio' },
   robots: { index: false, follow: false },
 }
 
