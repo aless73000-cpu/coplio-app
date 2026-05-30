@@ -20,6 +20,8 @@ const PUBLIC_ROUTES = [
   '/api/auth/register',
   '/api/auth/signout',
   '/api/health',
+  '/sitemap.xml',
+  '/robots.txt',
 ]
 
 export async function middleware(request: NextRequest) {
