@@ -19,6 +19,7 @@ const PUBLIC_ROUTES = [
   '/api/stripe/webhook',
   '/api/auth/register',
   '/api/auth/signout',
+  '/api/health',
 ]
 
 export async function middleware(request: NextRequest) {
