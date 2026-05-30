@@ -8,22 +8,35 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: '/',
         disallow: [
+          // ── Espace syndic ────────────────────────────────────────
           '/dashboard',
           '/coproprietes',
-          '/assemblees',
           '/coproprietaires',
           '/appels-charges',
+          '/messages',
           '/sinistres',
-          '/travaux',
           '/documents',
+          '/assemblees',
+          '/impayes',
           '/agenda',
+          '/comptabilite',
+          '/prestataires',
           '/ia',
+          '/votes',
+          '/relances-config',
+          '/archives',
+          '/signatures',
+          '/carnet-entretien',
+          '/equipe',
+          '/notifications',
+          '/travaux',
           '/parametres',
           '/facturation',
-          '/archives',
-          '/api/',
-          '/admin',
-          '/accueil',      // portail copropriétaire
+          '/importer',
+          '/modeles',
+          '/lots',
+          // ── Espace portail copropriétaire ─────────────────────────
+          '/accueil',
           '/mes-charges',
           '/mes-documents',
           '/mes-assemblees',
@@ -31,19 +44,29 @@ export default function robots(): MetadataRoute.Robots {
           '/mes-messages',
           '/mes-signatures',
           '/mes-travaux',
+          '/mes-contacts',
+          '/mes-notifications',
           '/mon-compte',
           '/mon-calendrier',
+          '/signaler',
+          '/espace-conseil',
+          // ── Auth & système ────────────────────────────────────────
           '/onboarding',
           '/reset-password',
+          '/api/',
+          '/admin',
         ],
       },
       // ── AI training crawlers — exclure tout ──────────────────────
-      { userAgent: 'GPTBot',         disallow: '/' }, // OpenAI
-      { userAgent: 'CCBot',          disallow: '/' }, // Common Crawl
-      { userAgent: 'anthropic-ai',   disallow: '/' }, // Anthropic
-      { userAgent: 'Google-Extended', disallow: '/' }, // Google Bard/Vertex
-      { userAgent: 'PerplexityBot',  disallow: '/' }, // Perplexity
+      { userAgent: 'GPTBot',            disallow: '/' }, // OpenAI
+      { userAgent: 'CCBot',             disallow: '/' }, // Common Crawl
+      { userAgent: 'anthropic-ai',      disallow: '/' }, // Anthropic
+      { userAgent: 'Google-Extended',   disallow: '/' }, // Google Bard/Vertex
+      { userAgent: 'PerplexityBot',     disallow: '/' }, // Perplexity
       { userAgent: 'Applebot-Extended', disallow: '/' }, // Apple AI
+      { userAgent: 'Bytespider',        disallow: '/' }, // ByteDance/TikTok
+      { userAgent: 'Diffbot',           disallow: '/' }, // Diffbot
+      { userAgent: 'omgili',            disallow: '/' }, // Webz.io
     ],
     sitemap: 'https://coplio.fr/sitemap.xml',
     host: 'https://coplio.fr',

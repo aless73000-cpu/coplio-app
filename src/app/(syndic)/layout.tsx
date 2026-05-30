@@ -11,6 +11,7 @@ import { Header } from '@/components/layout/Header'
 import { MobileSidebar } from '@/components/layout/MobileSidebar'
 import { SyndicBottomNav } from '@/components/layout/SyndicBottomNav'
 import { SessionGuard } from '@/components/auth/SessionGuard'
+import { ConflictBanner } from '@/components/auth/ConflictBanner'
 import type { Profile, Cabinet } from '@/types'
 
 export default async function SyndicLayout({
@@ -36,7 +37,7 @@ export default async function SyndicLayout({
     .single()
 
   if (!profile || profile.role === 'owner_resident') {
-    redirect('/accueil')
+    redirect('/accueil?conflict=syndic')
   }
 
   if (!profile.cabinet_id) {
@@ -81,6 +82,7 @@ export default async function SyndicLayout({
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
       <SessionGuard loginPath="/login" />
+      <ConflictBanner />
       {/* Sidebar desktop — cachée sur mobile */}
       <div className="hidden md:flex">
         <Sidebar profile={profile as Profile} cabinet={cabinet as Cabinet} unreadMessages={unreadMessages ?? 0} urgentSinistres={urgentSinistres ?? 0} />

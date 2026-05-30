@@ -5,6 +5,7 @@ import { PortailSidebar } from '@/components/portail/PortailSidebar'
 import { PortailBottomNav } from '@/components/portail/PortailBottomNav'
 import { NotificationHandler } from '@/components/portail/NotificationHandler'
 import { SessionGuard } from '@/components/auth/SessionGuard'
+import { ConflictBanner } from '@/components/auth/ConflictBanner'
 
 export const metadata: Metadata = {
   title: { default: 'Mon espace', template: '%s | Coplio' },
@@ -45,7 +46,7 @@ export default async function PortailLayout({
   ])
 
   if (!profile) redirect('/portail')
-  if (profile.role !== 'owner_resident') redirect('/dashboard')
+  if (profile.role !== 'owner_resident') redirect('/dashboard?conflict=portail')
 
   const lot = profile.lot as { id: string; numero: string; copropriete: { id: string; nom: string } } | null
 
@@ -65,6 +66,7 @@ export default async function PortailLayout({
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#f1f5f9' }}>
       <SessionGuard loginPath="/portail" />
+      <ConflictBanner />
       <PortailSidebar
         prenom={profile.prenom}
         nom={profile.nom}

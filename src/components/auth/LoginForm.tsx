@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { Eye, EyeOff, Loader2, ShieldCheck } from 'lucide-react'
+import { Eye, EyeOff, Loader2, ShieldCheck, MailCheck } from 'lucide-react'
 
 const loginSchema = z.object({
   email: z.string().email('Email invalide'),
@@ -24,6 +24,9 @@ export function LoginForm({ redirectTo, mfaRequired }: LoginFormProps) {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState('')
+  const [showResend, setShowResend] = useState(false)
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendSent, setResendSent] = useState(false)
   const [persist, setPersist] = useState(false)
 
   // 2FA state
@@ -58,6 +61,7 @@ export function LoginForm({ redirectTo, mfaRequired }: LoginFormProps) {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -89,8 +93,18 @@ export function LoginForm({ redirectTo, mfaRequired }: LoginFormProps) {
     router.refresh()
   }
 
+  async function resendConfirmation(email: string) {
+    setResendLoading(true)
+    const supabase = createClient()
+    await supabase.auth.resend({ type: 'signup', email })
+    setResendLoading(false)
+    setResendSent(true)
+  }
+
   async function onSubmit(values: LoginValues) {
     setServerError('')
+    setShowResend(false)
+    setResendSent(false)
     const supabase = createClient()
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -103,6 +117,7 @@ export function LoginForm({ redirectTo, mfaRequired }: LoginFormProps) {
         setServerError('Email ou mot de passe incorrect.')
       } else if (error.message.includes('Email not confirmed')) {
         setServerError('Veuillez confirmer votre email avant de vous connecter.')
+        setShowResend(true)
       } else {
         setServerError(error.message)
       }
@@ -239,8 +254,26 @@ export function LoginForm({ redirectTo, mfaRequired }: LoginFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {serverError && (
-        <div className="p-3.5 bg-red-50 border border-red-200/20 rounded-xl">
+        <div className="p-3.5 bg-red-50 border border-red-200/20 rounded-xl space-y-2">
           <p className="text-red-500 text-sm">{serverError}</p>
+          {showResend && (
+            resendSent ? (
+              <p className="text-xs text-green-600 flex items-center gap-1.5">
+                <MailCheck className="w-3.5 h-3.5" />
+                Email de confirmation renvoyé !
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={() => resendConfirmation(watch('email'))}
+                disabled={resendLoading}
+                className="text-xs text-red-700 underline hover:no-underline disabled:opacity-50 flex items-center gap-1"
+              >
+                {resendLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+                Renvoyer l&apos;email de confirmation
+              </button>
+            )
+          )}
         </div>
       )}
 

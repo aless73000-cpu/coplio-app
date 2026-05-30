@@ -7,19 +7,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // ── Pages marketing — priorité haute ─────────────────────────
     {
       url: BASE,
-      lastModified: new Date('2026-05-26'),
+      lastModified: new Date('2026-05-31'),
       changeFrequency: 'weekly',
       priority: 1.0,
     },
     {
       url: `${BASE}/tarifs`,
-      lastModified: new Date('2026-05-26'),
+      lastModified: new Date('2026-05-31'),
       changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
       url: `${BASE}/register`,
-      lastModified: new Date('2026-05-26'),
+      lastModified: new Date('2026-05-31'),
       changeFrequency: 'monthly',
       priority: 0.9,
     },
