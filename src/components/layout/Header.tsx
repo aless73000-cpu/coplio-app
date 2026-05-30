@@ -1,6 +1,7 @@
 'use client'
 
 import { Bell, Search, Building2, Home, Users, AlertTriangle, CalendarDays, Loader2 } from 'lucide-react'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -190,7 +191,7 @@ export function Header({ title, notifications: initial = [], userId, mobileSideb
   }
 
   return (
-    <header className="h-14 bg-white border-b border-slate-100 flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30" style={{ boxShadow: '0 1px 0 rgba(0,0,0,0.04)' }}>
+    <header className="h-14 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30" style={{ boxShadow: '0 1px 0 rgba(0,0,0,0.04)' }}>
       {mobileSidebar}
 
       {title && (
@@ -200,6 +201,7 @@ export function Header({ title, notifications: initial = [], userId, mobileSideb
       <GlobalSearch className="hidden md:flex flex-1" />
 
       <div className="flex items-center gap-2 ml-auto">
+        <ThemeToggle />
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setShowNotifications(!showNotifications)}

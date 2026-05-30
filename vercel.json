@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/trial-ending",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/ag-rappel",
+      "schedule": "0 8 * * *"
     }
   ]
 }

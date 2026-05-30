@@ -80,7 +80,7 @@ export default async function SyndicLayout({
   }
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
+    <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
       <SessionGuard loginPath="/login" />
       <ConflictBanner />
       {/* Sidebar desktop — cachée sur mobile */}
@@ -100,7 +100,7 @@ export default async function SyndicLayout({
             />
           }
         />
-        <main className="flex-1 overflow-y-auto px-4 py-5 pb-24 md:px-6 md:py-6">
+        <main className="flex-1 overflow-y-auto px-4 py-5 pb-24 md:px-6 md:py-6 dark:bg-slate-950">
           <div className="max-w-6xl mx-auto">
             {children}
           </div>

@@ -4,6 +4,7 @@ import Script from 'next/script'
 import '@/styles/globals.css'
 import { Toaster } from 'sonner'
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration'
+import { ThemeProvider } from '@/components/ui/ThemeProvider'
 import {
   OrganizationJsonLd,
   WebSiteJsonLd,
@@ -132,6 +133,7 @@ export default function RootLayout({
       {/* inter.variable expose --font-inter comme fallback ; pas de inter.className
           pour que -apple-system (SF Pro sur macOS) soit utilisé en priorité */}
       <body className={inter.variable}>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
         <ServiceWorkerRegistration />
         {children}
         <Toaster
@@ -158,6 +160,7 @@ export default function RootLayout({
             strategy="afterInteractive"
           />
         )}
+        </ThemeProvider>
       </body>
     </html>
   )

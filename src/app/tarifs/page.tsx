@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { Check, ArrowLeft } from 'lucide-react'
 import { SoftwareApplicationJsonLd } from '@/components/seo/JsonLd'
 import { PLANS_CONFIG } from '@/types'
+import Nav from '@/components/landing/Nav'
+import Footer from '@/components/landing/Footer'
 
 const { starter, pro, expert } = PLANS_CONFIG
 
@@ -47,27 +49,11 @@ export default function TarifsPage() {
       <SoftwareApplicationJsonLd />
 
       <div className="min-h-screen bg-white">
-        {/* Back bar — mobile only */}
-        <div className="sticky top-0 z-10 md:hidden flex items-center gap-2 px-4 py-3 bg-white/90 backdrop-blur border-b border-gray-100">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-medium text-[#374151]"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Accueil
-          </Link>
-        </div>
+        {/* Navigation principale — identique à la landing */}
+        <Nav />
 
         {/* Header */}
         <div className="max-w-5xl mx-auto px-6 pt-10 pb-4">
-          <Link
-            href="/"
-            className="hidden md:inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#374151] transition-colors mb-8"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Retour à l&apos;accueil
-          </Link>
-
           <div className="text-center mb-16">
             <span className="text-[11px] font-bold text-[#374151] uppercase tracking-[0.18em]">
               Tarifs
@@ -194,6 +180,9 @@ export default function TarifsPage() {
             Résiliation en 1 clic · Données exportables à tout moment · Hébergement 🇪🇺 RGPD
           </p>
         </div>
+
+        {/* Footer identique à la landing */}
+        <Footer />
       </div>
     </>
   )

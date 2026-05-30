@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { withErrorHandler } from '@/lib/api-handler'
 import { logAction } from '@/lib/audit'
+import { Email } from '@/lib/email'
+import { fireAndForget } from '@/lib/utils'
+import { captureException } from '@/lib/monitoring'
 
 const schema = z.object({
   titre: z.string().min(3),
@@ -66,6 +69,46 @@ export const POST = withErrorHandler(async (request: Request) => {
       entite_id: data.id,
       entite_nom: parsed.data.titre,
     })
+
+    // Email d'alerte aux gestionnaires du cabinet (non bloquant)
+    if (members?.length) {
+      const { data: gestionnaires } = await admin
+        .from('profiles')
+        .select('email, prenom')
+        .eq('cabinet_id', profile.cabinet_id)
+        .not('email', 'is', null)
+
+      const { data: copropriete } = await admin
+        .from('coproprietes')
+        .select('nom')
+        .eq('id', parsed.data.copropriete_id)
+        .single()
+
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
+
+      for (const g of gestionnaires ?? []) {
+        if (!g.email) continue
+        fireAndForget(
+          () => Email.criticalAlert(
+            {
+              titre: `Nouveau sinistre déclaré — ${copropriete?.nom ?? 'Copropriété'}`,
+              message: parsed.data.description ?? `Sinistre "${parsed.data.titre}" déclaré.`,
+              severity: parsed.data.status === 'urgence' ? 'critical' : 'warning',
+              details: {
+                'Référence': data.reference ?? data.id,
+                'Titre': parsed.data.titre,
+                'Copropriété': copropriete?.nom ?? '—',
+                'Statut': 'Signalé',
+              },
+              actionUrl: `${appUrl}/sinistres/${data.id}`,
+              actionLabel: 'Voir le sinistre',
+            },
+            g.email
+          ),
+          { attempts: 2, onFailure: err => captureException(err, { context: 'sinistre-created-email' }) }
+        )
+      }
+    }
 
     return NextResponse.json(data)
   } catch {

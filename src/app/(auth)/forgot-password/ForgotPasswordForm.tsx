@@ -34,14 +34,17 @@ export default function ForgotPasswordForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-coplio-bg px-4">
-      <div className="w-full max-w-md">
-        <Link href="/" className="flex items-center gap-2 mb-8 w-fit">
-          <div className="w-8 h-8 bg-[#374151] rounded-lg flex items-center justify-center">
-            <Building2 className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-coplio-text font-bold text-xl">Coplio</span>
-        </Link>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50">
+      {/* Logo — même style que /login et /register */}
+      <Link href="/" className="flex items-center gap-2.5 mb-10 group">
+        <div className="w-9 h-9 bg-[#374151] rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+          <Building2 className="w-4 h-4 text-white" />
+        </div>
+        <span className="font-bold text-xl text-[#374151]" style={{ letterSpacing: '-0.02em' }}>Coplio</span>
+        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-500 border border-amber-200 tracking-wider leading-none">BETA</span>
+      </Link>
+
+      <div className="w-full max-w-[420px]">
 
         {sent ? (
           <div className="coplio-card text-center py-8">
@@ -55,14 +58,14 @@ export default function ForgotPasswordForm() {
             </Link>
           </div>
         ) : (
-          <div className="coplio-card">
-            <div className="mb-6">
-              <Link href="/login" className="flex items-center gap-1.5 text-muted-foreground hover:text-coplio-text text-sm mb-4 transition-colors">
+          <div className="bg-white rounded-3xl border border-slate-100 p-8" style={{ boxShadow: '0 4px 6px rgba(0,0,0,0.03), 0 20px 60px rgba(0,0,0,0.07)' }}>
+            <div className="mb-7">
+              <Link href="/login" className="flex items-center gap-1.5 text-slate-400 hover:text-[#374151] text-sm mb-5 transition-colors w-fit">
                 <ArrowLeft className="w-4 h-4" />
-                Retour
+                Retour à la connexion
               </Link>
-              <h1 className="text-2xl font-bold text-coplio-text">Mot de passe oublié</h1>
-              <p className="text-muted-foreground text-sm mt-1">
+              <h1 className="text-2xl font-bold text-[#374151]" style={{ letterSpacing: '-0.03em' }}>Mot de passe oublié</h1>
+              <p className="text-slate-400 mt-1.5 text-sm">
                 Entrez votre email pour recevoir un lien de réinitialisation.
               </p>
             </div>
@@ -91,9 +94,11 @@ export default function ForgotPasswordForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#374151] text-white font-medium py-2.5 px-4 rounded-lg
-                           hover:bg-[#374151]/90 transition-colors disabled:opacity-60
-                           flex items-center justify-center gap-2 text-sm"
+                className="w-full bg-[#374151] text-white font-semibold py-3.5 px-4 rounded-xl
+                         hover:bg-[#4B5563] transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                         flex items-center justify-center gap-2 text-sm shadow-apple-sm
+                         shadow-[#374151]/20 hover:-translate-y-px hover:shadow-apple-md"
+              style={{ letterSpacing: '-0.01em' }}
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                 Envoyer le lien
@@ -103,5 +108,6 @@ export default function ForgotPasswordForm() {
         )}
       </div>
     </div>
+
   )
 }

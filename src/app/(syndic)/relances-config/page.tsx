@@ -34,16 +34,22 @@ export default function RelancesConfigPage() {
   const [coproprietes, setCoproprietes] = useState<Copropriete[]>([])
   const [selected, setSelected] = useState('')
   const [params, setParams] = useState<Params | null>(null)
+  const [loadingCopros, setLoadingCopros] = useState(true)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    fetch('/api/coproprietes').then(r => r.json()).then(d => {
-      const list = Array.isArray(d) ? d : (d.data ?? [])
-      setCoproprietes(list)
-      if (list.length > 0) setSelected(list[0].id)
-    })
+    setLoadingCopros(true)
+    fetch('/api/coproprietes')
+      .then(r => r.json())
+      .then(d => {
+        const list: Copropriete[] = Array.isArray(d) ? d : (d.data ?? [])
+        setCoproprietes(list)
+        if (list.length > 0) setSelected(list[0].id)
+      })
+      .catch(() => {/* silencieux */})
+      .finally(() => setLoadingCopros(false))
   }, [])
 
   useEffect(() => {
@@ -51,7 +57,8 @@ export default function RelancesConfigPage() {
     setLoading(true)
     fetch(`/api/relances-parametres?copropriete_id=${selected}`)
       .then(r => r.json())
-      .then(d => { setParams(d); setLoading(false) })
+      .then(d => { setParams(d ?? null); setLoading(false) })
+      .catch(() => setLoading(false))
   }, [selected])
 
   async function save() {
@@ -81,10 +88,22 @@ export default function RelancesConfigPage() {
       {/* Sélecteur copropriété */}
       <div className="coplio-card">
         <label className="block text-sm font-medium text-coplio-text mb-2">Copropriété</label>
-        <select value={selected} onChange={e => setSelected(e.target.value)}
-          className="w-full px-3 py-2.5 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#374151]/20">
-          {coproprietes.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
-        </select>
+        {loadingCopros ? (
+          <div className="flex items-center gap-2 py-2">
+            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Chargement…</span>
+          </div>
+        ) : coproprietes.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-2">
+            Aucune copropriété trouvée.{' '}
+            <a href="/coproprietes/new" className="text-[#374151] underline">Créez-en une</a>.
+          </p>
+        ) : (
+          <select value={selected} onChange={e => setSelected(e.target.value)}
+            className="w-full px-3 py-2.5 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#374151]/20">
+            {coproprietes.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
+          </select>
+        )}
       </div>
 
       {loading && <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>}

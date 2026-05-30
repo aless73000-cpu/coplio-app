@@ -189,9 +189,9 @@ export function CoproprietairesClient({ data }: { data: Coproprietaire[] }) {
                     </div>
                     <div className="mt-1 space-y-1">
                       {c.email && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 min-w-0">
                           <Mail className="w-3 h-3 flex-shrink-0" />
-                          {c.email}
+                          <span className="truncate">{c.email}</span>
                         </p>
                       )}
                       {c.telephone && (

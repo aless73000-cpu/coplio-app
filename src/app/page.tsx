@@ -33,6 +33,7 @@ import QuiSommesNous  from '@/components/landing/QuiSommesNous'
 import FAQ            from '@/components/landing/FAQ'
 import CtaFinal       from '@/components/landing/CtaFinal'
 import Footer         from '@/components/landing/Footer'
+import VideoDemo      from '@/components/landing/VideoDemo'
 
 // Skeleton animé qui imite la structure de FeaturesShowcase.
 // Fixe le même height que le composant réel pour éviter le CLS,
@@ -91,6 +92,7 @@ export default async function LandingPage() {
         <StickyBanner />
         <Hero />
         <TrustBar />
+        <VideoDemo />
         <DemoSection />
         <FeaturesShowcase />
         <BentoFeatures />

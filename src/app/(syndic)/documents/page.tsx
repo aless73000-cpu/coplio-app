@@ -1,7 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { FileText, Upload, FolderOpen } from 'lucide-react'
+import { FileText, Upload, FolderOpen, Clipboard, Calculator, PenLine, AlertTriangle, Receipt, Scale, File, type LucideIcon } from 'lucide-react'
 import { formatDate, formatFileSize } from '@/lib/utils'
 import { DOCUMENT_CATEGORY_LABELS } from '@/types'
 import type { Document, DocumentCategory } from '@/types'
@@ -11,14 +11,14 @@ import { DocTabs } from '@/components/syndic/DocTabs'
 
 export const metadata = { title: 'Documents' }
 
-const CATEGORY_ICONS: Record<DocumentCategory, string> = {
-  pv_ag: '📋',
-  budget: '💰',
-  contrat: '📝',
-  sinistre: '⚠️',
-  appel_fonds: '💳',
-  reglement: '📜',
-  autre: '📄',
+const CATEGORY_ICONS: Record<DocumentCategory, LucideIcon> = {
+  pv_ag: Clipboard,
+  budget: Calculator,
+  contrat: PenLine,
+  sinistre: AlertTriangle,
+  appel_fonds: Receipt,
+  reglement: Scale,
+  autre: File,
 }
 
 export default async function DocumentsPage({
@@ -114,7 +114,7 @@ export default async function DocumentsPage({
                 : 'bg-white text-coplio-text border-border hover:border-[#374151]/30'
             }`}
           >
-            <span>{CATEGORY_ICONS[cat]}</span>
+            {(() => { const Icon = CATEGORY_ICONS[cat]; return <Icon className="w-4 h-4" /> })()}
             {DOCUMENT_CATEGORY_LABELS[cat]}
           </Link>
         ))}
@@ -142,7 +142,7 @@ export default async function DocumentsPage({
           {Object.entries(byCategorie).map(([cat, docs]) => (
             <div key={cat} className="coplio-card">
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-lg">{CATEGORY_ICONS[cat as DocumentCategory]}</span>
+                {(() => { const Icon = CATEGORY_ICONS[cat as DocumentCategory] ?? File; return <Icon className="w-4 h-4 text-[#374151]" /> })()}
                 <h2 className="font-semibold text-coplio-text">
                   {DOCUMENT_CATEGORY_LABELS[cat as DocumentCategory] || cat}
                 </h2>
