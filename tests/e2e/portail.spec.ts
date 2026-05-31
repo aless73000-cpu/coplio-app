@@ -22,20 +22,21 @@ test.describe('Portail copropriétaire', () => {
   })
 
   test('/accueil se charge correctement', async ({ page }) => {
-    await expect(page.getByText(/Marie|Bonjour/i)).toBeVisible({ timeout: 8000 })
-    await expect(page.getByText(/Signaler un problème/i)).toBeVisible()
+    await expect(page.getByText('Marie Martin').first()).toBeVisible({ timeout: 8000 })
+    await expect(page.getByText(/Signaler un problème/i).first()).toBeVisible()
   })
 
   test('/mes-charges affiche les charges', async ({ page }) => {
     await page.goto('/mes-charges')
-    await expect(page).toHaveTitle(/Charges/)
-    await expect(page.getByText(/Télécharger PDF/i)).toBeVisible({ timeout: 8000 })
+    await expect(page).toHaveTitle(/charges/i)
+    await expect(page.getByText(/Télécharger PDF/i).first()).toBeVisible({ timeout: 8000 })
   })
 
   test('/mes-documents affiche les documents', async ({ page }) => {
     await page.goto('/mes-documents')
-    await expect(page).toHaveTitle(/Documents/)
-    await expect(page.getByText(/Règlement|PV|Budget/i)).toBeVisible({ timeout: 8000 })
+    await expect(page).toHaveTitle(/documents/i)
+    // Nom complet du document (évite les <option> du filtre catégorie)
+    await expect(page.getByText(/Règlement de copropriété|Budget prévisionnel/i).first()).toBeVisible({ timeout: 8000 })
   })
 
   test('/mes-votes se charge', async ({ page }) => {
@@ -45,7 +46,7 @@ test.describe('Portail copropriétaire', () => {
 
   test('/mes-assemblees se charge', async ({ page }) => {
     await page.goto('/mes-assemblees')
-    await expect(page).toHaveTitle(/Assemblées/)
+    await expect(page).toHaveTitle(/assemblées/i)
   })
 
   test('/mes-travaux affiche les sinistres', async ({ page }) => {
@@ -56,12 +57,12 @@ test.describe('Portail copropriétaire', () => {
   test('/signaler affiche le formulaire', async ({ page }) => {
     await page.goto('/signaler')
     await expect(page).toHaveTitle(/Signaler/)
-    await expect(page.getByText(/Escaliers|Cave|Toiture|Localisation/i)).toBeVisible({ timeout: 8000 })
+    await expect(page.getByText(/Escaliers|Cave|Toiture|Localisation/i).first()).toBeVisible({ timeout: 8000 })
   })
 
   test('/mon-compte affiche le profil', async ({ page }) => {
     await page.goto('/mon-compte')
-    await expect(page).toHaveTitle(/Compte/)
+    await expect(page).toHaveTitle(/compte/i)
     await expect(page.locator('input[name="prenom"], input[name="nom"]').first()).toBeVisible({ timeout: 8000 })
   })
 

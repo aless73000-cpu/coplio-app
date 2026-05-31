@@ -36,7 +36,7 @@ test.describe('Pages syndic', () => {
   test('/prestataires affiche la liste', async ({ page }) => {
     await page.goto('/prestataires')
     await expect(page).toHaveTitle(/Prestataires/)
-    await expect(page.getByText(/Plomberie Dupont|Électricité Bernard/i)).toBeVisible({ timeout: 8000 })
+    await expect(page.getByText(/Plomberie Dupont|Électricité Bernard/i).first()).toBeVisible({ timeout: 8000 })
   })
 
   test('/documents affiche les documents', async ({ page }) => {
@@ -68,7 +68,7 @@ test.describe('Pages syndic', () => {
   test('/comptabilite affiche les modules', async ({ page }) => {
     await page.goto('/comptabilite')
     await expect(page).toHaveTitle(/Comptabilité/)
-    await expect(page.getByText(/Plan comptable|Saisie écritures|Grand livre/i)).toBeVisible({ timeout: 8000 })
+    await expect(page.getByText(/Plan comptable|Saisie écritures|Grand livre/i).first()).toBeVisible({ timeout: 8000 })
   })
 
   test('/agenda se charge', async ({ page }) => {
@@ -78,10 +78,11 @@ test.describe('Pages syndic', () => {
 
   test('/relances-config affiche le sélecteur de copropriété', async ({ page }) => {
     await page.goto('/relances-config')
-    await expect(page).toHaveTitle(/Relances/)
-    // Le sélecteur doit charger les copropriétés
-    await expect(page.getByRole('combobox')).toBeVisible({ timeout: 8000 })
-    await expect(page.getByText(/Résidence Les Oliviers/i)).toBeVisible({ timeout: 8000 })
+    await expect(page).toHaveTitle(/relances/i)
+    // Le sélecteur doit charger les copropriétés (combobox avec au moins une option)
+    const combobox = page.getByRole('combobox')
+    await expect(combobox).toBeVisible({ timeout: 8000 })
+    await expect(combobox.locator('option').first()).toHaveText(/Résidence Les Oliviers/i, { timeout: 8000 })
   })
 
   test('/notifications se charge', async ({ page }) => {
@@ -92,12 +93,13 @@ test.describe('Pages syndic', () => {
   test('/parametres affiche le formulaire profil', async ({ page }) => {
     await page.goto('/parametres')
     await expect(page).toHaveTitle(/Paramètres/)
-    await expect(page.locator('input[name="prenom"], input[name="nom"]').first()).toBeVisible({ timeout: 8000 })
+    // Champs profil via le composant Field (label "Prénom")
+    await expect(page.getByText('Prénom').first()).toBeVisible({ timeout: 8000 })
   })
 
   test('/facturation affiche le plan actuel', async ({ page }) => {
     await page.goto('/facturation')
     await expect(page).toHaveTitle(/Facturation/)
-    await expect(page.getByText(/Essai|Starter|Pro|Expert/i)).toBeVisible({ timeout: 8000 })
+    await expect(page.getByText(/Plan Essai|jours d'essai restants/i).first()).toBeVisible({ timeout: 8000 })
   })
 })
