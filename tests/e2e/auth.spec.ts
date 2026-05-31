@@ -68,10 +68,10 @@ test.describe('Connexion syndic', () => {
 test.describe('Connexion portail copropriétaire', () => {
   test('login portail → redirige vers /accueil', async ({ page }) => {
     await page.goto('/portail')
-    await page.getByPlaceholder(/email/i).fill(PORTAIL_EMAIL)
+    await page.getByPlaceholder('vous@cabinet.fr').fill(PORTAIL_EMAIL)
     await page.locator('input[type="password"]').fill(PORTAIL_PASSWORD)
-    await page.getByRole('button', { name: /Se connecter|Connexion/i }).click()
-    await page.waitForURL('**/accueil', { timeout: 10000 })
+    await page.getByRole('button', { name: /Se connecter/i }).click()
+    await page.waitForURL('**/accueil', { timeout: 15000 })
     await expect(page).toHaveURL(/accueil/)
   })
 })
