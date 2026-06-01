@@ -94,6 +94,9 @@
     "pg": "^8.20.0",
     "playwright": "^1.46.1",
     "postcss": "^8.4.41",
-    "vitest": "^2.0.5"
+    "vitest": "^4.1.8"
+  },
+  "overrides": {
+    "dompurify": "^3.4.7"
   }
 }
