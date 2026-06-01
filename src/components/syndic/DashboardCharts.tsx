@@ -40,6 +40,7 @@ export function EvolutionChart({ data }: EvolutionProps) {
           <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
           <XAxis
             dataKey="mois"
+            interval={0}
             tick={{ fontSize: 11, fill: '#888' }}
             tickLine={false}
             axisLine={false}
@@ -48,6 +49,7 @@ export function EvolutionChart({ data }: EvolutionProps) {
             tick={{ fontSize: 11, fill: '#888' }}
             tickLine={false}
             axisLine={false}
+            allowDecimals={false}
             tickFormatter={(v) => `${(v / 1000).toFixed(0)}k€`}
           />
           <Tooltip

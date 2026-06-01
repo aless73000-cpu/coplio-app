@@ -15,8 +15,9 @@ const config: Config = {
           green:         '#374151',   // Gris foncé principal (gray-700)
           'green-light': '#F1F5F9',   // Slate-100 — fond neutre
           'green-medium':'#64748B',   // Slate-500 — secondaire
-          text:          '#1D1D1F',   // Apple near-black
-          bg:            '#F8FAFC',   // Slate-50 — fond page
+          // text & bg pointent vers les variables CSS → s'adaptent au dark mode
+          text:          'hsl(var(--foreground))',  // near-black en clair, near-white en sombre
+          bg:            'hsl(var(--background))',   // slate-50 en clair, slate-950 en sombre
           amber:         '#92400E',
           'amber-bg':    '#FFFBEB',
           red:           '#C0392B',

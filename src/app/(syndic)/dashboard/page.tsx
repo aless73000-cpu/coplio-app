@@ -119,12 +119,14 @@ export default async function DashboardPage({
   // ─── KPIs ──────────────────────────────────────────────────
   const nbLots = (coproprietes ?? []).reduce((s: number, c) => s + (c.nb_lots ?? 0), 0)
 
+  const nowDate = new Date()
   const kpis = {
     nb_coproprietes: coproprietes?.length ?? 0,
     nb_lots: nbLots,
     nb_sinistres_ouverts: sinistres?.length ?? 0,
+    // Impayé = non payé ET échéance dépassée (un appel non encore dû n'est pas un impayé)
     montant_total_impayes: allAppels
-      .filter((a) => !a.paye)
+      .filter((a) => !a.paye && a.date_echeance && new Date(a.date_echeance) < nowDate)
       .reduce((s, a) => s + (a.montant - a.montant_paye), 0),
     nb_ag_a_preparer: agProchaines?.length ?? 0,
     nb_coproprietaires: nbCoproprietairesTotal ?? 0,

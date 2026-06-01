@@ -46,10 +46,8 @@ export default async function ImpayésPage() {
     .limit(1000)
 
   const now = new Date()
-  const total = (impayes ?? []).reduce(
-    (s: number, a) => s + (a.montant - (a.montant_paye ?? 0)),
-    0
-  )
+  const reste = (a: { montant: number; montant_paye?: number | null }) =>
+    a.montant - (a.montant_paye ?? 0)
 
   const categories = {
     avenir: (impayes ?? []).filter((a) => new Date(a.date_echeance) >= now),
@@ -64,18 +62,28 @@ export default async function ImpayésPage() {
     ancien: (impayes ?? []).filter((a) => getOverdueDays(a.date_echeance) >= 90),
   }
 
+  // « Impayé » = échéance dépassée. Les appels à venir sont comptés à part.
+  const nbEnRetard = categories.recent.length + categories.moyen.length + categories.ancien.length
+  const totalEnRetard = [...categories.recent, ...categories.moyen, ...categories.ancien]
+    .reduce((s: number, a) => s + reste(a), 0)
+  const totalAvenir = categories.avenir.reduce((s: number, a) => s + reste(a), 0)
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">Impayés & Relances</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {impayes?.length ?? 0} dossier{(impayes?.length ?? 0) > 1 ? 's' : ''} impayé{(impayes?.length ?? 0) > 1 ? 's' : ''}
+            {nbEnRetard} en retard
+            {categories.avenir.length > 0 && ` · ${categories.avenir.length} à venir`}
           </p>
         </div>
         <div className="sm:text-right">
-          <p className="text-2xl font-bold text-coplio-red">{formatEuro(total)}</p>
-          <p className="text-xs text-muted-foreground">Total à recouvrer</p>
+          <p className="text-2xl font-bold text-coplio-red">{formatEuro(totalEnRetard)}</p>
+          <p className="text-xs text-muted-foreground">
+            En retard à recouvrer
+            {totalAvenir > 0 && ` · ${formatEuro(totalAvenir)} à venir`}
+          </p>
         </div>
       </div>
 
