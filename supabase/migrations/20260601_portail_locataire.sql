@@ -67,6 +67,29 @@ CREATE POLICY conversations_tenant ON conversations
   USING (tenant_id = auth.uid())
   WITH CHECK (tenant_id = auth.uid());
 
+-- lots : un tenant lit SON lot (pour afficher numéro/copropriété)
+DROP POLICY IF EXISTS lots_tenant_select ON lots;
+CREATE POLICY lots_tenant_select ON lots
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles p
+      WHERE p.id = auth.uid() AND p.role = 'tenant' AND p.lot_id = lots.id
+    )
+  );
+
+-- coproprietes : un tenant lit SA copropriété (nom/adresse pour affichage)
+DROP POLICY IF EXISTS coproprietes_tenant_select ON coproprietes;
+CREATE POLICY coproprietes_tenant_select ON coproprietes
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles p
+      JOIN lots l ON l.id = p.lot_id
+      WHERE p.id = auth.uid() AND p.role = 'tenant' AND l.copropriete_id = coproprietes.id
+    )
+  );
+
 -- messages : un tenant accède aux messages de SES conversations
 DROP POLICY IF EXISTS messages_tenant ON messages;
 CREATE POLICY messages_tenant ON messages

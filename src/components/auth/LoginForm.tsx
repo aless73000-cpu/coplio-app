@@ -82,7 +82,7 @@ export function LoginForm({ redirectTo, mfaRequired }: LoginFormProps) {
         .eq('id', loggedUser.id)
         .single()
 
-      if (profile?.role === 'owner_resident') {
+      if (profile?.role === 'owner_resident' || profile?.role === 'tenant') {
         router.push('/accueil')
         router.refresh()
         return
