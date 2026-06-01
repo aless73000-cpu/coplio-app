@@ -135,7 +135,8 @@ export default async function EspaceConseilPage() {
   const allAppels = (appelsCharges ?? []) as { montant: number; montant_paye: number; paye: boolean; date_echeance: string }[]
   const totalEmis = allAppels.reduce((s, a) => s + a.montant, 0)
   const totalRecouvre = allAppels.reduce((s, a) => s + a.montant_paye, 0)
-  const totalImpayes = allAppels.filter(a => !a.paye).reduce((s, a) => s + (a.montant - a.montant_paye), 0)
+  // Impayé = non payé ET échéance dépassée (cohérent avec nbImpayes ci-dessous)
+  const totalImpayes = allAppels.filter(a => !a.paye && new Date(a.date_echeance) < new Date()).reduce((s, a) => s + (a.montant - a.montant_paye), 0)
   const tauxRecouvrement = totalEmis > 0 ? Math.round((totalRecouvre / totalEmis) * 100) : 100
   const nbImpayes = allAppels.filter(a => !a.paye && new Date(a.date_echeance) < new Date()).length
 

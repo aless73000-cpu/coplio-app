@@ -60,7 +60,7 @@ export const GET = withErrorHandler(async () => {
 
   const dataResume = JSON.stringify({
     coproprietes: (copros ?? []).map(c => ({ nom: c.nom, nb_lots: c.nb_lots, statut: c.statut, montant_impayes: c.montant_impayes })),
-    totalImpayes: (appels.data ?? []).filter(a => !a.paye).reduce((s, a) => s + (a.montant - (a.montant_paye ?? 0)), 0),
+    totalImpayes: (appels.data ?? []).filter(a => !a.paye && a.date_echeance && new Date(a.date_echeance) < new Date()).reduce((s, a) => s + (a.montant - (a.montant_paye ?? 0)), 0),
     sinistresParStatut: (sinistres.data ?? []).reduce((acc, s) => {
       acc[s.status ?? 'unknown'] = (acc[s.status ?? 'unknown'] || 0) + 1
       return acc

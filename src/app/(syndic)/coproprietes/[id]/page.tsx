@@ -106,7 +106,9 @@ export default async function CoproprieteDetailPage(props: PageProps) {
   const totalCharges = (appels ?? []).reduce((s, a) => s + a.montant, 0)
   const totalRecouvre = (appels ?? []).reduce((s, a) => s + (a.montant_paye ?? 0), 0)
   const tauxRecouvrement = totalCharges > 0 ? Math.round((totalRecouvre / totalCharges) * 100) : 100
-  const totalImpayes = (appels ?? []).filter(a => !a.paye)
+  // Impayé = non payé ET échéance dépassée (un appel non encore dû n'est pas un impayé)
+  const nowDate = new Date()
+  const totalImpayes = (appels ?? []).filter(a => !a.paye && a.date_echeance && new Date(a.date_echeance) < nowDate)
   const montantImpayes = totalImpayes.reduce((s, a) => s + (a.montant - (a.montant_paye ?? 0)), 0)
   const prochainAG = (ags ?? []).find(ag => new Date(ag.date_ag) > new Date())
 
