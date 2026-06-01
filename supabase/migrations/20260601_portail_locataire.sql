@@ -67,28 +67,31 @@ CREATE POLICY conversations_tenant ON conversations
   USING (tenant_id = auth.uid())
   WITH CHECK (tenant_id = auth.uid());
 
--- lots : un tenant lit SON lot (pour afficher numéro/copropriété)
-DROP POLICY IF EXISTS lots_tenant_select ON lots;
-CREATE POLICY lots_tenant_select ON lots
-  FOR SELECT TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles p
-      WHERE p.id = auth.uid() AND p.role = 'tenant' AND p.lot_id = lots.id
-    )
-  );
+-- NB : pas de policy RLS tenant sur `lots` / `coproprietes`.
+-- Une policy coproprietes→lots crée une RÉCURSION INFINIE avec la policy
+-- lots→coproprietes existante (et casse appels_charges). Le nom du
+-- lot/copropriété pour l'affichage est donc récupéré côté serveur via le
+-- client admin (scopé au lot du locataire), pas via RLS.
 
--- coproprietes : un tenant lit SA copropriété (nom/adresse pour affichage)
-DROP POLICY IF EXISTS coproprietes_tenant_select ON coproprietes;
-CREATE POLICY coproprietes_tenant_select ON coproprietes
-  FOR SELECT TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles p
-      JOIN lots l ON l.id = p.lot_id
-      WHERE p.id = auth.uid() AND p.role = 'tenant' AND l.copropriete_id = coproprietes.id
-    )
-  );
+-- ── Durcissement RLS : exclure les locataires des données sensibles ──
+-- Ces policies préexistantes filtraient par `lot_id = mon lot_id` SANS
+-- vérifier le rôle. Le locataire partageant le lot_id du propriétaire,
+-- il pouvait lire charges/votes. On exige désormais role = 'owner_resident'.
+DROP POLICY IF EXISTS "appels_charges_copropriétaire" ON appels_charges;
+CREATE POLICY "appels_charges_copropriétaire" ON appels_charges
+  FOR SELECT TO public
+  USING (lot_id = (SELECT profiles.lot_id FROM profiles
+                   WHERE profiles.id = auth.uid() AND profiles.role = 'owner_resident'));
+
+DROP POLICY IF EXISTS ag_votes_own ON ag_votes;
+CREATE POLICY ag_votes_own ON ag_votes
+  FOR ALL TO public
+  USING (lot_id = (SELECT profiles.lot_id FROM profiles
+                   WHERE profiles.id = auth.uid() AND profiles.role = 'owner_resident'
+                     AND profiles.lot_id IS NOT NULL LIMIT 1))
+  WITH CHECK (lot_id = (SELECT profiles.lot_id FROM profiles
+                        WHERE profiles.id = auth.uid() AND profiles.role = 'owner_resident'
+                          AND profiles.lot_id IS NOT NULL LIMIT 1));
 
 -- messages : un tenant accède aux messages de SES conversations
 DROP POLICY IF EXISTS messages_tenant ON messages;

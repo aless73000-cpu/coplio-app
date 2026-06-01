@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { PortailSidebar } from '@/components/portail/PortailSidebar'
 import { PortailBottomNav } from '@/components/portail/PortailBottomNav'
 import { NotificationHandler } from '@/components/portail/NotificationHandler'
@@ -52,7 +52,16 @@ export default async function PortailLayout({
   }
   const isTenant = profile.role === 'tenant'
 
-  const lot = profile.lot as { id: string; numero: string; copropriete: { id: string; nom: string } } | null
+  let lot = profile.lot as { id: string; numero: string; copropriete: { id: string; nom: string } } | null
+  // Le locataire n'a pas de RLS sur lots/coproprietes (récursion) → admin pour l'affichage
+  if (isTenant && !lot && profile.lot_id) {
+    const { data: tenantLot } = await createAdminClient()
+      .from('lots')
+      .select('id, numero, copropriete:coproprietes(id, nom)')
+      .eq('id', profile.lot_id)
+      .single()
+    lot = tenantLot as typeof lot
+  }
 
   // Vérifier si cet utilisateur est membre du conseil syndical (jamais pour un locataire)
   const coproprieteId = lot?.copropriete?.id

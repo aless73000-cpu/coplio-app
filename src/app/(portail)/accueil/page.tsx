@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
@@ -57,20 +57,24 @@ export default async function AccueilPage() {
 
   // ─── Vue locataire (allégée) ────────────────────────────────────
   if (profile?.role === 'tenant') {
-    const tLot = profile.lot as { numero?: string; copropriete?: { nom?: string } } | null
-    const { data: tSinistres } = profile.lot_id
-      ? await supabase
-          .from('sinistres')
-          .select('id, titre, status, created_at')
-          .contains('lots_concernes', [profile.lot_id])
-          .order('created_at', { ascending: false })
-          .limit(10)
-      : { data: [] }
+    // Le locataire n'a pas de RLS sur lots/coproprietes → admin pour l'affichage du nom
+    const admin = createAdminClient()
+    const [{ data: tLot }, { data: tSinistres }] = await Promise.all([
+      profile.lot_id
+        ? admin.from('lots').select('numero, copropriete:coproprietes(nom)').eq('id', profile.lot_id).single()
+        : Promise.resolve({ data: null }),
+      profile.lot_id
+        ? supabase.from('sinistres').select('id, titre, status, created_at')
+            .contains('lots_concernes', [profile.lot_id])
+            .order('created_at', { ascending: false }).limit(10)
+        : Promise.resolve({ data: [] }),
+    ])
+    const tLotTyped = tLot as { numero?: string; copropriete?: { nom?: string } | null } | null
     return (
       <TenantHome
         prenom={profile.prenom}
-        coproprieteNom={tLot?.copropriete?.nom ?? null}
-        lotNumero={tLot?.numero ?? null}
+        coproprieteNom={tLotTyped?.copropriete?.nom ?? null}
+        lotNumero={tLotTyped?.numero ?? null}
         signalements={(tSinistres ?? []) as { id: string; titre: string; status: string; created_at: string | null }[]}
       />
     )
