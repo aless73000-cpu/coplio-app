@@ -51,7 +51,8 @@ export async function middleware(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-      const dest = profile?.role === 'owner_resident' ? '/accueil' : '/dashboard'
+      const isPortailUser = profile?.role === 'owner_resident' || profile?.role === 'tenant'
+      const dest = isPortailUser ? '/accueil' : '/dashboard'
       return NextResponse.redirect(new URL(dest, request.url))
     }
     // Cookie présent mais session expirée → nettoyer le cookie et afficher la landing
@@ -136,8 +137,27 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Séparation portail / syndic : un copropriétaire qui tente d'accéder
-  // à une route syndic est redirigé vers son espace (/accueil)
+  // Confinement locataire : un locataire ne peut PAS accéder aux pages
+  // réservées aux copropriétaires (charges, votes, AG, signatures, calendrier,
+  // logement détaillé, gestion locataire, espace conseil) → redirigé vers /accueil.
+  // La RLS protège déjà les données ; ceci protège l'UX et bloque l'accès direct par URL.
+  const TENANT_BLOCKED_PREFIXES = [
+    '/mes-charges', '/mes-votes', '/mes-assemblees', '/mes-signatures',
+    '/mon-calendrier', '/mon-logement', '/mon-locataire', '/espace-conseil',
+  ]
+  if (TENANT_BLOCKED_PREFIXES.some(p => pathname.startsWith(p))) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    if (profile?.role === 'tenant') {
+      return NextResponse.redirect(new URL('/accueil', request.url))
+    }
+  }
+
+  // Séparation portail / syndic : un copropriétaire ou un locataire qui tente
+  // d'accéder à une route syndic est redirigé vers son espace (/accueil)
   const PORTAIL_PREFIXES = [
     '/accueil', '/mes-', '/mon-', '/signaler', '/espace-conseil',
   ]
@@ -149,7 +169,7 @@ export async function middleware(request: NextRequest) {
       .select('role')
       .eq('id', user.id)
       .single()
-    if (profile?.role === 'owner_resident') {
+    if (profile?.role === 'owner_resident' || profile?.role === 'tenant') {
       return NextResponse.redirect(new URL('/accueil', request.url))
     }
   }

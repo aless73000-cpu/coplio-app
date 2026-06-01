@@ -39,7 +39,7 @@ export default async function MesContacts() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('lot_id, cabinet_id, lot:lots(copropriete_id)')
+    .select('lot_id, cabinet_id, role, landlord_id, lot:lots(copropriete_id, copropriete:coproprietes(cabinet_id))')
     .eq('id', user.id)
     .single()
 
@@ -56,8 +56,17 @@ export default async function MesContacts() {
     )
   }
 
-  const coproprieteId = (profile.lot as { copropriete_id?: string } | null)?.copropriete_id
+  const lotInfo = profile.lot as { copropriete_id?: string; copropriete?: { cabinet_id?: string } | null } | null
+  const coproprieteId = lotInfo?.copropriete_id
+  // Le locataire a cabinet_id NULL → on dérive le cabinet depuis sa copropriété
+  const effectiveCabinetId = profile.cabinet_id ?? lotInfo?.copropriete?.cabinet_id ?? null
+  const isTenant = profile.role === 'tenant'
   const admin = createAdminClient()
+
+  // Locataire : récupérer son propriétaire (landlord) pour l'afficher
+  const { data: landlord } = isTenant && profile.landlord_id
+    ? await admin.from('profiles').select('prenom, nom, email, telephone').eq('id', profile.landlord_id).single()
+    : { data: null }
 
   const [
     { data: copropriete },
@@ -68,14 +77,14 @@ export default async function MesContacts() {
     coproprieteId
       ? admin.from('coproprietes').select('id, nom, adresse, code_postal, ville, gestionnaire_id, assureur, numero_contrat_assurance, expiration_assurance').eq('id', coproprieteId).single()
       : Promise.resolve({ data: null }),
-    profile.cabinet_id
-      ? admin.from('cabinets').select('nom, telephone, email_contact, adresse, code_postal, ville').eq('id', profile.cabinet_id).single()
+    effectiveCabinetId
+      ? admin.from('cabinets').select('nom, telephone, email_contact, adresse, code_postal, ville').eq('id', effectiveCabinetId).single()
       : Promise.resolve({ data: null }),
     coproprieteId
       ? admin.from('conseil_syndical').select('id, prenom, nom, role, telephone, email, lot_numero').eq('copropriete_id', coproprieteId).order('role')
       : Promise.resolve({ data: [] }),
-    profile.cabinet_id
-      ? admin.from('prestataires').select('id, nom, metier, telephone, email, commentaire').eq('cabinet_id', profile.cabinet_id).eq('actif', true).order('metier').limit(30)
+    effectiveCabinetId
+      ? admin.from('prestataires').select('id, nom, metier, telephone, email, commentaire').eq('cabinet_id', effectiveCabinetId).eq('actif', true).order('metier').limit(30)
       : Promise.resolve({ data: [] }),
   ])
 
@@ -110,6 +119,31 @@ export default async function MesContacts() {
         <h1 className="text-2xl font-bold text-coplio-text">Annuaire</h1>
         <p className="text-muted-foreground text-sm mt-0.5">Contacts utiles de votre copropriété</p>
       </div>
+
+      {/* Mon propriétaire (locataire uniquement) */}
+      {isTenant && landlord && (
+        <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-border flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+              <User className="w-4 h-4 text-blue-600" />
+            </div>
+            <h2 className="font-semibold text-coplio-text">Mon propriétaire</h2>
+          </div>
+          <div className="px-5 py-4 space-y-3">
+            <p className="font-semibold text-coplio-text">
+              {[landlord.prenom, landlord.nom].filter(Boolean).join(' ') || 'Votre propriétaire'}
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {landlord.email && (
+                <ContactLine icon={Mail} label="Email" value={landlord.email} href={`mailto:${landlord.email}`} />
+              )}
+              {landlord.telephone && (
+                <ContactLine icon={Phone} label="Téléphone" value={landlord.telephone} href={`tel:${landlord.telephone}`} />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Syndic */}
       <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">

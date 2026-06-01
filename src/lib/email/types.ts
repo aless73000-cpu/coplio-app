@@ -129,6 +129,18 @@ export interface InvitationProps {
   portailUrl: string
 }
 
+export interface InvitationLocataireProps {
+  prenom: string
+  nom: string
+  /** Nom du copropriétaire (propriétaire) qui invite */
+  proprietaireNom: string
+  nomCopropriete: string
+  /** Mot de passe temporaire généré à la création du compte */
+  tempPassword: string
+  /** URL du portail pour se connecter */
+  portailUrl: string
+}
+
 export interface AppelChargesProps {
   prenom: string
   nom: string

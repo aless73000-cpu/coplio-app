@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -22,6 +22,7 @@ import {
   Key,
   Shield,
   Landmark,
+  KeyRound,
 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { Lot, Sinistre, Document } from '@/types'
@@ -100,6 +101,20 @@ export default async function CoproprieteDetailPage(props: PageProps) {
     const paye = a.montant_paye ?? 0
     const du = a.montant - paye
     soldeParLot[a.lot_id] = (soldeParLot[a.lot_id] ?? 0) - du
+  }
+
+  // Locataires par lot (rôle tenant, cabinet_id NULL → via admin client)
+  const lotIds = (lots ?? []).map((l) => l.id)
+  const { data: locataires } = lotIds.length > 0
+    ? await createAdminClient()
+        .from('profiles')
+        .select('lot_id, prenom, nom')
+        .eq('role', 'tenant')
+        .in('lot_id', lotIds)
+    : { data: [] }
+  const tenantParLot: Record<string, string> = {}
+  for (const t of locataires ?? []) {
+    if (t.lot_id) tenantParLot[t.lot_id] = [t.prenom, t.nom].filter(Boolean).join(' ') || 'Locataire'
   }
 
   // Stats de recouvrement
@@ -246,10 +261,21 @@ export default async function CoproprieteDetailPage(props: PageProps) {
                     {lots.slice(0, 8).map((lot) => (
                       <tr key={lot.id} className="border-b border-border hover:bg-coplio-bg transition-colors">
                         <td className="py-2.5">
-                          <Link href={`/lots/${lot.id}`} className="font-medium text-[#374151] hover:underline">
-                            Lot {lot.numero}
-                          </Link>
-                          {lot.etage && <span className="text-xs text-muted-foreground ml-1">· {lot.etage}</span>}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Link href={`/lots/${lot.id}`} className="font-medium text-[#374151] hover:underline">
+                              Lot {lot.numero}
+                            </Link>
+                            {lot.etage && <span className="text-xs text-muted-foreground">· {lot.etage}</span>}
+                            {tenantParLot[lot.id] && (
+                              <span
+                                className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700"
+                                title={`Loué à ${tenantParLot[lot.id]}`}
+                              >
+                                <KeyRound className="w-2.5 h-2.5" />
+                                Loué · {tenantParLot[lot.id]}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="py-2.5 text-muted-foreground capitalize">{lot.type}</td>
                         <td className="py-2.5 text-muted-foreground">{lot.surface ? `${lot.surface} m²` : '—'}</td>

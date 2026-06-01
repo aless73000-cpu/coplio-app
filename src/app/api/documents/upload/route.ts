@@ -28,6 +28,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     const coproprieteId = (formData.get('copropriete_id') as string) || null
     const description = (formData.get('description') as string)?.trim() || null
     const visibleCoproprietaires = formData.get('visible_coproprietaires') === 'true'
+    const visibleLocataires = formData.get('visible_locataires') === 'true'
 
     if (!file) return NextResponse.json({ error: 'Fichier manquant' }, { status: 400 })
     if (!nom) return NextResponse.json({ error: 'Nom manquant' }, { status: 400 })
@@ -80,6 +81,7 @@ export const POST = withErrorHandler(async (request: Request) => {
         storage_path: path,
         storage_bucket: 'documents',
         visible_coproprietaires: visibleCoproprietaires,
+        visible_locataires: visibleLocataires,
         upload_par: user.id,
       })
       .select()

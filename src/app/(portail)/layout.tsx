@@ -46,13 +46,17 @@ export default async function PortailLayout({
   ])
 
   if (!profile) redirect('/portail')
-  if (profile.role !== 'owner_resident') redirect('/dashboard?conflict=portail')
+  // Portail accessible aux copropriétaires ET aux locataires (nav allégée pour ces derniers)
+  if (profile.role !== 'owner_resident' && profile.role !== 'tenant') {
+    redirect('/dashboard?conflict=portail')
+  }
+  const isTenant = profile.role === 'tenant'
 
   const lot = profile.lot as { id: string; numero: string; copropriete: { id: string; nom: string } } | null
 
-  // Vérifier si cet utilisateur est membre du conseil syndical
+  // Vérifier si cet utilisateur est membre du conseil syndical (jamais pour un locataire)
   const coproprieteId = lot?.copropriete?.id
-  const { data: conseilEntry } = coproprieteId && profile.email
+  const { data: conseilEntry } = !isTenant && coproprieteId && profile.email
     ? await supabase
         .from('conseil_syndical')
         .select('id, role')
@@ -76,12 +80,13 @@ export default async function PortailLayout({
         unreadMessages={unreadMessages ?? 0}
         unreadNotifications={unreadNotifications ?? 0}
         isConseil={isConseil}
+        isTenant={isTenant}
       />
       <NotificationHandler userId={user.id} />
       <main className="flex-1 overflow-y-auto px-4 pt-5 pb-nav md:px-8 md:pt-8 md:pb-8 bg-slate-50">
         {children}
       </main>
-      <PortailBottomNav unreadMessages={unreadMessages ?? 0} isConseil={isConseil} />
+      <PortailBottomNav unreadMessages={unreadMessages ?? 0} isConseil={isConseil} isTenant={isTenant} />
     </div>
   )
 }

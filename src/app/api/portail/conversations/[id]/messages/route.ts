@@ -7,7 +7,11 @@ import { z } from 'zod'
 import { notifySyndics } from '@/lib/notify'
 import { withErrorHandler } from '@/lib/api-handler'
 
-async function getContext() {
+type Ctx =
+  | { user: { id: string }; isTenant: false; coproprietaireId: string }
+  | { user: { id: string }; isTenant: true; tenantId: string }
+
+async function getContext(): Promise<Ctx | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
@@ -15,12 +19,23 @@ async function getContext() {
   const admin = createAdminClient()
   const { data: copro } = await admin
     .from('coproprietaires')
-    .select('id, cabinet_id')
+    .select('id')
     .eq('profile_id', user.id)
-    .single()
+    .maybeSingle()
+  if (copro) return { user, isTenant: false, coproprietaireId: copro.id }
 
-  if (!copro) return null
-  return { user, coproprietaireId: copro.id, cabinetId: copro.cabinet_id }
+  const { data: prof } = await admin.from('profiles').select('role').eq('id', user.id).maybeSingle()
+  if (prof?.role === 'tenant') return { user, isTenant: true, tenantId: user.id }
+
+  return null
+}
+
+/** Vérifie que la conversation appartient bien à l'utilisateur (copro ou locataire). */
+async function ownsConversation(admin: ReturnType<typeof createAdminClient>, convId: string, ctx: Ctx) {
+  let q = admin.from('conversations').select('id').eq('id', convId)
+  q = ctx.isTenant ? q.eq('tenant_id', ctx.tenantId) : q.eq('coproprietaire_id', ctx.coproprietaireId)
+  const { data } = await q.maybeSingle()
+  return !!data
 }
 
 export const GET = withErrorHandler(async (_: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -30,15 +45,10 @@ export const GET = withErrorHandler(async (_: Request, { params }: { params: Pro
 
   const admin = createAdminClient()
 
-  // Vérifier que cette conversation appartient bien à ce copropriétaire
-  const { data: conv } = await admin
-    .from('conversations')
-    .select('id')
-    .eq('id', id)
-    .eq('coproprietaire_id', ctx.coproprietaireId)
-    .single()
-
-  if (!conv) return NextResponse.json({ error: 'Conversation introuvable' }, { status: 404 })
+  // Vérifier que cette conversation appartient bien à l'utilisateur
+  if (!(await ownsConversation(admin, id, ctx))) {
+    return NextResponse.json({ error: 'Conversation introuvable' }, { status: 404 })
+  }
 
   const { data: messages, error } = await admin
     .from('messages')
@@ -63,14 +73,9 @@ export const POST = withErrorHandler(async (req: Request, { params }: { params: 
 
   const admin = createAdminClient()
 
-  const { data: conv } = await admin
-    .from('conversations')
-    .select('id')
-    .eq('id', id)
-    .eq('coproprietaire_id', ctx.coproprietaireId)
-    .single()
-
-  if (!conv) return NextResponse.json({ error: 'Conversation introuvable' }, { status: 404 })
+  if (!(await ownsConversation(admin, id, ctx))) {
+    return NextResponse.json({ error: 'Conversation introuvable' }, { status: 404 })
+  }
 
   const { data: message, error } = await admin
     .from('messages')

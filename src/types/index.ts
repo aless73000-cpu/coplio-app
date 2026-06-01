@@ -2,7 +2,7 @@
 // COPLIO — Types TypeScript centraux
 // ═══════════════════════════════════════════════════════════════
 
-export type UserRole = 'owner' | 'manager' | 'owner_resident'
+export type UserRole = 'owner' | 'manager' | 'owner_resident' | 'tenant'
 export type SubscriptionPlan = 'trial' | 'starter' | 'pro' | 'expert'
 export type SubscriptionStatus = 'active' | 'trialing' | 'past_due' | 'canceled' | 'incomplete'
 
@@ -56,6 +56,8 @@ export interface Profile {
   telephone?: string
   avatar_url?: string
   lot_id?: string
+  /** Locataire → id du copropriétaire propriétaire (rôle tenant uniquement) */
+  landlord_id?: string | null
   langue: string
   notifications_push: boolean
   push_subscription?: object
@@ -183,6 +185,7 @@ export interface Document {
   storage_path: string
   storage_bucket: string | null
   visible_coproprietaires: boolean | null
+  visible_locataires?: boolean | null
   upload_par?: string | null
   created_at: string | null
   updated_at: string | null

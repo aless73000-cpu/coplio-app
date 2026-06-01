@@ -14,6 +14,7 @@ import {
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { AppelCharges, Document, Sinistre, Notification } from '@/types'
 import { Sparkles } from 'lucide-react'
+import { TenantHome } from '@/components/portail/TenantHome'
 
 const CONSEIL_ROLE_LABELS: Record<string, string> = {
   president: 'Président du conseil syndical',
@@ -53,6 +54,27 @@ export default async function AccueilPage() {
     .select('*, lot:lots(id, numero, type, etage, solde_compte, copropriete:coproprietes(id, nom, adresse, ville))')
     .eq('id', user.id)
     .single()
+
+  // ─── Vue locataire (allégée) ────────────────────────────────────
+  if (profile?.role === 'tenant') {
+    const tLot = profile.lot as { numero?: string; copropriete?: { nom?: string } } | null
+    const { data: tSinistres } = profile.lot_id
+      ? await supabase
+          .from('sinistres')
+          .select('id, titre, status, created_at')
+          .contains('lots_concernes', [profile.lot_id])
+          .order('created_at', { ascending: false })
+          .limit(10)
+      : { data: [] }
+    return (
+      <TenantHome
+        prenom={profile.prenom}
+        coproprieteNom={tLot?.copropriete?.nom ?? null}
+        lotNumero={tLot?.numero ?? null}
+        signalements={(tSinistres ?? []) as { id: string; titre: string; status: string; created_at: string | null }[]}
+      />
+    )
+  }
 
   const lotId = profile?.lot_id
   const lot = profile?.lot as {

@@ -15,12 +15,13 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role, lot_id, prenom, nom, lot:lots(id, numero, copropriete:coproprietes(id, nom, cabinet_id))')
+    .select('role, lot_id, prenom, nom, landlord_id, lot:lots(id, numero, copropriete:coproprietes(id, nom, cabinet_id))')
     .eq('id', user.id)
     .single()
 
-  if (profile?.role !== 'owner_resident') {
-    return NextResponse.json({ error: 'Accès réservé aux copropriétaires' }, { status: 403 })
+  // Copropriétaires ET locataires peuvent signaler un problème
+  if (profile?.role !== 'owner_resident' && profile?.role !== 'tenant') {
+    return NextResponse.json({ error: 'Accès réservé aux résidents' }, { status: 403 })
   }
 
   const lot = profile?.lot as {
@@ -94,7 +95,8 @@ export const POST = withErrorHandler(async (request: Request) => {
     autre:     'Parties communes',
   }
   const zoneLabel = zonesLabels[zone] || 'Parties communes'
-  const nomDeclarant = [profile.prenom, profile.nom].filter(Boolean).join(' ') || 'Copropriétaire'
+  const roleLabel = profile.role === 'tenant' ? 'Locataire' : 'Copropriétaire'
+  const nomDeclarant = [profile.prenom, profile.nom].filter(Boolean).join(' ') || roleLabel
   const ref = `SIG-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`
 
   const statusFromUrgence = urgence === 'urgence' ? 'urgence' : 'signale'
@@ -129,13 +131,25 @@ export const POST = withErrorHandler(async (request: Request) => {
           user_id: m.id,
           cabinet_id: lot.copropriete.cabinet_id,
           type: urgence === 'urgence' ? 'urgent' : 'alerte',
-          titre: `Signalement copropriétaire : ${zoneLabel}`,
+          titre: `Signalement ${roleLabel.toLowerCase()} : ${zoneLabel}`,
           message: `Lot ${lot.numero} — ${description.slice(0, 100)}`,
           lien: `/sinistres/${sinistre.id}`,
           sinistre_id: sinistre.id,
           lu: false,
         }))
       )
+    }
+
+    // Si c'est un locataire, notifier aussi son propriétaire
+    if (profile.role === 'tenant' && profile.landlord_id) {
+      await admin.from('notifications').insert({
+        user_id: profile.landlord_id,
+        type: urgence === 'urgence' ? 'urgent' : 'alerte',
+        titre: `Signalement de votre locataire : ${zoneLabel}`,
+        message: `${nomDeclarant} (Lot ${lot.numero}) — ${description.slice(0, 100)}`,
+        lien: '/mes-travaux',
+        lu: false,
+      })
     }
   } catch (err) {
     captureException(err, { context: 'signalement-notification' })

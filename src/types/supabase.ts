@@ -782,6 +782,7 @@ export type Database = {
           gestionnaire_id: string | null
           id: string
           sujet: string | null
+          tenant_id: string | null
         }
         Insert: {
           cabinet_id: string
@@ -792,6 +793,7 @@ export type Database = {
           gestionnaire_id?: string | null
           id?: string
           sujet?: string | null
+          tenant_id?: string | null
         }
         Update: {
           cabinet_id?: string
@@ -802,6 +804,7 @@ export type Database = {
           gestionnaire_id?: string | null
           id?: string
           sujet?: string | null
+          tenant_id?: string | null
         }
         Relationships: [
           {
@@ -1060,6 +1063,7 @@ export type Database = {
           updated_at: string | null
           upload_par: string | null
           visible_coproprietaires: boolean | null
+          visible_locataires: boolean | null
         }
         Insert: {
           ag_id?: string | null
@@ -1079,6 +1083,7 @@ export type Database = {
           updated_at?: string | null
           upload_par?: string | null
           visible_coproprietaires?: boolean | null
+          visible_locataires?: boolean | null
         }
         Update: {
           ag_id?: string | null
@@ -1098,6 +1103,7 @@ export type Database = {
           updated_at?: string | null
           upload_par?: string | null
           visible_coproprietaires?: boolean | null
+          visible_locataires?: boolean | null
         }
         Relationships: [
           {
@@ -2299,6 +2305,7 @@ export type Database = {
           created_at: string | null
           email: string
           id: string
+          landlord_id: string | null
           langue: string | null
           lot_id: string | null
           nom: string | null
@@ -2316,6 +2323,7 @@ export type Database = {
           created_at?: string | null
           email: string
           id: string
+          landlord_id?: string | null
           langue?: string | null
           lot_id?: string | null
           nom?: string | null
@@ -2333,6 +2341,7 @@ export type Database = {
           created_at?: string | null
           email?: string
           id?: string
+          landlord_id?: string | null
           langue?: string | null
           lot_id?: string | null
           nom?: string | null
@@ -3507,7 +3516,7 @@ export type Database = {
         | "past_due"
         | "canceled"
         | "incomplete"
-      user_role: "owner" | "manager" | "owner_resident"
+      user_role: "owner" | "manager" | "owner_resident" | "tenant"
       vote_type: "art_24" | "art_25" | "art_26" | "unanimite"
       vote_value: "pour" | "contre" | "abstention"
     }
@@ -3681,7 +3690,7 @@ export const Constants = {
         "canceled",
         "incomplete",
       ],
-      user_role: ["owner", "manager", "owner_resident"],
+      user_role: ["owner", "manager", "owner_resident", "tenant"],
       vote_type: ["art_24", "art_25", "art_26", "unanimite"],
       vote_value: ["pour", "contre", "abstention"],
     },

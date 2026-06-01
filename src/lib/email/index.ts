@@ -22,6 +22,7 @@ import type {
   MagicLinkProps,
   SuspiciousLoginProps,
   InvitationProps,
+  InvitationLocataireProps,
   AppelChargesProps,
   RelanceImpayesProps,
   ConvocationAGProps,
@@ -40,6 +41,7 @@ import { SuspiciousLogin }     from '@/emails/templates/auth/SuspiciousLogin'
 import { InvitationGestionnaire } from '@/emails/templates/auth/InvitationGestionnaire'
 import type { InvitationGestionnaireProps } from '@/emails/templates/auth/InvitationGestionnaire'
 import { Invitation }          from '@/emails/templates/copropriete/Invitation'
+import { InvitationLocataire } from '@/emails/templates/copropriete/InvitationLocataire'
 import { NouvelAppelCharges }  from '@/emails/templates/copropriete/NouvelAppelCharges'
 import { RelanceImpayes }      from '@/emails/templates/copropriete/RelanceImpayes'
 import { ConvocationAG }       from '@/emails/templates/copropriete/ConvocationAG'
@@ -149,6 +151,18 @@ export const Email = {
       {
         idempotencyKey: `invitation-${to}-${props.nomCopropriete}`,
         tags: [{ name: 'type', value: 'invitation' }],
+      }
+    )
+  },
+
+  /** Invitation locataire (envoyée par le copropriétaire propriétaire) */
+  async invitationLocataire(props: InvitationLocataireProps, to: string): Promise<SendResult> {
+    return renderAndSend(
+      InvitationLocataire, props, to,
+      `Accès à votre espace locataire — ${props.nomCopropriete}`,
+      {
+        idempotencyKey: `invitation-locataire-${to}-${props.nomCopropriete}`,
+        tags: [{ name: 'type', value: 'invitation-locataire' }],
       }
     )
   },

@@ -13,7 +13,7 @@ export default async function MesDocuments() {
   if (!user) redirect('/portail')
 
   const { data: profile } = await supabase
-    .from('profiles').select('lot_id').eq('id', user.id).single()
+    .from('profiles').select('lot_id, role').eq('id', user.id).single()
 
   const { data: lotData } = profile?.lot_id
     ? await supabase.from('lots').select('id, copropriete_id').eq('id', profile.lot_id).single()
@@ -21,10 +21,13 @@ export default async function MesDocuments() {
 
   const coproprieteId = (lotData as { id: string; copropriete_id: string } | null)?.copropriete_id
 
+  // Le locataire ne voit que les documents marqués "visible locataires"
+  const visibilityCol = profile?.role === 'tenant' ? 'visible_locataires' : 'visible_coproprietaires'
+
   const query = supabase
     .from('documents')
     .select('*')
-    .eq('visible_coproprietaires', true)
+    .eq(visibilityCol, true)
     .order('created_at', { ascending: false })
 
   if (profile?.lot_id && coproprieteId) {

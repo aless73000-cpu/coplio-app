@@ -7,6 +7,7 @@ import {
   Home, FileText, CreditCard, Building2,
   MessageCircle, User, LogOut, Bell,
   CalendarDays, Wrench, Vote, ChevronRight, Crown, BookUser, PenLine,
+  Flag, KeyRound,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
@@ -20,9 +21,11 @@ interface PortailSidebarProps {
   unreadMessages?: number
   unreadNotifications?: number
   isConseil?: boolean
+  isTenant?: boolean
 }
 
-const NAV_ITEMS = [
+// Nav copropriétaire (complète)
+const OWNER_NAV = [
   { href: '/accueil',        label: 'Accueil',       icon: Home,          matches: ['/accueil'] },
   { href: '/mes-charges',    label: 'Mes charges',   icon: CreditCard,    matches: ['/mes-charges'] },
   { href: '/mes-documents',  label: 'Documents',     icon: FileText,      matches: ['/mes-documents'] },
@@ -34,12 +37,24 @@ const NAV_ITEMS = [
   { href: '/mon-calendrier',    label: 'Calendrier',     icon: CalendarDays,  matches: ['/mon-calendrier'] },
   { href: '/mes-notifications', label: 'Notifications',  icon: Bell,          matches: ['/mes-notifications'] },
   { href: '/mes-signatures',    label: 'Signatures',     icon: PenLine,       matches: ['/mes-signatures'] },
+  { href: '/mon-locataire',     label: 'Mon locataire',  icon: KeyRound,      matches: ['/mon-locataire'] },
+]
+
+// Nav locataire (allégée — l'essentiel)
+const TENANT_NAV = [
+  { href: '/accueil',      label: 'Accueil',           icon: Home,          matches: ['/accueil'] },
+  { href: '/signaler',     label: 'Signaler',          icon: Flag,          matches: ['/signaler'] },
+  { href: '/mes-travaux',  label: 'Mes signalements',  icon: Wrench,        matches: ['/mes-travaux'] },
+  { href: '/mes-documents', label: 'Documents',        icon: FileText,      matches: ['/mes-documents'] },
+  { href: '/mes-messages', label: 'Messages',          icon: MessageCircle, matches: ['/mes-messages'] },
+  { href: '/mes-contacts', label: 'Annuaire',          icon: BookUser,      matches: ['/mes-contacts'] },
 ]
 
 export function PortailSidebar({
   prenom, nom, email, lotNumero, coproprieteNom,
-  unreadMessages = 0, unreadNotifications = 0, isConseil = false,
+  unreadMessages = 0, unreadNotifications = 0, isConseil = false, isTenant = false,
 }: PortailSidebarProps) {
+  const NAV_ITEMS = isTenant ? TENANT_NAV : OWNER_NAV
   const pathname = usePathname()
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)
@@ -81,21 +96,25 @@ export function PortailSidebar({
         </Link>
       </div>
 
-      {/* Logement — cliquable */}
+      {/* Logement — cliquable (le locataire n'a pas la page détaillée → vers l'accueil) */}
       <div className="px-3 pb-4 flex-shrink-0">
         <Link
-          href="/mon-logement"
+          href={isTenant ? '/accueil' : '/mon-logement'}
           className="group flex items-center gap-2.5 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 rounded-xl px-3 py-2.5 transition-all"
         >
           <Home className="w-3.5 h-3.5 text-white/40 group-hover:text-white/70 flex-shrink-0 transition-colors" />
           <div className="flex-1 min-w-0">
-            <p className="text-[9px] text-white/40 uppercase tracking-widest font-semibold mb-0.5">Mon logement</p>
+            <p className="text-[9px] text-white/40 uppercase tracking-widest font-semibold mb-0.5">
+              {isTenant ? 'Mon logement loué' : 'Mon logement'}
+            </p>
             <p className="text-sm font-semibold text-white/90 truncate">{coproprieteNom ?? '—'}</p>
             {lotNumero && (
               <p className="text-xs text-white/50 mt-0.5">Lot {lotNumero}</p>
             )}
           </div>
-          <ChevronRight className="w-3.5 h-3.5 text-white/20 group-hover:text-white/50 flex-shrink-0 transition-colors" />
+          {!isTenant && (
+            <ChevronRight className="w-3.5 h-3.5 text-white/20 group-hover:text-white/50 flex-shrink-0 transition-colors" />
+          )}
         </Link>
       </div>
 

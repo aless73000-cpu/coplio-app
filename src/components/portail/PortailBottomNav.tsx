@@ -5,13 +5,14 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   Home, CreditCard, FileText, MessageCircle, User,
-  Wrench, Vote, CalendarDays, MoreHorizontal, Crown, X, BookUser, Bell, PenLine,
+  Wrench, Vote, CalendarDays, MoreHorizontal, Crown, X, BookUser, Bell, PenLine, Flag,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 interface PortailBottomNavProps {
   unreadMessages?: number
   isConseil?: boolean
+  isTenant?: boolean
 }
 
 const MAIN_ITEMS = [
@@ -32,7 +33,20 @@ const MORE_ITEMS = [
   { href: '/mon-compte',        label: 'Mon compte',    icon: User,         matches: ['/mon-compte'] },
 ]
 
-export function PortailBottomNav({ unreadMessages = 0, isConseil = false }: PortailBottomNavProps) {
+// Locataire : barre allégée
+const TENANT_MAIN = [
+  { href: '/accueil',       label: 'Accueil',     icon: Home,          matches: ['/accueil'] },
+  { href: '/signaler',      label: 'Signaler',    icon: Flag,          matches: ['/signaler'] },
+  { href: '/mes-documents', label: 'Documents',   icon: FileText,      matches: ['/mes-documents'] },
+  { href: '/mes-messages',  label: 'Messages',    icon: MessageCircle, matches: ['/mes-messages'] },
+]
+const TENANT_MORE = [
+  { href: '/mes-travaux',  label: 'Mes signalements', icon: Wrench,   matches: ['/mes-travaux'] },
+  { href: '/mes-contacts', label: 'Annuaire',         icon: BookUser, matches: ['/mes-contacts'] },
+  { href: '/mon-compte',   label: 'Mon compte',       icon: User,     matches: ['/mon-compte'] },
+]
+
+export function PortailBottomNav({ unreadMessages = 0, isConseil = false, isTenant = false }: PortailBottomNavProps) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
 
@@ -42,8 +56,12 @@ export function PortailBottomNav({ unreadMessages = 0, isConseil = false }: Port
   const isActive = (matches: string[]) =>
     matches.some((m) => pathname === m || pathname.startsWith(m + '/'))
 
-  // Les items "Plus" incluent aussi Espace conseil si membre
-  const moreItems = isConseil
+  const mainItems = isTenant ? TENANT_MAIN : MAIN_ITEMS
+
+  // Les items "Plus" incluent aussi Espace conseil si membre (jamais pour un locataire)
+  const moreItems = isTenant
+    ? TENANT_MORE
+    : isConseil
     ? [
         ...MORE_ITEMS.slice(0, 3),
         { href: '/espace-conseil', label: 'Espace conseil', icon: Crown, matches: ['/espace-conseil'] },
@@ -131,7 +149,7 @@ export function PortailBottomNav({ unreadMessages = 0, isConseil = false }: Port
       <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-slate-200"
         style={{ background: '#0f172a' }}>
         <div className="flex h-16">
-          {MAIN_ITEMS.map(({ href, label, icon: Icon, matches }) => {
+          {mainItems.map(({ href, label, icon: Icon, matches }) => {
             const active = isActive(matches)
             const showBadge = label === 'Messages' && unreadMessages > 0
             return (
