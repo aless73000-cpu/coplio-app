@@ -18,11 +18,12 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   incomplete: { label: 'Incomplet', color: 'bg-gray-100 text-gray-600' },
 }
 
-export default async function AdminClientsPage({
-  searchParams,
-}: {
-  searchParams: { page?: string }
-}) {
+export default async function AdminClientsPage(
+  props: {
+    searchParams: Promise<{ page?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || !ADMIN_EMAILS.includes(user.email?.toLowerCase() ?? '')) redirect('/login')

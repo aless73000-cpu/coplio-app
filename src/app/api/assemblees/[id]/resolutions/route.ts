@@ -4,7 +4,7 @@ import { withErrorHandler } from '@/lib/api-handler'
 
 export const POST = withErrorHandler(async (
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
     const supabase = await createClient()
@@ -24,7 +24,7 @@ export const POST = withErrorHandler(async (
     const { data: ag } = await admin
       .from('assemblees_generales')
       .select('id, cabinet_id')
-      .eq('id', params.id)
+      .eq('id', (await params).id)
       .single()
 
     if (!ag || ag.cabinet_id !== profile.cabinet_id) {
@@ -46,7 +46,7 @@ export const POST = withErrorHandler(async (
     const { data, error } = await admin
       .from('ag_resolutions')
       .insert({
-        ag_id: params.id,
+        ag_id: (await params).id,
         titre: titre.trim(),
         description: description?.trim() || null,
         type_vote,
@@ -69,7 +69,7 @@ export const POST = withErrorHandler(async (
 
 export const DELETE = withErrorHandler(async (
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
     const supabase = await createClient()
@@ -93,7 +93,7 @@ export const DELETE = withErrorHandler(async (
     const { data: ag } = await admin
       .from('assemblees_generales')
       .select('id, cabinet_id')
-      .eq('id', params.id)
+      .eq('id', (await params).id)
       .single()
 
     if (!ag || ag.cabinet_id !== profile.cabinet_id) {
@@ -104,7 +104,7 @@ export const DELETE = withErrorHandler(async (
       .from('ag_resolutions')
       .delete()
       .eq('id', resolutionId)
-      .eq('ag_id', params.id)
+      .eq('ag_id', (await params).id)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })

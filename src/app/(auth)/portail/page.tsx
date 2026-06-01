@@ -14,11 +14,12 @@ const FEATURES = [
   { icon: MessageCircle, label: 'Messagerie avec mon syndic' },
 ]
 
-export default function PortailLoginPage({
-  searchParams,
-}: {
-  searchParams: { error?: string; message?: string }
-}) {
+export default async function PortailLoginPage(
+  props: {
+    searchParams: Promise<{ error?: string; message?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   return (
     <div className="min-h-screen bg-coplio-bg flex flex-col items-center justify-center px-5 py-10">
       {/* Card principale */}

@@ -6,7 +6,7 @@ const VALID_STATUSES = ['planifiee', 'convocations_envoyees', 'en_cours', 'termi
 
 export const PATCH = withErrorHandler(async (
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
     const supabase = await createClient()
@@ -32,7 +32,7 @@ export const PATCH = withErrorHandler(async (
     const { data: ag } = await admin
       .from('assemblees_generales')
       .select('id, cabinet_id')
-      .eq('id', params.id)
+      .eq('id', (await params).id)
       .single()
 
     if (!ag || ag.cabinet_id !== profile.cabinet_id) {
@@ -42,7 +42,7 @@ export const PATCH = withErrorHandler(async (
     const { error } = await admin
       .from('assemblees_generales')
       .update({ status: status as 'planifiee' | 'convocations_envoyees' | 'en_cours' | 'terminee' | 'annulee' })
-      .eq('id', params.id)
+      .eq('id', (await params).id)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })

@@ -7,11 +7,12 @@ import { EcritureForm } from '../_components/EcritureForm'
 
 export const metadata = { title: 'Nouvelle écriture' }
 
-export default async function NouvelleEcriturePage({
-  searchParams,
-}: {
-  searchParams: { copropriete?: string; journal?: string }
-}) {
+export default async function NouvelleEcriturePage(
+  props: {
+    searchParams: Promise<{ copropriete?: string; journal?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

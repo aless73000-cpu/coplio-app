@@ -7,11 +7,12 @@ import { ExercicesManager } from './_components/ExercicesManager'
 
 export const metadata = { title: 'Exercices comptables' }
 
-export default async function ExercicesPage({
-  searchParams,
-}: {
-  searchParams: { copropriete?: string }
-}) {
+export default async function ExercicesPage(
+  props: {
+    searchParams: Promise<{ copropriete?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

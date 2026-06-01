@@ -4,7 +4,7 @@ import { withErrorHandler } from '@/lib/api-handler'
 
 export const POST = withErrorHandler(async (
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
     const supabase = await createClient()
@@ -24,7 +24,7 @@ export const POST = withErrorHandler(async (
     const { data: ag } = await admin
       .from('assemblees_generales')
       .select('id, cabinet_id, titre, copropriete_id')
-      .eq('id', params.id)
+      .eq('id', (await params).id)
       .single()
 
     if (!ag || ag.cabinet_id !== profile.cabinet_id) {
@@ -37,7 +37,7 @@ export const POST = withErrorHandler(async (
     if (!file) return NextResponse.json({ error: 'Fichier manquant' }, { status: 400 })
 
     const ext = file.name.split('.').pop() || 'pdf'
-    const path = `${profile.cabinet_id}/pv/${params.id}.${ext}`
+    const path = `${profile.cabinet_id}/pv/${(await params).id}.${ext}`
 
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
@@ -78,7 +78,7 @@ export const POST = withErrorHandler(async (
     const { error: updateError } = await admin
       .from('assemblees_generales')
       .update({ pv_document_id: doc.id })
-      .eq('id', params.id)
+      .eq('id', (await params).id)
 
     if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 })
 
@@ -90,7 +90,7 @@ export const POST = withErrorHandler(async (
 
 export const DELETE = withErrorHandler(async (
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
     const supabase = await createClient()
@@ -109,7 +109,7 @@ export const DELETE = withErrorHandler(async (
     const { error } = await admin
       .from('assemblees_generales')
       .update({ pv_document_id: null })
-      .eq('id', params.id)
+      .eq('id', (await params).id)
       .eq('cabinet_id', profile.cabinet_id)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })

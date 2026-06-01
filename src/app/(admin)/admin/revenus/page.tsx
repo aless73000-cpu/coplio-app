@@ -2,11 +2,8 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { formatEuro } from '@/lib/utils'
 import { PLAN_PRICES } from '@/types'
-import dynamic from 'next/dynamic'
-const MRRChart = dynamic(() => import('./MRRChart').then(m => m.MRRChart), {
-  ssr: false,
-  loading: () => <div className="h-64 animate-pulse bg-muted rounded-xl" />,
-})
+// Next 15 interdit dynamic({ ssr: false }) dans un Server Component → wrapper Client
+import { MRRChartLazy as MRRChart } from './MRRChartLazy'
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase())
 const PLAN_LABELS: Record<string, string> = { trial: 'Essai', starter: 'Starter', pro: 'Pro', expert: 'Expert' }

@@ -7,11 +7,12 @@ import { FournisseursManager } from './_components/FournisseursManager'
 
 export const metadata = { title: 'Fournisseurs' }
 
-export default async function FournisseursPage({
-  searchParams,
-}: {
-  searchParams: { copropriete?: string }
-}) {
+export default async function FournisseursPage(
+  props: {
+    searchParams: Promise<{ copropriete?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

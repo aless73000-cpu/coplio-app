@@ -8,11 +8,12 @@ import { CoproprietesClient } from '@/components/syndic/CoproprietesClient'
 
 export const metadata = { title: 'Copropriétés' }
 
-export default async function CopropriétésPage({
-  searchParams,
-}: {
-  searchParams: { q?: string; statut?: string }
-}) {
+export default async function CopropriétésPage(
+  props: {
+    searchParams: Promise<{ q?: string; statut?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

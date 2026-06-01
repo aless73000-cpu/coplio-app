@@ -23,7 +23,8 @@ const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
   annulee:               { label: 'Annulée',               cls: 'bg-coplio-bg text-muted-foreground' },
 }
 
-export default async function AssembléePage({ params }: { params: { id: string } }) {
+export default async function AssembléePage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

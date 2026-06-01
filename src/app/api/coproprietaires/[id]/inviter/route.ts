@@ -8,7 +8,7 @@ import { generateTempPassword } from '@/lib/passwords'
 
 export const POST = withErrorHandler(async (
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
     const supabase = await createClient()
@@ -32,7 +32,7 @@ export const POST = withErrorHandler(async (
     const { data: copro } = await admin
       .from('coproprietaires')
       .select('id, prenom, nom, email, profile_id, portail_actif')
-      .eq('id', params.id)
+      .eq('id', (await params).id)
       .eq('cabinet_id', syndicProfile.cabinet_id)
       .single()
 

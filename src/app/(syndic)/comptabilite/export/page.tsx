@@ -9,11 +9,12 @@ import { ExportReleveButton } from './_components/ExportReleveButton'
 
 export const metadata = { title: 'Export comptable' }
 
-export default async function ExportPage({
-  searchParams,
-}: {
-  searchParams: { copropriete?: string }
-}) {
+export default async function ExportPage(
+  props: {
+    searchParams: Promise<{ copropriete?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

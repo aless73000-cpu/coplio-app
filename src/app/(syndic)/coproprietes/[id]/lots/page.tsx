@@ -9,7 +9,8 @@ import type { Lot } from '@/types'
 
 export const metadata = { title: 'Lots' }
 
-export default async function LotsPage({ params }: { params: { id: string } }) {
+export default async function LotsPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

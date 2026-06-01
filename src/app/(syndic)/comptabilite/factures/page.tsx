@@ -25,16 +25,17 @@ const TYPE_CONFIG: Record<string, { label: string }> = {
 
 const PAGE_SIZE = 50
 
-export default async function FacturesPage({
-  searchParams,
-}: {
-  searchParams: {
-    copropriete?: string
-    statut?: string
-    type?: string
-    page?: string
+export default async function FacturesPage(
+  props: {
+    searchParams: Promise<{
+      copropriete?: string
+      statut?: string
+      type?: string
+      page?: string
+    }>
   }
-}) {
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

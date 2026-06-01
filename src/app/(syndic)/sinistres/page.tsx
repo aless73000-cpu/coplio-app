@@ -18,11 +18,12 @@ const STATUS_ORDER: SinistreStatus[] = [
   'cloture',
 ]
 
-export default async function SinistresPage({
-  searchParams,
-}: {
-  searchParams: { status?: string; copropriete?: string }
-}) {
+export default async function SinistresPage(
+  props: {
+    searchParams: Promise<{ status?: string; copropriete?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

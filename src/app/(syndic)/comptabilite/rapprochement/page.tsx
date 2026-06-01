@@ -14,11 +14,12 @@ const STATUT_CONFIG: Record<string, { label: string; color: string }> = {
   valide:      { label: 'Validé',      color: 'bg-emerald-50 text-emerald-700' },
 }
 
-export default async function RapprochementPage({
-  searchParams,
-}: {
-  searchParams: { copropriete?: string; compte?: string }
-}) {
+export default async function RapprochementPage(
+  props: {
+    searchParams: Promise<{ copropriete?: string; compte?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

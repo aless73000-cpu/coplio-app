@@ -7,11 +7,12 @@ import type { Copropriete } from '@/types'
 
 export const metadata = { title: 'Tableau de bord' }
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: { edit?: string }
-}) {
+export default async function DashboardPage(
+  props: {
+    searchParams: Promise<{ edit?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

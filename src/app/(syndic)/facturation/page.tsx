@@ -9,11 +9,12 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Facturation' }
 
-export default async function FacturationPage({
-  searchParams,
-}: {
-  searchParams: { success?: string; canceled?: string }
-}) {
+export default async function FacturationPage(
+  props: {
+    searchParams: Promise<{ success?: string; canceled?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

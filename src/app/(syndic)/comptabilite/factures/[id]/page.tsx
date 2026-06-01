@@ -24,13 +24,14 @@ const MODE_PAIEMENT: Record<string, string> = {
   autre: 'Autre',
 }
 
-export default async function FactureDetailPage({
-  params,
-  searchParams,
-}: {
-  params: { id: string }
-  searchParams: { copropriete?: string }
-}) {
+export default async function FactureDetailPage(
+  props: {
+    params: Promise<{ id: string }>
+    searchParams: Promise<{ copropriete?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

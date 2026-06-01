@@ -10,11 +10,12 @@ export const metadata = { title: 'Grand livre' }
 
 const PAGE_SIZE = 100
 
-export default async function GrandLivrePage({
-  searchParams,
-}: {
-  searchParams: { copropriete?: string; exercice?: string; compte?: string; page?: string }
-}) {
+export default async function GrandLivrePage(
+  props: {
+    searchParams: Promise<{ copropriete?: string; exercice?: string; compte?: string; page?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

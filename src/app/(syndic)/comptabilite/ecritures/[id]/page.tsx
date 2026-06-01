@@ -14,13 +14,14 @@ const STATUT_CONFIG: Record<string, { label: string; color: string; icon: React.
   cloture:   { label: 'Clôturée', color: 'bg-slate-100 text-slate-500 border-border',    icon: Lock },
 }
 
-export default async function EcritureDetailPage({
-  params,
-  searchParams,
-}: {
-  params: { id: string }
-  searchParams: { copropriete?: string }
-}) {
+export default async function EcritureDetailPage(
+  props: {
+    params: Promise<{ id: string }>
+    searchParams: Promise<{ copropriete?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

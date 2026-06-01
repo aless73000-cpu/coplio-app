@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, use } from 'react';
 import Link from 'next/link'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 
@@ -22,7 +22,8 @@ const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rou
   focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent
   placeholder:text-gray-400 transition-shadow`
 
-export default function NewLotPage({ params }: { params: { id: string } }) {
+export default function NewLotPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter()
   const [serverError, setServerError] = useState('')
 

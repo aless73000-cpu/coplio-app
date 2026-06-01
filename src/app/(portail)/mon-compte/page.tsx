@@ -57,11 +57,12 @@ async function changePassword(formData: FormData) {
   redirect('/mon-compte?pwd_saved=1')
 }
 
-export default async function MonComptePage({
-  searchParams,
-}: {
-  searchParams: { saved?: string; pwd_saved?: string; pwd_error?: string }
-}) {
+export default async function MonComptePage(
+  props: {
+    searchParams: Promise<{ saved?: string; pwd_saved?: string; pwd_error?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/portail')

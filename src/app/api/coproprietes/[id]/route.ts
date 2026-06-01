@@ -15,7 +15,7 @@ const schema = z.object({
   statut: z.enum(['a_jour', 'attention', 'urgent']).optional(),
 })
 
-export const PATCH = withErrorHandler(async (request: Request, { params }: { params: { id: string } }) => {
+export const PATCH = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -28,7 +28,7 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
     const { data: existing } = await supabase
       .from('coproprietes')
       .select('id')
-      .eq('id', params.id)
+      .eq('id', (await params).id)
       .eq('cabinet_id', profile.cabinet_id)
       .single()
     if (!existing) return NextResponse.json({ error: 'Copropriété non trouvée' }, { status: 404 })
@@ -41,7 +41,7 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
     const { data, error } = await admin
       .from('coproprietes')
       .update(parsed.data)
-      .eq('id', params.id)
+      .eq('id', (await params).id)
       .select()
       .single()
 

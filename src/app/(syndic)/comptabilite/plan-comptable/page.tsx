@@ -14,11 +14,12 @@ const CLASSE_LABELS: Record<number, { label: string; color: string }> = {
   7: { label: 'Classe 7 — Produits',          color: 'bg-amber-50 text-amber-700 border-amber-100' },
 }
 
-export default async function PlanComptablePage({
-  searchParams,
-}: {
-  searchParams: { copropriete?: string; classe?: string; q?: string }
-}) {
+export default async function PlanComptablePage(
+  props: {
+    searchParams: Promise<{ copropriete?: string; classe?: string; q?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

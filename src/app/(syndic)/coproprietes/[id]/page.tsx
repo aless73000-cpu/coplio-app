@@ -30,10 +30,11 @@ import type { Lot, Sinistre, Document } from '@/types'
 export const metadata = { title: 'Détail copropriété' }
 
 interface PageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
-export default async function CoproprieteDetailPage({ params }: PageProps) {
+export default async function CoproprieteDetailPage(props: PageProps) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

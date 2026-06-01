@@ -8,13 +8,14 @@ import { RapprochementTable } from '../_components/RapprochementTable'
 
 export const metadata = { title: 'Rapprochement bancaire' }
 
-export default async function ReleveDetailPage({
-  params,
-  searchParams,
-}: {
-  params: { id: string }
-  searchParams: { copropriete?: string }
-}) {
+export default async function ReleveDetailPage(
+  props: {
+    params: Promise<{ id: string }>
+    searchParams: Promise<{ copropriete?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

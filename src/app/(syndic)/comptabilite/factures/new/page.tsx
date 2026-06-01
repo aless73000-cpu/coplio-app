@@ -7,11 +7,12 @@ import { FactureForm } from '../_components/FactureForm'
 
 export const metadata = { title: 'Nouvelle facture' }
 
-export default async function NouvelleFacturePage({
-  searchParams,
-}: {
-  searchParams: { copropriete?: string }
-}) {
+export default async function NouvelleFacturePage(
+  props: {
+    searchParams: Promise<{ copropriete?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

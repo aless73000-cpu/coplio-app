@@ -9,7 +9,8 @@ import type { AppelCharges } from '@/types'
 
 export const metadata = { title: 'Détail lot' }
 
-export default async function LotPage({ params }: { params: { id: string } }) {
+export default async function LotPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

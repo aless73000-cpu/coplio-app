@@ -21,11 +21,12 @@ const CATEGORY_ICONS: Record<DocumentCategory, LucideIcon> = {
   autre: File,
 }
 
-export default async function DocumentsPage({
-  searchParams,
-}: {
-  searchParams: { categorie?: string; copropriete?: string }
-}) {
+export default async function DocumentsPage(
+  props: {
+    searchParams: Promise<{ categorie?: string; copropriete?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

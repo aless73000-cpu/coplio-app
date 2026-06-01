@@ -16,11 +16,12 @@ const CLASSE_LABELS: Record<number, string> = {
   7: 'Produits',
 }
 
-export default async function BalancePage({
-  searchParams,
-}: {
-  searchParams: { copropriete?: string; exercice?: string }
-}) {
+export default async function BalancePage(
+  props: {
+    searchParams: Promise<{ copropriete?: string; exercice?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

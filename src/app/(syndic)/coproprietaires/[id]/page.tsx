@@ -14,7 +14,8 @@ import { RoleManager } from '@/components/syndic/RoleManager'
 
 export const metadata = { title: 'Fiche copropriétaire' }
 
-export default async function CopropriétairePage({ params }: { params: { id: string } }) {
+export default async function CopropriétairePage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

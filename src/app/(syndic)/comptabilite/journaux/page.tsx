@@ -7,11 +7,12 @@ import { JournauxManager } from './_components/JournauxManager'
 
 export const metadata = { title: 'Journaux' }
 
-export default async function JournauxPage({
-  searchParams,
-}: {
-  searchParams: { copropriete?: string }
-}) {
+export default async function JournauxPage(
+  props: {
+    searchParams: Promise<{ copropriete?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

@@ -8,7 +8,7 @@ import { sendSMS, smsConvocationAG } from '@/lib/twilio'
 
 export const POST = withErrorHandler(async (
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   // 10 convocations max par IP par heure (chaque envoi = plusieurs emails)
   const ip = getIP(_request)
@@ -36,7 +36,7 @@ export const POST = withErrorHandler(async (
     const { data: ag } = await admin
       .from('assemblees_generales')
       .select('*, copropriete:coproprietes(id, nom), resolutions:ag_resolutions(titre, ordre)')
-      .eq('id', params.id)
+      .eq('id', (await params).id)
       .eq('cabinet_id', profile.cabinet_id)
       .single()
 
@@ -119,7 +119,7 @@ export const POST = withErrorHandler(async (
         status: 'convocations_envoyees',
         convocations_envoyees_at: new Date().toISOString(),
       })
-      .eq('id', params.id)
+      .eq('id', (await params).id)
 
     return NextResponse.json({ success: true, sent })
   } catch (err) {

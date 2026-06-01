@@ -23,11 +23,12 @@ const STATUT_CONFIG = {
 
 const PAGE_SIZE = 50
 
-export default async function EcrituresPage({
-  searchParams,
-}: {
-  searchParams: { copropriete?: string; statut?: string; journal?: string; page?: string }
-}) {
+export default async function EcrituresPage(
+  props: {
+    searchParams: Promise<{ copropriete?: string; statut?: string; journal?: string; page?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

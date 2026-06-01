@@ -5,11 +5,12 @@ import { Building2 } from 'lucide-react'
 
 export const metadata: Metadata = { title: 'Connexion' }
 
-export default function LoginPage({
-  searchParams,
-}: {
-  searchParams: { redirectTo?: string; error?: string; message?: string; mfa_required?: string }
-}) {
+export default async function LoginPage(
+  props: {
+    searchParams: Promise<{ redirectTo?: string; error?: string; message?: string; mfa_required?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50">
 

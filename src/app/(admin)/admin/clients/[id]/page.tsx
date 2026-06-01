@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, User, Mail, Loader2, Trash2, Ban, CheckCircle } from 'lucide-react'
@@ -26,7 +26,8 @@ interface Cabinet {
 
 interface Profile { id: string; prenom: string; nom: string; email: string; role: string }
 
-export default function AdminClientDetailPage({ params }: { params: { id: string } }) {
+export default function AdminClientDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter()
   const [cabinet, setCabinet] = useState<Cabinet | null>(null)
   const [profiles, setProfiles] = useState<Profile[]>([])

@@ -17,11 +17,12 @@ type AppelWithDetails = AppelCharges & {
 
 const PAGE_SIZE = 50
 
-export default async function AppelsChargesPage({
-  searchParams,
-}: {
-  searchParams: { copropriete?: string; statut?: string; page?: string }
-}) {
+export default async function AppelsChargesPage(
+  props: {
+    searchParams: Promise<{ copropriete?: string; statut?: string; page?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

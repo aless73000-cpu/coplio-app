@@ -20,11 +20,12 @@ import { formatEuro } from '@/lib/utils'
 
 export const metadata = { title: 'Comptabilité' }
 
-export default async function ComptabilitePage({
-  searchParams,
-}: {
-  searchParams: { copropriete?: string }
-}) {
+export default async function ComptabilitePage(
+  props: {
+    searchParams: Promise<{ copropriete?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
