@@ -15,6 +15,7 @@ import {
   Line,
   CartesianGrid,
 } from 'recharts'
+import { BarChart2 } from 'lucide-react'
 
 // ─── Évolution mensuelle des charges ──────────────────────────
 
@@ -30,6 +31,22 @@ interface EvolutionProps {
 
 export function EvolutionChart({ data }: EvolutionProps) {
   if (data.length === 0) return null
+
+  // Si aucune donnée de charges (compte neuf) → état vide propre plutôt qu'un axe à 0k€ répété
+  const hasData = data.some((d) => d.emis > 0 || d.recouvre > 0)
+  if (!hasData) {
+    return (
+      <div className="coplio-card">
+        <h2 className="font-semibold text-coplio-text mb-1">Évolution des charges</h2>
+        <p className="text-xs text-muted-foreground mb-4">Charges émises vs recouvrées (6 derniers mois)</p>
+        <div className="flex flex-col items-center justify-center h-[200px] text-center">
+          <BarChart2 className="w-8 h-8 text-muted-foreground/40 mb-2" />
+          <p className="text-sm text-muted-foreground">Aucune donnée de charges</p>
+          <p className="text-xs text-muted-foreground/70 mt-0.5">Le graphique s&apos;animera dès votre premier appel de charges.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="coplio-card">
