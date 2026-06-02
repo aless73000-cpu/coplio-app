@@ -56,7 +56,8 @@ async function getThreadContext(): Promise<ThreadCtx | NextResponse> {
   return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
 }
 
-/** Récupère (ou crée) la conversation locataire↔propriétaire. */
+/** Récupère (ou crée) la conversation locataire↔propriétaire.
+ *  cabinet_id reste NULL → le syndic n'y a PAS accès (sa policy cabinet ne matche pas). */
 async function ensureConversation(admin: ReturnType<typeof createAdminClient>, ctx: ThreadCtx) {
   const { data: existing } = await admin
     .from('conversations')
@@ -65,14 +66,13 @@ async function ensureConversation(admin: ReturnType<typeof createAdminClient>, c
     .maybeSingle()
   if (existing) return existing.id
 
-  if (!ctx.cabinetId) return null // FK cabinet_id obligatoire
   const { data: created, error } = await admin
     .from('conversations')
     .insert({
-      cabinet_id: ctx.cabinetId,
+      cabinet_id: null,        // privé locataire↔propriétaire, hors syndic
       coproprietaire_id: null,
       tenant_id: ctx.tenantId,
-      gestionnaire_id: null, // pas de syndic dans ce fil
+      gestionnaire_id: null,
       sujet: 'Échange locataire ↔ propriétaire',
       derniere_activite: new Date().toISOString(),
     })

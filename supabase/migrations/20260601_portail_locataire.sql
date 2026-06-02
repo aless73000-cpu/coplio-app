@@ -112,21 +112,33 @@ CREATE POLICY messages_tenant ON messages
     )
   );
 
--- conversations : le PROPRIÉTAIRE accède aux conversations de SON locataire
--- (messagerie privée locataire↔propriétaire — le syndic n'y a pas accès)
+-- Messagerie privée locataire ↔ propriétaire — le SYNDIC n'y a PAS accès.
+-- 1) cabinet_id nullable : les fils locataire ont cabinet_id NULL → la policy
+--    conversations_cabinet du syndic (cabinet_id = get_user_cabinet_id()) ne matche pas.
+ALTER TABLE conversations ALTER COLUMN cabinet_id DROP NOT NULL;
+UPDATE conversations SET cabinet_id = NULL WHERE tenant_id IS NOT NULL;
+
+-- 2) is_my_tenant() : SECURITY DEFINER pour que le propriétaire vérifie le lien
+--    sans être bloqué par la RLS de profiles (le locataire a cabinet_id NULL).
+CREATE OR REPLACE FUNCTION is_my_tenant(p_tenant_id uuid)
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM profiles
+    WHERE id = p_tenant_id AND landlord_id = auth.uid() AND role = 'tenant'
+  )
+$$;
+
+-- 3) Le propriétaire accède aux conversations + messages de SON locataire
 DROP POLICY IF EXISTS conversations_landlord ON conversations;
 CREATE POLICY conversations_landlord ON conversations
   FOR ALL TO authenticated
-  USING (EXISTS (SELECT 1 FROM profiles p
-                 WHERE p.id = conversations.tenant_id AND p.landlord_id = auth.uid()))
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles p
-                      WHERE p.id = conversations.tenant_id AND p.landlord_id = auth.uid()));
+  USING (is_my_tenant(tenant_id))
+  WITH CHECK (is_my_tenant(tenant_id));
 
--- messages : le propriétaire accède aux messages des conversations de son locataire
 DROP POLICY IF EXISTS messages_landlord ON messages;
 CREATE POLICY messages_landlord ON messages
   FOR ALL TO authenticated
-  USING (EXISTS (SELECT 1 FROM conversations c JOIN profiles p ON p.id = c.tenant_id
-                 WHERE c.id = messages.conversation_id AND p.landlord_id = auth.uid()))
-  WITH CHECK (EXISTS (SELECT 1 FROM conversations c JOIN profiles p ON p.id = c.tenant_id
-                      WHERE c.id = messages.conversation_id AND p.landlord_id = auth.uid()));
+  USING (EXISTS (SELECT 1 FROM conversations c
+                 WHERE c.id = messages.conversation_id AND is_my_tenant(c.tenant_id)))
+  WITH CHECK (EXISTS (SELECT 1 FROM conversations c
+                      WHERE c.id = messages.conversation_id AND is_my_tenant(c.tenant_id)));

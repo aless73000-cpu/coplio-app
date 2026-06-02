@@ -774,7 +774,7 @@ export type Database = {
       }
       conversations: {
         Row: {
-          cabinet_id: string
+          cabinet_id: string | null
           coproprietaire_id: string | null
           copropriete_id: string | null
           created_at: string | null
@@ -785,7 +785,7 @@ export type Database = {
           tenant_id: string | null
         }
         Insert: {
-          cabinet_id: string
+          cabinet_id?: string | null
           coproprietaire_id?: string | null
           copropriete_id?: string | null
           created_at?: string | null
