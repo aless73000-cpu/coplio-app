@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { buildExport, exportResponse, parseFormat } from '@/lib/export-format'
 
 /**
  * Export FEC (Fichier des Écritures Comptables)
@@ -16,6 +17,8 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const coproprieteId = searchParams.get('copropriete')
   const exerciceId    = searchParams.get('exercice')
+  // Le FEC légal est un .txt pipe-délimité ; on autorise aussi csv/xlsx pour le confort.
+  const format = parseFormat(searchParams.get('format'), 'txt')
 
   if (!coproprieteId || !exerciceId) {
     return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 })
@@ -71,7 +74,7 @@ export async function GET(request: NextRequest) {
     'ValidDate',
     'Montantdevise',
     'Idevise',
-  ].join('|')
+  ]
 
   // Formater chaque ligne
   const formatDate = (d: string | null): string => {
@@ -118,16 +121,10 @@ export async function GET(request: NextRequest) {
       formatDate(l.date_ecriture),               // ValidDate
       '',                                        // Montantdevise
       '',                                        // Idevise
-    ].join('|')
+    ]
   })
 
-  const content = [header, ...rows].join('\r\n')
-
-  return new NextResponse(content, {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Content-Disposition': `attachment; filename="FEC_${coproprieteId.slice(0, 8)}_${exerciceId.slice(0, 8)}.txt"`,
-    },
-  })
+  const nom = coprop.nom.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 20)
+  const built = await buildExport(format, { header, rows, txtDelimiter: '|', sheetName: 'FEC' })
+  return exportResponse(built, `FEC_${nom}_${exerciceId.slice(0, 8)}`)
 }

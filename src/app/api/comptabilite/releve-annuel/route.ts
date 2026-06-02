@@ -1,15 +1,16 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { buildExport, exportResponse, parseFormat } from '@/lib/export-format'
 
 /**
- * Relevé annuel de charges par copropriétaire (annexe AG)
- * GET /api/comptabilite/releve-annuel?copropriete=...&exercice=...&lot_id=... (optionnel)
- * Retourne un CSV avec toutes les charges ventilées par lot
+ * Relevé annuel de charges par copropriétaire (annexe AG) — CSV / XLSX / TXT au choix
+ * GET /api/comptabilite/releve-annuel?copropriete=...&exercice=...&format=...
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const coproprieteId = searchParams.get('copropriete')
   const exerciceId    = searchParams.get('exercice')
+  const format = parseFormat(searchParams.get('format'), 'csv')
   const lotId         = searchParams.get('lot_id') // optionnel : filtrer sur un seul lot
 
   if (!coproprieteId || !exerciceId) {
@@ -70,15 +71,6 @@ export async function GET(request: NextRequest) {
     if (p.lot_id) profileMap[p.lot_id] = { prenom: p.prenom, nom: p.nom, email: p.email }
   }
 
-  const escape = (s: string | null | number | undefined): string => {
-    if (s === null || s === undefined) return ''
-    const str = String(s)
-    if (str.includes(';') || str.includes('"') || str.includes('\n')) {
-      return `"${str.replace(/"/g, '""')}"`
-    }
-    return str
-  }
-
   const fmt = (n: number | null): string => {
     if (!n) return '0,00'
     return n.toFixed(2).replace('.', ',')
@@ -100,7 +92,7 @@ export async function GET(request: NextRequest) {
     'Solde',
     'Date paiement',
     'Statut',
-  ].join(';')
+  ]
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rows = (appels as any[]).map(a => {
@@ -108,17 +100,17 @@ export async function GET(request: NextRequest) {
     const paye = a.montant_paye ?? 0
     const proprio = a.lot_id ? profileMap[a.lot_id] : null
     return [
-      escape(a.lot?.numero),
-      escape(a.lot?.tantiemes),
-      escape(proprio ? `${proprio.prenom ?? ''} ${proprio.nom ?? ''}`.trim() : ''),
-      escape(fmtDate(a.date_appel)),
-      escape(a.libelle),
+      a.lot?.numero ?? '',
+      a.lot?.tantiemes ?? '',
+      proprio ? `${proprio.prenom ?? ''} ${proprio.nom ?? ''}`.trim() : '',
+      fmtDate(a.date_appel),
+      a.libelle ?? '',
       fmt(montant),
       fmt(paye),
       fmt(montant - paye),
-      escape(fmtDate(a.date_paiement)),
-      escape(a.paye ? 'Payé' : 'Impayé'),
-    ].join(';')
+      fmtDate(a.date_paiement),
+      a.paye ? 'Payé' : 'Impayé',
+    ]
   })
 
   // Ligne totaux
@@ -132,16 +124,8 @@ export async function GET(request: NextRequest) {
     fmt(totalPaye),
     fmt(totalAppele - totalPaye),
     '', '',
-  ].join(';')
+  ]
 
-  const bom = '﻿'
-  const content = bom + [header, ...rows, '', totalRow].join('\r\n')
-
-  return new NextResponse(content, {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="Releve_charges_${exercice.annee}.csv"`,
-    },
-  })
+  const built = await buildExport(format, { header, rows, footerRows: [totalRow], sheetName: 'Relevé charges' })
+  return exportResponse(built, `Releve_charges_${exercice.annee}`)
 }

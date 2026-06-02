@@ -1,14 +1,16 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { buildExport, exportResponse, parseFormat } from '@/lib/export-format'
 
 /**
- * Export Balance des comptes en CSV
+ * Export Balance des comptes — CSV / XLSX / TXT (au choix)
  * Colonnes: Compte, Libellé, Classe, Total Débit, Total Crédit, Solde D, Solde C
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const coproprieteId = searchParams.get('copropriete')
   const exerciceId    = searchParams.get('exercice')
+  const format = parseFormat(searchParams.get('format'), 'csv')
 
   if (!coproprieteId || !exerciceId) {
     return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 })
@@ -40,29 +42,19 @@ export async function GET(request: NextRequest) {
     return n.toFixed(2).replace('.', ',')
   }
 
-  const escape = (s: string | null | number): string => {
-    if (s === null || s === undefined) return ''
-    const str = String(s)
-    // Échapper pour CSV: si contient virgule/guillemet/newline, encapsuler
-    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-      return `"${str.replace(/"/g, '""')}"`
-    }
-    return str
-  }
-
-  const header = 'Compte;Libellé;Classe;Total Débit;Total Crédit;Solde Débiteur;Solde Créditeur'
+  const header = ['Compte', 'Libellé', 'Classe', 'Total Débit', 'Total Crédit', 'Solde Débiteur', 'Solde Créditeur']
 
   const rows = balance.map(row => {
     const solde = (row.total_debit ?? 0) - (row.total_credit ?? 0)
     return [
-      escape(row.compte_numero),
-      escape(row.compte_libelle),
-      escape(row.classe),
+      row.compte_numero,
+      row.compte_libelle,
+      row.classe,
       formatMontant(row.total_debit),
       formatMontant(row.total_credit),
       solde > 0  ? formatMontant(solde)  : '0,00',
       solde < 0  ? formatMontant(-solde) : '0,00',
-    ].join(';')
+    ]
   })
 
   // Ligne totaux
@@ -70,25 +62,13 @@ export async function GET(request: NextRequest) {
   const totalCredit = balance.reduce((s, r) => s + (r.total_credit ?? 0), 0)
   const totalSolde  = totalDebit - totalCredit
   const totauxRow = [
-    'TOTAL',
-    '',
-    '',
+    'TOTAL', '', '',
     formatMontant(totalDebit),
     formatMontant(totalCredit),
     totalSolde > 0  ? formatMontant(totalSolde)  : '0,00',
     totalSolde < 0  ? formatMontant(-totalSolde) : '0,00',
-  ].join(';')
+  ]
 
-  const content = [header, ...rows, totauxRow].join('\r\n')
-
-  // BOM UTF-8 pour Excel
-  const bom = '﻿'
-
-  return new NextResponse(bom + content, {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="Balance_${exerciceId.slice(0, 8)}.csv"`,
-    },
-  })
+  const built = await buildExport(format, { header, rows, footerRows: [totauxRow], sheetName: 'Balance' })
+  return exportResponse(built, `Balance_${exerciceId.slice(0, 8)}`)
 }

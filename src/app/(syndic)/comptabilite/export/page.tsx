@@ -2,9 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, Download, FileText, Shield, AlertCircle } from 'lucide-react'
-import { ExportFecButton } from './_components/ExportFecButton'
-import { ExportBalanceButton } from './_components/ExportBalanceButton'
-import { ExportReleveButton } from './_components/ExportReleveButton'
+import { ExportSection } from './_components/ExportSection'
 
 
 export const metadata = { title: 'Export comptable' }
@@ -88,117 +86,44 @@ export default async function ExportPage(
         </div>
       ) : (
         <div className="space-y-4">
-          {/* FEC */}
-          <div className="coplio-card">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Shield className="w-5 h-5 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-semibold text-coplio-text">Fichier des Écritures Comptables (FEC)</h3>
-                    <p className="text-sm text-muted-foreground mt-0.5">
-                      Format normalisé DGFiP — CGI art. 47 A. Requis lors d&apos;un contrôle fiscal.
-                    </p>
-                  </div>
-                </div>
+          {/* FEC — txt (légal), csv ou excel */}
+          <ExportSection
+            title="Fichier des Écritures Comptables (FEC)"
+            description="Format normalisé DGFiP — CGI art. 47 A. Le .txt est le format légal ; CSV/Excel pour le confort."
+            icon={<Shield className="w-5 h-5 text-blue-600" />}
+            iconBg="bg-blue-50"
+            endpoint="/api/comptabilite/export-fec"
+            coproprieteId={selectedId}
+            exercices={exercices ?? []}
+            formats={['txt', 'csv', 'xlsx']}
+            filenamePrefix={`FEC_${copropNom.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 20) || 'copro'}`}
+          />
 
-                {exercices && exercices.length > 0 ? (
-                  <div className="mt-4 space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground">Choisir un exercice :</p>
-                    <div className="flex flex-wrap gap-2">
-                      {exercices.map(ex => (
-                        <ExportFecButton
-                          key={ex.id}
-                          coproprieteId={selectedId}
-                          exerciceId={ex.id}
-                          annee={ex.annee}
-                          copropNom={copropNom}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-                    <AlertCircle className="w-4 h-4" />
-                    Aucun exercice disponible pour cette copropriété.
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          {/* Balance — csv ou excel */}
+          <ExportSection
+            title="Balance des comptes"
+            description="Balance débit/crédit par compte, par exercice."
+            icon={<FileText className="w-5 h-5 text-emerald-600" />}
+            iconBg="bg-emerald-50"
+            endpoint="/api/comptabilite/export-balance"
+            coproprieteId={selectedId}
+            exercices={exercices ?? []}
+            formats={['csv', 'xlsx']}
+            filenamePrefix="Balance"
+          />
 
-          {/* Balance */}
-          <div className="coplio-card">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                <FileText className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-coplio-text">Balance des comptes (CSV)</h3>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Export de la balance débit/crédit par compte, par exercice.
-                </p>
-                {exercices && exercices.length > 0 ? (
-                  <div className="mt-4 space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground">Choisir un exercice :</p>
-                    <div className="flex flex-wrap gap-2">
-                      {exercices.map(ex => (
-                        <ExportBalanceButton
-                          key={ex.id}
-                          coproprieteId={selectedId}
-                          exerciceId={ex.id}
-                          annee={ex.annee}
-                          copropNom={copropNom}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-                    <AlertCircle className="w-4 h-4" />
-                    Aucun exercice disponible.
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Relevé annuel de charges */}
-          <div className="coplio-card">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                <FileText className="w-5 h-5 text-purple-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-coplio-text">Relevé annuel de charges (CSV)</h3>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Synthèse des appels de charges par lot — à remettre aux copropriétaires en annexe AG.
-                </p>
-                {exercices && exercices.length > 0 ? (
-                  <div className="mt-4 space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground">Choisir un exercice :</p>
-                    <div className="flex flex-wrap gap-2">
-                      {exercices.map(ex => (
-                        <ExportReleveButton
-                          key={ex.id}
-                          coproprieteId={selectedId!}
-                          exerciceId={ex.id}
-                          annee={ex.annee}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-                    <AlertCircle className="w-4 h-4" />
-                    Aucun exercice disponible.
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          {/* Relevé annuel de charges — csv ou excel */}
+          <ExportSection
+            title="Relevé annuel de charges"
+            description="Synthèse des appels de charges par lot — à remettre aux copropriétaires en annexe AG."
+            icon={<FileText className="w-5 h-5 text-purple-600" />}
+            iconBg="bg-purple-50"
+            endpoint="/api/comptabilite/releve-annuel"
+            coproprieteId={selectedId}
+            exercices={exercices ?? []}
+            formats={['csv', 'xlsx']}
+            filenamePrefix="Releve_charges"
+          />
 
           {/* Note légale */}
           <div className="flex items-start gap-3 bg-slate-50 border border-border rounded-xl px-4 py-3">

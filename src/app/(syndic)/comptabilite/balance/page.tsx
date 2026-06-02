@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, Scale } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
-import { ExportBalanceButton } from '@/app/(syndic)/comptabilite/export/_components/ExportBalanceButton'
+import { ExportButton } from '@/app/(syndic)/comptabilite/export/_components/ExportButton'
 
 
 export const metadata = { title: 'Balance comptable' }
@@ -94,11 +94,14 @@ export default async function BalancePage(
           </div>
         </div>
         {balance && balance.length > 0 && selectedExercice && (
-          <ExportBalanceButton
+          <ExportButton
+            endpoint="/api/comptabilite/export-balance"
             coproprieteId={selectedId!}
             exerciceId={selectedExercice}
             annee={exercices?.find(e => e.id === selectedExercice)?.annee ?? 0}
-            copropNom=""
+            formats={['csv', 'xlsx']}
+            filenamePrefix="Balance"
+            label="Exporter"
           />
         )}
       </div>
