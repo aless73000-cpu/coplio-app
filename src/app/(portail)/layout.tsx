@@ -63,6 +63,17 @@ export default async function PortailLayout({
     lot = tenantLot as typeof lot
   }
 
+  // Le copropriétaire a-t-il un locataire ? → affiche "Mon locataire" dans la nav
+  let hasTenant = false
+  if (!isTenant) {
+    const { count } = await createAdminClient()
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('landlord_id', user.id)
+      .eq('role', 'tenant')
+    hasTenant = (count ?? 0) > 0
+  }
+
   // Vérifier si cet utilisateur est membre du conseil syndical (jamais pour un locataire)
   const coproprieteId = lot?.copropriete?.id
   const { data: conseilEntry } = !isTenant && coproprieteId && profile.email
@@ -90,6 +101,7 @@ export default async function PortailLayout({
         unreadNotifications={unreadNotifications ?? 0}
         isConseil={isConseil}
         isTenant={isTenant}
+        hasTenant={hasTenant}
       />
       <NotificationHandler userId={user.id} />
       <main className="flex-1 overflow-y-auto px-4 pt-5 pb-nav md:px-8 md:pt-8 md:pb-8 bg-slate-50">

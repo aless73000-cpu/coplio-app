@@ -1,8 +1,9 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, KeyRound } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import { LocataireManager } from '@/components/portail/LocataireManager'
+import { LocataireThread } from '@/components/portail/LocataireThread'
 
 export const metadata = { title: 'Mon locataire' }
 
@@ -32,6 +33,9 @@ export default async function MonLocatairePage() {
     .eq('role', 'tenant')
     .maybeSingle()
 
+  // Pas de locataire → l'invitation se fait depuis les Paramètres
+  if (!tenant) redirect('/mon-compte')
+
   return (
     <div className="max-w-2xl mx-auto py-4 space-y-5">
       {/* Header */}
@@ -47,19 +51,10 @@ export default async function MonLocatairePage() {
         </div>
       </div>
 
-      {/* Explication */}
-      <div className="flex items-start gap-3 bg-blue-50/60 border border-blue-100 rounded-2xl px-4 py-3.5">
-        <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-          <KeyRound className="w-4 h-4 text-blue-600" />
-        </div>
-        <p className="text-sm text-blue-900/80 leading-relaxed">
-          Si vous louez votre bien, invitez votre locataire à un espace allégé : il pourra
-          <strong> signaler des problèmes</strong> au syndic et consulter les infos utiles, sans accès
-          à vos charges, votes ou documents financiers.
-        </p>
-      </div>
-
       <LocataireManager tenant={tenant ?? null} />
+
+      {/* Messagerie privée avec le locataire */}
+      <LocataireThread otherLabel="votre locataire" />
     </div>
   )
 }

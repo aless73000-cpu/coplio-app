@@ -22,10 +22,12 @@ interface PortailSidebarProps {
   unreadNotifications?: number
   isConseil?: boolean
   isTenant?: boolean
+  hasTenant?: boolean
 }
 
-// Nav copropriétaire (complète)
-const OWNER_NAV = [
+// Nav copropriétaire (complète). "Mon locataire" ajouté seulement si le
+// copropriétaire a un locataire (sinon l'invitation est dans Paramètres).
+const OWNER_NAV_BASE = [
   { href: '/accueil',        label: 'Accueil',       icon: Home,          matches: ['/accueil'] },
   { href: '/mes-charges',    label: 'Mes charges',   icon: CreditCard,    matches: ['/mes-charges'] },
   { href: '/mes-documents',  label: 'Documents',     icon: FileText,      matches: ['/mes-documents'] },
@@ -37,8 +39,8 @@ const OWNER_NAV = [
   { href: '/mon-calendrier',    label: 'Calendrier',     icon: CalendarDays,  matches: ['/mon-calendrier'] },
   { href: '/mes-notifications', label: 'Notifications',  icon: Bell,          matches: ['/mes-notifications'] },
   { href: '/mes-signatures',    label: 'Signatures',     icon: PenLine,       matches: ['/mes-signatures'] },
-  { href: '/mon-locataire',     label: 'Mon locataire',  icon: KeyRound,      matches: ['/mon-locataire'] },
 ]
+const MON_LOCATAIRE_ITEM = { href: '/mon-locataire', label: 'Mon locataire', icon: KeyRound, matches: ['/mon-locataire'] }
 
 // Nav locataire (allégée — l'essentiel)
 const TENANT_NAV = [
@@ -52,9 +54,11 @@ const TENANT_NAV = [
 
 export function PortailSidebar({
   prenom, nom, email, lotNumero, coproprieteNom,
-  unreadMessages = 0, unreadNotifications = 0, isConseil = false, isTenant = false,
+  unreadMessages = 0, unreadNotifications = 0, isConseil = false, isTenant = false, hasTenant = false,
 }: PortailSidebarProps) {
-  const NAV_ITEMS = isTenant ? TENANT_NAV : OWNER_NAV
+  const NAV_ITEMS = isTenant
+    ? TENANT_NAV
+    : hasTenant ? [...OWNER_NAV_BASE, MON_LOCATAIRE_ITEM] : OWNER_NAV_BASE
   const pathname = usePathname()
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)

@@ -1,14 +1,16 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import {
   User, Mail, Phone, Home, Building2, Shield,
   Hash, Save, CheckCircle2, AlertTriangle, LogOut,
-  MessageCircle, Bell,
+  MessageCircle, Bell, KeyRound, ChevronRight,
 } from 'lucide-react'
 import { LOT_TYPE_LABELS } from '@/types'
 import { PushNotifToggle } from '@/components/portail/PushNotifToggle'
+import { LocataireManager } from '@/components/portail/LocataireManager'
 
 async function updateProfile(formData: FormData) {
   'use server'
@@ -97,6 +99,18 @@ export default async function MonComptePage(
     ? await supabase.from('appels_charges').select('montant, montant_paye').eq('lot_id', lot.id)
     : { data: null }
   const soldeCompte = (appelsLot ?? []).reduce((s, a) => s + (a.montant_paye ?? 0) - a.montant, 0)
+
+  // Section "Mon locataire" (copropriétaires uniquement). Le locataire a
+  // cabinet_id NULL → invisible via RLS, on le récupère via admin.
+  const isOwnerResident = profile?.role === 'owner_resident'
+  const { data: ownerTenant } = isOwnerResident
+    ? await createAdminClient()
+        .from('profiles')
+        .select('id, prenom, nom, email')
+        .eq('landlord_id', user.id)
+        .eq('role', 'tenant')
+        .maybeSingle()
+    : { data: null }
 
   const saved = searchParams?.saved === '1'
   const pwdSaved = searchParams?.pwd_saved === '1'
@@ -268,6 +282,41 @@ export default async function MonComptePage(
             </div>
           </div>
         </div>
+      )}
+
+      {/* ─── Section: Mon locataire (copropriétaires uniquement) ─── */}
+      {isOwnerResident && (
+        ownerTenant ? (
+          <Link
+            href="/mon-locataire"
+            className="group flex items-center gap-4 bg-white rounded-2xl border border-border shadow-sm p-4 hover:border-[#374151]/30 transition-colors"
+          >
+            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <KeyRound className="w-5 h-5 text-blue-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-coplio-text">Mon locataire</p>
+              <p className="text-xs text-muted-foreground truncate">
+                {[ownerTenant.prenom, ownerTenant.nom].filter(Boolean).join(' ') || ownerTenant.email} · gérez son accès
+              </p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#374151] transition-colors flex-shrink-0" />
+          </Link>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex items-start gap-3 bg-blue-50/60 border border-blue-100 rounded-2xl px-4 py-3.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <KeyRound className="w-4 h-4 text-blue-600" />
+              </div>
+              <p className="text-sm text-blue-900/80 leading-relaxed">
+                Vous louez votre bien ? Invitez votre locataire à un espace allégé : il pourra
+                <strong> signaler des problèmes</strong> et <strong>échanger avec vous</strong>, sans accès à
+                vos charges, votes ou documents financiers.
+              </p>
+            </div>
+            <LocataireManager tenant={null} />
+          </div>
+        )
       )}
 
       {/* ─── Section: Mon syndic ─── */}

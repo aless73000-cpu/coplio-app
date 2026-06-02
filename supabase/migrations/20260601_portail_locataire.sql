@@ -111,3 +111,22 @@ CREATE POLICY messages_tenant ON messages
         AND c.tenant_id = auth.uid()
     )
   );
+
+-- conversations : le PROPRIÉTAIRE accède aux conversations de SON locataire
+-- (messagerie privée locataire↔propriétaire — le syndic n'y a pas accès)
+DROP POLICY IF EXISTS conversations_landlord ON conversations;
+CREATE POLICY conversations_landlord ON conversations
+  FOR ALL TO authenticated
+  USING (EXISTS (SELECT 1 FROM profiles p
+                 WHERE p.id = conversations.tenant_id AND p.landlord_id = auth.uid()))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles p
+                      WHERE p.id = conversations.tenant_id AND p.landlord_id = auth.uid()));
+
+-- messages : le propriétaire accède aux messages des conversations de son locataire
+DROP POLICY IF EXISTS messages_landlord ON messages;
+CREATE POLICY messages_landlord ON messages
+  FOR ALL TO authenticated
+  USING (EXISTS (SELECT 1 FROM conversations c JOIN profiles p ON p.id = c.tenant_id
+                 WHERE c.id = messages.conversation_id AND p.landlord_id = auth.uid()))
+  WITH CHECK (EXISTS (SELECT 1 FROM conversations c JOIN profiles p ON p.id = c.tenant_id
+                      WHERE c.id = messages.conversation_id AND p.landlord_id = auth.uid()));
