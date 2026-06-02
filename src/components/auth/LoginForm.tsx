@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Eye, EyeOff, Loader2, ShieldCheck, MailCheck } from 'lucide-react'
 
@@ -21,7 +20,6 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ redirectTo, mfaRequired }: LoginFormProps) {
-  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState('')
   const [showResend, setShowResend] = useState(false)
@@ -83,14 +81,14 @@ export function LoginForm({ redirectTo, mfaRequired }: LoginFormProps) {
         .single()
 
       if (profile?.role === 'owner_resident' || profile?.role === 'tenant') {
-        router.push('/accueil')
-        router.refresh()
+        // Navigation DURE (pas de nav client) : garantit que les nouveaux cookies
+        // de session sont lisibles côté serveur, même en cas de switch de session.
+        window.location.assign('/accueil')
         return
       }
     }
 
-    router.push(postMfaRedirectRef.current ?? redirectTo ?? '/dashboard')
-    router.refresh()
+    window.location.assign(postMfaRedirectRef.current ?? redirectTo ?? '/dashboard')
   }
 
   async function resendConfirmation(email: string) {
