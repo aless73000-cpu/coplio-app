@@ -105,6 +105,11 @@ export function LoginForm({ redirectTo, mfaRequired }: LoginFormProps) {
     setResendSent(false)
     const supabase = createClient()
 
+    // Vider toute session existante avant de se connecter : évite le conflit
+    // de switch portail↔syndic où les cookies de la nouvelle session ne
+    // s'écrivent pas proprement par-dessus l'ancienne (reste bloqué sur /login).
+    await supabase.auth.signOut({ scope: 'local' })
+
     const { error } = await supabase.auth.signInWithPassword({
       email: values.email,
       password: values.password,
