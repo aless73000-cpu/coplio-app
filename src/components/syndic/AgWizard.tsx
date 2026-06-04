@@ -250,8 +250,8 @@ function Step2({
             <Sparkles className="w-4 h-4 text-[#374151]" />
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-800">Génération automatique</p>
-            <p className="text-xs text-slate-500">L&apos;IA analyse les sinistres et le contexte de cette copropriété</p>
+            <p className="text-sm font-medium text-slate-800">Suggestion par l&apos;IA <span className="text-xs font-normal text-slate-400">(optionnel)</span></p>
+            <p className="text-xs text-slate-500">L&apos;IA propose des points ; vous pouvez aussi tout saisir vous-même ci-dessous.</p>
           </div>
         </div>
         <button
@@ -260,7 +260,7 @@ function Step2({
           className="flex items-center gap-2 text-sm font-semibold bg-[#374151] text-white px-4 py-2 rounded-lg hover:bg-[#374151]/90 transition-colors disabled:opacity-50 whitespace-nowrap"
         >
           {loadingAI ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-          {loadingAI ? 'Génération…' : 'Générer avec l\'IA'}
+          {loadingAI ? 'Génération…' : 'Proposer avec l\'IA'}
         </button>
       </div>
 

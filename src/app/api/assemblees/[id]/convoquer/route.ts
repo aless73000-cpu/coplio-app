@@ -12,6 +12,18 @@ export const POST = withErrorHandler(async (
 ) => {
   // 10 convocations max par IP par heure (chaque envoi = plusieurs emails)
   const ip = getIP(_request)
+
+  // Message d'introduction personnalisé (optionnel) saisi par le syndic
+  let messagePersonnalise = ''
+  try {
+    const body = await _request.json()
+    if (typeof body?.messagePersonnalise === 'string') {
+      messagePersonnalise = body.messagePersonnalise.trim().slice(0, 2000)
+    }
+  } catch {
+    // pas de body / body non-JSON → convocation type
+  }
+
   const limit = await rateLimit(`convoquer:${ip}`, { max: 10, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
@@ -91,6 +103,7 @@ export const POST = withErrorHandler(async (
           lieu: ag.lieu ?? 'À définir',
           listeResolutions,
           lienVote: `${appUrl}/mes-assemblees`,
+          ...(messagePersonnalise ? { messagePersonnalise } : {}),
         },
       }))
 

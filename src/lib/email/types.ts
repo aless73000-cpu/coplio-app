@@ -174,6 +174,8 @@ export interface ConvocationAGProps {
   lieu: string
   listeResolutions: string[]
   lienVote?: string
+  /** Message d'introduction personnalisé saisi par le syndic (remplace le texte type) */
+  messagePersonnalise?: string
 }
 
 export interface CheckoutConfirmProps {

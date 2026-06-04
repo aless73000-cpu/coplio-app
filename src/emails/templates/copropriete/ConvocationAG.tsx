@@ -18,6 +18,7 @@ export function ConvocationAG({
   lieu,
   listeResolutions,
   lienVote,
+  messagePersonnalise,
 }: ConvocationAGProps) {
   return (
     <EmailBase preview={`Convocation à l'AG du ${dateAg} — ${nomCopropriete}`}>
@@ -29,11 +30,18 @@ export function ConvocationAG({
           {nomCopropriete}
         </Text>
 
-        <Text style={{ margin: '0 0 20px', fontSize: '15px', color: '#666', lineHeight: '1.7' }}>
-          Madame, Monsieur <strong>{prenom} {nom}</strong>,{'\n\n'}
-          Vous êtes convoqué(e) à l&apos;Assemblée Générale de la résidence{' '}
-          <strong>{nomCopropriete}</strong>, organisée par le cabinet <strong>{cabinetNom}</strong>.
-        </Text>
+        {messagePersonnalise?.trim() ? (
+          <Text style={{ margin: '0 0 20px', fontSize: '15px', color: '#666', lineHeight: '1.7', whiteSpace: 'pre-wrap' as const }}>
+            Madame, Monsieur <strong>{prenom} {nom}</strong>,{'\n\n'}
+            {messagePersonnalise}
+          </Text>
+        ) : (
+          <Text style={{ margin: '0 0 20px', fontSize: '15px', color: '#666', lineHeight: '1.7' }}>
+            Madame, Monsieur <strong>{prenom} {nom}</strong>,{'\n\n'}
+            Vous êtes convoqué(e) à l&apos;Assemblée Générale de la résidence{' '}
+            <strong>{nomCopropriete}</strong>, organisée par le cabinet <strong>{cabinetNom}</strong>.
+          </Text>
+        )}
 
         {/* Date + Lieu mis en avant */}
         <EmailInfoCard
