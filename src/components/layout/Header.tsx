@@ -205,6 +205,8 @@ export function Header({ title, notifications: initial = [], userId, mobileSideb
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setShowNotifications(!showNotifications)}
+            aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} non lues` : 'Notifications'}
+            aria-expanded={showNotifications}
             className="relative p-2 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <Bell className="w-5 h-5 text-coplio-text" />

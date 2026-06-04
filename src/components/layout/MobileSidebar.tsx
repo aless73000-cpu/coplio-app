@@ -121,6 +121,7 @@ export function MobileSidebar({
           </div>
           <button
             onClick={() => setOpen(false)}
+            aria-label="Fermer le menu"
             className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
           >
             <X className="w-5 h-5 text-white" />

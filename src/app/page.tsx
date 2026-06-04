@@ -4,6 +4,11 @@ import { createAdminClient } from '@/lib/supabase/server'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://coplio.fr'
 
+// ISR : la landing (publique, sans cookies/headers) est rendue statiquement et
+// régénérée toutes les heures → plus aucune requête DB par visiteur (le compteur
+// "offre fondateur" tolère 1h de fraîcheur). Gros gain LCP + charge serveur.
+export const revalidate = 3600
+
 export const metadata: Metadata = {
   title: 'Coplio — Logiciel de gestion de copropriété pour syndics indépendants',
   description:
