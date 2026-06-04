@@ -19,7 +19,7 @@ const PAGE_SIZE = 50
 
 export default async function AppelsChargesPage(
   props: {
-    searchParams: Promise<{ copropriete?: string; statut?: string; page?: string }>
+    searchParams: Promise<{ copropriete?: string; statut?: string; page?: string; q?: string }>
   }
 ) {
   const searchParams = await props.searchParams;
@@ -60,6 +60,10 @@ export default async function AppelsChargesPage(
   if (searchParams.copropriete) {
     query = query.eq('copropriete_id', searchParams.copropriete)
   }
+  const search = searchParams.q?.trim()
+  if (search) {
+    query = query.ilike('libelle', `%${search}%`)
+  }
   if (searchParams.statut === 'paye') {
     query = query.eq('paye', true)
   } else if (searchParams.statut === 'impaye') {
@@ -73,6 +77,9 @@ export default async function AppelsChargesPage(
     .in('copropriete_id', coproprieteIds.length > 0 ? coproprieteIds : ['none'])
   if (searchParams.copropriete) {
     statsQuery = statsQuery.eq('copropriete_id', searchParams.copropriete)
+  }
+  if (search) {
+    statsQuery = statsQuery.ilike('libelle', `%${search}%`)
   }
 
   const [{ data: appels, count }, { data: statsData }] = await Promise.all([
@@ -101,6 +108,7 @@ export default async function AppelsChargesPage(
     const params = new URLSearchParams()
     if (searchParams.copropriete) params.set('copropriete', searchParams.copropriete)
     if (searchParams.statut) params.set('statut', searchParams.statut)
+    if (searchParams.q) params.set('q', searchParams.q)
     if (p > 0) params.set('page', String(p))
     const qs = params.toString()
     return `/appels-charges${qs ? `?${qs}` : ''}`
@@ -170,6 +178,27 @@ export default async function AppelsChargesPage(
           </div>
         </div>
       </div>
+
+      {/* Recherche par libellé (préserve copropriété + statut) */}
+      <form method="get" className="flex gap-2 items-center">
+        {searchParams.copropriete && <input type="hidden" name="copropriete" value={searchParams.copropriete} />}
+        {searchParams.statut && <input type="hidden" name="statut" value={searchParams.statut} />}
+        <input
+          type="search"
+          name="q"
+          defaultValue={searchParams.q ?? ''}
+          placeholder="Rechercher un appel par libellé…"
+          className="flex-1 min-w-0 px-3.5 py-2 text-sm bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-[#374151] transition-all"
+        />
+        <button type="submit" className="px-4 py-2 text-sm font-medium bg-[#374151] text-white rounded-lg hover:bg-[#374151]/90 transition-colors flex-shrink-0">
+          Rechercher
+        </button>
+        {searchParams.q && (
+          <Link href={pageUrl(0).replace(/[?&]q=[^&]*/, '')} className="px-3 py-2 text-sm text-muted-foreground hover:text-coplio-text flex-shrink-0">
+            Effacer
+          </Link>
+        )}
+      </form>
 
       {/* Filtres */}
       <div className="flex gap-2 flex-wrap items-center">

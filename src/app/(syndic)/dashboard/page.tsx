@@ -85,6 +85,7 @@ export default async function DashboardPage(
   const [
     { data: impayes },
     { count: nbLotsOccupes },
+    { count: nbLotsReels },
     { data: fondsTravaux },
   ] = await Promise.all([
     coproprieteIds.length > 0
@@ -99,6 +100,13 @@ export default async function DashboardPage(
           .select('id', { count: 'exact', head: true })
           .in('copropriete_id', coproprieteIds)
           .not('coproprietaire_id', 'is', null)
+      : Promise.resolve({ count: 0 }),
+    // Total des lots RÉELLEMENT créés (≠ nb_lots déclaré sur la copropriété)
+    coproprieteIds.length > 0
+      ? supabase
+          .from('lots')
+          .select('id', { count: 'exact', head: true })
+          .in('copropriete_id', coproprieteIds)
       : Promise.resolve({ count: 0 }),
     coproprieteIds.length > 0
       ? supabase
@@ -182,8 +190,10 @@ export default async function DashboardPage(
     })
   }
 
-  const lotsVacants = kpis.nb_lots - (nbLotsOccupes ?? 0)
-  if (lotsVacants > 0 && kpis.nb_lots > 0) {
+  // Vacant = lots RÉELS sans copropriétaire (et non nb_lots déclaré - occupés,
+  // qui donnait de fausses alertes quand le déclaré dépassait les lots créés)
+  const lotsVacants = (nbLotsReels ?? 0) - (nbLotsOccupes ?? 0)
+  if (lotsVacants > 0 && (nbLotsReels ?? 0) > 0) {
     smartAlerts.push({
       id: 'lots-vacants',
       severity: 'info',
