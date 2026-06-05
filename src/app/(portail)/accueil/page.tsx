@@ -168,7 +168,7 @@ export default async function AccueilPage() {
       ? supabase.from('conseil_syndical')
           .select('id, role')
           .eq('copropriete_id', coproprieteId)
-          .eq('email', profile.email)
+          .ilike('email', profile.email)
           .maybeSingle()
       : Promise.resolve({ data: null }),
   ])

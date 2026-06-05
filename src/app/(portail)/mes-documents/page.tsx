@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { FolderOpen } from 'lucide-react'
+import { getSignedDocumentUrl } from '@/lib/storage'
 
 export const metadata: Metadata = { title: 'Mes documents' }
 import type { Document } from '@/types'
@@ -54,14 +55,8 @@ export default async function MesDocuments() {
   // Pre-generate signed URLs
   const docsWithUrls = await Promise.all(
     (documents ?? []).map(async (doc) => {
-      try {
-        const { data } = await supabase.storage
-          .from(doc.storage_bucket ?? 'documents')
-          .createSignedUrl(doc.storage_path, 3600)
-        return { ...doc, signed_url: data?.signedUrl ?? null }
-      } catch {
-        return { ...doc, signed_url: null }
-      }
+      const signed_url = await getSignedDocumentUrl(doc.storage_bucket ?? 'documents', doc.storage_path)
+      return { ...doc, signed_url }
     })
   )
 

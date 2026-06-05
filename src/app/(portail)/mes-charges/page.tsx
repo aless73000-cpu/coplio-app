@@ -8,6 +8,7 @@ import { formatEuro, formatDate } from '@/lib/utils'
 import type { AppelCharges } from '@/types'
 import { DownloadChargesPDF } from '@/components/portail/DownloadChargesPDF'
 import { CopyButton } from '@/components/portail/CopyButton'
+import { RevealSecret } from '@/components/portail/RevealSecret'
 
 export default async function MesChargesPage() {
   const supabase = await createClient()
@@ -132,9 +133,12 @@ export default async function MesChargesPage() {
                 <CreditCard className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-muted-foreground">IBAN</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <p className="text-sm font-mono font-semibold text-coplio-text truncate">{lot.copropriete.iban}</p>
-                    <CopyButton text={lot.copropriete.iban} />
+                  <div className="mt-0.5">
+                    <RevealSecret
+                      label="IBAN du syndicat"
+                      value={lot.copropriete.iban}
+                      userEmail={user.email ?? ''}
+                    />
                   </div>
                 </div>
               </div>

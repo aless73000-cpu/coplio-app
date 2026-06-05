@@ -48,7 +48,7 @@ export default async function EspaceConseilPage() {
         .from('conseil_syndical')
         .select('id, role')
         .eq('copropriete_id', coproprieteId)
-        .eq('email', profile.email)
+        .ilike('email', profile.email)
         .maybeSingle()
     : { data: null }
 
