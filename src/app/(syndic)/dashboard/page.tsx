@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { DashboardCanvas } from '@/components/dashboard/DashboardCanvas'
 import type { DashboardData } from '@/components/dashboard/DashboardCanvas'
@@ -84,8 +84,7 @@ export default async function DashboardPage(
   // ── Phase 2 : requêtes dépendantes de coproprieteIds ────────────────────
   const [
     { data: impayes },
-    { count: nbLotsOccupes },
-    { count: nbLotsReels },
+    { data: lotsRows },
     { data: fondsTravaux },
   ] = await Promise.all([
     coproprieteIds.length > 0
@@ -94,20 +93,13 @@ export default async function DashboardPage(
           .select('copropriete_id, montant, montant_paye, paye, date_echeance')
           .in('copropriete_id', coproprieteIds)
       : Promise.resolve({ data: [] }),
+    // Tous les lots RÉELLEMENT créés (on récupère les id pour calculer la propriété)
     coproprieteIds.length > 0
       ? supabase
           .from('lots')
-          .select('id', { count: 'exact', head: true })
+          .select('id')
           .in('copropriete_id', coproprieteIds)
-          .not('coproprietaire_id', 'is', null)
-      : Promise.resolve({ count: 0 }),
-    // Total des lots RÉELLEMENT créés (≠ nb_lots déclaré sur la copropriété)
-    coproprieteIds.length > 0
-      ? supabase
-          .from('lots')
-          .select('id', { count: 'exact', head: true })
-          .in('copropriete_id', coproprieteIds)
-      : Promise.resolve({ count: 0 }),
+      : Promise.resolve({ data: [] }),
     coproprieteIds.length > 0
       ? supabase
           .from('fonds_travaux')
@@ -116,6 +108,27 @@ export default async function DashboardPage(
           .order('annee', { ascending: false })
       : Promise.resolve({ data: [] }),
   ])
+
+  // Lots réels (créés) + lots POSSÉDÉS via la table de jonction coproprietaire_lots
+  // (date_fin IS NULL = propriété active).
+  // ⚠️ Avant : la requête filtrait lots.coproprietaire_id — colonne INEXISTANTE → PostgREST
+  //    renvoyait une erreur → nbLotsOccupes = null → TOUS les lots comptés « sans
+  //    copropriétaire » (faux positif permanent). La propriété est portée par coproprietaire_lots.
+  // Recalculé à chaque chargement → l'alerte disparaît dès que les lots sont affectés.
+  const allLotIds = ((lotsRows ?? []) as { id: string }[]).map((l) => l.id)
+  const nbLotsReels = allLotIds.length
+  let nbLotsOccupes = 0
+  if (allLotIds.length > 0) {
+    // Client admin (RLS de coproprietaire_lots non garantie côté syndic) — sûr car
+    // scopé aux allLotIds, eux-mêmes déjà filtrés au cabinet via RLS sur lots.
+    const admin = createAdminClient()
+    const { data: ownerLinks } = await admin
+      .from('coproprietaire_lots')
+      .select('lot_id')
+      .is('date_fin', null)
+      .in('lot_id', allLotIds)
+    nbLotsOccupes = new Set(((ownerLinks ?? []) as { lot_id: string }[]).map((r) => r.lot_id)).size
+  }
 
   const allAppels = (impayes ?? []) as {
     copropriete_id: string
@@ -190,10 +203,9 @@ export default async function DashboardPage(
     })
   }
 
-  // Vacant = lots RÉELS sans copropriétaire (et non nb_lots déclaré - occupés,
-  // qui donnait de fausses alertes quand le déclaré dépassait les lots créés)
-  const lotsVacants = (nbLotsReels ?? 0) - (nbLotsOccupes ?? 0)
-  if (lotsVacants > 0 && (nbLotsReels ?? 0) > 0) {
+  // Vacant = lots réels SANS propriétaire actif dans coproprietaire_lots.
+  const lotsVacants = nbLotsReels - nbLotsOccupes
+  if (lotsVacants > 0 && nbLotsReels > 0) {
     smartAlerts.push({
       id: 'lots-vacants',
       severity: 'info',
