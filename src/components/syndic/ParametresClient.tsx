@@ -8,7 +8,7 @@ import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile, Cabinet } from '@/types'
-import { ALL_NAV_ITEMS, DEFAULT_PINNED_IDS } from '@/lib/nav-items'
+import { VISIBLE_NAV_ITEMS, DEFAULT_PINNED_IDS } from '@/lib/nav-items'
 import { useSidebarPrefs } from '@/hooks/useSidebarPrefs'
 import { DashboardPrefsEditor } from '@/components/dashboard/DashboardCanvas'
 
@@ -343,8 +343,8 @@ function SidebarPrefsSection({ userId }: { userId: string }) {
   }, [hydrated]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Items configurables (non alwaysPinned)
-  const configurableItems = ALL_NAV_ITEMS.filter((item) => !item.alwaysPinned)
-  const alwaysPinnedItems  = ALL_NAV_ITEMS.filter((item) => item.alwaysPinned)
+  const configurableItems = VISIBLE_NAV_ITEMS.filter((item) => !item.alwaysPinned)
+  const alwaysPinnedItems  = VISIBLE_NAV_ITEMS.filter((item) => item.alwaysPinned)
 
   function toggle(id: string) {
     setLocalPinned((prev) =>

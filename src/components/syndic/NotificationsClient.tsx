@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Bell, Check, CheckCheck } from 'lucide-react'
+import { Bell, Check, CheckCheck, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import type { Notification } from '@/types'
 
@@ -37,6 +37,13 @@ export function NotificationsClient({ userId, initialNotifications }: { userId: 
 
   return (
     <div className="max-w-2xl mx-auto">
+      <Link
+        href="/dashboard"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-coplio-text transition-colors mb-4"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Retour au tableau de bord
+      </Link>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-coplio-text">Notifications</h1>

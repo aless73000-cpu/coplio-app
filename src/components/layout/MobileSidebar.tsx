@@ -18,7 +18,7 @@ import type { Profile, Cabinet } from '@/types'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { GlobalSearch } from '@/components/syndic/GlobalSearch'
-import { ALL_NAV_ITEMS } from '@/lib/nav-items'
+import { VISIBLE_NAV_ITEMS } from '@/lib/nav-items'
 import { useSidebarPrefs } from '@/hooks/useSidebarPrefs'
 
 const BOTTOM_ITEMS = [
@@ -46,10 +46,10 @@ export function MobileSidebar({
 
   const { pinnedIds, hydrated } = useSidebarPrefs(profile.id)
 
-  const pinnedItems = ALL_NAV_ITEMS.filter(
+  const pinnedItems = VISIBLE_NAV_ITEMS.filter(
     (item) => item.alwaysPinned || pinnedIds.includes(item.id),
   )
-  const autresItems = ALL_NAV_ITEMS.filter(
+  const autresItems = VISIBLE_NAV_ITEMS.filter(
     (item) => !item.alwaysPinned && !pinnedIds.includes(item.id),
   )
 
@@ -149,7 +149,7 @@ export function MobileSidebar({
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {/* Items épinglés */}
-          {(hydrated ? pinnedItems : ALL_NAV_ITEMS.slice(0, 7)).map((item) => (
+          {(hydrated ? pinnedItems : VISIBLE_NAV_ITEMS.slice(0, 7)).map((item) => (
             <Link
               key={item.href}
               href={item.href}

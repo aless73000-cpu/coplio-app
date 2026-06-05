@@ -16,7 +16,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { GlobalSearch } from '@/components/syndic/GlobalSearch'
-import { ALL_NAV_ITEMS } from '@/lib/nav-items'
+import { VISIBLE_NAV_ITEMS } from '@/lib/nav-items'
 import { useSidebarPrefs } from '@/hooks/useSidebarPrefs'
 
 interface SidebarProps {
@@ -46,10 +46,10 @@ export function Sidebar({
   const { pinnedIds, hydrated } = useSidebarPrefs(profile.id)
 
   // Split items based on prefs
-  const pinnedItems = ALL_NAV_ITEMS.filter(
+  const pinnedItems = VISIBLE_NAV_ITEMS.filter(
     (item) => item.alwaysPinned || pinnedIds.includes(item.id),
   )
-  const autresItems = ALL_NAV_ITEMS.filter(
+  const autresItems = VISIBLE_NAV_ITEMS.filter(
     (item) => !item.alwaysPinned && !pinnedIds.includes(item.id),
   )
 
@@ -144,7 +144,7 @@ export function Sidebar({
       {/* Navigation principale */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {/* Items épinglés */}
-        {(hydrated ? pinnedItems : ALL_NAV_ITEMS.slice(0, 7)).map((item) => (
+        {(hydrated ? pinnedItems : VISIBLE_NAV_ITEMS.slice(0, 7)).map((item) => (
           <Link
             key={item.href}
             href={item.href}

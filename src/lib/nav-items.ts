@@ -29,6 +29,8 @@ export interface NavItem {
   description: string
   /** Items marqués alwaysPinned apparaissent toujours dans la nav principale */
   alwaysPinned?: boolean
+  /** Items marqués hidden restent accessibles par URL mais n'apparaissent pas dans la nav */
+  hidden?: boolean
 }
 
 export const ALL_NAV_ITEMS: NavItem[] = [
@@ -141,6 +143,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     href: '/relances-config',
     icon: Settings2,
     description: 'Paramétrer les relances automatiques',
+    hidden: true,
   },
   {
     id: 'archives',
@@ -148,6 +151,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     href: '/archives',
     icon: Archive,
     description: 'Accéder aux données archivées',
+    hidden: true,
   },
   {
     id: 'signatures',
@@ -155,6 +159,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     href: '/signatures',
     icon: PenLine,
     description: 'Signatures électroniques de documents',
+    hidden: true,
   },
   {
     id: 'carnet-entretien',
@@ -169,6 +174,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     href: '/equipe',
     icon: UserCog,
     description: 'Membres et collaborateurs du cabinet',
+    hidden: true,
   },
   {
     id: 'notifications',
@@ -176,8 +182,12 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     href: '/notifications',
     icon: Bell,
     description: 'Centre de notifications et alertes',
+    hidden: true,
   },
 ]
+
+/** Items visibles dans la navigation (sidebar, nav mobile, paramètres) */
+export const VISIBLE_NAV_ITEMS: NavItem[] = ALL_NAV_ITEMS.filter((item) => !item.hidden)
 
 /** IDs épinglés par défaut dans la nav principale */
 export const DEFAULT_PINNED_IDS: string[] = [
