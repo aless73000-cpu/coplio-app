@@ -9,7 +9,7 @@ import {
   AlertTriangle, CheckCircle2,
   Landmark, UserX, Calendar, User,
   Bell, CreditCard, ArrowRight,
-  CalendarDays, Vote, ChevronRight, Crown, BookUser, Zap,
+  CalendarDays, Vote, ChevronRight, Crown, BookUser, Zap, BadgeDollarSign,
 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 import type { AppelCharges, Document, Sinistre, Notification } from '@/types'
@@ -42,6 +42,7 @@ const SHORTCUTS = [
   { href: '/mes-votes',      label: 'Votes',         icon: Vote,         color: '#ede9fe', iconColor: '#7c3aed' },
   { href: '/mes-messages',   label: 'Messages',      icon: MessageCircle,color: '#f1f5f9', iconColor: '#475569' },
   { href: '/mes-contacts',   label: 'Annuaire',      icon: BookUser,     color: '#ecfdf5', iconColor: '#059669' },
+  { href: '/vendre-mon-lot', label: 'Vendre mon lot',icon: BadgeDollarSign, color: '#fef9c3', iconColor: '#ca8a04' },
 ]
 
 export default async function AccueilPage() {

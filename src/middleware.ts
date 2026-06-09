@@ -159,7 +159,7 @@ export async function middleware(request: NextRequest) {
   // Séparation portail / syndic : un copropriétaire ou un locataire qui tente
   // d'accéder à une route syndic est redirigé vers son espace (/accueil)
   const PORTAIL_PREFIXES = [
-    '/accueil', '/mes-', '/mon-', '/signaler', '/espace-conseil',
+    '/accueil', '/mes-', '/mon-', '/signaler', '/espace-conseil', '/vendre-mon-lot',
   ]
   const isPortailRoute = PORTAIL_PREFIXES.some(p => pathname.startsWith(p))
 
