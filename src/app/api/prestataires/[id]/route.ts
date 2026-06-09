@@ -13,6 +13,7 @@ async function getCabinetId() {
 
 const schema = z.object({
   nom: z.string().min(1).max(255).optional(),
+  categorie: z.enum(['fonctionnement', 'entretien']).optional(),
   metier: z.string().max(100).optional(),
   telephone: z.string().max(30).optional(),
   email: z.string().email().optional().or(z.literal('')),
@@ -35,7 +36,8 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('prestataires')
-    .update({ ...parsed.data, updated_at: new Date().toISOString() })
+    // categorie existe en DB (migration 20260512) mais absent des types générés
+    .update({ ...parsed.data, updated_at: new Date().toISOString() } as never)
     .eq('id', id)
     .eq('cabinet_id', cabinetId)
     .select()

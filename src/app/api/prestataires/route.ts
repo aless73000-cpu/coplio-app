@@ -29,6 +29,7 @@ export const GET = withErrorHandler(async () => {
 
 const schema = z.object({
   nom: z.string().min(1).max(255),
+  categorie: z.enum(['fonctionnement', 'entretien']).optional(),
   metier: z.string().max(100).optional(),
   telephone: z.string().max(30).optional(),
   email: z.string().email().optional().or(z.literal('')),
@@ -49,7 +50,8 @@ export const POST = withErrorHandler(async (request: Request) => {
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('prestataires')
-    .insert({ ...parsed.data, cabinet_id: cabinetId })
+    // categorie existe en DB (migration 20260512) mais absent des types générés
+    .insert({ ...parsed.data, cabinet_id: cabinetId } as never)
     .select()
     .single()
 
