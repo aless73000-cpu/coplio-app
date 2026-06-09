@@ -7,7 +7,7 @@ import {
   Home, FileText, CreditCard, Building2,
   MessageCircle, User, LogOut, Bell,
   CalendarDays, Wrench, Vote, ChevronRight, Crown, BookUser, PenLine,
-  Flag, KeyRound,
+  Flag, KeyRound, BadgeDollarSign,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
@@ -39,6 +39,7 @@ const OWNER_NAV_BASE = [
   { href: '/mon-calendrier',    label: 'Calendrier',     icon: CalendarDays,  matches: ['/mon-calendrier'] },
   { href: '/mes-notifications', label: 'Notifications',  icon: Bell,          matches: ['/mes-notifications'] },
   { href: '/mes-signatures',    label: 'Signatures',     icon: PenLine,       matches: ['/mes-signatures'] },
+  { href: '/vendre-mon-lot',   label: 'Vendre mon lot', icon: BadgeDollarSign, matches: ['/vendre-mon-lot'] },
 ]
 const MON_LOCATAIRE_ITEM = { href: '/mon-locataire', label: 'Mon locataire', icon: KeyRound, matches: ['/mon-locataire'] }
 
