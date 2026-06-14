@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, AlertTriangle, Clock, CheckCircle2, Wrench, FileText, Shield, XCircle } from 'lucide-react'
-import { formatDate, formatDateTime } from '@/lib/utils'
+import { ArrowLeft, AlertTriangle, Clock, CheckCircle2, Wrench, FileText, Shield } from 'lucide-react'
+import { formatDate } from '@/lib/utils'
 import { SINISTRE_STATUS_LABELS } from '@/types'
 import { SinistreAssuranceForm } from '@/components/syndic/SinistreAssuranceForm'
 

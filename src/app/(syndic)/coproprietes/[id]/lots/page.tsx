@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { ArrowLeft, Plus, FileSpreadsheet, Wand2, Pencil } from 'lucide-react'
 import { formatEuro } from '@/lib/utils'
 import { LOT_TYPE_LABELS } from '@/types'
-import type { Lot } from '@/types'
 
 
 export const metadata = { title: 'Lots' }

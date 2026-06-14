@@ -1,17 +1,14 @@
-import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 import { logAction } from '@/lib/audit'
 import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
 
 export const GET = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json([])
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase, cabinetId } = auth
 
   const { searchParams } = new URL(request.url)
   const page = Math.max(0, parseInt(searchParams.get('page') ?? '0', 10) || 0)
@@ -22,7 +19,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   const { data, error, count } = await supabase
     .from('coproprietes')
     .select('id, nom, adresse, ville, nb_lots', { count: 'exact' })
-    .eq('cabinet_id', profile.cabinet_id)
+    .eq('cabinet_id', cabinetId)
     .order('nom')
     .range(from, to)
 
@@ -43,12 +40,9 @@ const schema = z.object({
 })
 
 export const POST = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
-
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { userId, cabinetId } = auth
 
   const body = await request.json()
   const parsed = schema.safeParse(body)
@@ -56,20 +50,20 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   const admin = createAdminClient()
 
-  const quota = await checkQuota(profile.cabinet_id, 'coproprietes')
+  const quota = await checkQuota(cabinetId, 'coproprietes')
   if (!quota.allowed) return quotaExceededResponse(quota)
 
   const { data, error } = await admin.from('coproprietes').insert({
     ...parsed.data,
-    cabinet_id: profile.cabinet_id,
-    gestionnaire_id: user.id,
+    cabinet_id: cabinetId,
+    gestionnaire_id: userId,
   }).select().single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   await logAction(admin, {
-    cabinet_id: profile.cabinet_id,
-    user_id: user.id,
+    cabinet_id: cabinetId,
+    user_id: userId,
     action: 'create',
     entite: 'copropriete',
     entite_id: data.id,

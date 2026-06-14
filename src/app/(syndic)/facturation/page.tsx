@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Check, Zap, Crown, Star, AlertTriangle, Mail } from 'lucide-react'
+import { Check, AlertTriangle, Mail } from 'lucide-react'
 import { PLANS_CONFIG } from '@/types'
 import { SubscribeButton } from '@/components/stripe/SubscribeButton'
 import { ManageButton } from '@/components/stripe/ManageButton'

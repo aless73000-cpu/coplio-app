@@ -10,7 +10,6 @@ import { createClient } from '@/lib/supabase/client'
 import type { Profile, Cabinet } from '@/types'
 import { VISIBLE_NAV_ITEMS, DEFAULT_PINNED_IDS } from '@/lib/nav-items'
 import { useSidebarPrefs } from '@/hooks/useSidebarPrefs'
-import { DashboardPrefsEditor } from '@/components/dashboard/DashboardCanvas'
 
 type Props = {
   profile: Profile & { cabinet?: Cabinet | null }

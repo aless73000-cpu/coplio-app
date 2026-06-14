@@ -1,15 +1,12 @@
-import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 
 export const GET = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
-
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { cabinetId } = auth
 
   const { searchParams } = new URL(request.url)
   const page = Math.max(0, parseInt(searchParams.get('page') ?? '0', 10) || 0)
@@ -21,7 +18,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   const { data, error, count } = await admin
     .from('coproprietaires')
     .select('id, prenom, nom, email', { count: 'exact' })
-    .eq('cabinet_id', profile.cabinet_id)
+    .eq('cabinet_id', cabinetId)
     .order('nom')
     .range(from, to)
 
@@ -38,12 +35,9 @@ const schema = z.object({
 })
 
 export const POST = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
-
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { cabinetId } = auth
 
   const body = await request.json()
   const parsed = schema.safeParse(body)
@@ -56,7 +50,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     .insert({
       ...rest,
       ...(email ? { email } : {}),
-      cabinet_id: profile.cabinet_id,
+      cabinet_id: cabinetId,
     })
     .select()
     .single()

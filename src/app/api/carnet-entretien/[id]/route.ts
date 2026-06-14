@@ -1,15 +1,7 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { withErrorHandler } from '@/lib/api-handler'
-
-async function getCabinetId() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  return profile?.cabinet_id ?? null
-}
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 
 const schema = z.object({
   titre: z.string().min(1).max(255).optional(),
@@ -27,8 +19,9 @@ const schema = z.object({
 
 export const PATCH = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
-  const cabinetId = await getCabinetId()
-  if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { cabinetId } = auth
 
   const body = await request.json()
   const parsed = schema.safeParse(body)
@@ -60,8 +53,9 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
 
 export const DELETE = withErrorHandler(async (_: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
-  const cabinetId = await getCabinetId()
-  if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { cabinetId } = auth
 
   const admin = createAdminClient()
   const { error } = await admin

@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { withErrorHandler } from '@/lib/api-handler'
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
+  const limit = await rateLimit(`import-lots:${user.id}`, { max: 20, windowMs: 60 * 60 * 1000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   const { data: profile } = await supabase.from('profiles').select('cabinet_id, role').eq('id', user.id).single()
   if (!profile?.cabinet_id || !['owner', 'manager'].includes(profile.role)) {

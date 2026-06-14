@@ -2,8 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { CalendarDays, Plus, Clock, Video, MapPin, Vote } from 'lucide-react'
-import { formatDateTime, getDaysUntil } from '@/lib/utils'
-import type { AssembleeGenerale } from '@/types'
+import { getDaysUntil } from '@/lib/utils'
 
 
 export const metadata = { title: 'Assemblées générales' }

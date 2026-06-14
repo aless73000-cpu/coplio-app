@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { Plus, Lock, Loader2, CalendarDays, CheckCircle2, Clock } from 'lucide-react'
 
 interface Exercice {

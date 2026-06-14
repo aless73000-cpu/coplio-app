@@ -12,7 +12,7 @@ import {
   CalendarDays, Vote, ChevronRight, Crown, BookUser, Zap, BadgeDollarSign,
 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
-import type { AppelCharges, Document, Sinistre, Notification } from '@/types'
+import type { AppelCharges, Document } from '@/types'
 import { Sparkles } from 'lucide-react'
 import { TenantHome } from '@/components/portail/TenantHome'
 

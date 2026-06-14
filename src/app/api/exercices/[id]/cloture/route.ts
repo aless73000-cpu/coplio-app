@@ -152,25 +152,7 @@ export const POST = withErrorHandler(async (
     }
   }
 
-  // ── Calculer les régularisations ───────────────────────────────
-  const resultats = calculerRegularisations(
-    lignes,
-    lotsExercice,
-    // Passer les tantièmes du lot pour chaque lot
-    lots.reduce((acc, lot) => {
-      for (const cle of Object.keys(tantièmesParCle)) {
-        acc[cle] = {
-          tantiemes_lot:        lot.tantiemes,
-          tantiemes_totaux_cle: tantièmesParCle[cle].tantiemes_totaux_cle,
-        }
-      }
-      return acc
-    }, {} as TantièmesParCle),
-    debutExercice,
-    finExercice
-  )
-
-  // Pour calculer correctement par lot, recalculer individuellement
+  // ── Calculer les régularisations (par lot, individuellement) ──────
   const resultatsFinaux = lotsExercice.map((lot) => {
     const tantièmesLot: TantièmesParCle = {}
     for (const cle of Object.keys(tantièmesParCle)) {

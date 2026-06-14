@@ -10,7 +10,7 @@ interface Props {
   compteLibelle: string
 }
 
-export function ExportGrandLivreButton({ coproprieteId, exerciceId, compteNumero, compteLibelle }: Props) {
+export function ExportGrandLivreButton({ coproprieteId, exerciceId, compteNumero }: Props) {
   const [loading, setLoading] = useState(false)
 
   async function handleExport() {

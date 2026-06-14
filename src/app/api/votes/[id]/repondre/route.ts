@@ -53,6 +53,15 @@ export const POST = withErrorHandler(async (
   const parsed = schema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: 'Option invalide' }, { status: 400 })
 
+  // Intégrité : l'option choisie doit appartenir à CE vote (la FK seule ne le garantit pas)
+  const { data: option } = await admin
+    .from('vote_options')
+    .select('id')
+    .eq('id', parsed.data.option_id)
+    .eq('vote_id', id)
+    .single()
+  if (!option) return NextResponse.json({ error: 'Option invalide' }, { status: 400 })
+
   const { error } = await admin.from('vote_reponses').insert({
     vote_id: id,
     option_id: parsed.data.option_id,

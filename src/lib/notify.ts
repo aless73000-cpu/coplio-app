@@ -37,11 +37,11 @@ export async function notifySyndics({
   conversationId,
   messagePreview,
   expediteurNom,
-  expediteurEmail,
 }: {
   conversationId: string
   messagePreview?: string
   expediteurNom?: string
+  /** Accepté pour compatibilité d'appel mais non utilisé ici. */
   expediteurEmail?: string
 }) {
   try {

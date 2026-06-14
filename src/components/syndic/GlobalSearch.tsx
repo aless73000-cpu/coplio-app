@@ -3,8 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  Search, Building2, Home, Users, AlertTriangle, CalendarDays, X, Loader2,
-  Plus, Receipt, FileText, Sparkles, Settings, ArrowRight, Zap,
+  Search, Building2, Home, Users, AlertTriangle, CalendarDays, X, Loader2, Receipt, FileText, Sparkles, Settings, ArrowRight, Zap,
   FileSpreadsheet, Bell,
 } from 'lucide-react'
 

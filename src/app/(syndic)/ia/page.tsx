@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Sparkles, FileText, FileSearch, MessageCircle, BarChart2 } from 'lucide-react'
 import { IaRedaction }    from '@/components/ia/IaRedaction'
 import { IaAnalyse }      from '@/components/ia/IaAnalyse'
@@ -24,11 +24,11 @@ export default function IAPage() {
   const [coproprieteId, setCoproprieteId] = useState('')
 
   const { data: coproprietesData } = useApi<Copropriete[] | { data: Copropriete[] }>('/api/coproprietes')
-  const coproprietes: Copropriete[] = Array.isArray(coproprietesData)
+  const coproprietes: Copropriete[] = useMemo(() => Array.isArray(coproprietesData)
     ? coproprietesData
     : Array.isArray((coproprietesData as { data?: Copropriete[] } | null)?.data)
       ? (coproprietesData as { data: Copropriete[] }).data
-      : []
+      : [], [coproprietesData])
 
   // Set default copropriete once data loads
   useEffect(() => {

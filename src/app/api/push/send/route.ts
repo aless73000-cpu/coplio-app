@@ -3,12 +3,26 @@ import { NextResponse } from 'next/server'
 import webpush from 'web-push'
 import { withErrorHandler } from '@/lib/api-handler'
 
-const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY!
-const VAPID_SUBJECT = process.env.VAPID_SUBJECT!
+let vapidReady = false
 
-if (VAPID_PUBLIC && VAPID_PRIVATE) {
-  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE)
+/**
+ * Configure web-push à la demande. Ne lève jamais : une clé absente OU malformée
+ * renvoie `false` (le handler répondra 503) au lieu de faire planter le module
+ * — et donc le build Next.js et tout cold-start.
+ */
+function ensureVapid(): boolean {
+  if (vapidReady) return true
+  const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+  const priv = process.env.VAPID_PRIVATE_KEY
+  const subject = process.env.VAPID_SUBJECT
+  if (!pub || !priv || !subject) return false
+  try {
+    webpush.setVapidDetails(subject, pub, priv)
+    vapidReady = true
+    return true
+  } catch {
+    return false
+  }
 }
 
 export interface PushPayload {
@@ -29,6 +43,10 @@ export const POST = withErrorHandler(async (request: Request) => {
   // Fail-closed: if secret is not configured, deny all requests
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  }
+
+  if (!ensureVapid()) {
+    return NextResponse.json({ error: 'Notifications push non configurées' }, { status: 503 })
   }
 
   const { cabinetId, profileIds, payload } = await request.json() as {

@@ -15,7 +15,6 @@ import {
   BookMarked,
   CalendarDays,
 } from 'lucide-react'
-import { formatEuro } from '@/lib/utils'
 
 
 export const metadata = { title: 'Comptabilité' }
@@ -47,12 +46,12 @@ export default async function ComptabilitePage(
   const selectedId = searchParams.copropriete ?? coproprieteIds[0] ?? null
 
   // Statistiques comptables
-  const { data: ecrituresStats } = selectedId ? await supabase
+  const { data: _ecrituresStats } = selectedId ? await supabase
     .from('ecritures_comptables')
     .select('statut', { count: 'exact' })
     .eq('copropriete_id', selectedId) : { data: null }
 
-  const { data: brouillons, count: nbBrouillons } = selectedId ? await supabase
+  const { data: _brouillons, count: nbBrouillons } = selectedId ? await supabase
     .from('ecritures_comptables')
     .select('id', { count: 'exact' })
     .eq('copropriete_id', selectedId)

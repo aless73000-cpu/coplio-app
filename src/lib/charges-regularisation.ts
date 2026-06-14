@@ -88,10 +88,6 @@ export function calculerRegularisations(
   debutExercice: Date,
   finExercice: Date
 ): ResultatRegularisation[] {
-  const joursExercice = Math.round(
-    (finExercice.getTime() - debutExercice.getTime()) / (1000 * 60 * 60 * 24)
-  ) + 1
-
   return lots.map((lot) => {
     // Fraction de détention (prorata temporis)
     const { fraction, joursDetention } = calculerProrata(

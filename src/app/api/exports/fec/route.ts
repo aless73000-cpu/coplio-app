@@ -1,18 +1,18 @@
 import { createAdminClient } from '@/lib/supabase/server'
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { withErrorHandler } from '@/lib/api-handler'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 
 // Format FEC (Fichier des Écritures Comptables) — norme DGFiP
 // Séparateur : | (pipe), encodage UTF-8, dates YYYYMMDD
 
 export const GET = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { cabinetId } = auth
 
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+  const limit = await rateLimit(`export-fec:${cabinetId}`, { max: 30, windowMs: 60 * 60 * 1000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   const { searchParams } = new URL(request.url)
   const annee = searchParams.get('annee') ?? new Date().getFullYear().toString()
@@ -20,20 +20,27 @@ export const GET = withErrorHandler(async (request: Request) => {
 
   const admin = createAdminClient()
 
-  // Récupérer les appels de charges
-  let query = admin
-    .from('appels_charges')
-    .select('id, montant, montant_paye, date_echeance, date_paiement, paye, lot:lots(id, numero, copropriete:coproprietes(id, nom))')
-    .gte('date_echeance', `${annee}-01-01`)
-    .lte('date_echeance', `${annee}-12-31`)
+  // Isolation tenant : on ne traite QUE les copropriétés du cabinet de l'utilisateur.
+  // Si copropriete_id est fourni, il doit appartenir à ce cabinet (sinon → vide).
+  let coproQuery = admin.from('coproprietes').select('id').eq('cabinet_id', cabinetId)
+  if (coproprieteId) coproQuery = coproQuery.eq('id', coproprieteId)
+  const { data: copros } = await coproQuery
+  const coproIds = (copros ?? []).map(c => c.id)
 
-  if (coproprieteId) {
-    const { data: lots } = await admin.from('lots').select('id').eq('copropriete_id', coproprieteId)
-    const lotIds = (lots ?? []).map(l => l.id)
-    if (lotIds.length > 0) query = query.in('lot_id', lotIds)
-  }
+  const { data: lots } = coproIds.length > 0
+    ? await admin.from('lots').select('id').in('copropriete_id', coproIds)
+    : { data: [] as { id: string }[] }
+  const lotIds = (lots ?? []).map(l => l.id)
 
-  const { data: appels } = await query
+  // Récupérer les appels de charges, strictement limités aux lots du cabinet
+  const { data: appels } = lotIds.length > 0
+    ? await admin
+        .from('appels_charges')
+        .select('id, montant, montant_paye, date_echeance, date_paiement, paye, lot:lots(id, numero, copropriete:coproprietes(id, nom))')
+        .gte('date_echeance', `${annee}-01-01`)
+        .lte('date_echeance', `${annee}-12-31`)
+        .in('lot_id', lotIds)
+    : { data: [] as never[] }
 
   const header = 'JournalCode|JournalLib|EcritureNum|EcritureDate|CompteNum|CompteLib|CompAuxNum|CompAuxLib|PieceRef|PieceDate|EcritureLib|Debit|Credit|EcritureLet|DateLet|ValidDate|Montantdevise|Idevise'
 

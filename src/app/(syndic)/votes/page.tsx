@@ -32,7 +32,7 @@ export default async function VotesPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (
     <VotesClient
-      initialVotes={(votes ?? []) as any}
+      initialVotes={(votes ?? []) as never}
       initialCoproprietes={coproprietes ?? []}
     />
   )

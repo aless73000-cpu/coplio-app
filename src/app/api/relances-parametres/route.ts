@@ -1,25 +1,27 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { withErrorHandler } from '@/lib/api-handler'
-
-async function getCabinetId() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  return profile?.cabinet_id ?? null
-}
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 
 export const GET = withErrorHandler(async (request: Request) => {
-  const cabinetId = await getCabinetId()
-  if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { cabinetId } = auth
 
   const { searchParams } = new URL(request.url)
   const coproprieteId = searchParams.get('copropriete_id')
   if (!coproprieteId) return NextResponse.json({ error: 'copropriete_id requis' }, { status: 400 })
 
   const admin = createAdminClient()
+  // Isolation tenant : la copropriété doit appartenir au cabinet de l'utilisateur
+  const { data: copro } = await admin
+    .from('coproprietes')
+    .select('id')
+    .eq('id', coproprieteId)
+    .eq('cabinet_id', cabinetId)
+    .single()
+  if (!copro) return NextResponse.json({ error: 'Copropriété non trouvée' }, { status: 404 })
+
   const { data } = await admin
     .from('relance_parametres')
     .select('*')
@@ -55,8 +57,9 @@ const schema = z.object({
 })
 
 export const POST = withErrorHandler(async (request: Request) => {
-  const cabinetId = await getCabinetId()
-  if (!cabinetId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { cabinetId } = auth
 
   const body = await request.json()
   const parsed = schema.safeParse(body)

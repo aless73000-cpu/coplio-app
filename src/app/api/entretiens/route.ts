@@ -1,7 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 
 const schema = z.object({
   copropriete_id: z.string().uuid(),
@@ -16,9 +15,9 @@ const schema = z.object({
 })
 
 export const GET = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase } = auth
 
   const { searchParams } = new URL(request.url)
   const coproprieteId = searchParams.get('copropriete_id')
@@ -36,12 +35,9 @@ export const GET = withErrorHandler(async (request: Request) => {
 })
 
 export const POST = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase, cabinetId } = auth
 
   const body = await request.json()
   const parsed = schema.safeParse(body)
@@ -49,7 +45,7 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   const { data, error } = await supabase
     .from('entretiens')
-    .insert({ ...parsed.data, cabinet_id: profile.cabinet_id })
+    .insert({ ...parsed.data, cabinet_id: cabinetId })
     .select('*, prestataire:prestataires(id, nom, categorie, telephone)')
     .single()
 

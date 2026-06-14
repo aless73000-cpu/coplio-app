@@ -1,21 +1,18 @@
-import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 
 export const GET = withErrorHandler(async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
-
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { cabinetId } = auth
 
     const admin = createAdminClient()
     // Vérifier que le coproprietaire appartient au cabinet
-    const { data: copro } = await admin.from('coproprietaires').select('id').eq('id', id).eq('cabinet_id', profile.cabinet_id).single()
+    const { data: copro } = await admin.from('coproprietaires').select('id').eq('id', id).eq('cabinet_id', cabinetId).single()
     if (!copro) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
 
     const { data, error } = await admin
@@ -35,12 +32,9 @@ const schema = z.object({ lot_ids: z.array(z.string().uuid()) })
 export const PUT = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
-
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { cabinetId } = auth
 
     const body = await request.json()
     const parsed = schema.safeParse(body)
@@ -48,7 +42,7 @@ export const PUT = withErrorHandler(async (request: Request, { params }: { param
 
     const admin = createAdminClient()
     // Vérifier appartenance cabinet + récupérer profile_id pour la synchro
-    const { data: copro } = await admin.from('coproprietaires').select('id, profile_id').eq('id', id).eq('cabinet_id', profile.cabinet_id).single()
+    const { data: copro } = await admin.from('coproprietaires').select('id, profile_id').eq('id', id).eq('cabinet_id', cabinetId).single()
     if (!copro) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
 
     await admin.from('coproprietaire_lots').delete().eq('coproprietaire_id', id)

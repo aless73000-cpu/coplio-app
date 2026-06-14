@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft, Wand2, CheckCircle2, Loader2,
@@ -57,7 +57,6 @@ function generateLots(nbNiveaux: number, nbLotsParEtage: number, typeDef: LotTyp
 }
 
 export default function GenererLotsPage() {
-  const router = useRouter()
   const { id: coproprieteId } = useParams<{ id: string }>()
 
   const [nbNiveaux, setNbNiveaux] = useState(3)

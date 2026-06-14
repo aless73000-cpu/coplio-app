@@ -1,24 +1,17 @@
 // GET  → messages d'une conversation
 // POST → envoyer un message dans une conversation
 
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 import { notifyCoproprietaire } from '@/lib/notify'
-
-async function getContext() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  return profile?.cabinet_id ? { user, cabinet_id: profile.cabinet_id } : null
-}
 
 export const GET = withErrorHandler(async (_: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
-  const ctx = await getContext()
-  if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { cabinetId } = auth
 
   const admin = createAdminClient()
 
@@ -27,7 +20,7 @@ export const GET = withErrorHandler(async (_: Request, { params }: { params: Pro
     .from('conversations')
     .select('id')
     .eq('id', id)
-    .eq('cabinet_id', ctx.cabinet_id)
+    .eq('cabinet_id', cabinetId)
     .single()
 
   if (!conv) return NextResponse.json({ error: 'Conversation introuvable' }, { status: 404 })
@@ -48,8 +41,9 @@ const sendSchema = z.object({
 
 export const POST = withErrorHandler(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
-  const ctx = await getContext()
-  if (!ctx) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { userId, cabinetId } = auth
 
   const body = await req.json()
   const parsed = sendSchema.safeParse(body)
@@ -62,7 +56,7 @@ export const POST = withErrorHandler(async (req: Request, { params }: { params: 
     .from('conversations')
     .select('id, coproprietaire_id')
     .eq('id', id)
-    .eq('cabinet_id', ctx.cabinet_id)
+    .eq('cabinet_id', cabinetId)
     .single()
 
   if (!conv) return NextResponse.json({ error: 'Conversation introuvable' }, { status: 404 })
@@ -72,7 +66,7 @@ export const POST = withErrorHandler(async (req: Request, { params }: { params: 
     .from('messages')
     .insert({
       conversation_id: id,
-      expediteur_id: ctx.user.id,
+      expediteur_id: userId,
       contenu: parsed.data.contenu,
       lu: false,
     })
@@ -92,7 +86,7 @@ export const POST = withErrorHandler(async (req: Request, { params }: { params: 
     const { data: syndicProfile } = await admin
       .from('profiles')
       .select('prenom, nom')
-      .eq('id', ctx.user.id)
+      .eq('id', userId)
       .single()
     const expediteurNom = syndicProfile
       ? `${syndicProfile.prenom ?? ''} ${syndicProfile.nom ?? ''}`.trim()

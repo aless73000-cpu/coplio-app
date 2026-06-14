@@ -1,24 +1,18 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 export const GET = withErrorHandler(async () => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase, userId, cabinetId } = auth
 
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 404 })
-
-  const limit = await rateLimit(`ia-analyse:${user.id}`, { max: 10, windowMs: 60 * 60 * 1000 })
+  const limit = await rateLimit(`ia-analyse:${userId}`, { max: 10, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'Clé API IA non configurée' }, { status: 503 })
-
-  const cabinetId = profile.cabinet_id
 
   const { data: copros } = await supabase.from('coproprietes').select('id, nom, nb_lots, statut, montant_impayes').eq('cabinet_id', cabinetId)
   const coproprieteIds = (copros ?? []).map(c => c.id)

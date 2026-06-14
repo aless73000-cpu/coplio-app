@@ -5,7 +5,6 @@ import { CheckCircle2, AlertTriangle, Clock, CreditCard, Building2, ArrowRight }
 
 export const metadata: Metadata = { title: 'Mes charges' }
 import { formatEuro, formatDate } from '@/lib/utils'
-import type { AppelCharges } from '@/types'
 import { DownloadChargesPDF } from '@/components/portail/DownloadChargesPDF'
 import { CopyButton } from '@/components/portail/CopyButton'
 import { RevealSecret } from '@/components/portail/RevealSecret'

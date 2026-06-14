@@ -65,7 +65,8 @@ export default function EditCopropriétairePage(props: { params: Promise<{ id: s
   function toggleLot(lotId: string) {
     setSelectedLots(prev => {
       const next = new Set(prev)
-      next.has(lotId) ? next.delete(lotId) : next.add(lotId)
+      if (next.has(lotId)) next.delete(lotId)
+      else next.add(lotId)
       return next
     })
   }

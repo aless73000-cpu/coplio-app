@@ -5,12 +5,9 @@ import {
   ChevronLeft,
   Plus,
   ArrowRightLeft,
-  CheckCircle2,
-  Clock,
-  Lock,
   ChevronRight,
 } from 'lucide-react'
-import { formatDate, formatEuro } from '@/lib/utils'
+import { formatDate } from '@/lib/utils'
 
 
 export const metadata = { title: 'Écritures' }
@@ -77,9 +74,6 @@ export default async function EcrituresPage(
   const totalCount = count ?? 0
   const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
-  // Stats rapides
-  const nbBrouillons = (ecritures ?? []).filter(e => e.statut === 'brouillon').length
-  const nbValidees   = (ecritures ?? []).filter(e => e.statut === 'valide').length
 
   function pageUrl(p: number) {
     const params = new URLSearchParams()

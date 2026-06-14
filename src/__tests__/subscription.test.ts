@@ -12,7 +12,7 @@ import { PLAN_LIMITS } from '@/lib/stripe'
 
 type PlanKey = 'trial' | 'starter' | 'pro' | 'expert'
 
-function buildCancellationUpdate(currentPlan: PlanKey) {
+function buildCancellationUpdate(_currentPlan: PlanKey) {
   const starterLimits = PLAN_LIMITS['starter']
   return {
     plan: 'starter' as const,

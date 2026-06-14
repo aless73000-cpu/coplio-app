@@ -49,10 +49,6 @@ export default function ImportLotsPage() {
     }
   }
 
-  const inputClass = `w-full px-3 py-2.5 text-sm bg-white border border-border rounded-lg
-    focus:outline-none focus:ring-2 focus:ring-[#374151]/20 focus:border-transparent
-    placeholder:text-gray-400 transition-shadow`
-
   if (result) {
     return (
       <div className="max-w-2xl mx-auto space-y-4 animate-fade-in">

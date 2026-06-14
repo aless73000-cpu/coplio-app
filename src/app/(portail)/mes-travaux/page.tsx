@@ -3,11 +3,10 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import {
-  Wrench, Plus, X, AlertTriangle, Clock,
+  Wrench, Plus, X, Clock,
   HardHat, Euro, Vote, CheckCircle2,
 } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
-import type { Sinistre } from '@/types'
 import { MesVotesClient } from '@/components/portail/MesVotesClient'
 import { SinistreFormClient } from '@/components/portail/SinistreFormClient'
 import { SinistreCard } from '@/components/portail/SinistreCard'

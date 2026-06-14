@@ -1,7 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 
 const prospectSchema = z.object({
   nom:                z.string().min(1).max(200),
@@ -20,17 +19,14 @@ const prospectSchema = z.object({
 })
 
 export const GET = withErrorHandler(async () => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json([])
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase, cabinetId } = auth
 
   const { data, error } = await supabase
     .from('prospects')
     .select('*')
-    .eq('cabinet_id', profile.cabinet_id)
+    .eq('cabinet_id', cabinetId)
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -38,12 +34,9 @@ export const GET = withErrorHandler(async () => {
 })
 
 export const POST = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 404 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase, cabinetId } = auth
 
   const body = await request.json()
   const parsed = prospectSchema.safeParse(body)
@@ -60,7 +53,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const { data, error } = await supabase
     .from('prospects')
     .insert({
-      cabinet_id: profile.cabinet_id,
+      cabinet_id: cabinetId,
       nom, adresse, ville, code_postal, nb_lots,
       contact_nom, contact_email: contact_email || null, contact_telephone,
       statut, probabilite, montant_potentiel, notes, prochain_rdv,

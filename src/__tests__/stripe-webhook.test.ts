@@ -12,7 +12,7 @@
  *   invoice.payment_failed
  *   invoice.paid
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { PLAN_LIMITS } from '@/lib/stripe'
 
 // ─── Helpers extraits du webhook (logique pure, sans I/O) ─────

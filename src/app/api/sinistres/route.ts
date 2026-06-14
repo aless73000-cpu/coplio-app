@@ -1,7 +1,7 @@
-import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 import { logAction } from '@/lib/audit'
 import { Email } from '@/lib/email'
 import { fireAndForget } from '@/lib/utils'
@@ -16,12 +16,9 @@ const schema = z.object({
 
 export const POST = withErrorHandler(async (request: Request) => {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
-
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { userId, cabinetId } = auth
 
     const body = await request.json()
     const parsed = schema.safeParse(body)
@@ -33,9 +30,9 @@ export const POST = withErrorHandler(async (request: Request) => {
     const admin = createAdminClient()
     const { data, error } = await admin.from('sinistres').insert({
       ...parsed.data,
-      cabinet_id: profile.cabinet_id,
+      cabinet_id: cabinetId,
       reference: ref,
-      gestionnaire_id: user.id,
+      gestionnaire_id: userId,
       date_sinistre: new Date().toISOString(),
     }).select().single()
 
@@ -45,12 +42,12 @@ export const POST = withErrorHandler(async (request: Request) => {
     const { data: members } = await admin
       .from('profiles')
       .select('id')
-      .eq('cabinet_id', profile.cabinet_id)
+      .eq('cabinet_id', cabinetId)
     if (members) {
       await admin.from('notifications').insert(
         members.map((m: { id: string }) => ({
           user_id: m.id,
-          cabinet_id: profile.cabinet_id,
+          cabinet_id: cabinetId,
           type: 'urgent',
           titre: `Nouveau sinistre : ${parsed.data.titre}`,
           message: parsed.data.description ?? null,
@@ -62,8 +59,8 @@ export const POST = withErrorHandler(async (request: Request) => {
     }
 
     await logAction(admin, {
-      cabinet_id: profile.cabinet_id,
-      user_id: user.id,
+      cabinet_id: cabinetId,
+      user_id: userId,
       action: 'create',
       entite: 'sinistre',
       entite_id: data.id,
@@ -75,7 +72,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       const { data: gestionnaires } = await admin
         .from('profiles')
         .select('email, prenom')
-        .eq('cabinet_id', profile.cabinet_id)
+        .eq('cabinet_id', cabinetId)
         .not('email', 'is', null)
 
       const { data: copropriete } = await admin

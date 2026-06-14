@@ -102,7 +102,6 @@ export const POST = withErrorHandler(async (request: Request) => {
   const statusFromUrgence = urgence === 'urgence' ? 'urgence' : 'signale'
   const titre = `[Signalement] ${zoneLabel} — Lot ${lot.numero}`
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: sinistre, error: sinErr } = await admin.from('sinistres').insert({
     titre,
     description: `Signalement de ${nomDeclarant} (Lot ${lot.numero})\n\nZone : ${zoneLabel}\nUrgence : ${urgence}\n\n${description}`,
@@ -111,7 +110,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     status: statusFromUrgence,
     reference: ref,
     lots_concernes: [lot.id],
-  } as any).select('id').single()
+  } as never).select('id').single()
 
   if (sinErr) {
     return NextResponse.json({ error: 'Erreur lors de la création du signalement' }, { status: 500 })

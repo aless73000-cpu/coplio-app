@@ -1,5 +1,6 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { withErrorHandler } from '@/lib/api-handler'
 
 export const GET = withErrorHandler(async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -7,6 +8,9 @@ export const GET = withErrorHandler(async (_req: Request, { params }: { params: 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+
+  const limit = await rateLimit(`doc-url:${user.id}`, { max: 120, windowMs: 60 * 1000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
 
   const { data: profile } = await supabase
     .from('profiles')

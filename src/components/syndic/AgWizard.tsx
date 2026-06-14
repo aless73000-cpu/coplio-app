@@ -492,7 +492,6 @@ export function AgWizard() {
     if (!step1Values) return
     setSubmitting(true)
     try {
-      const copro = coproprietes.find(c => c.id === step1Values.copropriete_id)
       const dateStr = new Date(step1Values.date_ag).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
       const titre = `AG ${step1Values.type === 'extraordinaire' ? 'extraordinaire' : 'ordinaire'} — ${dateStr}`
 

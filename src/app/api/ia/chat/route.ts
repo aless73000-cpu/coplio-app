@@ -1,20 +1,19 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { rateLimit } from '@/lib/rate-limit'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 import { captureException } from '@/lib/monitoring'
 
 export const POST = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase, userId, cabinetId } = auth
 
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'Clé API IA non configurée' }, { status: 503 })
 
   // Rate limiting : max 50 messages/heure par utilisateur (contrôle des coûts IA)
-  const rl = await rateLimit(`ia-chat:${user.id}`, { max: 50, windowMs: 60 * 60 * 1000 })
+  const rl = await rateLimit(`ia-chat:${userId}`, { max: 50, windowMs: 60 * 60 * 1000 })
   if (!rl.success) {
     return NextResponse.json(
       { error: 'Limite atteinte (50 messages/heure). Réessayez plus tard.' },
@@ -24,11 +23,6 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   const { messages, copropriete_id } = await request.json()
   if (!messages || !Array.isArray(messages)) return NextResponse.json({ error: 'Messages requis' }, { status: 400 })
-
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 404 })
-
-  const cabinetId = profile.cabinet_id
 
   const copros = await supabase.from('coproprietes').select('id, nom, nb_lots, statut, ville, montant_impayes').eq('cabinet_id', cabinetId).limit(20)
   const coproprieteIds = (copros.data ?? []).map((c: { id: string }) => c.id)

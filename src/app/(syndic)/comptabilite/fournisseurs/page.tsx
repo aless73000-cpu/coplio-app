@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, Plus, Building2 } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import { FournisseursManager } from './_components/FournisseursManager'
 
 

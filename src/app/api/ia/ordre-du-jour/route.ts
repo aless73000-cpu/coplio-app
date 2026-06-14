@@ -1,19 +1,15 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 export const POST = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase, userId, cabinetId } = auth
 
-  const limit = await rateLimit(`ia-odj:${user.id}`, { max: 15, windowMs: 60 * 60 * 1000 })
+  const limit = await rateLimit(`ia-odj:${userId}`, { max: 15, windowMs: 60 * 60 * 1000 })
   if (!limit.success) return rateLimitResponse(limit.resetAt)
-
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 404 })
 
   const body = await request.json()
   const { copropriete_id, type_ag } = body as { copropriete_id: string; type_ag?: string }
@@ -24,7 +20,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     .from('coproprietes')
     .select('id, nom, nb_lots, cabinet_id')
     .eq('id', copropriete_id)
-    .eq('cabinet_id', profile.cabinet_id)
+    .eq('cabinet_id', cabinetId)
     .single()
 
   if (!copropriete) return NextResponse.json({ error: 'Copropriété introuvable' }, { status: 404 })

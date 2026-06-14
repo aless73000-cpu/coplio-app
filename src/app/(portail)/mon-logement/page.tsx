@@ -4,7 +4,7 @@ import Link from 'next/link'
 import {
   Home, Building2, MapPin, Hash, Ruler,
   Layers, CreditCard, Phone, Mail, MessageCircle,
-  ShieldCheck, Calendar, Flame, Landmark,
+  ShieldCheck, Calendar, Landmark,
   ChevronLeft, AlertTriangle, CheckCircle2,
 } from 'lucide-react'
 import { LOT_TYPE_LABELS } from '@/types'

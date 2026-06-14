@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function ThemeToggle({ variant = 'icon', className = '' }: Props) {
-  const { theme, setTheme, resolvedTheme } = useTheme()
+  const { setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   // Évite le flash SSR
