@@ -20,10 +20,8 @@ import {
   Zap,
   PieChart,
   GripHorizontal,
-  SlidersHorizontal,
-  X,
 } from 'lucide-react'
-import { Reorder, motion } from 'framer-motion'
+import { Reorder } from 'framer-motion'
 import { formatEuro } from '@/lib/utils'
 import {
   RecouvrementChartLazy as RecouvrementChart,
@@ -481,7 +479,6 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
 
               // ── Bloc spécial : groupe KPIs en grille 4 colonnes ──
               if (id === 'kpi_group') {
-                const kpiIds = DEFAULT_ORDER.filter((k) => KPI_IDS.has(k))
                 return (
                   <Reorder.Item
                     key="kpi_group" value="kpi_group"

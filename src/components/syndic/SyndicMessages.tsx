@@ -128,7 +128,7 @@ function NewMessageModal({ onClose, onCreated }: { onClose: () => void; onCreate
   )
 }
 
-export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
+export function SyndicMessages({ userId, cabinetId }: Props) {
   const [tab, setTab] = useState<'copro' | 'admin'>('copro')
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loadingConvs, setLoadingConvs] = useState(true)
@@ -212,6 +212,9 @@ export function SyndicMessages({ userId, cabinetId, currentEmail }: Props) {
       })
       .subscribe()
     return () => { supabase.removeChannel(channel) }
+    // On dépend volontairement de l'id seul : inclure l'objet selectedConv
+    // re-souscrirait le canal à chaque changement de référence.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedConv?.id, userId])
 
   useEffect(() => {

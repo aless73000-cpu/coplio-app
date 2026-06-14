@@ -63,8 +63,6 @@ export default async function ReleveDetailPage(
     .gte('date_ecriture', releve.date_debut)
     .lte('date_ecriture', releve.date_fin)
     .order('date_ecriture')
-
-  const nbNonLettrees = (lignes ?? []).filter(l => l.statut_lettrage === 'non_lettre').length
   const nbLettrees    = (lignes ?? []).filter(l => l.statut_lettrage === 'lettre').length
   const totalLignes   = (lignes ?? []).length
 

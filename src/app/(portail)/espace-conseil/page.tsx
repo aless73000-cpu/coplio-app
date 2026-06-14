@@ -2,9 +2,8 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
-  Crown, TrendingUp, AlertTriangle, FileText,
-  Wrench, CalendarDays, Users, ChevronRight,
-  CheckCircle2, Euro, ArrowRight, Building2,
+  Crown, FileText,
+  Wrench, CalendarDays, ArrowRight,
 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 

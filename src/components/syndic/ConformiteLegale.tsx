@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Shield, AlertTriangle, CheckCircle2, Clock, ChevronRight, CalendarDays, FileText, Landmark, BookOpen } from 'lucide-react'
+import { Shield, CheckCircle2, ChevronRight, CalendarDays, FileText, Landmark, BookOpen } from 'lucide-react'
 
 interface Copropriete {
   id: string
@@ -53,12 +53,6 @@ function getDeadlineStatus(days: number): 'ok' | 'warning' | 'critical' {
   if (days < 0)   return 'critical'
   if (days < 45)  return 'warning'
   return 'ok'
-}
-
-const STATUS_CONFIG = {
-  ok:       { cls: 'bg-green-50 text-green-700 border-green-100', dotCls: 'bg-green-500', icon: CheckCircle2 },
-  warning:  { cls: 'bg-amber-50 text-amber-700 border-amber-100', dotCls: 'bg-amber-500', icon: Clock },
-  critical: { cls: 'bg-red-50 text-red-700 border-red-100',       dotCls: 'bg-red-500',   icon: AlertTriangle },
 }
 
 export function ConformiteLegale({ coproprietes, agRecentes, fondsTravaux }: Props) {
@@ -211,8 +205,6 @@ export function ConformiteLegale({ coproprietes, agRecentes, fondsTravaux }: Pro
       <div className="space-y-2">
         {visibleItems.map((item) => {
           const days     = daysUntil(item.deadline)
-          const config   = STATUS_CONFIG[item.status]
-          const StatusIcon = config.icon
           const ItemIcon = item.icon
 
           return (

@@ -74,7 +74,7 @@ interface OnboardingWizardProps {
   userMeta: Record<string, unknown>
 }
 
-export function OnboardingWizard({ userId, userEmail, userMeta }: OnboardingWizardProps) {
+export function OnboardingWizard({ userMeta }: OnboardingWizardProps) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)

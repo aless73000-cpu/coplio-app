@@ -3,8 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { CheckCircle2, CreditCard, XCircle, Loader2, Plus } from 'lucide-react'
-import { formatEuro } from '@/lib/utils'
+import { CheckCircle2, CreditCard, XCircle, Loader2 } from 'lucide-react'
 
 interface Props {
   factureId: string
@@ -13,7 +12,7 @@ interface Props {
   montantTtc?: number
 }
 
-export function FactureActions({ factureId, statut, coproprieteId, montantTtc }: Props) {
+export function FactureActions({ factureId, statut, montantTtc }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState<string | null>(null)
   const [showPaiement, setShowPaiement] = useState(false)

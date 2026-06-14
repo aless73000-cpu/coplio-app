@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Trash2, Loader2, Check, X, Minus, ChevronDown, ChevronUp } from 'lucide-react'
+import { Plus, Trash2, Loader2, Check, X, Minus, ChevronUp } from 'lucide-react'
 
 const VOTE_TYPE_LABELS: Record<string, string> = {
   art_24: 'Art. 24 (majorité simple)',

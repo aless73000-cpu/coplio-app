@@ -25,7 +25,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   return NextResponse.json({ ok: true })
 })
 
-export const DELETE = withErrorHandler(async (request: Request) => {
+export const DELETE = withErrorHandler(async (_request: Request) => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })

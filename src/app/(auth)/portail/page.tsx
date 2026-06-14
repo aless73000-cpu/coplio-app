@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { LoginForm } from '@/components/auth/LoginForm'
-import { Home, FileText, CreditCard, Wrench, MessageCircle, ArrowLeft } from 'lucide-react'
+import { Home, FileText, CreditCard, Wrench, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata: Metadata = {

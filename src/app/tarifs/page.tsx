@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
-import { Check, ArrowLeft } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { SoftwareApplicationJsonLd } from '@/components/seo/JsonLd'
 import { PLANS_CONFIG } from '@/types'
 import Nav from '@/components/landing/Nav'

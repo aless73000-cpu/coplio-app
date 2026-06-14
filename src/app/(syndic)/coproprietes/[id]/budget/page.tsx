@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Plus, Trash2, Save, CheckCircle2, Loader2, TrendingUp, PiggyBank, Download } from 'lucide-react'
 import type { Budget, BudgetLigne, BudgetCategorie } from '@/types'
@@ -19,7 +19,6 @@ type LigneForm = Omit<BudgetLigne, 'id' | 'budget_id' | 'created_at'> & { tempId
 
 export default function BudgetPage() {
   const { id: coproprieteId } = useParams<{ id: string }>()
-  const router = useRouter()
   const currentYear = new Date().getFullYear()
 
   const [budgets, setBudgets] = useState<Budget[]>([])

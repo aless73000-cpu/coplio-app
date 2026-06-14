@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Eye, EyeOff, Lock, X, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { Eye, EyeOff, Lock, X, AlertTriangle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface RevealSecretProps {

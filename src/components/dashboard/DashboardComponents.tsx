@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import {
-  Building2, AlertTriangle, ArrowRight, BarChart2,
+  Building2, ArrowRight, BarChart2,
 } from 'lucide-react'
 
 // ─── KPI Card ─────────────────────────────────────────────────

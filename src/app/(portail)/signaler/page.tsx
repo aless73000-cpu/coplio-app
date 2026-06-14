@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft, Camera, AlertTriangle, CheckCircle2, Loader2,
@@ -29,7 +28,6 @@ const URGENCES = [
 type Status = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function SignalerPage() {
-  const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
 
   const [zone, setZone]               = useState('')

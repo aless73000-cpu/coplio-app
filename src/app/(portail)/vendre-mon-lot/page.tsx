@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
-  ChevronLeft, Home, FileSearch, ClipboardList, Coins,
+  ChevronLeft, FileSearch, ClipboardList, Coins,
   Scale, Bell, CheckCircle2, AlertTriangle, Info, MessageCircle,
   Building2, Ruler, Zap, Flame, ShieldCheck, MapPin, Bug, Volume2,
 } from 'lucide-react'

@@ -93,7 +93,6 @@ export function calculateMajority(input: MajorityInput): MajorityResult {
     voix_abstention,
     tantiemes_presents,
     tantiemes_totaux_copropriete,
-    nombre_coproprietaires = 0,
   } = input
 
   // Garde-fou : éviter les divisions par zéro

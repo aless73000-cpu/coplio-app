@@ -41,7 +41,7 @@ export default async function DocumentsPage(
   // Use admin client to bypass RLS on documents table (no SELECT policy)
   const admin = createAdminClient()
 
-  const [{ data: documents }, { data: coproprietes }] = await Promise.all([
+  const [{ data: documents }, { data: _coproprietes }] = await Promise.all([
     (() => {
       let q = admin
         .from('documents')

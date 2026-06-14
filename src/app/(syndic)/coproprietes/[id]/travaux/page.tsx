@@ -6,8 +6,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft, Plus, Loader2, Trash2, ChevronDown, ChevronUp,
-  HardHat, FileText, Vote, ShoppingCart, Hammer, CheckCircle2, Archive,
-  AlertTriangle, Euro, Calendar
+  HardHat, FileText, Vote, ShoppingCart, Hammer, CheckCircle2, Archive, Euro, Calendar
 } from 'lucide-react'
 import { formatEuro, formatDate } from '@/lib/utils'
 

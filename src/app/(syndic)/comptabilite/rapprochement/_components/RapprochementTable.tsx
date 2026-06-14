@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useOptimistic, useTransition } from 'react'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import { Plus, Link2, Link2Off, Eye, EyeOff, Loader2, Trash2 } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'
 
@@ -35,12 +34,9 @@ interface Props {
 
 export function RapprochementTable({
   releveId,
-  coproprieteId,
   lignes: initialLignes,
   ecrituresDisponibles,
 }: Props) {
-  const router = useRouter()
-  const [isPending, startTransition] = useTransition()
   const [lignes, setLignes] = useState<Ligne[]>(initialLignes)
   const [showAjout, setShowAjout] = useState(false)
   const [hideIgnores, setHideIgnores] = useState(false)

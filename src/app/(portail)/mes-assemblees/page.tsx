@@ -4,7 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Calendar, MapPin, Video, Clock, CheckCircle2, XCircle, MinusCircle, ThumbsUp, ThumbsDown, Minus, FileText, Lock } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
-import type { AssembleeGenerale, AgResolution, AgVote, VoteValue } from '@/types'
+import type { AgResolution, AgVote, VoteValue } from '@/types'
 import { VOTE_TYPE_LABELS } from '@/types'
 import { getSignedDocumentUrl } from '@/lib/storage'
 import { calculateMajority } from '@/lib/majority-engine'
@@ -86,8 +86,8 @@ async function voterResolution(formData: FormData) {
     : { data: null }
 
   // Charger la copropriété séparément (colonne accentuée non parseable en nested join)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: coproprieteData } = agData?.copropriete_id
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ? await (admin.from('coproprietes') as any)
         .select('"tantièmes_totaux", nb_copropriétaires')
         .eq('id', agData.copropriete_id)

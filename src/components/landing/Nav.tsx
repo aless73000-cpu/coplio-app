@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import {
   Building2, Users, FileText, MessageCircle,
-  ArrowRight, BarChart3, Bell,
+  ArrowRight, BarChart3,
   Menu, X, ChevronDown, Receipt,
   AlertTriangle, CalendarDays,
 } from 'lucide-react'

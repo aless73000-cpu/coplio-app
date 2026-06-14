@@ -26,7 +26,7 @@ export default function NewAppelChargesPage() {
   // Step 1: copropriété
   const [coproprietes, setCoproprietes] = useState<{ id: string; nom: string }[]>([])
   const [coproprieteId, setCoproprieteId] = useState('')
-  const [copropriete, setCopropriete] = useState<{ id: string; nom: string } | null>(null)
+  const [, setCopropriete] = useState<{ id: string; nom: string } | null>(null)
 
   // Step 2: lots
   const [lots, setLots] = useState<Lot[]>([])

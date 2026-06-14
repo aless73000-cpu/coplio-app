@@ -94,6 +94,7 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^8",
     "eslint-config-next": "^15.5.18",
+    "eslint-plugin-unused-imports": "^4.4.1",
     "pg": "^8.20.0",
     "playwright": "^1.46.1",
     "postcss": "^8.4.41",

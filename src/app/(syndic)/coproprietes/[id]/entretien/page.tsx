@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
-  ArrowLeft, Plus, Wrench, Loader2, CheckCircle2, Clock, AlertTriangle,
+  ArrowLeft, Plus, Wrench, Loader2, CheckCircle2, AlertTriangle,
   Trash2, ChevronDown, ChevronUp, Euro, Calendar, User
 } from 'lucide-react'
 import { formatDate, formatEuro } from '@/lib/utils'

@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
-  Home, FileText, CreditCard, Building2,
-  MessageCircle, User, LogOut, Bell,
+  Home, FileText, CreditCard,
+  MessageCircle, LogOut, Bell,
   CalendarDays, Wrench, Vote, ChevronRight, Crown, BookUser, PenLine,
   Flag, KeyRound, BadgeDollarSign,
 } from 'lucide-react'
