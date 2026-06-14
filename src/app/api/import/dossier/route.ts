@@ -1,6 +1,7 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import ExcelJS from 'exceljs'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { withErrorHandler } from '@/lib/api-handler'
 import { captureException } from '@/lib/monitoring'
 
@@ -104,6 +105,9 @@ export const POST = withErrorHandler(async (request: Request) => {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+
+    const limit = await rateLimit(`import-dossier:${user.id}`, { max: 10, windowMs: 60 * 60 * 1000 })
+    if (!limit.success) return rateLimitResponse(limit.resetAt)
 
     const { data: profile } = await supabase
       .from('profiles')

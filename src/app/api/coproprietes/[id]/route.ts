@@ -1,7 +1,7 @@
-import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 
 const schema = z.object({
   nom: z.string().min(2).optional(),
@@ -17,19 +17,16 @@ const schema = z.object({
 
 export const PATCH = withErrorHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
-
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase, cabinetId } = auth
 
     // Vérifier que la copropriété appartient au cabinet
     const { data: existing } = await supabase
       .from('coproprietes')
       .select('id')
       .eq('id', (await params).id)
-      .eq('cabinet_id', profile.cabinet_id)
+      .eq('cabinet_id', cabinetId)
       .single()
     if (!existing) return NextResponse.json({ error: 'Copropriété non trouvée' }, { status: 404 })
 

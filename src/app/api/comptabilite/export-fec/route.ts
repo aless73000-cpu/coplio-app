@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { requireCabinetUser } from '@/lib/api-handler'
 import { buildExport, exportResponse, parseFormat } from '@/lib/export-format'
 
 /**
@@ -24,19 +24,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 })
   }
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase, cabinetId } = auth
 
   // Vérifier accès + isolation cabinet
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
-
   const { data: coprop } = await supabase
     .from('coproprietes')
     .select('nom')
     .eq('id', coproprieteId)
-    .eq('cabinet_id', profile.cabinet_id)
+    .eq('cabinet_id', cabinetId)
     .single()
 
   if (!coprop) return NextResponse.json({ error: 'Copropriété introuvable' }, { status: 404 })

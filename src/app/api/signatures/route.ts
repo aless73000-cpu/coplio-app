@@ -1,7 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 
 const schema = z.object({
   nom: z.string().min(1),
@@ -16,12 +15,9 @@ const schema = z.object({
 })
 
 export const GET = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json([])
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase, cabinetId } = auth
 
   const { searchParams } = new URL(request.url)
   const coproprieteId = searchParams.get('copropriete_id')
@@ -29,7 +25,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   let query = supabase
     .from('signatures')
     .select('*, copropriete:coproprietes(id, nom)')
-    .eq('cabinet_id', profile.cabinet_id)
+    .eq('cabinet_id', cabinetId)
     .order('created_at', { ascending: false })
 
   if (coproprieteId) query = query.eq('copropriete_id', coproprieteId)
@@ -40,12 +36,9 @@ export const GET = withErrorHandler(async (request: Request) => {
 })
 
 export const POST = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase, userId, cabinetId } = auth
 
   const body = await request.json()
   const parsed = schema.safeParse(body)
@@ -59,7 +52,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const { data, error } = await supabase
     .from('signatures')
     .insert({
-      cabinet_id: profile.cabinet_id,
+      cabinet_id: cabinetId,
       copropriete_id: parsed.data.copropriete_id ?? null,
       nom: parsed.data.nom,
       type_document: parsed.data.type_document,
@@ -68,7 +61,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       signataires: parsed.data.signataires,
       fichier_url: parsed.data.fichier_url ?? null,
       lien_signature: lienSignature,
-      created_by: user.id,
+      created_by: userId,
     })
     .select('*, copropriete:coproprietes(id, nom)')
     .single()

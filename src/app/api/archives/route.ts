@@ -1,16 +1,12 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { createHash } from 'crypto'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 import { captureException } from '@/lib/monitoring'
 export const GET = withErrorHandler(async (request: Request) => {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json([])
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase, cabinetId } = auth
 
     const { searchParams } = new URL(request.url)
     const coproprieteId = searchParams.get('copropriete_id')
@@ -19,7 +15,7 @@ export const GET = withErrorHandler(async (request: Request) => {
     let query = supabase
       .from('archives')
       .select('*, copropriete:coproprietes(id, nom)')
-      .eq('cabinet_id', profile.cabinet_id)
+      .eq('cabinet_id', cabinetId)
       .order('created_at', { ascending: false })
 
     if (coproprieteId) query = query.eq('copropriete_id', coproprieteId)
@@ -36,12 +32,9 @@ export const GET = withErrorHandler(async (request: Request) => {
 
 export const POST = withErrorHandler(async (request: Request) => {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-
-    const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-    if (!profile?.cabinet_id) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { supabase, userId, cabinetId } = auth
 
     const formData = await request.formData()
     const file = formData.get('file') as File | null
@@ -56,7 +49,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     const buffer = await file.arrayBuffer()
     const hash = createHash('sha256').update(Buffer.from(buffer)).digest('hex')
     const ext = file.name.split('.').pop() ?? 'bin'
-    const path = `${profile.cabinet_id}/archives/${Date.now()}_${hash.slice(0, 8)}.${ext}`
+    const path = `${cabinetId}/archives/${Date.now()}_${hash.slice(0, 8)}.${ext}`
 
     const { error: uploadError } = await supabase.storage
       .from('documents')
@@ -73,7 +66,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     const { data, error } = await supabase
       .from('archives')
       .insert({
-        cabinet_id: profile.cabinet_id,
+        cabinet_id: cabinetId,
         copropriete_id: coproprieteId || null,
         type,
         nom,
@@ -82,7 +75,7 @@ export const POST = withErrorHandler(async (request: Request) => {
         hash_sha256: hash,
         date_document: dateDocument ? new Date(dateDocument).toISOString() : null,
         retention_jusqu_au: retention.toISOString(),
-        created_by: user.id,
+        created_by: userId,
       })
       .select('*, copropriete:coproprietes(id, nom)')
       .single()

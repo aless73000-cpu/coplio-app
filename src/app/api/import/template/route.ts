@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import ExcelJS from 'exceljs'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { withErrorHandler } from '@/lib/api-handler'
 
 export const GET = withErrorHandler(async () => {
@@ -8,6 +9,10 @@ export const GET = withErrorHandler(async () => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+
+  const limit = await rateLimit(`import-template:${user.id}`, { max: 30, windowMs: 60 * 60 * 1000 })
+  if (!limit.success) return rateLimitResponse(limit.resetAt)
+
   const wb = new ExcelJS.Workbook()
 
   // ── Feuille Lots ──────────────────────────────────────────

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Bell, Loader2, CheckCircle2, Mail, MessageSquare, Info } from 'lucide-react'
 
 interface Copropriete { id: string; nom: string }
@@ -96,7 +97,7 @@ export default function RelancesConfigPage() {
         ) : coproprietes.length === 0 ? (
           <p className="text-sm text-muted-foreground py-2">
             Aucune copropriété trouvée.{' '}
-            <a href="/coproprietes/new" className="text-[#374151] underline">Créez-en une</a>.
+            <Link href="/coproprietes/new" className="text-[#374151] underline">Créez-en une</Link>.
           </p>
         ) : (
           <select value={selected} onChange={e => setSelected(e.target.value)}

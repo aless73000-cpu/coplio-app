@@ -1,19 +1,16 @@
-import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { checkQuota, quotaExceededResponse } from '@/lib/plan-guard'
-import { withErrorHandler } from '@/lib/api-handler'
+import { withErrorHandler, requireCabinetUser } from '@/lib/api-handler'
 
 export const GET = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
-
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet non trouvé' }, { status: 400 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { cabinetId } = auth
 
   const admin = createAdminClient()
-  const { data: coproprietes } = await admin.from('coproprietes').select('id').eq('cabinet_id', profile.cabinet_id)
+  const { data: coproprietes } = await admin.from('coproprietes').select('id').eq('cabinet_id', cabinetId)
   const coproprieteIds = (coproprietes ?? []).map((c: { id: string }) => c.id)
   if (coproprieteIds.length === 0) return NextResponse.json([])
 
@@ -50,22 +47,29 @@ const schema = z.object({
 })
 
 export const POST = withErrorHandler(async (request: Request) => {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const auth = await requireCabinetUser()
+  if (auth instanceof NextResponse) return auth
+  const { cabinetId } = auth
 
   const body = await request.json()
   const parsed = schema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: 'Données invalides' }, { status: 400 })
 
   // Vérification quota via plan-guard
-  const { data: profile } = await supabase.from('profiles').select('cabinet_id').eq('id', user.id).single()
-  if (!profile?.cabinet_id) return NextResponse.json({ error: 'Cabinet introuvable' }, { status: 400 })
-
-  const quota = await checkQuota(profile.cabinet_id, 'lots', 1)
+  const quota = await checkQuota(cabinetId, 'lots', 1)
   if (!quota.allowed) return quotaExceededResponse(quota)
 
   const admin = createAdminClient()
+
+  // Isolation tenant : la copropriété ciblée doit appartenir au cabinet
+  const { data: copro } = await admin
+    .from('coproprietes')
+    .select('id')
+    .eq('id', parsed.data.copropriete_id)
+    .eq('cabinet_id', cabinetId)
+    .single()
+  if (!copro) return NextResponse.json({ error: 'Copropriété non trouvée' }, { status: 404 })
+
   const { data, error } = await admin.from('lots').insert(parsed.data).select().single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
