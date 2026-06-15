@@ -12,6 +12,11 @@
  *        On vérifie uniquement que l'app redirige vers stripe.com correctement.
  */
 import { test, expect } from '@playwright/test'
+import { STORAGE_STATE } from '../../playwright.config'
+
+// Par défaut, les tests de ce fichier utilisent la session syndic du setup.
+// Les blocs publics/non authentifiés la surchargent avec un storageState vide.
+test.use({ storageState: STORAGE_STATE })
 
 test.describe('Page Tarifs (publique)', () => {
   test.use({ storageState: { cookies: [], origins: [] } })
