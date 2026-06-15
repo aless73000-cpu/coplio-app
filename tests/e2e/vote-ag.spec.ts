@@ -10,6 +10,10 @@
  *   - Protection des routes AG sans session
  */
 import { test, expect, Page } from '@playwright/test'
+import { STORAGE_STATE } from '../../playwright.config'
+
+// Par défaut, session syndic du setup (les blocs sans session la surchargent).
+test.use({ storageState: STORAGE_STATE })
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

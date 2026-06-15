@@ -2,11 +2,11 @@
  * Auth Setup — Playwright
  *
  * Ce fichier s'exécute une seule fois avant les tests.
- * Il crée un fichier de session réutilisable (e2e/.auth/user.json)
+ * Il crée un fichier de session réutilisable (tests/e2e/.auth/user.json)
  * pour éviter de se reconnecter à chaque spec.
  */
 import { test as setup, expect } from '@playwright/test'
-import { STORAGE_STATE } from '../playwright.config'
+import { STORAGE_STATE } from '../../playwright.config'
 import { TEST_USER } from './helpers/auth'
 
 setup('authenticate as syndic', async ({ page }) => {
