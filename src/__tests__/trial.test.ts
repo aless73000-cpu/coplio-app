@@ -10,7 +10,7 @@ import { describe, it, expect } from 'vitest'
 // ─── Logique extraite de onboarding/route.ts ─────────────────
 
 function computeTrialEndsAt(now = Date.now()): string {
-  return new Date(now + 14 * 24 * 60 * 60 * 1000).toISOString()
+  return new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString()
 }
 
 // ─── Logique extraite de TrialBanner.tsx ─────────────────────
@@ -34,10 +34,10 @@ describe('computeTrialEndsAt', () => {
     expect(new Date(result).toISOString()).toBe(result)
   })
 
-  it('expire exactement dans 14 jours', () => {
+  it('expire exactement dans 30 jours', () => {
     const now = new Date('2025-01-01T00:00:00.000Z').getTime()
     const result = computeTrialEndsAt(now)
-    const expected = new Date('2025-01-15T00:00:00.000Z').toISOString()
+    const expected = new Date('2025-01-31T00:00:00.000Z').toISOString()
     expect(result).toBe(expected)
   })
 
@@ -52,10 +52,10 @@ describe('computeDaysLeft', () => {
     expect(computeDaysLeft(null)).toBeNull()
   })
 
-  it('retourne 14 le jour de l\'activation', () => {
+  it('retourne 30 le jour de l\'activation', () => {
     const now = new Date('2025-01-01T12:00:00.000Z').getTime()
-    const endsAt = new Date('2025-01-15T12:00:00.000Z').toISOString()
-    expect(computeDaysLeft(endsAt, now)).toBe(14)
+    const endsAt = new Date('2025-01-31T12:00:00.000Z').toISOString()
+    expect(computeDaysLeft(endsAt, now)).toBe(30)
   })
 
   it('retourne 0 quand le trial est expiré (ne va pas négatif)', () => {

@@ -25,7 +25,7 @@ export function StickyBanner() {
       }}
     >
       <p className="text-sm hidden sm:block" style={{ color: 'rgba(255,255,255,0.45)' }}>
-        14 jours d&apos;essai gratuit · Sans carte bancaire · Sans engagement
+        30 jours d&apos;essai gratuit · Sans carte bancaire · Sans engagement
       </p>
       <Link
         href="/register"

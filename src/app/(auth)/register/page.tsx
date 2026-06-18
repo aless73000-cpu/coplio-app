@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 }
 
 const FEATURES = [
-  'Essai 14 jours gratuit, sans CB',
+  'Essai 30 jours gratuit, sans CB',
   'Portail copropriétaire inclus',
   'Toutes les fonctionnalités Pro',
   'Annulation à tout moment',
@@ -32,7 +32,7 @@ export default function RegisterPage() {
               Commencer gratuitement
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
-              14 jours d&apos;essai gratuit — aucune carte requise
+              30 jours d&apos;essai gratuit — aucune carte requise
             </p>
           </div>
 

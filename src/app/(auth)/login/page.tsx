@@ -52,7 +52,7 @@ export default async function LoginPage(
         <p className="text-sm text-slate-400">
           Pas encore de compte ?{' '}
           <Link href="/register" className="text-[#374151] font-semibold hover:underline">
-            Essai gratuit 14 jours
+            Essai gratuit 30 jours
           </Link>
         </p>
         <p className="text-xs text-slate-300">

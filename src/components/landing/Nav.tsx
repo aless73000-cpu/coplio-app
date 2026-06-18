@@ -97,7 +97,7 @@ export default function Nav() {
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-xs text-slate-400">Toutes les fonctionnalités incluses dès le 1er plan</span>
                 <Link href="/register" className="flex items-center gap-1 text-xs font-bold text-[#374151] hover:underline">
-                  Essai gratuit 14j <ArrowRight className="w-3 h-3" />
+                  Essai gratuit 30j <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
             </div>
@@ -167,7 +167,7 @@ export default function Nav() {
           </div>
           <Link href="/register" onClick={() => setMobileOpen(false)}
             className="flex items-center justify-center gap-2 bg-[#374151] text-white px-4 py-3.5 rounded-xl font-semibold text-sm hover:bg-[#4B5563] transition-colors">
-            Démarrer — essai gratuit 14 jours <ArrowRight className="w-4 h-4" />
+            Démarrer — essai gratuit 30 jours <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       )}

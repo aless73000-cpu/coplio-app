@@ -333,7 +333,7 @@ export function OnboardingWizard({ userMeta }: OnboardingWizardProps) {
           <div>
             <h2 className="text-xl font-bold text-coplio-text mb-1">Choisissez votre plan</h2>
             <p className="text-muted-foreground text-sm mb-6">
-              Vous êtes en essai gratuit 14 jours — vous pouvez aussi décider plus tard.
+              Vous êtes en essai gratuit 30 jours — vous pouvez aussi décider plus tard.
             </p>
 
             <div className="space-y-3 mb-6">
@@ -394,7 +394,7 @@ export function OnboardingWizard({ userMeta }: OnboardingWizardProps) {
 
             <h2 className="text-2xl font-bold text-coplio-text mb-2">Votre cabinet est prêt ! 🎉</h2>
             <p className="text-muted-foreground text-sm mb-1">
-              Essai gratuit de <strong className="text-coplio-text">14 jours</strong> démarré.
+              Essai gratuit de <strong className="text-coplio-text">30 jours</strong> démarré.
             </p>
             <p className="text-xs text-muted-foreground mb-8">
               Aucune carte bancaire requise · Annulation en 1 clic

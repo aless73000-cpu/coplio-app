@@ -23,7 +23,7 @@ export default function CtaFinal() {
         </h2>
 
         <p className="text-lg mb-12 max-w-lg mx-auto leading-relaxed" style={{ color: 'rgba(255,255,255,0.36)' }}>
-          14 jours d&apos;essai gratuit. Sans engagement, sans carte bancaire.
+          30 jours d&apos;essai gratuit. Sans engagement, sans carte bancaire.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">

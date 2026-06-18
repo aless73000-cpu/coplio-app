@@ -71,7 +71,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/facturation?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/facturation?canceled=true`,
       subscription_data: {
-        trial_period_days: 14,
+        trial_period_days: 30,
         metadata: {
           cabinet_id: profile?.cabinet_id ?? '',
           plan,

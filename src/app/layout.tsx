@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: '%s | Coplio',
   },
   description:
-    'Coplio simplifie la gestion de copropriété pour les syndics indépendants. Portail copropriétaire, AG en ligne, suivi des impayés, sinistres — tout en un. Essai gratuit 14 jours.',
+    'Coplio simplifie la gestion de copropriété pour les syndics indépendants. Portail copropriétaire, AG en ligne, suivi des impayés, sinistres — tout en un. Essai gratuit 30 jours.',
   keywords: [
     'logiciel syndic',
     'gestion copropriété',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     siteName: 'Coplio',
     title: 'Coplio — Gestion de copropriété pour syndics indépendants',
     description:
-      'Simplifiez votre gestion de copropriété. Portail copropriétaire inclus, AG en ligne, relances automatiques. Essai gratuit 14 jours.',
+      'Simplifiez votre gestion de copropriété. Portail copropriétaire inclus, AG en ligne, relances automatiques. Essai gratuit 30 jours.',
     images: [
       {
         url: `${APP_URL}/opengraph-image`,
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Coplio — Gestion de copropriété simplifiée',
     description:
-      'Le logiciel de gestion de copropriété pour syndics indépendants. Essai gratuit 14 jours.',
+      'Le logiciel de gestion de copropriété pour syndics indépendants. Essai gratuit 30 jours.',
     images: [`${APP_URL}/opengraph-image`],
   },
 

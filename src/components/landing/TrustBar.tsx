@@ -1,7 +1,7 @@
 export default function TrustBar() {
   const stats = [
     { value: 'Early adopter', label: 'Accès fondateur à tarif bloqué' },
-    { value: '14 jours',      label: 'Essai gratuit, sans carte'       },
+    { value: '30 jours',      label: 'Essai gratuit, sans carte'       },
     { value: '< 1 jour',      label: 'Mise en service complète'        },
     { value: '100 % FR',      label: 'Données hébergées en Europe'     },
   ]

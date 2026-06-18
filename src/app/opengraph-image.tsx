@@ -92,7 +92,7 @@ export default function Image() {
           fontSize: '20px',
           fontWeight: '700',
         }}>
-          14 jours gratuits
+          30 jours gratuits
         </div>
       </div>
     ),

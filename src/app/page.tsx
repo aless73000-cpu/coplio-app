@@ -12,7 +12,7 @@ export const revalidate = 3600
 export const metadata: Metadata = {
   title: 'Coplio — Logiciel de gestion de copropriété pour syndics indépendants',
   description:
-    'Coplio simplifie la gestion de copropriété pour les syndics indépendants. Portail copropriétaire, AG en ligne, suivi des impayés, sinistres — tout en un. Essai gratuit 14 jours, sans carte bancaire.',
+    'Coplio simplifie la gestion de copropriété pour les syndics indépendants. Portail copropriétaire, AG en ligne, suivi des impayés, sinistres — tout en un. Essai gratuit 30 jours, sans carte bancaire.',
   alternates: {
     canonical: APP_URL,
   },
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     url: APP_URL,
     title: 'Coplio — Gestion de copropriété pour syndics indépendants',
     description:
-      'Simplifiez votre gestion de copropriété. Portail copropriétaire inclus, AG en ligne, relances automatiques. Essai gratuit 14 jours.',
+      'Simplifiez votre gestion de copropriété. Portail copropriétaire inclus, AG en ligne, relances automatiques. Essai gratuit 30 jours.',
   },
 }
 

@@ -24,7 +24,7 @@ export function WelcomeSyndic({ prenom, nomCabinet, appUrl = brand.appUrl, confi
         </Text>
         <Text style={{ margin: '0 0 24px', fontSize: '15px', color: '#666', lineHeight: '1.7' }}>
           Votre espace <strong>{nomCabinet}</strong> est prêt.
-          Votre essai gratuit de <strong>14 jours</strong> commence maintenant — aucune carte bancaire requise.
+          Votre essai gratuit de <strong>30 jours</strong> commence maintenant — aucune carte bancaire requise.
         </Text>
 
         {/* Steps d'onboarding */}

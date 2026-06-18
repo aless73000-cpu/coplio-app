@@ -3,7 +3,7 @@ import FAQItem from './FAQItem'
 const items = [
   {
     q: "Est-ce que je dois fournir ma carte bancaire pour l'essai gratuit ?",
-    a: "Non. Vous démarrez votre essai de 14 jours sans aucune carte bancaire. Vous ne payez que si vous décidez de continuer à l'issue de la période d'essai.",
+    a: "Non. Vous démarrez votre essai de 30 jours sans aucune carte bancaire. Vous ne payez que si vous décidez de continuer à l'issue de la période d'essai.",
   },
   {
     q: 'Puis-je importer mes données existantes ?',

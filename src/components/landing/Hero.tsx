@@ -72,7 +72,7 @@ export default function Hero() {
 
         {/* Trust strip */}
         <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm" style={{ color: 'rgba(255,255,255,0.22)' }}>
-          {['14 jours gratuits', 'Sans carte bancaire', 'Sans engagement'].map((t) => (
+          {['30 jours gratuits', 'Sans carte bancaire', 'Sans engagement'].map((t) => (
             <span key={t} className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.3)' }} /> {t}
             </span>
