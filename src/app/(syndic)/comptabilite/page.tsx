@@ -14,6 +14,7 @@ import {
   Receipt,
   BookMarked,
   CalendarDays,
+  BadgeEuro,
 } from 'lucide-react'
 
 
@@ -105,6 +106,14 @@ export default async function ComptabilitePage(
       icon: Receipt,
       label: 'Factures fournisseurs',
       description: 'Cycle devis → facture → paiement',
+      badge: null,
+      badgeColor: '',
+    },
+    {
+      href: `/comptabilite/honoraires${selectedId ? `?copropriete=${selectedId}` : ''}`,
+      icon: BadgeEuro,
+      label: 'Honoraires & facturation',
+      description: 'Émettre une facture forfaitaire au syndicat',
       badge: null,
       badgeColor: '',
     },
