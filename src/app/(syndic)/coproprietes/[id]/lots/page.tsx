@@ -1,9 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Plus, FileSpreadsheet, Wand2, Pencil } from 'lucide-react'
-import { formatEuro } from '@/lib/utils'
-import { LOT_TYPE_LABELS } from '@/types'
+import { ArrowLeft, Plus, FileSpreadsheet, Wand2 } from 'lucide-react'
+import { LotsTableClient } from '@/components/syndic/LotsTableClient'
 
 
 export const metadata = { title: 'Lots' }
@@ -53,51 +52,10 @@ export default async function LotsPage(props: { params: Promise<{ id: string }> 
         </div>
       </div>
 
-      <div className="coplio-card overflow-x-auto">
-        {lots && lots.length > 0 ? (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-2 text-muted-foreground font-medium text-xs">Numéro</th>
-                <th className="text-left py-2 text-muted-foreground font-medium text-xs">Type</th>
-                <th className="text-left py-2 text-muted-foreground font-medium text-xs hidden md:table-cell">Étage</th>
-                <th className="text-right py-2 text-muted-foreground font-medium text-xs hidden md:table-cell">Surface</th>
-                <th className="text-right py-2 text-muted-foreground font-medium text-xs hidden md:table-cell">Tantièmes</th>
-                <th className="text-right py-2 text-muted-foreground font-medium text-xs">Solde</th>
-                <th className="py-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {lots.map((lot) => (
-                <tr key={lot.id} className="border-b border-border hover:bg-coplio-bg transition-colors">
-                  <td className="py-3">
-                    <Link href={`/lots/${lot.id}`} className="font-medium text-[#374151] hover:underline">
-                      Lot {lot.numero}
-                    </Link>
-                  </td>
-                  <td className="py-3 text-muted-foreground capitalize">
-                    {LOT_TYPE_LABELS[lot.type as keyof typeof LOT_TYPE_LABELS] ?? lot.type}
-                  </td>
-                  <td className="py-3 text-muted-foreground hidden md:table-cell">{lot.etage ?? '—'}</td>
-                  <td className="py-3 text-right text-muted-foreground hidden md:table-cell">{lot.surface ? `${lot.surface} m²` : '—'}</td>
-                  <td className="py-3 text-right hidden md:table-cell">{lot.tantiemes}</td>
-                  <td className={`py-3 text-right font-medium ${(lot.solde_compte ?? 0) < 0 ? 'text-red-500' : 'text-coplio-text'}`}>
-                    {formatEuro(lot.solde_compte ?? 0)}
-                  </td>
-                  <td className="py-3 text-right">
-                    <Link
-                      href={`/lots/${lot.id}/edit`}
-                      className="p-1.5 rounded-md hover:bg-border text-muted-foreground hover:text-coplio-text transition-colors inline-flex"
-                      title="Modifier"
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
+      {lots && lots.length > 0 ? (
+        <LotsTableClient lots={lots} />
+      ) : (
+        <div className="coplio-card">
           <div className="text-center py-14">
             <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
               <FileSpreadsheet className="w-7 h-7 text-[#374151]" />
@@ -128,8 +86,8 @@ export default async function LotsPage(props: { params: Promise<{ id: string }> 
               </Link>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

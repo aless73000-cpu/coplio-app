@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import { Building2, MapPin, Home, AlertTriangle, CreditCard, Map, List, Plus, Wand2, FileSpreadsheet, Trash2, Target, TrendingUp, Phone, Mail, Loader2 } from 'lucide-react'
+import { Building2, MapPin, Home, AlertTriangle, CreditCard, Map, List, Plus, Wand2, FileSpreadsheet, Trash2, Target, TrendingUp, Phone, Mail, Loader2, Search, X } from 'lucide-react'
 import { ConfirmButton } from '@/components/ui/ConfirmButton'
 import { formatEuro } from '@/lib/utils'
 import type { Copropriete } from '@/types'
@@ -43,6 +43,24 @@ export function CoproprietesClient({ coproprietes }: Props) {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ nom: '', adresse: '', ville: '', nb_lots: '', contact_nom: '', contact_email: '', contact_telephone: '', statut: 'lead', probabilite: '20', montant_potentiel: '', notes: '' })
   const [saving, setSaving] = useState(false)
+  const [search, setSearch] = useState('')
+  const [villeFilter, setVilleFilter] = useState('all')
+
+  const villes = useMemo(
+    () => Array.from(new Set(coproprietes.map(c => c.ville).filter(Boolean)))
+      .sort((a, b) => String(a).localeCompare(String(b))),
+    [coproprietes],
+  )
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    return coproprietes.filter(c => {
+      if (villeFilter !== 'all' && c.ville !== villeFilter) return false
+      if (!q) return true
+      return [c.nom, c.ville, c.code_postal, c.adresse]
+        .some(v => v?.toLowerCase().includes(q))
+    })
+  }, [coproprietes, search, villeFilter])
 
   const loadProspects = useCallback(async () => {
     setLoadingProspects(true)
@@ -106,6 +124,39 @@ export function CoproprietesClient({ coproprietes }: Props) {
         </div>
       </div>
 
+      {/* Barre de recherche / filtres (vues liste & carte) */}
+      {view !== 'prospects' && coproprietes.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Rechercher par nom, ville, code postal…"
+              className="w-full pl-9 pr-9 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#374151]/20"
+            />
+            {search && (
+              <button onClick={() => setSearch('')} aria-label="Effacer la recherche"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-coplio-text">
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          {villes.length > 1 && (
+            <select value={villeFilter} onChange={e => setVilleFilter(e.target.value)}
+              className="px-3 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#374151]/20">
+              <option value="all">Toutes les villes</option>
+              {villes.map(v => <option key={String(v)} value={String(v)}>{String(v)}</option>)}
+            </select>
+          )}
+          {(search || villeFilter !== 'all') && (
+            <div className="flex items-center text-sm text-muted-foreground px-1 whitespace-nowrap">
+              {filtered.length} résultat{filtered.length > 1 ? 's' : ''}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* LISTE */}
       {view === 'liste' && (
         coproprietes.length === 0 ? (
@@ -119,9 +170,15 @@ export function CoproprietesClient({ coproprietes }: Props) {
               <Plus className="w-4 h-4" />Ajouter
             </Link>
           </div>
+        ) : filtered.length === 0 ? (
+          <div className="coplio-card text-center py-12">
+            <Search className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-30" />
+            <p className="font-semibold text-coplio-text">Aucun résultat</p>
+            <p className="text-sm text-muted-foreground mt-1">Aucune copropriété ne correspond à votre recherche.</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {coproprietes.map(c => <CoproprieteCard key={c.id} copropriete={c} />)}
+            {filtered.map(c => <CoproprieteCard key={c.id} copropriete={c} />)}
           </div>
         )
       )}
@@ -135,10 +192,10 @@ export function CoproprietesClient({ coproprietes }: Props) {
             </div>
             <div className="relative z-10">
               <p className="text-sm font-semibold text-coplio-text mb-4 flex items-center gap-2">
-                <Map className="w-4 h-4 text-[#374151]" />{coproprietes.length} copropriété{coproprietes.length > 1 ? 's' : ''} dans votre portefeuille
+                <Map className="w-4 h-4 text-[#374151]" />{filtered.length} copropriété{filtered.length > 1 ? 's' : ''} dans votre portefeuille
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {coproprietes.map(c => {
+                {filtered.map(c => {
                   const cfg = c.statut === 'urgent' ? 'bg-red-500' : c.statut === 'attention' ? 'bg-amber-400' : 'bg-[#374151]'
                   return (
                     <Link key={c.id} href={`/coproprietes/${c.id}`}
