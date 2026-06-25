@@ -13,7 +13,7 @@ export default defineConfig({
     // Rapport de couverture
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html'],
+      reporter: ['text', 'html', 'json-summary'],
       include: ['src/lib/**', 'src/app/api/**'],
       exclude: ['src/**/*.test.ts'],
     },

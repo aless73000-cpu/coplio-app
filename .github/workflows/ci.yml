@@ -38,9 +38,20 @@ jobs:
       - name: TypeScript
         run: npx tsc --noEmit
 
-      # ── Unit tests ────────────────────────────────────────────────
+      # ── Unit tests + couverture ───────────────────────────────────
+      # La couverture est mesurée (scope : src/lib + src/app/api) et publiée
+      # en artefact, mais NON bloquante : les routes API sont couvertes par les
+      # tests e2e Playwright (workflow e2e.yml), pas par Vitest.
       - name: Vitest
-        run: npm test -- --reporter=verbose
+        run: npm run test:coverage -- --reporter=verbose
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
 
       # ── Next.js build (smoke test) ────────────────────────────────
       # Env vars : vraies valeurs en secret, placeholders pour les NEXT_PUBLIC_*
