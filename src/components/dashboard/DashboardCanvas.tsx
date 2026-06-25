@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import {
   Building2,
   Home,
@@ -13,15 +13,7 @@ import {
   BarChart2,
   Receipt,
   Users,
-  Eye,
-  EyeOff,
-  CheckCircle2,
-  Loader2,
-  Zap,
-  PieChart,
-  GripHorizontal,
 } from 'lucide-react'
-import { Reorder } from 'framer-motion'
 import { formatEuro } from '@/lib/utils'
 import {
   RecouvrementChartLazy as RecouvrementChart,
@@ -39,93 +31,16 @@ import {
   SinistreRow,
   AgRow,
 } from '@/components/dashboard/DashboardComponents'
-import { useDashboardPrefs, ALL_WIDGETS } from '@/hooks/useDashboardPrefs'
+import { useDashboardPrefs } from '@/hooks/useDashboardPrefs'
 import type { WidgetPref } from '@/hooks/useDashboardPrefs'
 import type { Copropriete } from '@/types'
 import { ConformiteLegale } from '@/components/syndic/ConformiteLegale'
 import { toast } from 'sonner'
+import { type DashboardData, KPI_IDS, DEFAULT_ORDER } from './dashboard-widgets'
+import { DashboardEditModal } from './DashboardEditModal'
 
-// ─── Types ────────────────────────────────────────────────────
-
-interface OnboardingStep {
-  id: string; label: string; description: string; href: string; done: boolean
-}
-interface SmartAlert {
-  id: string; severity: 'warning' | 'info'; message: string; href: string; cta: string
-}
-
-export interface DashboardData {
-  userId: string
-  prenom: string
-  cabinetNom: string
-  trialEndsAt: string | null
-  plan: string | null
-  onboardingSteps: OnboardingStep[]
-  kpis: {
-    nb_coproprietes: number; nb_lots: number; nb_sinistres_ouverts: number
-    montant_total_impayes: number; nb_ag_a_preparer: number
-    nb_coproprietaires: number; nb_portail_actif: number
-  }
-  tauxGlobal: number
-  totalEmis: number
-  totalRecouvre: number
-  smartAlerts: SmartAlert[]
-  evolutionData: { mois: string; emis: number; recouvre: number }[]
-  tauxData: { nom: string; taux: number; impayes: number }[]
-  statutData: { aJour: number; attention: number; urgent: number }
-  coproprietesCritiques: Copropriete[]
-  allCoproprietes?: Copropriete[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sinistres: any[] | null
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  agProchaines: any[] | null
-  hasAppels: boolean
-  conformiteData?: {
-    agRecentes: { copropriete_id: string; date_ag: string; status: string }[]
-    fondsTravaux: { copropriete_id: string; annee: number | null }[]
-  }
-}
-
-// ─── Widget metadata ──────────────────────────────────────────
-
-const WIDGET_LABELS: Record<string, string> = {
-  kpi_group:           'Indicateurs clés (KPIs)',
-  kpi_coproprietes:    'Copropriétés',
-  kpi_lots:            'Lots gérés',
-  kpi_sinistres:       'Sinistres',
-  kpi_impayes:         'Impayés',
-  kpi_coproprietaires: 'Copropriétaires',
-  kpi_portail:         'Portail actif',
-  kpi_ag:              'AG à venir',
-  kpi_recouvrement:    'Recouvrement',
-  alertes_intelligentes:'Alertes intelligentes',
-  graphiques_finances: 'Graphiques financiers',
-  graphiques_copros:   'Graphiques copropriétés',
-  performance:         'Performance cabinet',
-  alertes_coproprietes:'Alertes copropriétés',
-  sinistres:           'Sinistres en cours',
-  ag:                  'AG à venir',
-  actions_rapides:     'Actions rapides',
-  conformite_legale:   'Conformité légale',
-}
-
-const WIDGET_ICONS: Record<string, React.ElementType> = {
-  kpi_group: BarChart2,
-  kpi_coproprietes: Building2, kpi_lots: Home,
-  kpi_sinistres: AlertTriangle, kpi_impayes: CreditCard,
-  kpi_coproprietaires: Users, kpi_portail: TrendingUp,
-  kpi_ag: CalendarDays, kpi_recouvrement: BarChart2,
-  alertes_intelligentes: AlertTriangle, graphiques_finances: TrendingUp,
-  graphiques_copros: PieChart, performance: BarChart2,
-  alertes_coproprietes: Building2, sinistres: AlertTriangle,
-  ag: CalendarDays, actions_rapides: Zap, conformite_legale: CheckCircle2,
-}
-
-// KPIs individuels → regroupement automatique en grille dans le rendu normal
-const KPI_IDS = new Set([
-  'kpi_coproprietes','kpi_lots','kpi_sinistres','kpi_impayes',
-  'kpi_coproprietaires','kpi_portail','kpi_ag','kpi_recouvrement',
-])
+export type { DashboardData }
+export { DashboardPrefsEditor } from './DashboardPrefsEditor'
 
 // ─── DashboardCanvas ──────────────────────────────────────────
 
@@ -135,36 +50,12 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
   const [editOrder, setEditOrder] = useState<string[]>([])
   const [editKpiOrder, setEditKpiOrder] = useState<string[]>([])
   const [editVisible, setEditVisible] = useState<Record<string, boolean>>({})
-  const [draggedKpi, setDraggedKpi] = useState<string | null>(null)
-  const [dragOverKpi, setDragOverKpi] = useState<string | null>(null)
-  const kpiDragSource = useRef<string | null>(null)
-  const kpiLastTarget = useRef<string | null>(null)
-  const dialogRef = useRef<HTMLDialogElement>(null)
-
-  // Ouvre/ferme le <dialog> natif en sync avec editMode
-  useEffect(() => {
-    const dlg = dialogRef.current
-    if (!dlg) return
-    if (editMode) {
-      if (!dlg.open) dlg.showModal()
-    } else {
-      if (dlg.open) dlg.close()
-    }
-  }, [editMode])
 
   // Auto-ouverture si venu depuis Paramètres
   useEffect(() => {
     if (autoEdit && hydrated) enterEdit()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoEdit, hydrated])
-
-  const DEFAULT_ORDER = [
-    'kpi_coproprietes', 'kpi_lots', 'kpi_sinistres', 'kpi_impayes',
-    'kpi_coproprietaires', 'kpi_portail', 'kpi_ag', 'kpi_recouvrement',
-    'alertes_intelligentes', 'graphiques_finances',
-    'graphiques_copros', 'performance', 'alertes_coproprietes',
-    'sinistres', 'ag', 'conformite_legale', 'actions_rapides',
-  ]
 
   const orderedIds = hydrated ? widgets.map((w) => w.id) : DEFAULT_ORDER
   const isVisible  = useCallback((id: string) => {
@@ -421,348 +312,18 @@ export function DashboardCanvas({ data, autoEdit }: { data: DashboardData; autoE
       </div>
 
       {/* ── Modal <dialog> natif — grand écran, vrais widgets glissables ── */}
-      <dialog
-        ref={dialogRef}
-        onClose={cancelEdit}
-        style={{
-          margin: 'auto',
-          padding: 0,
-          width: 'min(82vw, 1000px)',
-          height: '90vh',
-          border: 'none',
-          borderRadius: 20,
-          boxShadow: '0 24px 80px rgba(0,0,0,0.28)',
-          overflow: 'hidden',
-          background: '#f8fafc',
-          /* PAS de display:flex ici — le navigateur gère show/hide via display:none */
-        }}
-      >
-        <style>{`
-          dialog::backdrop { background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); }
-          dialog[open] { display: flex; flex-direction: column; }
-        `}</style>
-
-        {/* Contenu monté uniquement en mode édition actif — évite le rendu inutile des charts */}
-        {editMode && <>
-
-        {/* Barre du haut */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '16px 20px', background: '#fff',
-          borderBottom: '1px solid #e2e8f0', flexShrink: 0,
-        }}>
-          <button onClick={cancelEdit} style={{ fontSize: 14, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 10px', borderRadius: 10 }}>
-            Annuler
-          </button>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: 15, fontWeight: 700, color: '#374151', margin: 0, letterSpacing: '-0.3px' }}>
-              Personnaliser le tableau de bord
-            </p>
-            <p style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0 0' }}>
-              Maintenez un bloc et glissez-le pour le déplacer
-            </p>
-          </div>
-          <button onClick={saveEdit} style={{
-            fontSize: 14, fontWeight: 700, color: '#fff',
-            background: '#374151', border: 'none', cursor: 'pointer',
-            padding: '7px 16px', borderRadius: 10,
-          }}>
-            Enregistrer
-          </button>
-        </div>
-
-        {/* Corps — vrais widgets glissables */}
-        <div style={{ overflowY: 'auto', flex: 1, padding: '16px 20px' }}>
-          <Reorder.Group axis="y" values={editOrder} onReorder={setEditOrder} as="div" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {editOrder.map((id) => {
-              const Icon = WIDGET_ICONS[id] ?? BarChart2
-
-              // ── Bloc spécial : groupe KPIs en grille 4 colonnes ──
-              if (id === 'kpi_group') {
-                return (
-                  <Reorder.Item
-                    key="kpi_group" value="kpi_group"
-                    style={{ listStyle: 'none', cursor: 'grab' }}
-                    whileDrag={{ scale: 1.01, boxShadow: '0 16px 48px rgba(0,0,0,0.18)', zIndex: 50, borderRadius: 16 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    {/* Barre de drag du groupe */}
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '7px 14px 7px 10px', background: '#fff',
-                      borderRadius: '14px 14px 0 0',
-                      border: '1px solid #e2e8f0', borderBottom: 'none',
-                      userSelect: 'none',
-                    }}>
-                      <GripHorizontal style={{ width: 16, height: 16, color: '#cbd5e1', flexShrink: 0 }} />
-                      <div style={{ width: 24, height: 24, borderRadius: 8, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <BarChart2 style={{ width: 13, height: 13, color: '#64748b' }} />
-                      </div>
-                      <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: '#64748b' }}>
-                        Indicateurs clés — glissez ce bloc pour le déplacer
-                      </span>
-                    </div>
-
-                    {/* Grille 4 colonnes des KPIs — drag HTML5 natif (stable sur grille) */}
-                    <div
-                      onPointerDown={(e) => e.stopPropagation()}
-                      style={{
-                        border: '1px solid #e2e8f0', borderTop: 'none',
-                        borderRadius: '0 0 14px 14px',
-                        background: '#f8fafc', overflow: 'hidden',
-                        padding: 14,
-                      }}
-                    >
-                      <p style={{ fontSize: 11, color: '#94a3b8', margin: '0 0 10px', textAlign: 'center' }}>
-                        Glissez les cartes pour les réorganiser
-                      </p>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-                        {editKpiOrder.map((kpiId) => {
-                          const kpiVisible = editVisible[kpiId] ?? true
-                          const isDragging = draggedKpi === kpiId
-                          const isOver = dragOverKpi === kpiId && draggedKpi !== kpiId
-                          return (
-                            <div
-                              key={kpiId}
-                              draggable
-                              onDragStart={(e) => {
-                                e.stopPropagation()
-                                kpiDragSource.current = kpiId
-                                kpiLastTarget.current = null
-                                setDraggedKpi(kpiId)
-                                e.dataTransfer.effectAllowed = 'move'
-                              }}
-                              onDragEnter={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                const src = kpiDragSource.current
-                                if (!src || src === kpiId) return
-                                // Évite les déclenchements multiples sur le même target
-                                if (kpiLastTarget.current === kpiId) return
-                                kpiLastTarget.current = kpiId
-                                setDragOverKpi(kpiId)
-                                setEditKpiOrder((prev) => {
-                                  const arr = [...prev]
-                                  const from = arr.indexOf(src)
-                                  const to = arr.indexOf(kpiId)
-                                  if (from === -1 || to === -1) return prev
-                                  arr.splice(from, 1)
-                                  arr.splice(to, 0, src)
-                                  return arr
-                                })
-                              }}
-                              onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
-                              onDragEnd={(e) => {
-                                e.stopPropagation()
-                                kpiDragSource.current = null
-                                kpiLastTarget.current = null
-                                setDraggedKpi(null)
-                                setDragOverKpi(null)
-                              }}
-                              style={{
-                                position: 'relative',
-                                cursor: 'grab',
-                                opacity: isDragging ? 0.4 : 1,
-                                transition: 'opacity 0.15s, transform 0.15s',
-                                transform: isOver ? 'scale(1.04)' : 'scale(1)',
-                                outline: isOver ? '2px solid #374151' : 'none',
-                                borderRadius: 12,
-                              }}
-                            >
-                              {/* Aperçu KPI */}
-                              <div style={{
-                                pointerEvents: 'none', userSelect: 'none',
-                                opacity: kpiVisible ? 1 : 0.3,
-                                transition: 'opacity 0.2s',
-                                background: '#fff',
-                                border: '1px solid #e2e8f0',
-                                borderRadius: 12,
-                                overflow: 'hidden',
-                              }}>
-                                {getWidgetContent(kpiId)}
-                              </div>
-                              {/* Bouton œil */}
-                              <button
-                                onPointerDown={(e) => e.stopPropagation()}
-                                onClick={(e) => { e.stopPropagation(); toggleVisibility(kpiId) }}
-                                title={kpiVisible ? 'Masquer' : 'Afficher'}
-                                style={{
-                                  position: 'absolute', top: 6, right: 6,
-                                  width: 24, height: 24,
-                                  borderRadius: 8, border: 'none',
-                                  background: kpiVisible ? 'rgba(241,245,249,0.9)' : 'rgba(254,226,226,0.9)',
-                                  backdropFilter: 'blur(4px)',
-                                  cursor: 'pointer',
-                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                  zIndex: 10,
-                                }}>
-                                {kpiVisible
-                                  ? <Eye style={{ width: 12, height: 12, color: '#64748b' }} />
-                                  : <EyeOff style={{ width: 12, height: 12, color: '#dc2626' }} />
-                                }
-                              </button>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </Reorder.Item>
-                )
-              }
-
-              // ── Bloc standard ──
-              const visible = editVisible[id] ?? true
-              const content = getWidgetContent(id)
-              return (
-                <Reorder.Item
-                  key={id} value={id} style={{ listStyle: 'none', cursor: 'grab' }}
-                  whileDrag={{ scale: 1.01, boxShadow: '0 16px 48px rgba(0,0,0,0.18)', zIndex: 50, borderRadius: 16 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  <div style={{ opacity: visible ? 1 : 0.35, transition: 'opacity 0.2s' }}>
-                    {/* Barre de drag au-dessus du widget */}
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '7px 14px 7px 10px',
-                      background: '#fff',
-                      borderRadius: '14px 14px 0 0',
-                      border: '1px solid #e2e8f0', borderBottom: 'none',
-                      userSelect: 'none',
-                    }}>
-                      <GripHorizontal style={{ width: 16, height: 16, color: '#cbd5e1', flexShrink: 0 }} />
-                      <div style={{ width: 24, height: 24, borderRadius: 8, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <Icon style={{ width: 13, height: 13, color: '#64748b' }} />
-                      </div>
-                      <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: '#64748b' }}>
-                        {WIDGET_LABELS[id]}
-                      </span>
-                      <button
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onClick={(e) => { e.stopPropagation(); toggleVisibility(id) }}
-                        style={{
-                          display: 'flex', alignItems: 'center', gap: 5,
-                          padding: '4px 10px', borderRadius: 8, border: 'none',
-                          background: visible ? '#f1f5f9' : '#fee2e2',
-                          cursor: 'pointer', fontSize: 11, fontWeight: 600,
-                          color: visible ? '#64748b' : '#dc2626',
-                        }}>
-                        {visible
-                          ? <><Eye style={{ width: 13, height: 13 }} /> Visible</>
-                          : <><EyeOff style={{ width: 13, height: 13 }} /> Masqué</>
-                        }
-                      </button>
-                    </div>
-
-                    {/* Contenu réel du widget — pointer-events-none pour éviter les clics accidentels */}
-                    <div style={{
-                      pointerEvents: 'none', userSelect: 'none',
-                      border: '1px solid #e2e8f0', borderTop: 'none',
-                      borderRadius: '0 0 14px 14px',
-                      background: '#fff', overflow: 'hidden',
-                      padding: content ? 0 : '20px 16px',
-                    }}>
-                      {content
-                        ? <div style={{ padding: 14 }}>{content}</div>
-                        : <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', margin: 0 }}>
-                            Aucune donnée pour l&apos;instant
-                          </p>
-                      }
-                    </div>
-                  </div>
-                </Reorder.Item>
-              )
-            })}
-          </Reorder.Group>
-        </div>
-
-        </> /* fin du bloc editMode */}
-      </dialog>
+      <DashboardEditModal
+        editMode={editMode}
+        editOrder={editOrder}
+        setEditOrder={setEditOrder}
+        editKpiOrder={editKpiOrder}
+        setEditKpiOrder={setEditKpiOrder}
+        editVisible={editVisible}
+        toggleVisibility={toggleVisibility}
+        onSave={saveEdit}
+        onCancel={cancelEdit}
+        renderWidget={getWidgetContent}
+      />
     </>
-  )
-}
-
-// ─── DashboardPrefsEditor (page Paramètres) ───────────────────
-
-export function DashboardPrefsEditor({ userId }: { userId: string }) {
-  const { widgets, saveWidgets, hydrated } = useDashboardPrefs(userId)
-  const [editOrder, setEditOrder] = useState<string[]>([])
-  const [editVisible, setEditVisible] = useState<Record<string, boolean>>({})
-  const [saved, setSaved] = useState(false)
-  const [initialized, setInitialized] = useState(false)
-
-  if (hydrated && !initialized) {
-    setEditOrder(widgets.map((w) => w.id))
-    setEditVisible(Object.fromEntries(widgets.map((w) => [w.id, w.visible])))
-    setInitialized(true)
-  }
-
-  function toggleVisibility(id: string) {
-    setEditVisible((prev) => ({ ...prev, [id]: !prev[id] }))
-    setSaved(false)
-  }
-
-  function handleSave() {
-    const newPrefs: WidgetPref[] = editOrder.map((id) => ({ id, visible: editVisible[id] ?? true }))
-    saveWidgets(newPrefs)
-    setSaved(true)
-    toast.success('Tableau de bord enregistré')
-    setTimeout(() => setSaved(false), 3000)
-  }
-
-  if (!hydrated || !initialized) {
-    return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
-  }
-
-  const getLabel = (id: string) => ALL_WIDGETS.find((w) => w.id === id)?.label ?? id
-  const getDesc  = (id: string) => ALL_WIDGETS.find((w) => w.id === id)?.description ?? ''
-
-  const ICONS: Record<string, React.ElementType> = {
-    kpis_1: BarChart2, kpis_2: Users,
-    alertes_intelligentes: AlertTriangle, graphiques_finances: TrendingUp,
-    graphiques_copros: PieChart, performance: BarChart2,
-    alertes_coproprietes: Building2, sinistres: AlertTriangle,
-    ag: CalendarDays, actions_rapides: Zap,
-  }
-
-  return (
-    <div className="space-y-5">
-      <p className="text-xs text-slate-400">Maintenez ≡ pour réorganiser · cliquez sur l&apos;œil pour masquer</p>
-      <Reorder.Group axis="y" values={editOrder} onReorder={(v) => { setEditOrder(v); setSaved(false) }} as="div" className="space-y-2">
-        {editOrder.map((id) => {
-          const Icon = ICONS[id] ?? BarChart2
-          const visible = editVisible[id] ?? true
-          return (
-            <Reorder.Item
-              key={id}
-              value={id}
-              whileDrag={{ scale: 1.02, boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 50 }}
-              style={{ listStyle: 'none' }}
-            >
-              <div className={`bg-white rounded-xl border border-slate-100 px-4 py-3 flex items-center gap-3 select-none ${!visible ? 'opacity-50' : ''}`}
-                style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                <GripHorizontal className="w-4 h-4 text-slate-300 flex-shrink-0 cursor-grab" />
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${visible ? 'bg-slate-100' : 'bg-slate-50'}`}>
-                  <Icon className="w-3.5 h-3.5 text-slate-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#374151]">{getLabel(id)}</p>
-                  <p className="text-xs text-slate-400 truncate">{getDesc(id)}</p>
-                </div>
-                <button onClick={() => toggleVisibility(id)}
-                  className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600">
-                  {visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                </button>
-              </div>
-            </Reorder.Item>
-          )
-        })}
-      </Reorder.Group>
-
-      <button onClick={handleSave}
-        className="flex items-center gap-2 bg-[#374151] text-white text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-[#4B5563] transition-colors">
-        {saved && <CheckCircle2 className="w-4 h-4" />}
-        {saved ? 'Enregistré !' : 'Enregistrer les modifications'}
-      </button>
-    </div>
   )
 }
